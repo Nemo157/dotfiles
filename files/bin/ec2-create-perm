@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+
+# Ubuntu Natty Narwhal, 64-bit US-east
+AMI='ami-1aad5273'
+
+uuid=perm-`uuidgen`
+key_file="$HOME/.ec2/keys/${uuid}.pem"
+
+echo "Generating key-pair..."
+
+ec2-create-keypair $uuid > $key_file
+chmod 0600 $key_file
+
+echo "Creating instance..."
+
+instance=`ec2-run-instances $AMI -t t1.micro -k $uuid | tail -n1 | cut -f2`
+
+while [[ $url == '' ]]
+do
+  url=`ec2-describe-instances $instance | head -n2 | tail -n1 | cut -f4`
+done
+
+sleep 10
+echo "Connecting..."
+
+ssh -o StrictHostKeyChecking=no -i $key_file ubuntu@$url

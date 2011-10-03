@@ -1,0 +1,8 @@
+*.rbc
+*.pyc
+*.o
+*.bbl
+*.blg
+*.fdb_latexmk
+.DS_Store
+Thumbs.db
