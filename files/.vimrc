@@ -52,6 +52,7 @@ set spell                                               " Spell checking on.
 set undofile undodir=/tmp                               " Store persistent undo files in /tmp.
 set textwidth=80                                        " Set maximum width to 80 characters.
 set suffixes+=.aux,.blg,.bbl,.log                       " Lower priority for tab completion
+set cursorline                                          " Highlight the current line
 
 let g:tex_flavor = "latex"                              " Give latex higher priority over tex.
 let g:SuperTabDefaultCompletionType = "context"         " Set SuperTab to try and determine completion type automatically.
