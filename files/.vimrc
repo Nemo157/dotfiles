@@ -72,8 +72,7 @@ map <F5> :call SaveAndMake()<CR>
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
 command Wq wq
-command WQ wq
-command Qw wq
+command Q q
 
 func! SaveAndMake()
   exec "up"
