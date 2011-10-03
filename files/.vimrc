@@ -63,6 +63,12 @@ au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
 au FileType java\|c\|c++\|glsl setlocal tabstop=4 shiftwidth=4
 au FileType vhdl setlocal noexpandtab tabstop=8 shiftwidth=8
 
+let mapleader = ","
+
+map <leader>a= :Tabularize /=<CR>
+map <leader>a: :Tabularize /:\zs<CR>
+map <leader>a" :Tabularize /"<CR>
+
 " Have Vim jump to the last position when reopening a file
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
