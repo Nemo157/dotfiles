@@ -12,7 +12,7 @@ setup_vcs_info () {
   local vcs_action_prompt="${start}${vcs}${branch}${action}${end}"
   local vcs_path="%R/$PR_GREEN%S"
 
-  local staged_str="$PR_CYAN● "
+  local staged_str="$PR_YELLOW● "
   local unstaged_str="$PR_RED● "
 
   zstyle ':vcs_info:*:prompt:*'     check-for-changes true
