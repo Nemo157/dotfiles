@@ -1,26 +1,23 @@
 unless File.respond_to? :realpath
   class File
     def self.realpath path
-      return realpath(File.readlink(path)) if symlink?(path)
+      return realpath(readlink(path)) if symlink?(path)
       path
     end
   end
-end
-
-task :clone_private do |t|
 end
 
 task :install_files, [:folder] do |t, args|
   args.with_defaults :folder => ENV['HOME']
 
   files = Dir[File.join File.dirname(__FILE__), 'files/{.*,*}']
-  files += Dir[File.join File.dirname(__FILE__), 'private_files/{.*,*}']
+  files += Dir[File.join File.dirname(__FILE__), 'private/files/{.*,*}']
   files.delete_if { |file| /\/\.$/ =~ file or /\/\.\.$/ =~ file }
   files.each do |file|
     new_file = File.join args[:folder], File.basename(file)
 
     unless File.exists?(new_file) and File.realpath(new_file) == File.realpath(file)
-      if File.exists? new_file
+      if File.exists? new_file or File.symlink? new_file
         i = 0; backup_file = new_file + '.backup'
         (i += 1; backup_file = new_file + ".backup#{i}") while File.exists? backup_file
 
@@ -42,4 +39,4 @@ task :install_vundle do |t|
   system "vim -c 'BundleInstall' -c 'qa'"
 end
 
-task :install => [:clone_private, :install_files, :install_vundle]
+task :install => [:install_files, :install_vundle]
