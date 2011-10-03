@@ -50,7 +50,7 @@ setup_prompt () {
   local end_first=""
 
   local start_second=""
-  local return_value="%(?.$PR_CYAN%D{%H:%M} .${PR_RED}❝ %? ❞$PR_BLUE )"
+  local return_value="%(?.$PR_CYAN%D{%H:%M} .${PR_RED}« %? »$PR_BLUE )"
   local changes='$vcs_info_msg_2_'
   local marker="%(!.$PR_RED‼.)$PR_WHITE→"
   local end_second="$PR_NO_COLOUR "
