@@ -3,32 +3,31 @@ filetype off " For vundle.
 
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
-" Brief help
-" :BundleList          - list configured bundles
-" :BundleInstall(!)    - install(update) bundles
-" :BundleSearch(!) foo - search(or refresh cache first) for foo
-" :BundleClean(!)      - confirm(or auto-approve) removal of unused bundles
-"
+
 " Allows the bundle installation
 Bundle 'gmarik/vundle'
+
 " Automatic lining up.
 Bundle 'godlygeek/tabular'
-" OpenGL Shading Language syntax.
-Bundle 'Nemo157/glsl.vim'
-" Color scheme.
-Bundle 'altercation/vim-colors-solarized'
+
 " Tab-completion.
 Bundle 'ervandew/supertab'
+
 " Dependency of new SnipMate.
 Bundle 'MarcWeber/vim-addon-mw-utils'
-" Dependency of new SnipMate.
 Bundle 'tomtom/tlib_vim'
-" Default snippets.
-Bundle 'honza/snipmate-snippets'
+
 " New SnipMate.
 Bundle 'garbas/vim-snipmate'
-" Bibtex snippets.
 Bundle 'rbonvall/snipmate-snippets-bib'
+Bundle 'honza/snipmate-snippets'
+
+" Language syntaxes.
+Bundle 'Nemo157/glsl.vim'
+Bundle 'plasticboy/vim-markdown'
+
+" Color scheme.
+Bundle 'altercation/vim-colors-solarized'
 
 filetype plugin indent on " Automatically detect file types
 syntax enable " Syntax highlighting
@@ -53,9 +52,13 @@ set undofile undodir=/tmp                               " Store persistent undo 
 set textwidth=80                                        " Set maximum width to 80 characters.
 set suffixes+=.aux,.blg,.bbl,.log                       " Lower priority for tab completion
 set cursorline                                          " Highlight the current line
+set nofoldenable                                        " Turn them off until I bother learning them
 
 let g:tex_flavor = "latex"                              " Give latex higher priority over tex.
 let g:SuperTabDefaultCompletionType = "context"         " Set SuperTab to try and determine completion type automatically.
+let g:SuperTabMappingForward = '<nul>'
+let g:SuperTabMappingBackward = '<s-nul>'
+let g:snips_trigger_key='<c-space>'
 
 colorscheme solarized
 

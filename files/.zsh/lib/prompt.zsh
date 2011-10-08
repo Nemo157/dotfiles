@@ -78,9 +78,14 @@ setup_ps2 () {
   PS2="${start}${continuation}${marker}${end}"
 }
 
-# Removes EVERYTHING from the left prompt
+# Removes almost everything from the left prompt
 simple_prompt () {
   PROMPT="%(!.$PR_RED‼.)$PR_WHITE→$PR_NO_COLOUR "
+}
+
+# Removes EVERYTHING from the right prompt
+no_right () {
+  RPROMPT=""
 }
 
 # Puts a lot of info into the right prompt, useful with the simple_prompt.
