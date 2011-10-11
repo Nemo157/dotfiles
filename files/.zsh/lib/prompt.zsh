@@ -28,7 +28,7 @@ setup_colours () {
   autoload colors zsh/terminfo
   colors
 
-  for colour in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+  for colour in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE BLACK; do
     eval PR_$colour='%{$fg[${(L)colour}]%}'
   done
 
