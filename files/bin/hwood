@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [[ -t 0 ]]; then
+  printf '%s\n' 'No input!'
+  exit 1
+fi
+
+while IFS= read -r _line; do
+  _length="${#_line}"
+  for (( _offset = 0 ; _offset < _length ; _offset++ )); do
+    printf '%s' "${_line:_offset:1}"
+    sleep 0.005
+  done
+  printf -v _eol_delay '%d' "'${_line:(-1):1}"
+  sleep 0.0$(( _eol_delay / 2 ))
+  printf '\n'
+done
