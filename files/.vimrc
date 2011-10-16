@@ -25,6 +25,7 @@ Bundle 'honza/snipmate-snippets'
 " Language syntaxes.
 Bundle 'Nemo157/glsl.vim'
 Bundle 'plasticboy/vim-markdown'
+Bundle 'kchmck/vim-coffee-script'
 
 " Color scheme.
 Bundle 'altercation/vim-colors-solarized'
