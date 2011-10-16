@@ -1,6 +1,7 @@
 ## Add extra paths, only if they exist and only if they're not already added.
 extra_paths=(
   $HOME/bin
+  $HOME/node_modules/.bin
   /usr/local/avr/bin
   /usr/local/arm-eabi/bin
 )
@@ -22,3 +23,11 @@ extra_perl_paths=(
 
 for extra_path in $extra_perl_paths
   [[ -d $extra_path ]] && [[ ! $PERL5LIB =~ (^|.*:)$extra_path(:.*|$) ]] && export PERL5LIB=$extra_path:$PERL5LIB
+
+extra_node_paths=(
+  /usr/local/lib/node_modules
+  $HOME/node_modules
+)
+
+for extra_path in $extra_node_paths
+  [[ -d $extra_path ]] && [[ ! $NODE_PATH =~ (^|.*:)$extra_path(:.*|$) ]] && export NODE_PATH=$extra_path:$NODE_PATH
