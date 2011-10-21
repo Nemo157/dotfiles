@@ -21,6 +21,9 @@ Bundle 'ervandew/supertab'
 Bundle 'MarcWeber/vim-addon-mw-utils'
 Bundle 'tomtom/tlib_vim'
 
+" Clang based C/C++ Completion
+Bundle "Rip-Rip/clang_complete"
+
 " New SnipMate.
 Bundle 'garbas/vim-snipmate'
 Bundle 'rbonvall/snipmate-snippets-bib'
