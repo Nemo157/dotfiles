@@ -62,6 +62,8 @@ set suffixes+=.aux,.blg,.bbl,.log                       " Lower priority for tab
 set cursorline                                          " Highlight the current line
 set nofoldenable                                        " Turn them off until I bother learning them
 set thesaurus+=~/.vim/thesaurus/mthesaur.txt            " Use the thesaurus from http://www.gutenberg.org/ebooks/3202
+set bs=indent,eol,start                                 " Needed on Windows
+set mouse=                                              " Disable mouse in gvim
 
 let g:tex_flavor = "latex"                              " Give latex higher priority over tex.
 let g:SuperTabDefaultCompletionType = "context"         " Set SuperTab to try and determine completion type automatically.
@@ -80,6 +82,7 @@ let mapleader = ","
 map <leader>a= :Tabularize /=<CR>
 map <leader>a: :Tabularize /:\zs<CR>
 map <leader>a" :Tabularize /"<CR>
+map <leader>p :set invpaste<CR>
 
 " Have Vim jump to the last position when reopening a file
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
