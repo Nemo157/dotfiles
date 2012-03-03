@@ -11,8 +11,9 @@ config_files=(
   $HOME/.zsh/vendor/syntax-highlighting/zsh-syntax-highlighting.zsh
   $HOME/.zsh/lib/pc-specific/$(hostname).zsh
   $HOME/.zsh/lib/os-specific/$(uname).zsh
-  $HOME/.rvm/scripts/rvm
 )
 
 for config_file in $config_files
   [[ -s $config_file ]] && source $config_file
+
+[[ -d $HOME/.rvm/bin ]] && PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting

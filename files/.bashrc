@@ -11,11 +11,6 @@ shopt -s histappend
 ## update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-## make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-umask 022
-
 PS1='[\u@\h \W]'
 
 ## enable color support of ls and also add handy aliases
@@ -67,6 +62,4 @@ alias mobile-chromium='chromium-browser --user-agent="Mozilla/5.0 (iPhone; U; CP
 
 fi
 
-[[ -s /home/loomanw/workspace/dbs/tait.openembedded/trunk/tools/bb.autocomplete ]] && source /home/loomanw/workspace/dbs/tait.openembedded/trunk/tools/bb.autocomplete
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"  # This loads RVM into a shell session.
+[[ -d $HOME/.rvm/bin ]] && PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
