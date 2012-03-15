@@ -4,6 +4,7 @@ extra_paths=(
   $HOME/node_modules/.bin
   /usr/local/avr/bin
   /usr/local/arm-eabi/bin
+  $HOME/.rvm/bin
 )
 
 for extra_path in $extra_paths

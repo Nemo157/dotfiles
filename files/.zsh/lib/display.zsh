@@ -1,9 +1,11 @@
 ## Setup colour schemes
-# tree
-export LS_COLORS='di=38;5;108:fi=00:*svn-commit.tmp=31:ln=38;5;116:ex=38;5;186'
-
-# ls
-export LSCOLORS='cxexgxgxdxgxgxdbdbgbgb'
+if [[ -x $(which dircolors) ]] then
+  if [[ -f ~/.dir_colors ]] then
+    eval $(dircolors -b ~/.dir_colors)
+  elif [[ -f /etc/DIR_COLORS ]] then
+    eval $(dircolors -b /etc/DIR_COLORS)
+  fi
+fi
 
 # grep
 export GREP_OPTIONS='--color=auto'

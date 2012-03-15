@@ -7,13 +7,11 @@ fi
 for config_file ($HOME/.zsh/lib/*.zsh)
   source $config_file
 
-config_files=(
+extra_config_files=(
   $HOME/.zsh/vendor/syntax-highlighting/zsh-syntax-highlighting.zsh
   $HOME/.zsh/lib/pc-specific/$(hostname).zsh
   $HOME/.zsh/lib/os-specific/$(uname).zsh
 )
 
-for config_file in $config_files
+for config_file in $extra_config_files
   [[ -s $config_file ]] && source $config_file
-
-[[ -d $HOME/.rvm/bin ]] && PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting

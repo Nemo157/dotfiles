@@ -34,7 +34,8 @@ uninteresting_users=(
   ident junkbust ldap lp mail mailman mailnull mldonkey mysql nagios named
   netdump news nfsnobody nobody nscd ntp nut nx openvpn operator pcap postfix
   postgres privoxy pulse pvm quagga radvd rpc rpcuser rpm shutdown squid sshd
-  sync uucp vcsa xfs
+  sync uucp vcsa xfs cron man portage messagebus murmur postmaster subsonic
+  transmission
 # OS X
   '_*'
 )
