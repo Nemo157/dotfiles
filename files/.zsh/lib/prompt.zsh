@@ -46,7 +46,7 @@ setup_prompt () {
   local whereami="${dir}$PR_BLUE"
   local end_first="$PR_NO_COLOUR"
 
-  local start_second="%(!.$PR_BG_RED.)"
+  local start_second=""
   local time='%D{%H:%M}'
   local return_value='${(%l:3:):-%?}'
   local extra_info="%(?.$PR_CYAN${time}. $PR_RED${return_value}!)"
