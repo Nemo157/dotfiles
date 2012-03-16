@@ -28,6 +28,7 @@ setup_colours () {
 
   for colour in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE BLACK; do
     eval PR_$colour='%{$fg[${(L)colour}]%}'
+    eval PR_BG_$colour='%{$bg[${(L)colour}]%}'
   done
 
   PR_NO_COLOUR="%{$terminfo[sgr0]%}"
@@ -36,26 +37,25 @@ setup_colours () {
 setup_prompt () {
   setopt prompt_subst
 
-  local start_first=""
-  local user="$PR_GREEN%(!.%SROOT%s.%n)"
+  local start_first="%(!.$PR_BG_RED.)"
+  local user="$PR_GREEN%n"
   local host="$PR_GREEN%m"
-  local whoami="${user}$PR_WHITE at ${host}$PR_BLUE"
+  local whoami="${user}$PR_WHITE at ${host}$PR_NO_COLOUR$PR_BLUE"
   local fill='${(e)PR_FILLBAR}'
   local dir='${(%):-%${PR_PWDLEN}<...<${${${vcs_info_msg_1_}/$HOME/~}/%\/$PR_GREEN\.$PR_NO_COLOUR/$PR_NO_COLOUR}%<<}'
   local whereami="${dir}$PR_BLUE"
-  local end_first=""
+  local end_first="$PR_NO_COLOUR"
 
-  local start_second=""
+  local start_second="%(!.$PR_BG_RED.)"
   local time='%D{%H:%M}'
   local return_value='${(%l:3:):-%?}'
   local extra_info="%(?.$PR_CYAN${time}. $PR_RED${return_value}!)"
-  local changes='$vcs_info_msg_2_'
-  local marker="%(!.$PR_RED!.) $PR_WHITE→"
-  local end_second="$PR_NO_COLOUR "
+  local marker="$PR_WHITE→"
+  local end_second="$PR_NO_COLOUR"
 
   PROMPT="
 ${start_first}${whoami}    ${fill}${whereami}${end_first}
-${start_second}${extra_info}${changes}${marker}${end_second}"
+${start_second}${extra_info} ${marker} ${end_second}"
 }
 
 setup_rprompt () {
@@ -73,21 +73,6 @@ setup_ps2 () {
   local end="$PR_NO_COLOUR "
 
   PS2="${start}${continuation}${marker}${end}"
-}
-
-
-# Puts a lot of info into the right prompt, useful with the simple_prompt.
-complex_right () {
-  local user="$PR_GREEN%(!.%SROOT%s.%n)"
-  local host="$PR_GREEN%m"
-  local term="$PR_GREEN%y"
-  local whoami="${user}$PR_WHITE@${host}$PR_WHITE:${term}$PR_BLUE"
-  local ruby_version='$PR_GREEN$(~/.rvm/bin/rvm-prompt 2> /dev/null)$PR_BLUE'
-  local dir='%~$PR_BLUE'
-  local whereami="$PR_MAGENTA${dir}"
-  local vcs_string='$vcs_info_msg_0_'
-
-  RPROMPT="$PR_BLUE${vcs_string} +-(${whereami} | ${ruby_version} | ${whoami})-+$PR_NO_COLOUR"
 }
 
 setup_colours
