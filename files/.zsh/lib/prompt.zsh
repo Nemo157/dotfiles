@@ -37,8 +37,8 @@ setup_colours () {
 setup_prompt () {
   setopt prompt_subst
 
-  local start_first="%(!.$PR_BG_RED.)"
-  local user="$PR_GREEN%n"
+  local start_first=""
+  local user="%(!.$PR_RED.$PR_GREEN)%n"
   local host="$PR_GREEN%m"
   local whoami="${user}$PR_WHITE at ${host}$PR_NO_COLOUR$PR_BLUE"
   local fill='${(e)PR_FILLBAR}'
