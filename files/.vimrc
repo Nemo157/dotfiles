@@ -70,6 +70,7 @@ set thesaurus+=~/.vim/thesaurus/mthesaur.txt            " Use the thesaurus from
 set bs=indent,eol,start                                 " Needed on Windows
 set mouse=                                              " Disable mouse in gvim
 set laststatus=2                                        " Always show the status line
+set wildmenu                                            " Show a menu when tab-completing
 
 let g:tex_flavor = "latex"                              " Give latex higher priority over tex.
 
