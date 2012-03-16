@@ -1,2 +1,6 @@
 /files/.vim/bundle
 /private/
+/files/.zsh/.zcompdump
+/files/.zsh/.zsh_history
+/files/.zsh/.zkbd/
+

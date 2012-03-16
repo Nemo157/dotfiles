@@ -11,7 +11,7 @@ setup_vcs_info () {
   local vcs_path="$PR_MAGENTA%R/$PR_GREEN%S$PR_NO_COLOUR"
 
   local staged_str="${PR_YELLOW}● $PR_NO_COLOUR"
-  local unstaged_str="${PR_RED}○ $PR_NO_COLOUR"
+  local unstaged_str="${PR_RED}●  $PR_NO_COLOUR"
 
   zstyle ':vcs_info:*:prompt:*'     check-for-changes true
   zstyle ':vcs_info:*:prompt:*'     stagedstr         $staged_str

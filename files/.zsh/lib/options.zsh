@@ -1,5 +1,5 @@
 ## Setup ZSH options
-HISTFILE=$HOME/.zsh_history
+HISTFILE=$HOME/.zsh/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 
@@ -20,3 +20,9 @@ my_options=(
 
 for option in $my_options
   setopt $option
+
+my_not_options=(
+)
+
+for option in $my_not_options
+  unsetopt $option
