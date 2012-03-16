@@ -11,6 +11,9 @@ call vundle#rc()
 " Allows the bundle installation
 Bundle 'gmarik/vundle'
 
+" Better status line
+Bundle 'Lokaltog/vim-powerline'
+
 " Automatic lining up.
 Bundle 'godlygeek/tabular'
 
@@ -33,6 +36,7 @@ Bundle 'honza/snipmate-snippets'
 Bundle 'Nemo157/glsl.vim'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'kchmck/vim-coffee-script'
+Bundle 'PProvost/vim-ps1'
 
 " Color scheme.
 Bundle 'altercation/vim-colors-solarized'
@@ -65,14 +69,17 @@ set nofoldenable                                        " Turn them off until I 
 set thesaurus+=~/.vim/thesaurus/mthesaur.txt            " Use the thesaurus from http://www.gutenberg.org/ebooks/3202
 set bs=indent,eol,start                                 " Needed on Windows
 set mouse=                                              " Disable mouse in gvim
+set laststatus=2                                        " Always show the status line
 
 let g:tex_flavor = "latex"                              " Give latex higher priority over tex.
+
 let g:SuperTabDefaultCompletionType = "context"         " Set SuperTab to try and determine completion type automatically.
 let g:SuperTabMappingForward = '<nul>'
 let g:SuperTabMappingBackward = '<s-nul>'
+
 let g:snips_trigger_key='<c-space>'
 
-colorscheme solarized
+silent! colorscheme solarized
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
 au FileType java\|c\|c++\|glsl setlocal tabstop=4 shiftwidth=4
@@ -94,6 +101,9 @@ map <F5> :call SaveAndMake()<CR>
 imap <F5> <C-o>:call SaveAndMake()<CR>
 
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+
+" Clear highlighting when <esc> is pressed
+nnoremap <esc> :noh<cr><esc>
 
 command Wq wq
 command -bang Q q<bang>
