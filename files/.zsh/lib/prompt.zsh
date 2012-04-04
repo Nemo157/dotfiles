@@ -34,6 +34,14 @@ setup_colours () {
   PR_NO_COLOUR="%{$terminfo[sgr0]%}"
 }
 
+#function zle-line-init zle-keymap-select {
+#  VIMODE="${${KEYMAP/vicmd/$PR_YELLOW--}/(main|viins)/$PR_WHITE-/}"
+#  zle reset-prompt
+#}
+#
+#zle -N zle-line-init
+#zle -N zle-keymap-select
+
 setup_prompt () {
   setopt prompt_subst
 
@@ -50,7 +58,7 @@ setup_prompt () {
   local time='%D{%H:%M}'
   local return_value='${(%l:3:):-%?}'
   local extra_info="%(?.$PR_CYAN${time}. $PR_RED${return_value}!)"
-  local marker="$PR_WHITE→"
+  local marker="${VIMODE}→"
   local end_second="$PR_NO_COLOUR"
 
   PROMPT="
