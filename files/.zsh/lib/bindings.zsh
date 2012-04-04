@@ -9,6 +9,9 @@ typeset -A bindings
 bindings[Left]=backward-char
 bindings[Right]=forward-char
 
+# Change to vi mode
+#bindkey -v
+
 # Apply the bindings
 for k in ${(k)bindings}
   [[ -n ${key[$k]} ]] && bindkey "${key[$k]}" "${bindings[$k]}"
