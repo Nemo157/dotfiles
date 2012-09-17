@@ -8,10 +8,14 @@ map_file="$HOME/.zsh/.zkbd/$TERM-${DISPLAY:-$VENDOR-$OSTYPE}"
 typeset -A bindings
 bindings[Left]=backward-char
 bindings[Right]=forward-char
+bindings[Home]=beginning-of-line
+bindings[End]=end-of-line
+bindings[Delete]=delete-char
+bindings[CtrlSpace]=complete-word
 
 # Change to vi mode
 #bindkey -v
 
 # Apply the bindings
 for k in ${(k)bindings}
-  [[ -n ${key[$k]} ]] && bindkey "${key[$k]}" "${bindings[$k]}"
+  [[ -n ${key[$k]} ]] && bindkey "${key[$k]}" "${bindings[$k]}" || bindkey "$k" "${bindings[$k]}"

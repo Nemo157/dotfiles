@@ -1,0 +1,33 @@
+[user]
+    name = Wim Looman
+    email = ghostunderscore@gmail.com
+[github]
+    user = Nemo157
+[core]
+    editor = vim
+    excludesfile = ~/.gitignore
+    autocrlf = input
+    safecrlf = true
+[push]
+    default = upstream
+[color]
+    ui = auto
+[alias]
+    fb  = !git fetch && git br -av
+    br  = branch
+    st  = status --short
+    dw  = diff --word-diff
+    ds  = diff --cached
+    d   = diff
+    pnp = !git pull && git push
+    lc  = log ORIG_HEAD.. --stat
+    lcn = log ORIG_HEAD.. --stat --no-merges
+    # Returns the names of any files that have changed both in the current branch and the named branch
+    intersect = !bash -c 'comm -12 <(git log ..$1 --format='format:' --name-only | sed '/^$/d' | sort) <(git log $1.. --format='format:' --name-only | sed '/^$/d' | sort)' -
+    # need better log output at some point, e.g.:
+    #     lg = log --graph --pretty=format:'\t\t%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    frp = !bash -c 'git fetch && [[ \"$(git intersect origin/master)\" == \"\" ]] && git rebase origin/master && git push || echo \"Intersecting files:\n\" && git intersect origin/master' -
+
+[url "git@github.com:"]
+    pushInsteadOf = "https://github.com/"
+

@@ -20,27 +20,23 @@ Bundle 'godlygeek/tabular'
 " Tab-completion.
 Bundle 'ervandew/supertab'
 
-" Dependency of new SnipMate.
-Bundle 'MarcWeber/vim-addon-mw-utils'
-Bundle 'tomtom/tlib_vim'
-
 " Clang based C/C++ Completion
 Bundle "Rip-Rip/clang_complete"
-
-" New SnipMate.
-Bundle 'garbas/vim-snipmate'
-Bundle 'rbonvall/snipmate-snippets-bib'
-Bundle 'honza/snipmate-snippets'
 
 " Language syntaxes.
 Bundle 'Nemo157/glsl.vim'
 Bundle 'plasticboy/vim-markdown'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'PProvost/vim-ps1'
+Bundle 'Nemo157/llvm.vim'
+Bundle 'Nemo157/scala.vim'
 
 " Color scheme.
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'vim-scripts/Zenburn'
+
+" Highlighting debugging utility
+Bundle 'kergoth/vim-HiLinkTrace'
 
 filetype plugin indent on " Automatically detect file types
 syntax enable " Syntax highlighting
@@ -78,12 +74,10 @@ let g:SuperTabDefaultCompletionType = "context"         " Set SuperTab to try an
 let g:SuperTabMappingForward = '<nul>'
 let g:SuperTabMappingBackward = '<s-nul>'
 
-let g:snips_trigger_key='<c-space>'
-
 silent! colorscheme solarized
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
-au FileType java\|c\|c++\|glsl setlocal tabstop=4 shiftwidth=4
+au FileType java\|c\|cpp\|glsl setlocal tabstop=4 shiftwidth=4
 au FileType vhdl setlocal noexpandtab tabstop=8 shiftwidth=8
 
 let mapleader = ","
@@ -96,6 +90,9 @@ map <leader>p :set invpaste<CR>
 " Have Vim jump to the last position when reopening a file
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
+au BufReadPost Guardfile setf ruby
+au BufRead,BufNewFile *.ll\|*.llvm setf llvm
+
 au BufWritePost vimrc source ~/.vimrc
 
 map <F5> :call SaveAndMake()<CR>
@@ -104,7 +101,7 @@ imap <F5> <C-o>:call SaveAndMake()<CR>
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
 " Clear highlighting when <esc> is pressed
-nnoremap <esc> :noh<cr><esc>
+"nnoremap <esc> :noh<cr><esc>
 
 command Wq wq
 command -bang Q q<bang>

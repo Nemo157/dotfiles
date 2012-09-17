@@ -15,7 +15,6 @@ my_options=(
   multios              # Allow multiple files/pipes for redirections.
   prompt_subst         # Allow substitution in the prompt.
   auto_menu            # Show menu after second completion request
-  auto_pushd           # Basically alias cd to pushd
 )
 
 for option in $my_options
