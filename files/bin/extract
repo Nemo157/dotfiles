@@ -1,22 +1,88 @@
 #!/usr/bin/env zsh
 
-if [[ -f $1 ]]; then
-  case $1 in
-    *.tar.bz2)   tar xvjf $1;;
-    *.tar.gz)    tar xvzf $1;;
-    *.tar.xz)    tar xvJf $1;;
-    *.tar.lzma)  tar --lzma -xvf $1;;
-    *.bz2)       bunzip $1;;
-    *.rar)       unrar e $1;;
-    *.gz)        gunzip $1;;
-    *.tar)       tar xvf $1;;
-    *.tbz2)      tar xvjf $1;;
-    *.tgz)       tar xvzf $1;;
-    *.zip)       unzip $1;;
-    *.Z)         uncompress $1;;
-    *.7z)        7z x $1;;
-    *) echo "'$1' cannot be extracted via extract";;
-  esac
-else
-  echo "'$1' is not a valid file"
-fi
+
+extract() {
+  local program args file
+  args=()
+
+  file="$1"
+  destination="$2"
+
+  if [[ -f "$file" ]]; then
+    case "$file" in
+      *.tar.bz2)
+        program=tar
+        args+='xvjf'
+        ;;
+      *.tar.gz)
+        program=tar
+        args+='xvzf'
+        ;;
+      *.tar.xz)
+        program=tar
+        args+='xvJf'
+        ;;
+      *.tar.lzma)
+        program=tar
+        args+='--lzma'
+        args+='-xvf'
+        ;;
+      *.bz2)
+        program=bunzip
+        ;;
+      *.rar)
+        program=unrar
+        args+='e'
+        ;;
+      *.gz)
+        program=gunzip
+        ;;
+      *.tar)
+        program=tar
+        args+='xvf'
+        ;;
+      *.tbz2)
+        program=tar
+        args+='xvjf'
+        ;;
+      *.tgz)
+        program=tar
+        args+='xvzf'
+        ;;
+      *.zip)
+        program=unzip
+        ;;
+      *.Z)
+        program=uncompress
+        ;;
+      *.7z)
+        program=7z
+        ;;
+      *)
+        echo "'$file' cannot be extracted via extract"
+        exit 1
+        ;;
+    esac
+  else
+    echo "'$file' is not a valid file"
+    exit 1
+  fi
+
+  if [[ -d "$destination" ]]; then
+    case "$program" in
+      unzip)
+        args+="-d"
+        args+="$destination"
+        ;;
+      *)
+        echo "extracting to a destination is not supported for $program yet"
+        exit 2
+        ;;
+    esac
+  fi
+
+  echo "$program $args $file"
+  $program $args $file
+}
+
+extract $*
