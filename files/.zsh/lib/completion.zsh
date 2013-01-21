@@ -34,8 +34,10 @@ uninteresting_users=(
   ident junkbust ldap lp mail mailman mailnull mldonkey mysql nagios named
   netdump news nfsnobody nobody nscd ntp nut nx openvpn operator pcap postfix
   postgres privoxy pulse pvm quagga radvd rpc rpcuser rpm shutdown squid sshd
-  sync uucp vcsa xfs cron man portage messagebus murmur postmaster subsonic
-  transmission
+  sync uucp vcsa xfs cron man portage messagebus
+
+  murmur postmaster subsonic transmission tcpdump dhcp guest logcheck minecraft
+  redis tcpdump
 # OS X
   '_*'
 )
@@ -45,7 +47,7 @@ zstyle ':completion:*:*:*:users' ignored-patterns $uninteresting_users
 zstyle '*' single-ignored show
 
 ## Load additional ZSH completion scripts.
-fpath=($HOME/.zsh/functions/completion $fpath)
+fpath=($ZDOTDIR/functions/completion $fpath)
 
 autoload -U compinit
 compinit

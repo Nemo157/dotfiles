@@ -34,13 +34,14 @@ setup_colours () {
   PR_NO_COLOUR="%{$terminfo[sgr0]%}"
 }
 
-#function zle-line-init zle-keymap-select {
-#  VIMODE="${${KEYMAP/vicmd/$PR_YELLOW--}/(main|viins)/$PR_WHITE-/}"
-#  zle reset-prompt
-#}
-#
-#zle -N zle-line-init
-#zle -N zle-keymap-select
+function zle-line-init zle-keymap-select {
+  #VIMODE="${${KEYMAP/vicmd/$PR_YELLOW--}/(main|viins)/$PR_WHITE-/}"
+  VIMOD="$KEYMAP"
+  zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
 
 setup_prompt () {
   setopt prompt_subst

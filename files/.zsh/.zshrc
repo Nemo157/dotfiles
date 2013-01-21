@@ -4,7 +4,7 @@ if [[ "$COLORTERM" == "gnome-terminal" ]] then
 fi
 
 ## Source all the config files.
-for config_file ($HOME/.zsh/lib/*.zsh)
+for config_file ($ZDOTDIR/lib/*.zsh)
   source $config_file
 
 extra_config_files=(
