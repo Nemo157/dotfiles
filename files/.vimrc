@@ -30,6 +30,11 @@ Bundle 'kchmck/vim-coffee-script'
 Bundle 'PProvost/vim-ps1'
 Bundle 'Nemo157/llvm.vim'
 Bundle 'Nemo157/scala.vim'
+Bundle 'Nemo157/rpn.vim'
+Bundle 'tanob/mirah-vim'
+
+" The Erlang plugin for Vim
+Bundle 'jimenezrick/vimerl'
 
 " Color scheme.
 Bundle 'altercation/vim-colors-solarized'
@@ -37,6 +42,9 @@ Bundle 'vim-scripts/Zenburn'
 
 " Highlighting debugging utility
 Bundle 'kergoth/vim-HiLinkTrace'
+
+" My general extensions that don't quite fit elsewhere
+Bundle 'Nemo157/vim_extensions'
 
 filetype plugin indent on " Automatically detect file types
 syntax enable " Syntax highlighting
@@ -103,6 +111,7 @@ vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 " Clear highlighting when <esc> is pressed
 "nnoremap <esc> :noh<cr><esc>
 
+command W w
 command Wq wq
 command -bang Q q<bang>
 
