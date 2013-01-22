@@ -20,9 +20,9 @@ setup_vcs_info () {
   zstyle ':vcs_info:*:prompt:*'     stagedstr         $staged_str
   zstyle ':vcs_info:*:prompt:*'     unstagedstr       $unstaged_str
   zstyle ':vcs_info:*:prompt:*'     branchformat      $branch_format
-  zstyle ':vcs_info:*:prompt:*'     formats           $vcs_prompt        $vcs_path $lights
-  zstyle ':vcs_info:*:prompt:*'     actionformats     $vcs_action_prompt $vcs_path $lights
-  zstyle ':vcs_info:*:prompt:*'     nvcsformats       ""                 "%~"      ""
+  zstyle ':vcs_info:*:prompt:*'     formats           $vcs_path $vcs_prompt $lights
+  zstyle ':vcs_info:*:prompt:*'     actionformats     $vcs_path $vcs_action_prompt $lights
+  zstyle ':vcs_info:*:prompt:*'     nvcsformats       "%~"
 }
 
 setup_colours () {
@@ -88,7 +88,7 @@ setup_prompt () {
   local host="$PR_GREEN%m"
   local whoami="${user}$PR_WHITE at ${host}$PR_NO_COLOUR$PR_BLUE"
   local fill='${(e)PR_FILLBAR}'
-  local dir='${(%):-%${PR_PWDLEN}<...<${${${vcs_info_msg_1_}/$HOME/~}/%\/$PR_GREEN\.$PR_NO_COLOUR/$PR_NO_COLOUR}%<<}'
+  local dir='${(%):-%${PR_PWDLEN}<...<${${${vcs_info_msg_0_}/$HOME/~}/%\/$PR_GREEN\.$PR_NO_COLOUR/$PR_NO_COLOUR}%<<}'
   local whereami="${dir}$PR_BLUE"
   local end_first="$PR_NO_COLOUR"
 
@@ -106,7 +106,7 @@ setup_prompt () {
 
 setup_rprompt () {
   local start=' $PR_BLUE'
-  local vcs_string='$vcs_info_msg_0_'
+  local vcs_string='$vcs_info_msg_1_'
   local end='$PR_NO_COLOUR '
 
   RPROMPT="${start}${vcs_string}${end}"
