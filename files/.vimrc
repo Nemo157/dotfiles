@@ -50,9 +50,6 @@ Bundle 'jimenezrick/vimerl'
 " Color scheme.
 Bundle 'altercation/vim-colors-solarized'
 
-" Highlighting debugging utility
-Bundle 'kergoth/vim-HiLinkTrace'
-
 " My general extensions that don't quite fit elsewhere
 Bundle 'Nemo157/vim_extensions'
 
