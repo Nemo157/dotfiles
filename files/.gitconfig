@@ -6,7 +6,6 @@
     user = Nemo157
 
 [core]
-    editor = vim
     excludesfile = ~/.gitignore
     safecrlf = true
 
