@@ -1,4 +1,5 @@
 setopt correct_all
+setopt dvorak
 
 uncorrected_commands=(
   man
