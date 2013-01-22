@@ -30,3 +30,9 @@ $ExistingFiles | % {
 		Write-Host ("Skipping updating [{0}] as [{1}] does not exist" -f @($FileName, $OutputFile))
 	}
 }
+
+$VundleDirectory = Join-Path $BaseDirectory (Join-Path "files" (Join-Path ".vim" "bundle"))
+if (Test-Path $VundleDirectory) {
+	Write-Host ("Deleting [{0}]" -f @($VundleDirectory))
+	Remove-Item -Path $VundleDirectory -Recurse -Force
+}
