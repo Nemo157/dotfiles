@@ -59,6 +59,12 @@ Bundle 'Nemo157/vim_extensions'
 " JSHint for Javascript syntax checking
 Bundle 'walm/jshint.vim'
 
+" Indent guides
+Bundle 'nathanaelkane/vim-indent-guides'
+
+" Better indentation
+Bundle 'vim-scripts/Smart-Tabs'
+
 filetype plugin indent on " Automatically detect file types
 syntax enable " Syntax highlighting
 
@@ -84,8 +90,8 @@ set suffixes+=.aux,.blg,.bbl,.log                       " Lower priority for tab
 set cursorline                                          " Highlight the current line
 set nofoldenable                                        " Turn them off until I bother learning them
 set thesaurus+=~/.vim/thesaurus/mthesaur.txt            " Use the thesaurus from http://www.gutenberg.org/ebooks/3202
-set bs=indent,eol,start                                 " Needed on Windows
-set mouse=                                              " Disable mouse in gvim
+set bs=indent,eol,start                                 " Needed on Windows.
+set mouse=                                              " Disable the mouse when using gvim.
 set guifont=Consolas                                    " Use Consolas as the font in gvim.
 set laststatus=2                                        " Always show the status line
 set wildmenu                                            " Show a menu when tab-completing
@@ -105,18 +111,22 @@ let g:Powerline_symbols = 'compatible'
 let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=1
 
+" Set up vim-indent-guides settings
+let g:indent_guides_guide_size = 1
+let g:indent_guides_enable_on_vim_startup = 0
+let g:indent_guides_start_level = 2
+
 " set vim to chdir for each file
 if exists('+autochdir')
-    set autochdir
+  set autochdir
 else
-    autocmd BufEnter * silent! lcd %:p:h:gs/ /\\ /
+  autocmd BufEnter * silent! lcd %:p:h:gs/ /\\ /
 endif
 
 au BufNewFile,BufRead *.xaml setf xml
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
-au FileType java\|c\|cpp\|glsl setlocal tabstop=4 shiftwidth=4 noexpandtab
-au FileType vhdl setlocal noexpandtab tabstop=8 shiftwidth=8
+au FileType java\|c\|cpp\|glsl\|xml\|javascript\|json\|ps1\|vhdl setlocal tabstop=4 shiftwidth=4 noexpandtab
 
 au GUIEnter * simalt ~x " Maximize the gvim window on Windows.
 
@@ -129,6 +139,9 @@ map <leader>a" :Tabularize /"<CR>
 map <leader>p :diffput 1<CR>
 map <leader>g :diffget 3<CR>
 map <leader>d :diffup<CR>
+
+map <leader>n :lnext<CR>
+map <leader>p :lprev<CR>
 
 " Have Vim jump to the last position when reopening a file
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
