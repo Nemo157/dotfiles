@@ -24,7 +24,8 @@ $ExistingFiles | % {
 	$OutputFile = Join-Path $OutputDirectory $FileName
 	if (Test-Path $OutputFile) {
 		Write-Host ("Copying [{0}] to [{1}]" -f @($OutputFile, $ExistingFile))
-		Copy-Item -Path $OutputFile -Destination $ExistingFile
+		Remove-Item -Path $ExistingFile -Recurse -Force
+		Copy-Item -Path $OutputFile -Destination $ExistingFile -Recurse
 	} else {
 		Write-Host ("Skipping updating [{0}] as [{1}] does not exist" -f @($FileName, $OutputFile))
 	}
