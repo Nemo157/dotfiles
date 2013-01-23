@@ -36,6 +36,14 @@ if (Test-Path $VundleDirectory) {
 	Remove-Item -Path $VundleDirectory -Recurse -Force
 }
 
+$IrssiFiles = Get-ChildItem (Join-Path $BaseDirectory (Join-Path "files" ".irssi"))
+$IrssiFiles | % {
+	$File = $_.FullName
+	Write-Host ("Fixing line endings of [{0}]" -f @($File))
+	$Content = Get-Content $File
+	$Content | Set-Content $File
+}
+
 $RegKeyMaps = @{
 	"ConEmu" = "HKEY_CURRENT_USER\Software\ConEmu\.Vanilla"
 }
