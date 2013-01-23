@@ -1,4 +1,3 @@
-
 &git --version | Out-Null
 if (-not $?) {
 	throw "Git does not exist"
