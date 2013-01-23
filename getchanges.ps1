@@ -35,3 +35,19 @@ if (Test-Path $VundleDirectory) {
 	Write-Host ("Deleting [{0}]" -f @($VundleDirectory))
 	Remove-Item -Path $VundleDirectory -Recurse -Force
 }
+
+$RegKeyMaps = @{
+	"ConEmu" = "HKEY_CURRENT_USER\Software\ConEmu\.Vanilla"
+}
+
+$RegKeyMaps.Keys | % {
+	$Name = $_
+	$File = Join-Path $BaseDirectory (Join-Path "reg_keys" "$Name.Reg")
+	$KeyPath = $RegKeyMaps[$_]
+	if (Test-Path (Join-Path Registry:: $KeyPath)) {
+		Write-Host ("Exporting [{0}] to [{1}]" -f @($KeyPath, $File))
+		&regedit @('/E', $File, $KeyPath)
+	} else {
+		Write-Host ("Skipping updating [{0}] as [{1}] does not exist" -f @($File, $KeyPath))
+	}
+}
