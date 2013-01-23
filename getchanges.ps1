@@ -11,16 +11,23 @@ if ($Changed) {
 }
 
 $BaseDirectory = Split-Path $MyInvocation.MyCommand.Path
-$OutputDirectory = $Home
 
-$ExistingFiles = @()
-$ExistingFiles += Get-ChildItem (Join-Path $BaseDirectory "files")
-$ExistingFiles += Get-ChildItem (Join-Path $BaseDirectory (Join-Path "private" "files"))
+$FileMaps = @{}
 
-$ExistingFiles | % {
-	$FileName = $_.Name
-	$ExistingFile = $_.FullName
-	$OutputFile = Join-Path $OutputDirectory $FileName
+Get-ChildItem (Join-Path $BaseDirectory "files") | % {
+	$FileMaps[$_.FullName] = Join-Path $Home $_.Name
+}
+Get-ChildItem (Join-Path $BaseDirectory (Join-Path "private" "files")) | % {
+	$FileMaps[$_.FullName] = Join-Path $Home $_.Name
+}
+Get-ChildItem (Join-Path $BaseDirectory "ps1") | % {
+	$FileMaps[$_.FullName] = Join-Path (Join-Path $Home "Documents\WindowsPowershell") $_.Name
+}
+
+$FileMaps.Keys | % {
+	$FileName = Split-Path -Leaf $_
+	$ExistingFile = $_
+	$OutputFile = $FileMaps[$_]
 	if (Test-Path $OutputFile) {
 		Write-Host ("Copying [{0}] to [{1}]" -f @($OutputFile, $ExistingFile))
 		Remove-Item -Path $ExistingFile -Recurse -Force
