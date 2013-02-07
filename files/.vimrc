@@ -76,7 +76,7 @@ set ignorecase smartcase                                " Do smart case matching
 set incsearch                                           " Incremental search.
 set nowrap                                              " Turn off line wrapping.
 set sidescroll=1                                        " Set how far to scroll when moving off the edge.
-set list listchars=precedes:<,extends:>,tab:»\ ,trail:\  " Show tabs, lines going off the edge and the end of lines.
+set list listchars=precedes:<,extends:>,tab:ï¿½\ ,trail:\  " Show tabs, lines going off the edge and the end of lines.
 set ruler                                               " Show current position in document at bottom right.
 set scrolloff=5                                         " Scroll 5 lines from the top and bottom.
 set sidescrolloff=10                                    " Scroll 30 characters from the edges.
@@ -101,7 +101,7 @@ let g:SuperTabMappingBackward = '<s-nul>'
 
 silent! colorscheme solarized
 
-let g:Powerline_cache_file = 'C:\Users\User\AppData\Local\Temp\Powerline.cache'
+let g:Powerline_cache_file = $HOME.'/.powerline.cache'
 let g:Powerline_symbols = 'compatible'
 
 " Set up Syntastic settings
