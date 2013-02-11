@@ -24,13 +24,17 @@ Get-ChildItem (Join-Path $BaseDirectory "ps1") | % {
 	$FileMaps[$_.FullName] = Join-Path (Join-Path $Home "Documents\WindowsPowershell") $_.Name
 }
 
+$FileMaps[(Join-Path $BaseDirectory "other_files\chrome_inspector.css")] = Join-Path $ENV:LOCALAPPDATA "Google\Chrome\User Data\Default\User StyleSheets\Custom.css"
+
 $FileMaps.Keys | % {
 	$FileName = Split-Path -Leaf $_
 	$ExistingFile = $_
 	$OutputFile = $FileMaps[$_]
 	if (Test-Path $OutputFile) {
 		Write-Host ("Copying [{0}] to [{1}]" -f @($OutputFile, $ExistingFile))
-		Remove-Item -Path $ExistingFile -Recurse -Force
+		if (Test-Path $ExistingFile) {
+			Remove-Item -Path $ExistingFile -Recurse -Force
+		}
 		Copy-Item -Path $OutputFile -Destination $ExistingFile -Recurse
 	} else {
 		Write-Host ("Skipping updating [{0}] as [{1}] does not exist" -f @($FileName, $OutputFile))
