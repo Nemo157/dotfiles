@@ -1,17 +1,20 @@
 [user]
     name = Wim Looman
     email = ghostunderscore@gmail.com
+
 [github]
     user = Nemo157
+
 [core]
-    editor = vim
     excludesfile = ~/.gitignore
-    autocrlf = input
     safecrlf = true
+
 [push]
     default = upstream
+
 [color]
     ui = auto
+
 [alias]
     fb  = !git fetch && git br -av
     br  = branch
