@@ -34,7 +34,7 @@ Function Initialize-PoshCodeScript ([string] $ScriptName, [int] $ScriptId) {
 Import-Module PsBundle
 
 try {
-Register-Module -Name PoshCode -Source "http://poshcode.org/PoshCode.psm1" -SourceType "psm1"
+Register-Module -Name PoshCode -Source "http://poshcode.org/PoshCode.psm1" -ProviderType "psm1"
 } catch {
 }
 
@@ -48,17 +48,10 @@ Register-Module -Name DotNet-Helpers -Source "unknown"
 } catch {
 }
 
-try {
-Register-Module PowerTab "http://download-codeplex.sec.s-msft.com/Download/SourceControlFileDownload.ashx?ProjectName=powertab&changeSetId=tip"
-} catch {
-}
-
 Initialize-PoshCodeScript New-CommandWrapper 2197
 
-try {
-Register-Module -Name posh-hg -Source "unknown"
-} catch {
-}
+Register-Module -Name PowerTab -Source "https://hg.codeplex.com/powertab" -ProviderType "hg"
+Register-Module -Name posh-hg -Source "JeremySkinner/posh-hg" -ProviderType "github"
 
 try {
 Register-Module -Name Work-Helpers -Source "unknown"
@@ -82,6 +75,24 @@ Function Test-Command ([string] $Name) {
 Function Get-Constructors ([Type] $type) {
 	$type.GetConstructors() | % {
 		"$($type.FullName)($(@($_.GetParameters() | % { "$($_.ParameterType) $($_.Name)" }) -join ", "))"
+	}
+}
+
+Function Get-Methods ([Type] $type) {
+	$type.GetMethods() | % {
+		"$($_.ReturnType) $($type.FullName).$($_.Name)($(@($_.GetParameters() | % { "$($_.ParameterType) $($_.Name)" }) -join ", "))"
+	}
+}
+
+Function Get-StaticMethods ([Type] $type) {
+	$type.GetMethods([System.Reflection.BindingFlags]::Static -bor [System.Reflection.BindingFlags]::Public) | % {
+		"$($_.ReturnType) $($type.FullName).$($_.Name)($(@($_.GetParameters() | % { "$($_.ParameterType) $($_.Name)" }) -join ", "))"
+	}
+}
+
+Function Get-Properties ([Type] $type) {
+	$type.GetProperties() | % {
+		"$($_.PropertyType) $($type.FullName).$($_.Name)"
 	}
 }
 
@@ -209,3 +220,42 @@ $node_version = node.exe -p -e "process.versions.node + ' (' + process.arch + ')
 Write-Debug "Your environment has been set up for using Node.js $node_version and NPM"
 
 $env:EDITOR = 'gvim'
+
+Function Force-ResolvePath ([String] $Path) {
+	$ResolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue -ErrorVariable ForceResolvePathError
+	if ($ResolvedPath) {
+		$ResolvedPath = $ResolvedPath.Path
+	} else {
+		$ResolvedPath = $ForceResolvePathError[0].TargetObject
+	}
+	return $ResolvedPath
+}
+
+function Get-WebFile {
+	Param (
+		[Parameter(Mandatory = $true)]
+		$Url,
+		[Parameter(Mandatory = $true)]
+		$Path
+	)
+	$Path = Force-ResolvePath $Path
+	(New-Object System.Net.WebClient).DownloadFile($Url, $Path)
+}
+
+function Expand-Archive {
+	Param (
+		[Parameter(Mandatory = $true)]
+		$File,
+		[Parameter(Mandatory = $true)]
+		$Path
+	)
+	$File = (Resolve-Path $File).Path
+	$Path = Force-ResolvePath $Path
+	$Shell = New-Object -Com Shell.Application
+	$ZipFile = $Shell.Namespace($File)
+	$Destination = $Shell.Namespace($Path)
+	$Destination.CopyHere($ZipFile.Items())
+}
+
+Set-Alias wget Get-WebFile
+Set-Alias extract Expand-Archive
