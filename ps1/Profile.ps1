@@ -31,35 +31,39 @@ Function Initialize-PoshCodeScript ([string] $ScriptName, [int] $ScriptId) {
 	}
 }
 
-Function Initialize-Module ([string] $Module, [string] $AlternateInstall) {
-	if (Get-Module -ListAvailable -Name $Module) {
-		Import-Module $Module
-	} else {
-		try {
-			if ($AlternateInstall) {
-				"Could not find $Module, attempting to install from $AlternateInstall"
-				Install-Module -ModuleName $Module -ModuleUrl $AlternateInstall
-			} else {
-				"Could not find $Module, attempting to install"
-				Install-Module $Module
-			}
-			Import-Module $Module
-		} catch {
-			"Could not install $($Module): $_"
-		}
-	}
+Import-Module PsBundle
+
+try {
+Register-Module -Name PoshCode -Source "http://poshcode.org/PoshCode.psm1" -SourceType "psm1"
+} catch {
 }
 
-Initialize-Module PoshCode
+try {
+Register-Module -Name Process-Helpers -Source "unknown"
+} catch {
+}
 
-Initialize-Module Process-Helpers
-Initialize-Module DotNet-Helpers
+try {
+Register-Module -Name DotNet-Helpers -Source "unknown"
+} catch {
+}
 
-Initialize-Module PowerTab "http://download-codeplex.sec.s-msft.com/Download/SourceControlFileDownload.ashx?ProjectName=powertab&changeSetId=tip"
+try {
+Register-Module PowerTab "http://download-codeplex.sec.s-msft.com/Download/SourceControlFileDownload.ashx?ProjectName=powertab&changeSetId=tip"
+} catch {
+}
+
 Initialize-PoshCodeScript New-CommandWrapper 2197
-Initialize-Module posh-hg
 
-Initialize-Module Work-Helpers
+try {
+Register-Module -Name posh-hg -Source "unknown"
+} catch {
+}
+
+try {
+Register-Module -Name Work-Helpers -Source "unknown"
+} catch {
+}
 
 Set-Alias vim "gvim"
 Set-Alias grep Select-String
