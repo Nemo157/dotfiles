@@ -4,7 +4,8 @@ sub search_custom_tags {
   my @values = ();
 
   for (my $i=0; ; ++$i) {
-    my $val = $self->GetValue("UserDefinedText" . ($i ? " ($i)" : ''));
+    my $key = "UserDefinedText" . ($i ? " ($i)" : '');
+    my $val = $self->GetValue($key);
     last unless defined $val;
     push (@values, $val) if $val =~ qr/$tagName/;
   }
@@ -100,7 +101,7 @@ sub get_first_number {
       },
       PrintConv => 'sprintf("%02s", $val)',
     },
-    DiscTitleAndSlash => {
+    DiscTitle => {
       Desire => {
         0 => 'PartOfSet',
         1 => 'DiskNumber',
@@ -123,7 +124,7 @@ sub get_first_number {
           $total = @$val[3];
         }
         if ($total && $total > 1) {
-          return "disc $disc/" ;
+          return "disc $disc" ;
         } else {
           return "";
         }
