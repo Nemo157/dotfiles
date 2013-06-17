@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+
+tmux has-session -t torrentz
+if [[ $? -ne 0 ]] {
+  echo "Creating session"
+  tmux new-session -d -s torrentz 'transmission-remote-cli'
+  tmux split-window -v 'links https://www.torrentz.eu'
+}
+
+tmux attach-session -t torrentz
