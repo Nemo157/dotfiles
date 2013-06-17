@@ -109,6 +109,16 @@ let g:Powerline_symbols = 'compatible'
 let g:syntastic_check_on_open=1
 let g:syntastic_auto_loc_list=1
 
+let g:syntastic_c_config_file='.clang_complete'
+if executable('clang')
+  let g:syntastic_c_compiler='clang'
+endif
+
+let g:syntastic_cpp_config_file='.clang_complete'
+if executable('clang++')
+  let g:syntastic_cpp_compiler='clang++'
+endif
+
 " Set up vim-indent-guides settings
 let g:indent_guides_guide_size = 1
 let g:indent_guides_enable_on_vim_startup = 0
@@ -124,7 +134,8 @@ endif
 au BufNewFile,BufRead *.xaml setf xml
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
-au FileType java\|c\|cpp\|glsl\|xml\|ps1\|vhdl\|mason setlocal tabstop=4 shiftwidth=4 noexpandtab
+au FileType java\|glsl\|xml\|ps1\|vhdl\|mason setlocal tabstop=4 shiftwidth=4 noexpandtab
+au FileType c\|cpp setlocal tabstop=4 shiftwidth=4
 
 au GUIEnter * simalt ~x " Maximize the gvim window on Windows.
 
