@@ -16,6 +16,7 @@ function () {
   set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
 }
 
+export GITHUB_USER=Nemo157
 export EDITOR=vim
 
 # grep
