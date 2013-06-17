@@ -21,7 +21,7 @@ Bundle 'godlygeek/tabular'
 Bundle 'ervandew/supertab'
 
 " Syntax checking
-Bundle 'scooloose/syntastic'
+Bundle 'scrooloose/syntastic'
 
 
 " Auto completion popup
@@ -123,7 +123,7 @@ endif
 au BufNewFile,BufRead *.xaml setf xml
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
-au FileType java\|c\|cpp\|glsl\|xml\|javascript\|json\|ps1\|vhdl setlocal tabstop=4 shiftwidth=4 noexpandtab
+"au FileType java\|c\|cpp\|glsl\|xml\|json\|ps1\|vhdl setlocal tabstop=4 shiftwidth=4 noexpandtab
 
 au GUIEnter * simalt ~x " Maximize the gvim window on Windows.
 
