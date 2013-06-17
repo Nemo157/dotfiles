@@ -13,9 +13,8 @@ chatnets = { routedev = { type = "IRC"; nick = "Wim"; }; };
 
 channels = (
   { name = "#irssi"; chatnet = "ircnet"; autojoin = "No"; },
-  { name = "silc"; chatnet = "silc"; autojoin = "No"; },
-  { name = "#route"; chatnet = "routedev"; autojoin = "yes"; },
-  { name = "#Telogis"; chatnet = "routedev"; autojoin = "yes"; }
+  { name = "#offtopic"; chatnet = "routedev"; autojoin = "yes"; },
+  { name = "#route"; chatnet = "routedev"; autojoin = "yes"; }
 );
 
 aliases = {
@@ -189,6 +188,7 @@ settings = {
     bell_beeps = "yes";
     beep_msg_level = "MSGS NOTICES DCC DCCMSGS HILIGHT";
   };
+  "irc/flood" = { flood_max_msgs = "0"; };
 };
 
 hilights = ( { text = "wim"; nick = "yes"; word = "yes"; } );

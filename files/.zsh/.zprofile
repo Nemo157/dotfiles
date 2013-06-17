@@ -1,7 +1,21 @@
 export EC2_PRIVATE_KEY="$(ls $HOME/.ec2/pk-*.pem)"
 export EC2_CERT="$(ls $HOME/.ec2/cert-*.pem)"
 export AWS_CREDENTIALS_FILE="$HOME/.ec2/aws-credentials"
-export LANG=en_NZ.utf8
+
+function () {
+  set_locale () {
+    if locale -a | grep "$1" >/dev/null ; then
+      export LANG="$1"
+      export LC_ALL="$1"
+      true
+    else
+      false
+    fi
+  }
+
+  set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
+}
+
 export EDITOR=vim
 
 # grep

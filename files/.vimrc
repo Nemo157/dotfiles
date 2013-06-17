@@ -1,8 +1,9 @@
 set nocompatible
 filetype off " For vundle.
 
-if !isdirectory($HOME."/.vim/bundle/vundle/.git")
-  execute "!git clone 'git://github.com/gmarik/vundle.git' '".$HOME."/.vim/bundle/vundle'"
+let vundle_dir = $HOME."/.vim/bundle/vundle/.git"
+if !isdirectory(vundle_dir)
+  execute "!git clone 'git://github.com/gmarik/vundle.git' '".vundle_dir."'"
 endif
 
 set rtp+=$HOME/.vim/bundle/vundle/
@@ -123,7 +124,7 @@ endif
 au BufNewFile,BufRead *.xaml setf xml
 
 au FileType markdown\|rst\|tex\|plaintex setlocal textwidth=80
-"au FileType java\|c\|cpp\|glsl\|xml\|json\|ps1\|vhdl setlocal tabstop=4 shiftwidth=4 noexpandtab
+au FileType java\|c\|cpp\|glsl\|xml\|ps1\|vhdl\|mason setlocal tabstop=4 shiftwidth=4 noexpandtab
 
 au GUIEnter * simalt ~x " Maximize the gvim window on Windows.
 
@@ -166,3 +167,8 @@ func! SaveAndMake()
   exec "up"
   exec "make!"
 endfunc
+
+let s:host_vimrc = $HOME.'/.vim/'.hostname().'.vimrc'
+if filereadable(s:host_vimrc)
+  execute 'source '.s:host_vimrc
+endif
