@@ -11,12 +11,16 @@ allowed_music_files="*.(mp3|flac|m4a|ogg|wma|mpc)"
 typeset -A warnings
 warnings[Total]=0
 
-typeset -a exiftool_args
-exiftool_args+="-config"
-exiftool_args+="$script_dir/check_music_exiftool_config.pl"
-exiftool_args+="-s3"
-exiftool_args+="-u"
-exiftool_args+="-m"
+exiftool -ver >/dev/null
+exiftool=$?
+if [[ $exiftool -eq 0 ]] {
+  typeset -a exiftool_args
+  exiftool_args+="-config"
+  exiftool_args+="$script_dir/lib/check_music_exiftool_config.pl"
+  exiftool_args+="-s3"
+  exiftool_args+="-u"
+  exiftool_args+="-m"
+}
 
 last_status=
 echo -en "" 1>&2
@@ -73,21 +77,27 @@ check_artist_file () {
 }
 
 check_artist_image () {
-  local width="$(exiftool $exiftool_args -ImageWidth $1 2>/dev/null)"
-  local height="$(exiftool $exiftool_args -ImageHeight $1 2>/dev/null)"
-  if (($width != $height)) {
-    warning "Artist image is not square" $1
+  if [[ $exiftool -eq 0 ]] {
+    local width="$(exiftool $exiftool_args -ImageWidth $1 2>/dev/null)"
+    local height="$(exiftool $exiftool_args -ImageHeight $1 2>/dev/null)"
+    if (($width != $height)) {
+      warning "Artist image is not square" $1
+    }
   }
 }
 
 check_album () {
   status $1
   typeset -A artists
-  local artists_list="$(exiftool $exiftool_args -r -p '$Artist' $1 2>/dev/null)"
-  for artist in ${(f)artists_list}
-    artists[$artist]=1
+  if [[ $exiftool -eq 0 ]] {
+    local artists_list="$(exiftool $exiftool_args -r -p '$Artist' $1 2>/dev/null)"
+    for artist in ${(f)artists_list}
+      artists[$artist]=1
 
-  local is_compilation=$((${#artists} - 1))
+    local is_compilation=$((${#artists} - 1))
+  } else {
+    local is_compilation=0
+  }
 
   for f in $1/*(/N)
     check_disc $f $is_compilation
@@ -131,29 +141,39 @@ check_disc_file () {
 
 check_music_file () {
   status $1
-  typeset -a replaygain_tags
+  if [[ $exiftool -eq 0 ]] {
+    typeset -a replaygain_tags
 
-  replaygain_tags+="-ReplaygainAlbumGainClean"
-  replaygain_tags+="-ReplaygainAlbumPeakClean"
-  replaygain_tags+="-ReplaygainTrackGainClean"
-  replaygain_tags+="-ReplaygainTrackPeakClean"
+    replaygain_tags+="-ReplaygainAlbumGainClean"
+    replaygain_tags+="-ReplaygainAlbumPeakClean"
+    replaygain_tags+="-ReplaygainTrackGainClean"
+    replaygain_tags+="-ReplaygainTrackPeakClean"
 
-  local replaygain_count="$(exiftool $exiftool_args $replaygain_tags $1 | wc -w)"
-  if ! [[ "$replaygain_count" == "4" ]] {
-    warning "Replay gain data not found" $1
-  }
+    local replaygain_count="$(exiftool $exiftool_args $replaygain_tags $1 | wc -w)"
+    if ! [[ "$replaygain_count" == "4" ]] {
+      warning "Replay gain data not found" $1
+    }
 
-  local is_compilation=$2
-  local filename="$(basename "$1")"
-  local potential_artist=''
-  if (($is_compilation > 0)) {
-    potential_artist='$Artist - '
-  }
-  local filename_format='$AlbumArtistOrArtist/$Album/$DiscTitleAndSlash$OnlyTrack - '$potential_artist'$TitleWithoutSlash'
-  local preferred_filename="$(exiftool $exiftool_args -p $filename_format $1).${filename##*.}"
-  preferred_filename="${preferred_filename//(:|\")/_}"
-  if [[ "$preferred_filename" != "${1#$base_dir/}" ]] {
-    warning "File is named wrong" $1 "should be $preferred_filename"
+    local is_compilation=$2
+    local filename="$(basename "$1")"
+    local potential_artist=''
+    if (($is_compilation > 0)) {
+      potential_artist='$Artist - '
+    }
+    local filename_artist="$(exiftool $exiftool_args -p '$AlbumArtistOrArtist' $1)"
+    filename_artist="${filename_artist//(:|\"|\/)/_}"
+    local filename_album="$(exiftool $exiftool_args -p '$Album' $1)"
+    filename_album="${filename_album//(:|\"|\/)/_}"
+    local filename_disc="$(exiftool $exiftool_args -p '$DiscTitle' $1)"
+    filename_disc="${filename_disc//(:|\"|\/)/_}"
+    local filename_track='$OnlyTrack - '$potential_artist'$TitleWithoutSlash'
+    filename_track="$(exiftool $exiftool_args -p $filename_track $1)"
+    filename_track="${filename_track//(:|\"|\/)/_}"
+
+    local preferred_filename="$filename_artist/$filename_album/$filename_disc${filename_disc:+/}$filename_track.${filename##*.}"
+    if [[ "$preferred_filename" != "${1#$base_dir/}" ]] {
+      warning "File is named wrong" $1 "should be $preferred_filename"
+    }
   }
 }
 
@@ -166,4 +186,5 @@ print_summary () {
 }
 
 check_music_folder
+status
 print_summary
