@@ -22,7 +22,7 @@ Bundle 'godlygeek/tabular'
 Bundle 'ervandew/supertab'
 
 " Syntax checking
-Bundle 'scooloose/syntastic'
+Bundle 'scrooloose/syntastic'
 
 
 " Auto completion popup
