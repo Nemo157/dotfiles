@@ -13,9 +13,10 @@ setup_vcs_info () {
   local vcs_action_prompt="${vcs}${branch}${action}$PR_NO_COLOUR"
   local vcs_path="$PR_MAGENTA%R/$PR_GREEN%S$PR_NO_COLOUR"
 
-  local staged_str="${PR_YELLOW}● $PR_NO_COLOUR"
-  local unstaged_str="${PR_RED}●  $PR_NO_COLOUR"
+  local staged_str="${PR_YELLOW} ●$PR_NO_COLOUR"
+  local unstaged_str="${PR_RED} ●$PR_NO_COLOUR"
 
+  zstyle ':vcs_info:*:prompt:*'     max-exports       3
   zstyle ':vcs_info:*:prompt:*'     check-for-changes true
   zstyle ':vcs_info:*:prompt:*'     stagedstr         $staged_str
   zstyle ':vcs_info:*:prompt:*'     unstagedstr       $unstaged_str
@@ -37,38 +38,19 @@ setup_colours () {
   PR_NO_COLOUR="%{$terminfo[sgr0]%}"
 }
 
-# Setting the prompt to multiple values is a bit hacky, but was the only
-# solution to get this prompt displaying correctly that I could find.
-#
 # This ensures the prompt doesn't move around, have lines duplicated etc. that
 # happens without the different prompt settings.  No idea why zsh is doing this,
-# but empirical testing has shown that this works (on the one version of zsh
-# tested) to keep a consistent 3-line prompt where the first is a blank spacer
-# from the last command.
-#
-# Although just noticed it doesn't work in a git folder........
-#
-# Seems it's something to do with the broken vcs_info when in a non-vcs
-# directory that's requiring these hacks.
-#
-# Some of this was taken from
-# https://github.com/jimhester/oh-my-zsh/commit/4e513d72b9542b7b5079451e3380b4a98b0b7b56
-# but that didn't entirely work for me.
+# but empirical testing has shown that this works (at least on OS X, zsh 5.0.2)
+# to keep a consistent 3-line prompt where the first is a blank spacer from the
+# last command.
 function zle-line-init {
-  if (( $+terminfo[smkx] && $+terminfo[rmkx] ))
-    echoti smkx
-  PROMPT="$FIRSTLINE$n$SECONDLINE"
   zle reset-prompt
   zle -R
 }
 
 function zle-line-finish {
-  if (( $+terminfo[smkx] && $+terminfo[rmkx] ))
-    echoti rmkx
-  PROMPT="$SECONDLINE"
   zle reset-prompt
   zle -R
-  PROMPT="$n$SECONDLINE"
 }
 
 function zle-keymap-select {
@@ -88,7 +70,9 @@ setup_prompt () {
   local host="$PR_GREEN%m"
   local whoami="${user}$PR_WHITE at ${host}$PR_NO_COLOUR$PR_BLUE"
   local fill='${(e)PR_FILLBAR}'
-  local dir='${(%):-%${PR_PWDLEN}<...<${${${vcs_info_msg_0_}/$HOME/~}/%\/$PR_GREEN\.$PR_NO_COLOUR/$PR_NO_COLOUR}%<<}'
+  local home_as_tilde='${${vcs_info_msg_0_}/$HOME/~}'
+  local remove_final_dot='${'${home_as_tilde}'/%\/$PR_GREEN\.$PR_NO_COLOUR/$PR_NO_COLOUR}'
+  local dir="${(%):-%${PR_PWDLEN}<...<${remove_final_dot}%<<}"
   local whereami="${dir}$PR_BLUE"
   local end_first="$PR_NO_COLOUR"
 
@@ -96,12 +80,15 @@ setup_prompt () {
   local time='%D{%H:%M}'
   local return_value='${(%l:3:):-%?}'
   local extra_info="%(?.$PR_CYAN${time}. $PR_RED${return_value}!)"
+  local lights='${vcs_info_msg_2_}'
   local marker='${${KEYMAP/vicmd/  }/(main|viins)/$PR_WHITE→ }'
   local end_second="$PR_NO_COLOUR"
 
   FIRSTLINE="${start_first}${whoami}    ${fill}${whereami}${end_first}"
-  SECONDLINE="${start_second}${extra_info} ${marker}${end_second}"
-  PROMPT="$n"
+  SECONDLINE="${start_second}${extra_info}${lights} ${marker}${end_second}"
+  PROMPT="
+$FIRSTLINE
+$SECONDLINE"
 }
 
 setup_rprompt () {
