@@ -1,0 +1,10 @@
+" Language syntaxes.
+Bundle 'Nemo157/glsl.vim'
+Bundle 'plasticboy/vim-markdown'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'PProvost/vim-ps1'
+Bundle 'dimituri/JSON.vim'
+Bundle 'Nemo157/llvm.vim'
+Bundle 'Nemo157/scala.vim'
+Bundle 'Nemo157/rpn.vim'
+Bundle 'tanob/mirah-vim'
