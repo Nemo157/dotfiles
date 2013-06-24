@@ -193,3 +193,7 @@ settings = {
 
 hilights = ( { text = "wim"; nick = "yes"; word = "yes"; } );
 ignores = ( { level = "JOINS PARTS QUITS"; } );
+keyboard = (
+  { key = "^Bp"; id = "previous_window"; data = ""; },
+  { key = "^Bn"; id = "next_window"; data = ""; }
+);
