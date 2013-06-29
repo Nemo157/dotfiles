@@ -4,13 +4,7 @@ export AWS_CREDENTIALS_FILE="$HOME/.ec2/aws-credentials"
 
 function () {
   set_locale () {
-    if locale -a | grep "$1" >/dev/null ; then
-      export LANG="$1"
-      export LC_ALL="$1"
-      true
-    else
-      false
-    fi
+    (locale -a | grep "$1" >/dev/null) && (export LANG="$1"; export LC_ALL="$1"; true)
   }
 
   set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
@@ -26,15 +20,23 @@ export GREP_COLOR='38;5;108'
 ## Add extra paths, only if they exist and only if they're not already added.
 function () {
   prepend_if_exists () {
-    [[ -d "$2" ]] && [[ ! "${(e)${:-\$$1}}" =~ "(^|.*:)$2(:.*|$)" ]] && export $1="$2:${(e)${:-\$$1}}"
+    local var_name="$1"
+    local var_value="${(e)${:-\$$var_name}}"
+    local dir="$2"
+    [[ -d "$dir" ]] && [[ ! "$var_value" =~ "(^|.*:)$dir(:.*|$)" ]] && export $var_name="$dir${var_value:+:}$var_value"
   }
 
   append_if_exists () {
-    [[ -d "$2" ]] && [[ ! "${(e)${:-\$$1}}" =~ "(^|.*:)$2(:.*|$)" ]] && export $1="${(e)${:-\$$1}}:$2"
+    local var_name="$1"
+    local var_value="${(e)${:-\$$var_name}}"
+    local dir="$2"
+    [[ -d "$dir" ]] && [[ ! "$var_value" =~ "(^|.*:)$dir(:.*|$)" ]] && export $var_name="$var_value${var_value:+:}$dir"
   }
 
   export_if_exists () {
-    [[ -d "$2" ]] && export $1="$2"
+    local var_name="$1"
+    local dir="$2"
+    [[ -d "$dir" ]] && export $var_name="$dir"
   }
 
   append_if_exists PATH "$HOME/bin"
@@ -57,3 +59,11 @@ function () {
   export_if_exists EC2_HOME "/usr/local/Cellar/ec2-api-tools/1.4.2.2/jars"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Cellar/ec2-ami-tools/1.3-45758/jars"
 }
+
+extra_config_files=(
+  $HOME/.zsh/lib/pc-specific/$(hostname -s).zprofile.zsh
+  $HOME/.zsh/lib/os-specific/$(uname).zprofile.zsh
+)
+
+for config_file in $extra_config_files
+  [[ -s $config_file ]] && source $config_file

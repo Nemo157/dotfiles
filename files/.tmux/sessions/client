@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+NAME="$1"
+TMUX="${2:-tmux}"
+
+"$TMUX" new-session -d -s "$NAME"
+"$TMUX" set -t "$NAME" status-bg brightblack

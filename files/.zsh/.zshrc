@@ -9,8 +9,8 @@ for config_file ($ZDOTDIR/lib/*.zsh)
 
 extra_config_files=(
   $HOME/.zsh/vendor/syntax-highlighting/zsh-syntax-highlighting.zsh
-  $HOME/.zsh/lib/pc-specific/$(hostname).zsh
-  $HOME/.zsh/lib/os-specific/$(uname).zsh
+  $HOME/.zsh/lib/pc-specific/$(hostname -s).zshrc.zsh
+  $HOME/.zsh/lib/os-specific/$(uname).zshrc.zsh
 )
 
 for config_file in $extra_config_files
