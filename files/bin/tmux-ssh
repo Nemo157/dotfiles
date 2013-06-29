@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+for arg in "$@";
+do
+  args="$args \"$arg\""
+done
+
+tmux new-window -n "ssh $1" "ssh $args -t '~/bin/tmux-session client'"
