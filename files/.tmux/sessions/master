@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+NAME="$1"
+TMUX="${2:-tmux}"
+
+"$TMUX" new-session -d -s "$NAME"
+
+if [[ -x pmset ]];
+then
+  "$TMUX" set -g status-right "#[fg=brightcyan][#[default]#(pmset -g batt | grep InternalBattery | cut -f2)#[fg=brightcyan]] #[fg=brightcyan][#[default]%F#[fg=brightcyan]] #[fg=brightcyan][#[default]%R#[fg=brightcyan]]"
+fi

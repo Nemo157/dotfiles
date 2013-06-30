@@ -5,3 +5,4 @@ TMUX="${2:-tmux}"
 
 "$TMUX" new-session -d -s "$NAME"
 "$TMUX" set -t "$NAME" status-bg brightblack
+"$TMUX" set -t "$NAME" status-fg cyan
