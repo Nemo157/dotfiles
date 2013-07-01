@@ -1,33 +1,33 @@
 {
   "default_module": "powerline.segments.common",
   "segment_data": {
+    "hostname": {
+      "args": {
+        "exclude_domain": true
+      }
+    }
   },
   "segments": {
-    "left": [
-      {
-        "type": "string",
-        "contents": "master",
-        "highlight_group": ["session"]
+    "left": [ {
+      "name": "hostname"
+    }, {
+      "type": "string",
+      "contents": "master",
+      "highlight_group": ["session"]
+    } ],
+    "right": [ {
+      "name": "date",
+      "args": {
+        "format": "%F"
       }
-    ],
-    "right": [
-      {
-        "name": "date",
-        "args": {
-          "format": "%F"
-        }
-      },
-      {
-        "name": "date",
-        "args": {
-          "format": "%R",
-          "istime": true
-        }
-      },
-      {
-        "name": "system_load"
+    }, {
+      "name": "date",
+      "args": {
+        "format": "%R",
+        "istime": true
       }
-    ]
+    }, {
+      "name": "system_load"
+    } ]
   }
 }
-
