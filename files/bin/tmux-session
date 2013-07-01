@@ -9,12 +9,8 @@ TMUX="${2:-tmux}"
 "$TMUX" has-session -t "$1"
 
 if [[ $? -ne 0 ]] {
-  if [[ -e "$HOME/.tmux/sessions/$1" ]] {
-    "$HOME/.tmux/sessions/$1" "$1" "$TMUX"
-  } else {
-    echo "Creating session $1"
-    "$TMUX" new-session -d -s "$1"
-  }
+  echo "Creating session $1"
+  "$TMUX" new-session -d -s "$1"
 }
 
 "$TMUX" attach-session -t "$1"

@@ -1,6 +1,0 @@
-#!/usr/bin/env sh
-
-NAME="$1"
-
-tmux new-session -d -s "$NAME"
-tmux set -t "$NAME" status-fg cyan
