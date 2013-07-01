@@ -1,11 +1,6 @@
 {
   "default_module": "powerline.segments.common",
   "segment_data": {
-    "hostname": {
-      "args": {
-        "only_if_ssh": true
-      }
-    }
   },
   "segments": {
     "right": [
@@ -24,9 +19,6 @@
       },
       {
         "name": "system_load"
-      },
-      {
-        "name": "hostname"
       }
     ]
   }

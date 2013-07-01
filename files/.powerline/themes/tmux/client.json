@@ -1,13 +1,13 @@
 {
   "default_module": "powerline.segments.common",
   "segment_data": {
-    "hostname": {
-      "args": {
-        "only_if_ssh": true
-      }
-    }
   },
   "segments": {
+    "left": [
+      {
+        "name": "hostname"
+      }
+    ],
     "right": [
       {
         "name": "date",
@@ -24,9 +24,6 @@
       },
       {
         "name": "system_load"
-      },
-      {
-        "name": "hostname"
       }
     ]
   }
