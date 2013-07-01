@@ -3,6 +3,13 @@
   "segment_data": {
   },
   "segments": {
+    "left": [
+      {
+        "type": "string",
+        "contents": "master",
+        "highlight_group": ["environment"]
+      }
+    ],
     "right": [
       {
         "name": "date",

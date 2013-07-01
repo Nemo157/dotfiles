@@ -5,8 +5,12 @@
   "segments": {
     "left": [
       {
-        "name": "hostname",
-        "draw_hard_divider": false
+        "name": "hostname"
+      },
+      {
+        "type": "string",
+        "contents": "client",
+        "highlight_group": ["environment"]
       }
     ],
     "right": [
