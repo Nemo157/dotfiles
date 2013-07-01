@@ -5,7 +5,8 @@
   "segments": {
     "left": [
       {
-        "name": "hostname"
+        "name": "hostname",
+        "draw_hard_divider": false
       }
     ],
     "right": [
