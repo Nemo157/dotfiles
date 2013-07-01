@@ -10,7 +10,7 @@
       {
         "type": "string",
         "contents": "client",
-        "highlight_group": ["environment"]
+        "highlight_group": ["session"]
       }
     ],
     "right": [
