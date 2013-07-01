@@ -1,0 +1,34 @@
+{
+  "default_module": "powerline.segments.common",
+  "segment_data": {
+    "hostname": {
+      "args": {
+        "only_if_ssh": true
+      }
+    }
+  },
+  "segments": {
+    "right": [
+      {
+        "name": "date",
+        "args": {
+          "format": "%F"
+        }
+      },
+      {
+        "name": "date",
+        "args": {
+          "format": "%R",
+          "istime": true
+        }
+      },
+      {
+        "name": "system_load"
+      },
+      {
+        "name": "hostname"
+      }
+    ]
+  }
+}
+
