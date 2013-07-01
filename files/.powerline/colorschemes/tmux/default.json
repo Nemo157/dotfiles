@@ -1,25 +1,28 @@
 {
-	"name": "Default color scheme for terminal prompts",
-	"groups": {
-		"background:divider": { "fg": "gray5", "bg": "gray0" },
-		"session": { "fg": "black", "bg": "gray10", "attr": ["bold"] },
-		"date": { "fg": "gray8", "bg": "gray2" },
-		"time": { "fg": "gray10", "bg": "gray2", "attr": ["bold"] },
-		"time:divider": { "fg": "gray5", "bg": "gray2" },
-		"email_alert": { "fg": "white", "bg": "brightred", "attr": ["bold"] },
-		"email_alert_gradient": { "fg": "white", "bg": "yellow_orange_red", "attr": ["bold"] },
-		"hostname": { "fg": "black", "bg": "gray10", "attr": ["bold"] },
-		"weather": { "fg": "gray8", "bg": "gray0" },
-		"weather_temp_gradient": { "fg": "blue_red", "bg": "gray0" },
-		"weather_condition_hot": { "fg": "khaki1", "bg": "gray0" },
-		"weather_condition_snowy": { "fg": "skyblue1", "bg": "gray0" },
-		"weather_condition_rainy": { "fg": "skyblue1", "bg": "gray0" },
-		"uptime": { "fg": "gray8", "bg": "gray0" },
-		"external_ip": { "fg": "gray8", "bg": "gray0" },
-		"network_load": { "fg": "gray8", "bg": "gray0" },
-		"network_load_gradient": { "fg": "green_yellow_orange_red", "bg": "gray0" },
-		"system_load": { "fg": "gray8", "bg": "gray0" },
-		"system_load_gradient": { "fg": "green_yellow_orange_red", "bg": "gray0" },
-		"environment": { "fg": "gray8", "bg": "gray0" }
-	}
+  "groups": {
+    "background:divider": { "fg": "base0", "bg": "base02" },
+
+    "hostname": { "fg": "violet", "bg": "base02" },
+    "session": { "fg": "magenta", "bg": "base03" },
+
+    "date": { "fg": "yellow", "bg": "base03" },
+    "time": { "fg": "yellow", "bg": "base02" },
+    "time:divider": { "fg": "orange", "bg": "base02" },
+
+    "system_load": { "fg": "green", "bg": "base03" },
+    "system_load_gradient": { "fg": "green_yellow_orange_red", "bg": "base03" },
+
+    "email_alert": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
+    "email_alert_gradient": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
+    "weather": { "fg": "base0", "bg": "base03" },
+    "weather_temp_gradient": { "fg": "base0", "bg": "base03" },
+    "weather_condition_hot": { "fg": "base0", "bg": "base03" },
+    "weather_condition_snowy": { "fg": "base0", "bg": "base03" },
+    "weather_condition_rainy": { "fg": "base0", "bg": "base03" },
+    "uptime": { "fg": "base0", "bg": "base03" },
+    "external_ip": { "fg": "base0", "bg": "base03" },
+    "network_load": { "fg": "base0", "bg": "base03" },
+    "network_load_gradient": { "fg": "base0", "bg": "base03" },
+    "environment": { "fg": "base0", "bg": "base03" }
+  }
 }

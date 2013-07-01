@@ -7,7 +7,7 @@
       {
         "type": "string",
         "contents": "master",
-        "highlight_group": ["environment"]
+        "highlight_group": ["session"]
       }
     ],
     "right": [
