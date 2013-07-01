@@ -4,7 +4,13 @@ export AWS_CREDENTIALS_FILE="$HOME/.ec2/aws-credentials"
 
 function () {
   set_locale () {
-    (locale -a | grep "$1" >/dev/null) && (export LANG="$1"; export LC_ALL="$1"; true)
+    if (locale -a | grep "$1" >/dev/null) {
+      export LANG="$1"
+      export LC_ALL="$1"
+      true
+    } else {
+      false
+    }
   }
 
   set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
@@ -67,3 +73,5 @@ extra_config_files=(
 
 for config_file in $extra_config_files
   [[ -s $config_file ]] && source $config_file
+
+true

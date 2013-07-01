@@ -1,16 +1,16 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env sh
 
-if [[ -z "$1" ]] {
+if [[ -z "$1" ]]
+then
   echo "You must specify a session name" >&2
-}
+fi
 
-TMUX="${2:-tmux}"
+tmux -u has-session -t "$1"
 
-"$TMUX" has-session -t "$1"
-
-if [[ $? -ne 0 ]] {
+if [[ $? -ne 0 ]]
+then
   echo "Creating session $1"
-  "$TMUX" new-session -d -s "$1"
-}
+  tmux -u new-session -d -s "$1"
+fi
 
-"$TMUX" attach-session -t "$1"
+tmux -u attach-session -t "$1"
