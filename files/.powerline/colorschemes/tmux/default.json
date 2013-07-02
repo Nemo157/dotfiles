@@ -12,6 +12,12 @@
     "system_load": { "fg": "green", "bg": "base03" },
     "system_load_gradient": { "fg": "green_yellow_orange_red", "bg": "base03" },
 
+    "battery.current_source": { "fg": "green", "bg": "base03" },
+    "battery.current_percent": { "fg": "green", "bg": "base03" },
+    "battery.charging": { "fg": "green", "bg": "base03" },
+    "battery.time_remaining": { "fg": "green", "bg": "base03" },
+    "battery.format": { "fg": "green", "bg": "base02" },
+
     "email_alert": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
     "email_alert_gradient": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
     "weather": { "fg": "base0", "bg": "base03" },

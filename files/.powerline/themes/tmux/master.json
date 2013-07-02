@@ -1,21 +1,28 @@
 {
   "default_module": "powerline.segments.common",
-  "segment_data": {
-    "hostname": {
+  "segments": {
+    "left": [ {
+      "name": "hostname",
       "args": {
         "exclude_domain": true
       }
-    }
-  },
-  "segments": {
-    "left": [ {
-      "name": "hostname"
     }, {
       "type": "string",
       "contents": "master",
-      "highlight_group": ["session"]
+      "highlight_group": "session"
     } ],
     "right": [ {
+      "module": "battery",
+      "name": "format",
+      "args": {
+        "format": "%(current_source)s %(current_percent)d%%%(formatted_time_remaining)s",
+        "time_format": " (%(fuzzy_time_remaining)s%(charging_state)s)",
+        "charging_text": " till charged",
+        "discharging_text": " till empty",
+        "AC_text": "🔌 ",
+        "battery_text": "🔋 "
+      }
+    }, {
       "name": "date",
       "args": {
         "format": "%F"
