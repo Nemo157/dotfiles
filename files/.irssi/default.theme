@@ -55,7 +55,7 @@ info_eol = "false";
 
 # these characters are automatically replaced with specified color
 # (dark grey by default)
-replaces = { "[]=" = "%K$*%n"; };
+replaces = { "[]=" = "%k$*%n"; };
 
 abstracts = {
   ##
@@ -66,7 +66,7 @@ abstracts = {
   line_start = "%B-%W!%B-%n ";
 
   # timestamp styling, nothing by default
-  timestamp = "$*";
+  timestamp = "%K%0%y $* %n%k%n";
 
   # any kind of text that needs hilighting, default is to bold
   hilight = "%_$*%_";
@@ -118,7 +118,7 @@ abstracts = {
   ##
 
   # the basic styling of how to print message, $0 = nick mode, $1 = nick
-  msgnick = "%K<%n$0$1-%K>%n %|";
+  msgnick = "$0$1- %n";
 
   # message from you is printed. "msgownnick" specifies the styling of the
   # nick ($0 part in msgnick) and "ownmsgnick" specifies the styling of the
@@ -130,36 +130,41 @@ abstracts = {
   #  ownmsgnick = "%Y{msgnick $0 $1-%Y}%n";
   #  (you'll also have to remove <> from replaces list above)
   # Example2.2: But you still want to keep <> grey for other messages:
-  #  pubmsgnick = "%K{msgnick $0 $1-%K}%n";
-  #  pubmsgmenick = "%K{msgnick $0 $1-%K}%n";
-  #  pubmsghinick = "%K{msgnick $1 $0$2-%n%K}%n";
-  #  ownprivmsgnick = "%K{msgnick  $*%K}%n";
-  #  privmsgnick = "%K{msgnick  %R$*%K}%n";
+  #  pubmsgnick = "%k{msgnick $0 $1-%k}%n";
+  #  pubmsgmenick = "%k{msgnick $0 $1-%k}%n";
+  #  pubmsghinick = "%k{msgnick $1 $0$2-%n%k}%n";
+  #  ownprivmsgnick = "%k{msgnick  $*%k}%n";
+  #  privmsgnick = "%k{msgnick  %R$*%k}%n";
+
+  mode = "%K%0%C $0";
 
   # $0 = nick mode, $1 = nick
-  ownmsgnick = "{msgnick $0 $1-}";
-  ownnick = "%W$*%n";
+  ownmsgnick = "{msgnick $0 $1$2-}";
+  #ownnick = "%W$*%n";
+  ownnick = "%g $* %n%k%n";
 
   # public message in channel, $0 = nick mode, $1 = nick
   pubmsgnick = "{msgnick $0 $1-}";
-  pubnick = "%N$*%n";
+  #pubnick = "%N$*%n";
+  pubnick = "%c $* %n%k%n";
 
   # public message in channel meant for me, $0 = nick mode, $1 = nick
   pubmsgmenick = "{msgnick $0 $1-}";
-  menick = "%Y$*%n";
+  #menick = "%Y$*%n";
+  menick = "%r $* %n%k%n";
 
   # public highlighted message in channel
   # $0 = highlight color, $1 = nick mode, $2 = nick
   pubmsghinick = "{msgnick $1 $0$2-%n}";
 
   # channel name is printed with message
-  msgchannel = "%K:%c$*%n";
+  msgchannel = "%k:%c$*%n";
 
   # private message, $0 = nick, $1 = host
-  privmsg = "[%R$0%K(%r$1-%K)%n] ";
+  privmsg = "[%R$0%k(%r$1-%k)%n] ";
 
   # private message from you, $0 = "msg", $1 = target nick
-  ownprivmsg = "[%r$0%K(%R$1-%K)%n] ";
+  ownprivmsg = "[%r$0%k(%R$1-%k)%n] ";
 
   # own private message in query
   ownprivmsgnick = "{msgnick  $*}";
@@ -182,7 +187,7 @@ abstracts = {
   ownaction = "{action $*}";
 
   # own action with target, both private/public
-  ownaction_target = "{action_core $0}%K:%c$1%n ";
+  ownaction_target = "{action_core $0}%k:%c$1%n ";
 
   # private action sent by others
   pvtaction = "%W (*) $*%n ";
@@ -200,14 +205,14 @@ abstracts = {
   whois = "%# $[8]0 : $1-";
 
   # notices
-  ownnotice = "[%r$0%K(%R$1-%K)]%n ";
-  notice = "%K-%M$*%K-%n ";
-  pubnotice_channel = "%K:%m$*";
-  pvtnotice_host = "%K(%m$*%K)";
+  ownnotice = "[%r$0%k(%R$1-%k)]%n ";
+  notice = "%k-%M$*%k-%n ";
+  pubnotice_channel = "%k:%m$*";
+  pvtnotice_host = "%k(%m$*%k)";
   servernotice = "%g!$*%n ";
 
   # CTCPs
-  ownctcp = "[%r$0%K(%R$1-%K)] ";
+  ownctcp = "[%r$0%k(%R$1-%k)] ";
   ctcp = "%g$*%n";
 
   # wallops
@@ -233,14 +238,14 @@ abstracts = {
   dccfile = "%_$*%_";
 
   # DCC chat, own msg/action
-  dccownmsg = "[%r$0%K($1-%K)%n] ";
+  dccownmsg = "[%r$0%k($1-%k)%n] ";
   dccownnick = "%R$*%n";
   dccownquerynick = "%W$*%n";
   dccownaction = "{action $*}";
-  dccownaction_target = "{action_core $0}%K:%c$1%n ";
+  dccownaction_target = "{action_core $0}%k:%c$1%n ";
 
   # DCC chat, others
-  dccmsg = "[%G$1-%K(%g$0%K)%n] ";
+  dccmsg = "[%G$1-%k(%g$0%k)%n] ";
   dccquerynick = "%G$*%n";
   dccaction = "%W (*dcc*) $*%n %|";
 
@@ -250,20 +255,20 @@ abstracts = {
 
   # default background for all statusbars. You can also give
   # the default foreground color for statusbar items.
-  sb_background = "%0%c";
+  sb_background = "%0%k";
 
   # default backround for "default" statusbar group
   #sb_default_bg = "%4";
   # background for prompt / input line
-  sb_prompt_bg = "%n";
+  sb_prompt_bg = "%N";
   # background for info statusbar
-  sb_info_bg = "%8";
+  sb_info_bg = "%9";
   # background for topicbar (same default)
   #sb_topic_bg = "%4";
 
   # text at the beginning of statusbars. sb-item already puts
   # space there,so we don't use anything by default.
-  sbstart = "";
+  sbstart = " ";
   # text at the end of statusbars. Use space so that it's never
   # used for anything.
   sbend = " ";
@@ -271,24 +276,37 @@ abstracts = {
   topicsbstart = "{sbstart $*}";
   topicsbend = "{sbend $*}";
 
-  prompt = "[$*] ";
+  prompt = " %K%4%W $* %n%b%n ";
 
-  sb = " %g[%n$*%g]%n";
-  sbmode = "(%G+%n$*)";
-  sbaway = " (%YzZzZ%n)";
+  sb = "%n%8%K%3 $* %n%K%n ";
+  sbmode = "(+$*)";
+  sbaway = " (%yzZzZ%n)";
   sbservertag = ":$0 (change with ^X)";
   sbnickmode = "$0";
 
   # activity in statusbar
 
   # ',' separator
-  sb_act_sep = "%W$*";
+  sb_act_sep = "%1$*";
   # normal text
-  sb_act_text = "%W$*";
+  sb_act_text = "%1$*";
   # public message
-  sb_act_msg = "%W$*";
+  sb_act_msg = "%1$*";
   # hilight
-  sb_act_hilight = "%m$*";
+  sb_act_hilight = "%5$*";
   # hilight with specified color, $0 = color, $1 = text
-  sb_act_hilight_color = "$0$1-%n";
+  sb_act_hilight_color = "%5$1-%K";
+};
+
+formats = {
+  "fe-common/core" = {
+    pubmsg = "{pubmsgnick {mode $2} {pubnick $[9]0}}$1";
+    own_msg = "{ownmsgnick {mode $2} {ownnick $[9]0}}$1";
+    own_msg_channel = "{ownmsgnick {mode $3} {ownnick $[9]0}{msgchannel $1}}$2";
+    pubmsg_me = "{pubmsgmenick {mode $2} {menick $[9]0}}$1";
+    pubmsg_me_channel = "{pubmsgmenick {mode $3} {menick $[9]0}{msgchannel $1}}$2";
+    pubmsg_hilight = "{pubmsghinick $0 $3 $1}$2";
+    pubmsg_hilight_channel = "{pubmsghinick $0 $4 $1{msgchannel $2}}$3";
+    pubmsg_channel = "{pubmsgnick {mode $3} {pubnick $0}{msgchannel $1}}$2";
+  };
 };

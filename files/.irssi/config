@@ -119,7 +119,6 @@ statusbar = {
       # list of items in statusbar in the display order
       items = {
         barstart = { priority = "100"; };
-        time = { };
         user = { };
         window = { };
         window_empty = { };
@@ -193,5 +192,4 @@ settings = {
 
 hilights = ( { text = "wim"; nick = "yes"; word = "yes"; } );
 ignores = ( { level = "JOINS PARTS QUITS"; } );
-keyboard = (
-);
+keyboard = ( { key = "^D"; id = "command"; data = "window close"; } );
