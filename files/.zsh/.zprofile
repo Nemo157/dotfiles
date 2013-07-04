@@ -49,7 +49,6 @@ function () {
   append_if_exists PATH "$HOME/node_modules/.bin"
   append_if_exists PATH "/usr/local/avr/bin"
   append_if_exists PATH "/usr/local/arm-eabi/bin"
-  append_if_exists PATH "$HOME/.rvm/bin"
 
   append_if_exists PYTHONPATH "/usr/local/lib/python2.6/site-packages/"
   append_if_exists PYTHONPATH "/Library/Python/2.6/site-packages/"
