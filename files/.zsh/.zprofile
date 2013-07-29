@@ -47,6 +47,7 @@ function () {
 
   append_if_exists PATH "$HOME/bin"
   append_if_exists PATH "$HOME/node_modules/.bin"
+  append_if_exists PATH "/usr/local/share/npm/bin"
   append_if_exists PATH "/usr/local/avr/bin"
   append_if_exists PATH "/usr/local/arm-eabi/bin"
 
