@@ -153,9 +153,11 @@ abstracts = {
   #menick = "%Y$*%n";
   menick = "%r $* %n%k%n";
 
+  himode = "%K%0%C $1";
+  hinick = "$0 $1- %n%k%n";
   # public highlighted message in channel
   # $0 = highlight color, $1 = nick mode, $2 = nick
-  pubmsghinick = "{msgnick $1 $0$2-%n}";
+  pubmsghinick = "{msgnick {himode $0 $1} {hinick $0 $2-}";
 
   # channel name is printed with message
   msgchannel = "%k:%c$*%n";
@@ -276,9 +278,9 @@ abstracts = {
   topicsbstart = "{sbstart $*}";
   topicsbend = "{sbend $*}";
 
-  prompt = " %K%4%W $* %n%b%n ";
+  prompt = " %K%5%W $* %n%m%n ";
 
-  sb = "%n%8%K%3 $* %n%K%n ";
+  sb = "%n%8%K%4 $* %n%K%n ";
   sbmode = "(+$*)";
   sbaway = " (%yzZzZ%n)";
   sbservertag = ":$0 (change with ^X)";
@@ -305,7 +307,7 @@ formats = {
     own_msg_channel = "{ownmsgnick {mode $3} {ownnick $[9]0}{msgchannel $1}}$2";
     pubmsg_me = "{pubmsgmenick {mode $2} {menick $[9]0}}$1";
     pubmsg_me_channel = "{pubmsgmenick {mode $3} {menick $[9]0}{msgchannel $1}}$2";
-    pubmsg_hilight = "{pubmsghinick $0 $3 $1}$2";
+    pubmsg_hilight = "{pubmsghinick $0 $3 $[9]1}$2";
     pubmsg_hilight_channel = "{pubmsghinick $0 $4 $1{msgchannel $2}}$3";
     pubmsg_channel = "{pubmsgnick {mode $3} {pubnick $0}{msgchannel $1}}$2";
   };

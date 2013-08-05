@@ -256,13 +256,14 @@ sub send_to_api {
                 $ENV{https_proxy} = $proxy;
             }
 
-            my $notifier_cmd = "/Users/nemo157/.rvm/bin/terminal-notifier -title Irssi -activate com.googlecode.iterm2";
+            my $notifier_cmd = "/Users/nemo157/bin/terminal-notifier -title Irssi -activate com.googlecode.iterm2";
             my $notify_args;
 
             if ($type eq 'notification') {
                 $lastMsg = Irssi::strip_codes($lastMsg);
 
                 encode_utf();
+                escape_single_quotes();
 
                 $notify_args = "-message '$lastNick @ $lastTarget:\n$lastMsg'";
             } elsif ($type eq 'cmd') {
@@ -300,6 +301,12 @@ sub encode_utf {
         $lastNick   = Encode::encode_utf8($lastNick);
         $lastTarget = Encode::encode_utf8($lastTarget);
     }
+}
+
+sub escape_single_quotes {
+    $lastMsg =~ s/'/'"'"'/g;
+    $lastNick =~ s/'/'"'"'/g;
+    $lastTarget =~ s/'/'"'"'/g;
 }
 
 sub read_pipe {
@@ -342,9 +349,9 @@ sub are_settings_valid {
         return 0;
     }
 
-    `/Users/nemo157/.rvm/bin/terminal-notifier -list ALL`;
+    `/Users/nemo157/bin/terminal-notifier -list ALL`;
     if ($? != 0) {
-        Irssi::print("IrssiNotifier: /Users/nemo157/.rvm/bin/terminal-notifier not found.");
+        Irssi::print("IrssiNotifier: /Users/nemo157/bin/terminal-notifier not found.");
         return 0;
     }
 

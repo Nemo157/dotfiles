@@ -1,16 +1,16 @@
 {
   "groups": {
-    "background:divider": { "fg": "base0", "bg": "base02" },
+    "background:divider": { "fg": "base0", "bg": "base03" },
 
     "hostname": { "fg": "violet", "bg": "base02" },
     "session": { "fg": "magenta", "bg": "base03" },
 
-    "date": { "fg": "yellow", "bg": "base03" },
-    "time": { "fg": "yellow", "bg": "base02" },
-    "time:divider": { "fg": "orange", "bg": "base02" },
+    "date": { "fg": "blue", "bg": "base03" },
+    "time": { "fg": "blue", "bg": "base03" },
+    "time:divider": { "fg": "base02", "bg": "base03" },
 
-    "system_load": { "fg": "green", "bg": "base03" },
-    "system_load_gradient": { "fg": "green_yellow_orange_red", "bg": "base03" },
+    "system_load": { "fg": "green", "bg": "base02" },
+    "system_load_gradient": { "fg": "green_yellow_orange_red", "bg": "base02" },
 
     "battery.current_source": { "fg": "green", "bg": "base03" },
     "battery.current_percent": { "fg": "green", "bg": "base03" },
