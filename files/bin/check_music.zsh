@@ -22,6 +22,29 @@ if [[ $exiftool -eq 0 ]] {
   exiftool_args+="-m"
 }
 
+music_file_args=(
+  -ext
+  mp3
+  -ext
+  flac
+  -ext
+  m4a
+  -ext
+  ogg
+  -ext
+  wma
+  -ext
+  mpc
+)
+
+# Yay for Unicode normalization issues >_<
+to_nfc=(
+  -MUnicode::Normalize
+  -CS
+  -ne
+  'print NFC($_)'
+)
+
 last_status=
 echo -en "" 1>&2
 
@@ -43,7 +66,10 @@ check_music_folder () {
   #echo "Total files: ${#files}"
   status $base_dir
   for f in $base_dir/${~artist}(/N)
-    check_artist "$f"
+    case $(basename $f) in
+    iTunes | GarageBand | Sonora | sync ) ;;
+    * ) check_artist "$f" ;;
+  esac
   for f in $base_dir/*(.N)
     check_base_folder_file "$f"
 }
@@ -90,7 +116,7 @@ check_album () {
   status $1
   typeset -A artists
   if [[ $exiftool -eq 0 ]] {
-    local artists_list="$(exiftool $exiftool_args -r -p '$Artist' $1 2>/dev/null)"
+    local artists_list="$(exiftool $exiftool_args $music_file_args -r -p '$Artist' $1 2>/dev/null | perl $to_nfc)"
     for artist in ${(f)artists_list}
       artists[$artist]=1
 
@@ -149,8 +175,8 @@ check_music_file () {
     replaygain_tags+="-ReplaygainTrackGainClean"
     replaygain_tags+="-ReplaygainTrackPeakClean"
 
-    local replaygain_count="$(exiftool $exiftool_args $replaygain_tags $1 | wc -w)"
-    if ! [[ "$replaygain_count" == "4" ]] {
+    local replaygain_count="$(exiftool $exiftool_args $music_file_args $replaygain_tags $1 | wc -w | tr -d '[[:space:]]')"
+    if ! [[ "${replaygain_count/}" == "4" ]] {
       warning "Replay gain data not found" $1
     }
 
@@ -160,18 +186,18 @@ check_music_file () {
     if (($is_compilation > 0)) {
       potential_artist='$Artist - '
     }
-    local filename_artist="$(exiftool $exiftool_args -p '$AlbumArtistOrArtist' $1)"
-    filename_artist="${filename_artist//(:|\"|\/)/_}"
-    local filename_album="$(exiftool $exiftool_args -p '$Album' $1)"
-    filename_album="${filename_album//(:|\"|\/)/_}"
-    local filename_disc="$(exiftool $exiftool_args -p '$DiscTitle' $1)"
-    filename_disc="${filename_disc//(:|\"|\/)/_}"
+    local filename_artist="$(exiftool $exiftool_args $music_file_args -p '$AlbumArtistOrArtist' $1 | perl $to_nfc)"
+    filename_artist="${filename_artist//\//_}"
+    local filename_album="$(exiftool $exiftool_args $music_file_args -p '$Album' $1 | perl $to_nfc)"
+    filename_album="${filename_album//\//_}"
+    local filename_disc="$(exiftool $exiftool_args $music_file_args -p '$DiscTitle' $1 | perl $to_nfc)"
+    filename_disc="${filename_disc//\//_}"
     local filename_track='$OnlyTrack - '$potential_artist'$TitleWithoutSlash'
-    filename_track="$(exiftool $exiftool_args -p $filename_track $1)"
-    filename_track="${filename_track//(:|\"|\/)/_}"
+    filename_track="$(exiftool $exiftool_args $music_file_args -p $filename_track $1 | perl $to_nfc)"
+    filename_track="${filename_track//\//_}"
 
     local preferred_filename="$filename_artist/$filename_album/$filename_disc${filename_disc:+/}$filename_track.${filename##*.}"
-    if [[ "$preferred_filename" != "${1#$base_dir/}" ]] {
+    if [[ "$preferred_filename" != "$(echo -n "${1#$base_dir/}" | perl $to_nfc)" ]] {
       warning "File is named wrong" $1 "should be $preferred_filename"
     }
   }

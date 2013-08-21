@@ -28,61 +28,72 @@ sub get_first_number {
   }
 }
 
+sub get_first_value {
+  my $values = shift;
+  foreach (@$values) {
+    return $_ if $_;
+  }
+}
+
 %Image::ExifTool::UserDefined = (
   'Image::ExifTool::Composite' => {
     ReplaygainAlbumPeakClean => {
       Desire => {
         0 => 'ReplaygainAlbumPeak',
-        1 => 'UserDefinedText',
-        2 => 'Name',
-        3 => 'Data'
+        1 => 'ReplayGainAlbumPeak',
+        2 => 'UserDefinedText',
+        3 => 'Name',
+        4 => 'Data'
       },
       ValueConv => sub {
         my $val = shift;
         my $self = shift;
-        my @values = (@$val[0], search_custom_tags($self, 'replaygain_album_peak'));
+        my @values = (@$val[0], @$val[1], search_custom_tags($self, 'replaygain_album_peak'));
         return get_first_number(\@values);
       },
     },
     ReplaygainAlbumGainClean => {
       Desire => {
         0 => 'ReplaygainAlbumGain',
-        1 => 'UserDefinedText',
-        2 => 'Name',
-        3 => 'Data'
+        1 => 'ReplayGainAlbumGain',
+        2 => 'UserDefinedText',
+        3 => 'Name',
+        4 => 'Data'
       },
       ValueConv => sub {
         my $val = shift;
         my $self = shift;
-        my @values = (@$val[0], search_custom_tags($self, 'replaygain_album_gain'));
+        my @values = (@$val[0], @$val[1], search_custom_tags($self, 'replaygain_album_gain'));
         return get_first_number(\@values);
       },
     },
     ReplaygainTrackPeakClean => {
       Desire => {
         0 => 'ReplaygainTrackPeak',
-        1 => 'UserDefinedText',
-        2 => 'Name',
-        3 => 'Data'
+        1 => 'ReplayGainTrackPeak',
+        2 => 'UserDefinedText',
+        3 => 'Name',
+        4 => 'Data'
       },
       ValueConv => sub {
         my $val = shift;
         my $self = shift;
-        my @values = (@$val[0], search_custom_tags($self, 'replaygain_track_peak'));
+        my @values = (@$val[0], @$val[1], search_custom_tags($self, 'replaygain_track_peak'));
         return get_first_number(\@values);
       },
     },
     ReplaygainTrackGainClean => {
       Desire => {
         0 => 'ReplaygainTrackGain',
-        1 => 'UserDefinedText',
-        2 => 'Name',
-        3 => 'Data'
+        1 => 'ReplayGainTrackGain',
+        2 => 'UserDefinedText',
+        3 => 'Name',
+        4 => 'Data'
       },
       ValueConv => sub {
         my $val = shift;
         my $self = shift;
-        my @values = (@$val[0], search_custom_tags($self, 'replaygain_track_gain'));
+        my @values = (@$val[0], @$val[1], search_custom_tags($self, 'replaygain_track_gain'));
         return get_first_number(\@values);
       },
     },
@@ -132,12 +143,14 @@ sub get_first_number {
     },
     AlbumArtistOrArtist => {
       Desire => {
-        0 => 'Artist',
-        1 => 'Band',
+        0 => 'AlbumArtist',
+        1 => 'Albumartist',
+        2 => 'Band',
+        3 => 'Artist',
       },
       ValueConv => sub {
         my $val = shift;
-        return @$val[1] ? @$val[1] : @$val[0];
+        return get_first_value(\@$val);
       },
     },
     TitleWithoutSlash => {
