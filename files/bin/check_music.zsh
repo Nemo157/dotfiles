@@ -138,7 +138,7 @@ check_album () {
 check_album_file () {
   status $1
   case $(basename $1) in
-    cover.jpg | back.jpg | disc.jpg ) ;;
+    cover.jpg | back.jpg | disc.jpg | booklet.pdf ) ;;
     ${~allowed_music_files} ) check_music_file $1 $2 ;;
     * ) warning "Not allowed file in album folder" $1 ;;
   esac
