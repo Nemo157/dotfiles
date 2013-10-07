@@ -1,6 +1,6 @@
 servers = (
   {
-    address = "routedev";
+    address = "routedev.chc.tlocal";
     chatnet = "routedev";
     port = "6667";
     use_ssl = "no";
