@@ -31,7 +31,7 @@ def _run_cmd(cmd):
   return stdout.strip()
 
 
-_current_source_regex = re.compile('Currently drawing from \'(.*)\'')
+_current_source_regex = re.compile('(Currently|Now) drawing from \'(.*)\'')
 _current_percent_regex = re.compile('(\\d+)%')
 _charging_regex = re.compile('charging')
 _discharging_regex = re.compile('discharging')
@@ -42,7 +42,7 @@ def _get_battery_info():
   raw = _run_cmd(['/usr/bin/pmset', '-g', 'batt'])
   current_source = _current_source_regex.search(raw)
   if current_source is not None:
-    current_source = current_source.group(1)
+    current_source = current_source.group(2)
   current_percent = _current_percent_regex.search(raw)
   if current_percent is not None:
     current_percent = int(current_percent.group(1))
