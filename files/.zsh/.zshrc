@@ -3,6 +3,14 @@ if [[ "$COLORTERM" == "gnome-terminal" ]] then
   export TERM='xterm-256color'
 fi
 
+if [[ ! -d "$HOME/.zsh/antigen" ]] then
+  git clone https://github.com/zsh-users/antigen.git "$HOME/.zsh/antigen"
+fi
+
+source "$HOME/.zsh/antigen/antigen.zsh"
+
+antigen bundle zsh-users/zsh-syntax-highlighting
+
 ## Source all the config files.
 for config_file ($ZDOTDIR/lib/*.zsh)
   source $config_file
