@@ -14,8 +14,8 @@ Installation
 * Install and switch to ruby 2.0
 
 
-      ruby-install ruby 2.0
-      chruby 2.0
+    ruby-install ruby 2.0
+    chruby 2.0
 
 * Generate ssh key
 
