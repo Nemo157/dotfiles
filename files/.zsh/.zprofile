@@ -47,9 +47,12 @@ function () {
 
   append_if_exists PATH "$HOME/bin"
   append_if_exists PATH "$HOME/node_modules/.bin"
+  append_if_exists PATH "$HOME/.lein/bin"
   append_if_exists PATH "/usr/local/share/npm/bin"
   append_if_exists PATH "/usr/local/avr/bin"
   append_if_exists PATH "/usr/local/arm-eabi/bin"
+  prepend_if_exists PATH "/usr/local/heroku/bin"
+
 
   append_if_exists PYTHONPATH "/usr/local/lib/python2.6/site-packages/"
   append_if_exists PYTHONPATH "/Library/Python/2.6/site-packages/"
@@ -61,14 +64,23 @@ function () {
 
   append_if_exists CLASSPATH "/usr/local/Cellar/clojure-contrib/1.2.0/clojure-contrib.jar"
 
-  export_if_exists JAVA_HOME "/System/Library/Frameworks/JavaVM.framework/Home"
-  export_if_exists EC2_HOME "/usr/local/Cellar/ec2-api-tools/1.4.2.2/jars"
-  export_if_exists EC2_AMITOOL_HOME "/usr/local/Cellar/ec2-ami-tools/1.3-45758/jars"
+  if [[ -x /usr/libexec/java_home ]]
+  then
+    export JAVA_HOME="$(/usr/libexec/java_home)"
+  fi
+
+  export EC2_PRIVATE_KEY="$(/bin/ls "$HOME"/.ec2/pk-*.pem | /usr/bin/head -1)"
+  export EC2_CERT="$(/bin/ls "$HOME"/.ec2/cert-*.pem | /usr/bin/head -1)"
+  export EC2_URL="https://ec2.ap-southeast-2.amazonaws.com"
+
+  export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
+  export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 }
 
 extra_config_files=(
   $HOME/.zsh/lib/pc-specific/$(hostname -s).zprofile.zsh
   $HOME/.zsh/lib/os-specific/$(uname).zprofile.zsh
+  $HOME/.zsh_private/.zprofile
 )
 
 for config_file in $extra_config_files
