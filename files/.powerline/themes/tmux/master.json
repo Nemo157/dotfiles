@@ -12,6 +12,14 @@
       "highlight_group": "session"
     } ],
     "right": [ {
+      "module": "airport",
+      "name": "format",
+      "args": {
+        "format": "%(state)s %(ssid)s",
+        "running_text": "📶 ",
+        "off_text": "📴 "
+      }
+    }, {
       "module": "battery",
       "name": "format",
       "args": {

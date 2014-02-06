@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8:noet
+# vim:fileencoding=utf-8:et:sw=2:ts=2
 
 from __future__ import absolute_import
 
@@ -51,7 +51,7 @@ def _get_battery_info():
   time_remaining = _time_remaining_regex.search(raw)
   if time_remaining is not None:
     hours_remaining = int(time_remaining.group(2))
-    minutes_remaining = int(time_remaining.group(2))
+    minutes_remaining = int(time_remaining.group(3))
     time_remaining = time_remaining.group(1)
   if time_remaining is None or time_remaining == '0:00':
     hours_remaining = 0

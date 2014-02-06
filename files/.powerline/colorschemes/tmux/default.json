@@ -18,6 +18,10 @@
     "battery.time_remaining": { "fg": "green", "bg": "base03" },
     "battery.format": { "fg": "green", "bg": "base02" },
 
+    "airport.state": { "fg": "green", "bg": "base03" },
+    "airport.ssid": { "fg": "green", "bg": "base03" },
+    "airport.format": { "fg": "green", "bg": "base03" },
+
     "email_alert": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
     "email_alert_gradient": { "fg": "base0", "bg": "base03", "attr": ["bold"] },
     "weather": { "fg": "base0", "bg": "base03" },
