@@ -10,6 +10,7 @@ Installation
 * Generate ssh key and upload ssh key to github
   ````
   ssh-keygen
+  [[ -x $(which open) ]] && open https://github.com/settings/ssh || echo 'Browse to https://github.com/settings/ssh'
   ````
 
 * Install necessary programs via package manager: tmux, git, zsh, vim, ruby-install, chruby
