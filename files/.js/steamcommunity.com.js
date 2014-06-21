@@ -1,6 +1,6 @@
 /* jshint newcap: false */
 
-/* global $J, Ajax */
+/* global $J, Ajax, g_strCountryCode, g_rgWalletInfo */
 /* exports OpenCurrentSelectionInMarket PopulateMarketActions */
 
 var runInMainWindow = function (fn) {
@@ -16,23 +16,30 @@ var improveInventory = function () {
             window.SellItemDialog.Show = function () {
                 oldShow.apply(this, arguments);
                 $J('#market_sell_dialog_accept_ssa').attr('checked', 'checked');
+                new Ajax.Request('//steamcommunity.com/market/priceoverview/', {
+                    method: 'get',
+                    parameters: {
+                        country: g_strCountryCode,
+                        currency: typeof( g_rgWalletInfo ) !== 'undefined' ? g_rgWalletInfo.wallet_currency : 1,
+                        appid: this.m_item.appid,
+                        market_hash_name: typeof this.m_item.market_hash_name !== 'undefined' ? this.m_item.market_hash_name : this.m_item.market_name
+                    },
+                    onSuccess: function (transport) {
+                        if (transport.responseJSON && transport.responseJSON.success) {
+                            if (transport.responseJSON.lowest_price) {
+                                var price = transport.responseJSON.lowest_price.match(/\d+\.\d+/)[0];
+                                $J('#market_sell_buyercurrency_input').val(price);
+                            }
+                            window.SellItemDialog.OnBuyerPriceInputKeyUp();
+                        }
+                    }
+                });
             };
             var oldOnAccept = window.SellItemDialog.OnAccept;
             window.SellItemDialog.OnAccept = function () {
                 oldOnAccept.apply(this, arguments);
                 if (this.m_bWaitingForUserToConfirm) {
-                    $J('#market_sell_dialog_ok').focus();
-                }
-            };
-            var oldOnPriceHistorySuccess = window.SellItemDialog.OnPriceHistorySuccess;
-            window.SellItemDialog.OnPriceHistorySuccess = function (transport) {
-                oldOnPriceHistorySuccess.apply(this, arguments);
-                if (transport.responseJSON && transport.responseJSON.success) {
-                    var prices = transport.responseJSON.prices;
-                    if (prices) {
-                        $J('#market_sell_buyercurrency_input').val(prices[prices.length - 1][1].toFixed(2));
-                        window.SellItemDialog.OnBuyerPriceInputKeyUp();
-                    }
+                    window.setTimeout(function () { $J('#market_sell_dialog_ok').focus(); }, 100);
                 }
             };
         };
