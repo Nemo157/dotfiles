@@ -1,21 +1,8 @@
 /* jshint newcap: false */
 
-/* global $J, Ajax, CurrencyIsWalletFunds, CreateMarketActionButton, g_ActiveInventory, g_bViewingOwnProfile */
+/* global $J, Ajax */
 /* exports OpenCurrentSelectionInMarket PopulateMarketActions */
 
-// var loadCSSInMainWindow = function (url) {
-//     var link = document.createElement('link');
-//     link.type = "text/css";
-//     link.rel = "stylesheet";
-//     link.href = url;
-//     document.head.appendChild(link);
-// };
-// var loadScriptInMainWindow = function (url) {
-//     var script = document.createElement('script');
-//     script.type = "text/javascript";
-//     script.src = url;
-//     document.head.appendChild(script);
-// };
 var runInMainWindow = function (fn) {
     var script = document.createElement('script');
     script.innerHTML = "(" + fn + ")();";
@@ -25,42 +12,6 @@ var runInMainWindow = function (fn) {
 var improveInventory = function () {
     runInMainWindow(function () {
         var apply = function () {
-            window.OpenCurrentSelectionInMarket = function () {
-                var item = g_ActiveInventory.selectedItem;
-                var market_hash_name = typeof item.market_hash_name !== 'undefined' ? item.market_hash_name : item.market_name;
-                window.open('http://steamcommunity.com/market/listings/' + item.appid + '/' + market_hash_name, '_blank');
-            };
-            var oldPopulateMarketActions = window.PopulateMarketActions;
-            window.PopulateMarketActions = function (elActions, item) {
-                // jshint scripturl: true
-                oldPopulateMarketActions.apply(this, arguments);
-                if (!item.marketable || (item.is_currency && CurrencyIsWalletFunds(item))) {
-                    return;
-                }
-                if (g_bViewingOwnProfile) {
-                    var elOpenButton = CreateMarketActionButton('green', 'javascript:OpenCurrentSelectionInMarket()', 'Open in Market');
-                    elActions.appendChild(elOpenButton);
-                    var sellButton = elActions.down('.item_market_action_button:contains("Sell")');
-                    if (sellButton) {
-                        new Ajax.Request('http://steamcommunity.com/market/pricehistory/', {
-                                method: 'get',
-                                parameters: {
-                                    appid: item.appid,
-                                    market_hash_name: typeof item.market_hash_name !== 'undefined' ? item.market_hash_name : item.market_name
-                                },
-                                onSuccess: function (transport) {
-                                    if (transport.responseJSON && transport.responseJSON.success && transport.responseJSON.prices) {
-                                        var prices = transport.responseJSON.prices;
-                                        var formatted = transport.responseJSON.price_prefix + prices[prices.length - 1][1].toFixed(2) + transport.responseJSON.price_suffix;
-                                        var sellContent = sellButton.down('.item_market_action_button_contents');
-                                        sellContent.update(sellContent.innerHTML + ' (~' + formatted + ')');
-                                    }
-                                },
-                                onFailure: function () {}
-                            });
-                    }
-                }
-            };
             var oldShow = window.SellItemDialog.Show;
             window.SellItemDialog.Show = function () {
                 oldShow.apply(this, arguments);
@@ -102,7 +53,7 @@ var improveGamecards = function () {
         var apply = function () {
             // jshint scripturl: true
 //            window.OpenCardInMarket = function (item_num, item_name) {
-//                window.open('http://steamcommunity.com/market/listings/753/' + item_num + '-' + item_name, '_blank');
+//                window.open('//steamcommunity.com/market/listings/753/' + item_num + '-' + item_name, '_blank');
 //            };
 //
 //            var cards = document.getElementsByClassName('badge_card_set_card');
@@ -119,10 +70,10 @@ var improveGamecards = function () {
             $J('.badge_card_to_collect_links a:contains("Search the Market")').each(function () {
                 var searchButton = $J(this);
                 var href = searchButton.prop('href');
-                var match = href.match(/http:\/\/steamcommunity.com\/market\/listings\/([^\/]+)\/([^\/]+)/);
+                var match = href.match(/\/\/steamcommunity.com\/market\/listings\/([^\/]+)\/([^\/]+)/);
                 var appid = match[1];
                 var market_hash_name = decodeURI(match[2]);
-                new Ajax.Request('http://steamcommunity.com/market/pricehistory/', {
+                new Ajax.Request('//steamcommunity.com/market/pricehistory/', {
                         method: 'get',
                         parameters: {
                             appid: appid,
