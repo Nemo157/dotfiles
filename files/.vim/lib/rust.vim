@@ -1,0 +1,1 @@
+Plugin 'wting/rust.vim'
