@@ -19,6 +19,8 @@ extra_config_files=(
   $HOME/.zsh/vendor/syntax-highlighting/zsh-syntax-highlighting.zsh
   $HOME/.zsh/lib/pc-specific/$(hostname -s).zshrc.zsh
   $HOME/.zsh/lib/os-specific/$(uname).zshrc.zsh
+  /usr/local/share/zsh/site-functions/_aws
+  /usr/local/bin/kvm.sh
 )
 
 for config_file in $extra_config_files

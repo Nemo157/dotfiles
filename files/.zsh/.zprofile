@@ -1,6 +1,4 @@
-export EC2_PRIVATE_KEY="$(ls $HOME/.ec2/pk-*.pem)"
-export EC2_CERT="$(ls $HOME/.ec2/cert-*.pem)"
-export AWS_CREDENTIALS_FILE="$HOME/.ec2/aws-credentials"
+export UNISONLOCALHOSTNAME="lol3.roaming.nemo157.com"
 
 function () {
   set_locale () {
@@ -16,7 +14,6 @@ function () {
   set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
 }
 
-export GITHUB_USER=Nemo157
 export EDITOR=vim
 
 # grep
@@ -45,14 +42,16 @@ function () {
     [[ -d "$dir" ]] && export $var_name="$dir"
   }
 
-  append_if_exists PATH "$HOME/bin"
-  append_if_exists PATH "$HOME/node_modules/.bin"
+  prepend_if_exists PATH "$HOME/bin"
+  prepend_if_exists PATH "$HOME/node_modules/.bin"
+  prepend_if_exists PATH "$HOME/Library/Haskell/bin"
   append_if_exists PATH "$HOME/.lein/bin"
   append_if_exists PATH "/usr/local/share/npm/bin"
   append_if_exists PATH "/usr/local/avr/bin"
   append_if_exists PATH "/usr/local/arm-eabi/bin"
   prepend_if_exists PATH "/usr/local/heroku/bin"
-
+  append_if_exists PATH "/usr/local/Cellar/go/1.2/libexec/bin"
+  append_if_exists PATH "$HOME/go/bin"
 
   append_if_exists PYTHONPATH "/usr/local/lib/python2.6/site-packages/"
   append_if_exists PYTHONPATH "/Library/Python/2.6/site-packages/"
@@ -69,10 +68,7 @@ function () {
     export JAVA_HOME="$(/usr/libexec/java_home)"
   fi
 
-  export EC2_PRIVATE_KEY="$(/bin/ls "$HOME"/.ec2/pk-*.pem | /usr/bin/head -1)"
-  export EC2_CERT="$(/bin/ls "$HOME"/.ec2/cert-*.pem | /usr/bin/head -1)"
-  export EC2_URL="https://ec2.ap-southeast-2.amazonaws.com"
-
+  export_if_exists GOPATH "$HOME/go"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 }
