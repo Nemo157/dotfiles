@@ -1,4 +1,3 @@
-filetype plugin indent on                                " Automatically detect file types
 syntax enable                                            " Syntax highlighting
 
 set nocompatible                                         " Turn off Vi compatibility.
@@ -27,5 +26,7 @@ set mouse=                                               " Disable the mouse whe
 set guifont=Consolas                                     " Use Consolas as the font in gvim.
 set laststatus=2                                         " Always show the status line
 set wildmenu                                             " Show a menu when tab-completing
+set modeline                                             " Allow modelines
+set cedit=<Esc>                                          " Use <Esc> to enter command line editing mode
 
 let g:tex_flavor = "latex"                               " Give latex higher priority over tex.

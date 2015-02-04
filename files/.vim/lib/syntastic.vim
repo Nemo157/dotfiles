@@ -1,5 +1,5 @@
 " Syntax checking
-Bundle 'scrooloose/syntastic'
+Plugin 'scrooloose/syntastic'
 
 " Set up Syntastic settings
 let g:syntastic_check_on_open=1
