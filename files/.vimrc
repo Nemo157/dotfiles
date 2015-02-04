@@ -2,13 +2,13 @@
 set nocompatible
 filetype off
 
-let vundle_dir = $HOME."/.vim/bundle/vundle/.git"
+let vundle_dir = $HOME."/.vim/bundle/Vundle.vim"
 if !isdirectory(vundle_dir)
-  execute "!git clone 'git://github.com/gmarik/vundle.git' '".vundle_dir."'"
+  execute "!git clone 'git://github.com/gmarik/Vundle.vim.git' '".vundle_dir."'"
 endif
 
-set rtp+=$HOME/.vim/bundle/vundle/
-call vundle#rc()
+set rtp+=$HOME/.vim/bundle/Vundle.vim/
+call vundle#begin()
 
 " Load generic Vim settings
 let s:vimrc_libs = split(glob($HOME.'/.vim/lib/*.vim'), '\n')
@@ -24,13 +24,20 @@ if filereadable(s:host_vimrc)
   execute 'source '.s:host_vimrc
 endif
 
+call vundle#end()
+filetype plugin indent on
+
 " Stuff still to put in separate files
 
+silent! colorscheme solarized
 
 let mapleader = ","
 
 map <leader>n :lnext<CR>
 map <leader>p :lprev<CR>
+nnoremap <F2> :set invpaste paste?<CR>
+set pastetoggle=<F2>
+set showmode
 
 map <F5> :call SaveAndMake()<CR>
 imap <F5> <C-o>:call SaveAndMake()<CR>
@@ -44,3 +51,4 @@ func! SaveAndMake()
   exec "make!"
 endfunc
 
+au BufRead,BufNewFile *.rs set filetype=rust
