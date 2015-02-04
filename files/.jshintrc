@@ -1,4 +1,8 @@
 {
+    "globals": {
+        "require": false,
+        "define": false
+    },
     "browser": true,
     "undef": true,
     "unused": true,
