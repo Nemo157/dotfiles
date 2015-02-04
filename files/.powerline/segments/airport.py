@@ -45,7 +45,9 @@ def _get_airport_info():
   else:
     state = state.group(1)
   ssid = _ssid_regex.search(raw)
-  if ssid is not None:
+  if ssid is None:
+    ssid = ''
+  else:
     ssid = ssid.group(1)
   return {
     "state":  state,
@@ -67,10 +69,12 @@ def ssid(pl, segment_info, running_text=None, off_text=None):
   return _get_airport_info()['ssid']
 
 @requires_segment_info
-def format(pl, segment_info, format, running_text=None, off_text=None):
+def format(pl, segment_info, format, running_text=None, off_text=None, init_text=None):
   airport_info = _get_airport_info()
   if airport_info['state'] == 'running':
     airport_info['state'] = running_text
   if airport_info['state'] == 'off':
     airport_info['state'] = off_text
+  if airport_info['state'] == 'init':
+    airport_info['state'] = init_text
   return format % airport_info

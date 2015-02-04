@@ -5,8 +5,8 @@
     "hostname": { "fg": "violet", "bg": "base02" },
     "session": { "fg": "magenta", "bg": "base03" },
 
-    "date": { "fg": "blue", "bg": "base03" },
-    "time": { "fg": "blue", "bg": "base03" },
+    "date": { "fg": "green", "bg": "base03" },
+    "time": { "fg": "green", "bg": "base03" },
     "time:divider": { "fg": "base02", "bg": "base03" },
 
     "system_load": { "fg": "green", "bg": "base02" },

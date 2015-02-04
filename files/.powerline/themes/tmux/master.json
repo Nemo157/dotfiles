@@ -15,18 +15,17 @@
       "module": "airport",
       "name": "format",
       "args": {
-        "format": "%(state)s %(ssid)s",
-        "running_text": "📶 ",
-        "off_text": "📴 "
+        "format": "%(state)s%(ssid)s",
+        "running_text": "📶  ",
+        "off_text": "📴 ",
+        "init_text": "❔ "
       }
     }, {
       "module": "battery",
       "name": "format",
       "args": {
         "format": "%(current_source)s %(current_percent)d%%%(formatted_time_remaining)s",
-        "time_format": " (%(fuzzy_time_remaining)s%(charging_state)s)",
-        "charging_text": " till charged",
-        "discharging_text": " till empty",
+        "time_format": " ~%(fuzzy_time_remaining)s",
         "AC_text": "🔌 ",
         "battery_text": "🔋 "
       }
@@ -42,7 +41,10 @@
         "istime": true
       }
     }, {
-      "name": "system_load"
+      "name": "system_load",
+      "args": {
+        "format": "▴"
+      }
     } ]
   }
 }
