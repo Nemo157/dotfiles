@@ -71,12 +71,23 @@ function () {
   export_if_exists GOPATH "$HOME/go"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+
+  export_if_exists NVM_DIR "$HOME/.nvm"
+  if which brew >/dev/null
+  then
+    if [[ -s "$(brew --prefix nvm)/nvm.sh" ]]
+    then
+      source "$(brew --prefix nvm)/nvm.sh"
+    fi
+  fi
+
 }
 
 extra_config_files=(
   $HOME/.zsh/lib/pc-specific/$(hostname -s).zprofile.zsh
   $HOME/.zsh/lib/os-specific/$(uname).zprofile.zsh
   $HOME/.zsh_private/.zprofile
+  /usr/local/bin/dnvm.sh
 )
 
 for config_file in $extra_config_files
