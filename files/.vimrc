@@ -25,7 +25,8 @@ if filereadable(s:host_vimrc)
 endif
 
 call vundle#end()
-filetype plugin indent on
+filetype plugin on
+syntax enable
 
 " Stuff still to put in separate files
 
