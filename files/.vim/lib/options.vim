@@ -1,7 +1,3 @@
-syntax enable                                            " Syntax highlighting
-
-set nocompatible                                         " Turn off Vi compatibility.
-
 set tabstop=2 expandtab shiftwidth=2                     " Set 2-spaces instead of tabs.
 set number                                               " Set line numbers on.
 set autoindent                                           " Use smart indentation.
