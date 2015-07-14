@@ -14,7 +14,7 @@ fresh-options --file=~/.vimrc --marker='" ========='
 fresh-options
 
 fresh-options --file=~/.zshrc --marker='# ========='
-    fresh zsh/antigen.vim
+    fresh zsh/antigen.zsh
     fresh zsh/lib/\*
 fresh-options
 
