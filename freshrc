@@ -7,8 +7,12 @@ fresh configs/\* --file
 fresh bin/\* --bin
 
 
-vundle_lines() { grep -v ^Bundle }
-filter_vundle_lines() { grep -v '^Plugin|Bundle' }
+vundle_lines() {
+    grep -v ^Bundle
+}
+filter_vundle_lines() {
+    grep -v '^Plugin|Bundle'
+}
 
 fresh-options --file=~/.vimrc --marker='"'
     fresh vim/vundle_before.vim
