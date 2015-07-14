@@ -6,7 +6,7 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
-fresh-options --file=~/.vimrc --marker='""""""'
+fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/vundle_before.vim
     fresh vim/lib/\* --filter='grep -e ^Plugin -e '"'"'"'"'"' || true'
     fresh vim/vundle_after.vim
