@@ -1,20 +1,20 @@
 " Allows the bundle installation
-Bundle 'gmarik/vundle'
+Plugin 'gmarik/vundle'
 
 " Auto completion popup
-Bundle 'vim-scripts/AutoComplPop'
+Plugin 'vim-scripts/AutoComplPop'
 
 " Clang based C/C++ Completion
-Bundle 'Rip-Rip/clang_complete'
+Plugin 'Rip-Rip/clang_complete'
 
 " Better tabs
-Bundle 'vim-scripts/Smart-Tabs'
+Plugin 'vim-scripts/Smart-Tabs'
 
 " The Erlang plugin for Vim
-Bundle 'jimenezrick/vimerl'
+Plugin 'jimenezrick/vimerl'
 
 " My general extensions that don't quite fit elsewhere
-Bundle 'Nemo157/vim_extensions'
+Plugin 'Nemo157/vim_extensions'
 
 " JSHint for Javascript syntax checking
-Bundle 'walm/jshint.vim'
+Plugin 'walm/jshint.vim'

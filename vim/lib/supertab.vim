@@ -1,5 +1,5 @@
 " Tab-completion.
-Bundle 'ervandew/supertab'
+Plugin 'ervandew/supertab'
 
 " Set SuperTab to try and determine completion type automatically.
 let g:SuperTabDefaultCompletionType = "context"
