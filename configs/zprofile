@@ -77,13 +77,4 @@ function () {
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 }
 
-extra_config_files=(
-  $HOME/.zsh/lib/pc-specific/$(hostname -s).zprofile.zsh
-  $HOME/.zsh/lib/os-specific/$(uname).zprofile.zsh
-  $HOME/.zsh_private/.zprofile
-)
-
-for config_file in $extra_config_files
-  [[ -s $config_file ]] && source $config_file
-
 true

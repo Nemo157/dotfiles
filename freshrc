@@ -13,6 +13,11 @@ fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/lib/\* --filter='grep -v -e ^Plugin -e ^Bundle || true'
 fresh-options
 
+fresh-options --file=~/.zshrc --marker='# ========='
+    fresh zsh/antigen.vim
+    fresh zsh/lib/\*
+fresh-options
+
 fresh js --file=~/.js/
 
 fresh_after_build () {
