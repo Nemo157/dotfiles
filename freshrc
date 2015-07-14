@@ -6,6 +6,10 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
-fresh vimrc/\* --file=~/.vimrc --marker='"'
+fresh-options --file=~/.vimrc --marker='"'
+    fresh vim/vundle_before.vim
+    fresh vim/lib/\*
+    fresh vim/vundle_after.vim
+fresh-options
 
 fresh js --file=~/.js/

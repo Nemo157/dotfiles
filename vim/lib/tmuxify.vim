@@ -1,0 +1,1 @@
+Plugin 'mhinz/vim-tmuxify'
