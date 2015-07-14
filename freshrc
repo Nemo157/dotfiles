@@ -14,8 +14,10 @@ fresh-options --file=~/.vimrc --marker='" ========='
 fresh-options
 
 fresh-options --file=~/.zshrc --marker='# ========='
-    fresh zsh/antigen.zsh
-    fresh zsh/lib/\*
+    fresh zsh/antigen_before.zsh
+    fresh zsh/lib/\* --filter='grep -e ^antigen -e '"'"'^#'"'"' || true'
+    fresh zsh/antigen_after.zsh
+    fresh zsh/lib/\* --filter='grep -v -e ^antigen || true'
 fresh-options
 
 fresh js --file=~/.js/
