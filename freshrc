@@ -8,7 +8,7 @@ fresh bin/\* --bin
 
 fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/vundle_before.vim
-    fresh vim/lib/\* --filter='grep -e ^Plugin -e '"'"'"'"'"' || true'
+    fresh vim/lib/\* --filter='grep -e ^Plugin -e '"'"'^"'"'"' || true'
     fresh vim/vundle_after.vim
     fresh vim/lib/\* --filter='grep -v -e ^Plugin -e ^Bundle || true'
 fresh-options
