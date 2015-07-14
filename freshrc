@@ -6,11 +6,15 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
+
+vundle_lines() { grep -v ^Bundle }
+filter_vundle_lines() { grep -v '^Plugin|Bundle' }
+
 fresh-options --file=~/.vimrc --marker='"'
     fresh vim/vundle_before.vim
-    fresh vim/lib/\* --filter="grep '^Plugin'"
+    fresh vim/lib/\* --filter=vundle_lines
     fresh vim/vundle_after.vim
-    fresh vim/lib/\* --filter="grep -v '^Plugin|Bundle'"
+    fresh vim/lib/\* --filter=filter_vundle_lines
 fresh-options
 
 fresh js --file=~/.js/
