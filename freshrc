@@ -8,10 +8,10 @@ fresh bin/\* --bin
 
 
 vundle_lines() {
-    grep -v ^Bundle
+    grep ^Bundle
 }
 filter_vundle_lines() {
-    grep -v '^Plugin|Bundle'
+    grep -v -e ^Plugin -e ^Bundle
 }
 
 fresh-options --file=~/.vimrc --marker='"'
