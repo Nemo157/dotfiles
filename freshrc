@@ -5,3 +5,7 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 
 fresh configs/\* --file
 fresh bin/\* --bin
+
+fresh vimrc/\* --marker='"'
+
+fresh js --file=~/.js/
