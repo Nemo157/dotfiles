@@ -1,7 +1,7 @@
 # vim: set ft=sh:
 
 fresh freshshell/fresh bin/fresh --bin
-
 fresh freshshell/fresh contrib/completion/fresh-completion.bash
 
+fresh configs/\* --file
 fresh bin/\* --bin
