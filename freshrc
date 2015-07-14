@@ -32,5 +32,6 @@ fresh_after_build () {
         echo "Installing antigen..."
         mkdir -p ~/.zsh
         git clone https://github.com/zsh-users/antigen.git ~/.zsh/antigen
+        zsh -c 'true'
     fi
 }
