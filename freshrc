@@ -8,8 +8,9 @@ fresh bin/\* --bin
 
 fresh-options --file=~/.vimrc --marker='"'
     fresh vim/vundle_before.vim
-    fresh vim/lib/\*
+    fresh vim/lib/\* --filter="grep '^Plugin'"
     fresh vim/vundle_after.vim
+    fresh vim/lib/\* --filter="grep -v '^Plugin|Bundle'"
 fresh-options
 
 fresh js --file=~/.js/
