@@ -28,7 +28,7 @@ fresh_after_build () {
         vim -c 'PluginInstall' -c 'qa'
     fi
 
-    if which zsh &>/dev/null && [[ ! -d ~/.zsh/antigen ]] then
+    if which zsh &>/dev/null && [ ! -d ~/.zsh/antigen ]; then
         echo "Installing antigen..."
         mkdir -p ~/.zsh
         git clone https://github.com/zsh-users/antigen.git ~/.zsh/antigen
