@@ -14,3 +14,9 @@ fresh-options --file=~/.vimrc --marker='" ========='
 fresh-options
 
 fresh js --file=~/.js/
+
+fresh_after_build () {
+    if which vim &> /dev/null && ! [ -d $HOME/.vim/bundle/vundle ]; then
+        vim -c 'PluginInstall' -c 'qa'
+    fi
+}
