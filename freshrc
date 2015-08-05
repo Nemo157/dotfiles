@@ -22,6 +22,9 @@ fresh-options
 
 fresh js --file=~/.js/
 
+fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private
+[[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
+
 fresh_after_build () {
     if which vim &>/dev/null && ! [ -d ~/.vim/bundle/vundle ]; then
         echo "Installing vundle and plugins..."
