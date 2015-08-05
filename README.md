@@ -10,6 +10,7 @@ Installation
 * Generate ssh key and upload ssh key to github
   ````
   ssh-keygen
+  [[ -x $(which open) ]] && open https://github.com/settings/ssh || echo 'Browse to https://github.com/settings/ssh'
   ````
 
 * Install necessary programs via package manager: tmux, git, zsh, vim, ruby-install, chruby
@@ -22,10 +23,11 @@ Installation
     cd ruby-install-0.3.4/
     sudo make install
     cd ..
-    tar -xzvf chruby-0.3.8.tar.gz
     wget -O chruby-0.3.8.tar.gz https://github.com/postmodern/chruby/archive/v0.3.8.tar.gz
+    tar -xzvf chruby-0.3.8.tar.gz
     cd chruby-0.3.8/
     sudo make install
+    cd ..
     ````
     
     ````sh
