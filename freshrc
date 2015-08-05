@@ -20,6 +20,10 @@ fresh-options --file=~/.zshrc --marker='# ========='
     fresh zsh/lib/\* --filter='grep -v -e ^antigen || true'
 fresh-options
 
+fresh-options --file=~/.tmux.conf --marker='# ========='
+    fresh tmux/lib/\*
+fresh-options
+
 fresh js --file=~/.js/
 
 fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private
