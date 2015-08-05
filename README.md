@@ -1,5 +1,5 @@
-.configs
-========
+Nemo157/dotfiles
+================
 
 My configuration files.
 
