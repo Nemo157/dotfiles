@@ -14,7 +14,7 @@ zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-dir
 cdpath=(. ~ ~/sources)
 
 # use /etc/hosts and known_hosts for hostname completion
-if [[ -r ~/.ssh/known_hosts ]] _ssh_hosts=(${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#[\|]*}%%\ *}%%,*})
+if [[ -r ~/.ssh/known_hosts ]] _ssh_hosts=(${${${${${(f)"$(<$HOME/.ssh/known_hosts)"}:#\#*}%%\ *}%%,*}:#[[]*})
 if [[ -r /etc/hosts ]] : ${(A)_etc_hosts:=${(s: :)${(ps:\t:)${${(f)~~"$(</etc/hosts)"}%%\#*}##[:blank:]#[^[:blank:]]#}}}
 
 known_hosts=(
@@ -49,7 +49,10 @@ zstyle ':completion:*:*:*:users' ignored-patterns $uninteresting_users
 zstyle '*' single-ignored show
 
 ## Load additional ZSH completion scripts.
+# My completion scripts
 fpath=($ZDOTDIR/functions/completion $fpath)
+# The Homebrew installed completion scripts.
+fpath=(/usr/local/share/zsh-completions $fpath)
 
 autoload -U compinit
 compinit

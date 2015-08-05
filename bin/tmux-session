@@ -1,16 +1,23 @@
 #!/usr/bin/env sh
 
+TMUX=$2
+
+if [[ "x$TMUX" -eq "x" ]]
+then
+  TMUX=tmux
+fi
+
 if [[ -z "$1" ]]
 then
   echo "You must specify a session name" >&2
 fi
 
-tmux -u has-session -t "$1"
+$TMUX -u has-session -t "$1"
 
 if [[ $? -ne 0 ]]
 then
   echo "Creating session $1"
-  tmux -u new-session -d -s "$1"
+  $TMUX -u new-session -d -s "$1"
 fi
 
-tmux -u attach-session -t "$1"
+$TMUX -u attach-session -t "$1"

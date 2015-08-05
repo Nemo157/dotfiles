@@ -1,0 +1,3 @@
+#!/bin/zsh
+curl -IsSH 'Accept: application/json' -X GET "$@" 2>/dev/null
+curl -sSH 'Accept: application/json' "$@" 2>/dev/null | jq '.'
