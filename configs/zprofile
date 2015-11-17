@@ -17,7 +17,6 @@ function () {
 export EDITOR=vim
 
 # grep
-export GREP_OPTIONS='--color=auto'
 export GREP_COLOR='38;5;108'
 
 ## Add extra paths, only if they exist and only if they're not already added.
