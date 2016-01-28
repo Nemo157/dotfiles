@@ -16,3 +16,5 @@ Plugin 'leafgarland/typescript-vim'
 Plugin 'raichoo/purescript-vim'
 Plugin 'mustache/vim-mustache-handlebars'
 Plugin 'heartsentwined/vim-emblem'
+Plugin 'urbit/urbit', { 'rtp': 'extras/hoon.vim/' }
+Plugin 'lambdatoast/elm.vim'

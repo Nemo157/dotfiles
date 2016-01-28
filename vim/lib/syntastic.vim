@@ -26,4 +26,4 @@ let g:syntastic_cpp_no_include_search=1
 
 let g:syntastic_mode_map = { 'mode': 'active',
       \ 'active_filetypes': [],
-      \ 'passive_filetypes': ['typescript'] }
+      \ 'passive_filetypes': ['typescript', 'tex'] }
