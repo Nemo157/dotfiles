@@ -1,3 +1,6 @@
+## Load additional completions from https://github.com/zsh-users/zsh-completions
+antigen bundle zsh-users/zsh-completions src
+
 ## Setup completion styles
 # case-insensitive (all),partial-word and then substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
