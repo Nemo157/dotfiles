@@ -7,5 +7,3 @@ function () {
   for config_file in $chruby_config_files
     [[ -s $config_file ]] && source $config_file
 }
-
-type chruby >/dev/null 2>&1 && chruby 2.0
