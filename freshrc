@@ -26,7 +26,7 @@ fresh-options
 
 fresh js --file=~/.js/
 
-fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private
+fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
 [[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
 
 fresh_after_build () {
