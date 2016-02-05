@@ -41,12 +41,12 @@ fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marke
 fresh_after_build () {
     if which vim &>/dev/null; then
         echo "Installing vim plugins..."
-        vim -c 'PlugInstall' -c 'qa'
+        vim +PlugInstall +qa
     fi
 
     if which nvim &>/dev/null; then
         echo "Installing neovim plugins..."
-        nvim -c 'PlugInstall' -c 'qa'
+        nvim +PlugInstall +qa
     fi
 
     if which zsh &>/dev/null; then
