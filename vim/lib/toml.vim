@@ -1,1 +1,1 @@
-Plugin 'cespare/vim-toml'
+Plug 'cespare/vim-toml'

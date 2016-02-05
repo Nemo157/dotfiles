@@ -6,11 +6,20 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
+fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
-    fresh vim/vundle_before.vim
-    fresh vim/lib/\* --filter='grep -e ^Plugin -e '"'"'^"'"'"' || true'
-    fresh vim/vundle_after.vim
-    fresh vim/lib/\* --filter='grep -v -e ^Plugin -e ^Bundle || true'
+    fresh vim/plug_before.vim
+    fresh vim/lib/\* --filter='grep -e ^Plug -e '"'"'^"'"'"' || true'
+    fresh vim/plug_after.vim
+    fresh vim/lib/\* --filter='grep -v -e ^Plug || true'
+fresh-options
+
+fresh junegunn/vim-plug plug.vim --file=~/.config/nvim/autoload/plug.vim
+fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
+    fresh vim/plug_before.vim
+    fresh vim/lib/\* --filter='grep -e ^Plug -e '"'"'^"'"'"' || true'
+    fresh vim/plug_after.vim
+    fresh vim/lib/\* --filter='grep -v -e ^Plug || true'
 fresh-options
 
 fresh-options --file=~/.zshrc --marker='# ========='
@@ -31,13 +40,13 @@ fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marke
 
 fresh_after_build () {
     if which vim &>/dev/null; then
-        if ! [ -d ~/.vim/bundle/vundle ]; then
-            echo "Installing vundle..."
-            mkdir -p ~/.vim/bundle
-            git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
-        fi
-        echo "Installing vundle plugins..."
-        vim -c 'PluginInstall' -c 'qa'
+        echo "Installing vim plugins..."
+        vim -c 'PlugInstall' -c 'qa'
+    fi
+
+    if which nvim &>/dev/null; then
+        echo "Installing neovim plugins..."
+        nvim -c 'PlugInstall' -c 'qa'
     fi
 
     if which zsh &>/dev/null; then

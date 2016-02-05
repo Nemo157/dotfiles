@@ -1,1 +1,1 @@
-Plugin 'idris-hackers/idris-vim'
+Plug 'idris-hackers/idris-vim'

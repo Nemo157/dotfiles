@@ -1,11 +1,11 @@
-Plugin 'OmniSharp/omnisharp-vim'
-Plugin 'tpope/vim-dispatch'
-Plugin 'Shougo/unite.vim'
-Plugin 'Shougo/echodoc.vim'
+Plug 'OmniSharp/omnisharp-vim'
+Plug 'tpope/vim-dispatch'
+Plug 'Shougo/unite.vim'
+Plug 'Shougo/echodoc.vim'
 let g:OmniSharp_server_type = 'v1'
 let g:OmniSharp_server_type = 'roslyn'
-" Plugin 'kien/ctrlp.vim'
-" Plugin 'Valloric/YouCompleteMe'
+" Plug 'kien/ctrlp.vim'
+" Plug 'Valloric/YouCompleteMe'
 
 set completeopt=longest,menuone,preview
 set splitbelow

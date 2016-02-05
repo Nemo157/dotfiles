@@ -1,2 +1,2 @@
-Plugin 'rust-lang/rust.vim'
-Plugin 'Nemo157/vim-cute-rust'
+Plug 'rust-lang/rust.vim'
+Plug 'Nemo157/vim-cute-rust'

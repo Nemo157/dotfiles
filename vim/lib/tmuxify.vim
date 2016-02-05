@@ -1,1 +1,1 @@
-Plugin 'mhinz/vim-tmuxify'
+Plug 'mhinz/vim-tmuxify'
