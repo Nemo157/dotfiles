@@ -1,2 +1,2 @@
 export NVM_DIR=~/.nvm
-[[ -e /usr/local/opt/nvm/nvm.sh ]] && source /usr/local/opt/nvm/nvm.sh
+[[ -e $NVM_DIR/nvm.sh ]] && source $NVM_DIR/nvm.sh
