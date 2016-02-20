@@ -34,6 +34,7 @@ fresh-options --file=~/.tmux.conf --marker='# ========='
 fresh-options
 
 fresh js --file=~/.js/
+ln -fs ~/.dotfiles/irssi ~/.irssi
 
 fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
 [[ -e ~/.freshrc.private ]] && source ~/.freshrc.private

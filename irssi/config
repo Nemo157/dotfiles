@@ -1,20 +1,20 @@
 servers = (
   {
-    address = "routedev.chc.tlocal";
-    chatnet = "routedev";
-    port = "6667";
-    use_ssl = "no";
-    ssl_verify = "no";
+    address = "irc.mozilla.org";
+    chatnet = "mozilla";
+    port = "6697";
+    use_ssl = "yes";
+    ssl_cert = "~/.irssi.pem";
+    ssl_verify = "yes";
     autoconnect = "yes";
   }
 );
 
-chatnets = { routedev = { type = "IRC"; nick = "Wim"; }; };
+chatnets = { mozilla = { type = "IRC"; nick = "Nemo157"; }; };
 
 channels = (
-  { name = "#irssi"; chatnet = "ircnet"; autojoin = "No"; },
-  { name = "#offtopic"; chatnet = "routedev"; autojoin = "yes"; },
-  { name = "#route"; chatnet = "routedev"; autojoin = "yes"; }
+  { name = "#rust"; chatnet = "mozilla"; autojoin = "yes"; },
+  { name = "#rust-internals"; chatnet = "mozilla"; autojoin = "yes"; }
 );
 
 aliases = {
@@ -190,6 +190,6 @@ settings = {
   "irc/flood" = { flood_max_msgs = "0"; };
 };
 
-hilights = ( { text = "wim"; nick = "yes"; word = "yes"; } );
+hilights = ( { text = "nemo157"; nick = "yes"; word = "yes"; } );
 ignores = ( { level = "JOINS PARTS QUITS"; } );
 keyboard = ( { key = "^D"; id = "command"; data = "window close"; } );
