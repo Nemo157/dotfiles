@@ -186,6 +186,7 @@ settings = {
   "fe-common/core" = {
     bell_beeps = "yes";
     beep_msg_level = "MSGS NOTICES DCC DCCMSGS HILIGHT";
+    show_names_on_join = "no";
   };
   "irc/flood" = { flood_max_msgs = "0"; };
 };
