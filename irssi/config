@@ -14,7 +14,9 @@ chatnets = { mozilla = { type = "IRC"; nick = "Nemo157"; }; };
 
 channels = (
   { name = "#rust"; chatnet = "mozilla"; autojoin = "yes"; },
-  { name = "#rust-internals"; chatnet = "mozilla"; autojoin = "yes"; }
+  { name = "#rust-internals"; chatnet = "mozilla"; autojoin = "yes"; },
+  { name = "#rust-beginners"; chatnet = "mozilla"; autojoin = "yes"; },
+  { name = "#rust-offtopic"; chatnet = "mozilla"; autojoin = "yes"; }
 );
 
 aliases = {
@@ -187,6 +189,7 @@ settings = {
     bell_beeps = "yes";
     beep_msg_level = "MSGS NOTICES DCC DCCMSGS HILIGHT";
     show_names_on_join = "no";
+    print_active_channel = "yes";
   };
   "irc/flood" = { flood_max_msgs = "0"; };
 };
@@ -194,3 +197,39 @@ settings = {
 hilights = ( { text = "nemo157"; nick = "yes"; word = "yes"; } );
 ignores = ( { level = "JOINS PARTS QUITS"; } );
 keyboard = ( { key = "^D"; id = "command"; data = "window close"; } );
+windows = {
+  1 = { immortal = "yes"; name = "(status)"; level = "ALL"; };
+  2 = {
+    items = (
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#rust";
+        tag = "mozilla";
+      },
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#rust-internals";
+        tag = "mozilla";
+      }
+    );
+  };
+  3 = {
+    items = (
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#rust-offtopic";
+        tag = "mozilla";
+      },
+      {
+        type = "CHANNEL";
+        chat_type = "IRC";
+        name = "#rust-beginners";
+        tag = "mozilla";
+      }
+    );
+  };
+};
+mainwindows = { 3 = { first_line = "1"; lines = "43"; }; };
