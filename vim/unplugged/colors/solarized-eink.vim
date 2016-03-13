@@ -23,7 +23,7 @@ if !has('gui_running')
     hi StatusLineNC cterm=reverse                       ctermfg=NONE
     hi VertSplit    cterm=reverse                       ctermfg=NONE
     hi Title        cterm=bold                          ctermfg=NONE
-    hi Visual       cterm=reverse                       ctermfg=NONE
+    hi Visual       cterm=none                          ctermfg=3
     hi VisualNOS    cterm=bold                          ctermfg=NONE
     hi WarningMsg   cterm=standout                      ctermfg=NONE
     hi WildMenu     cterm=standout                      ctermfg=NONE
@@ -38,22 +38,24 @@ if !has('gui_running')
     hi Number       cterm=None          ctermbg=NONE    ctermfg=NONE
     hi Char         cterm=None          ctermbg=NONE    ctermfg=NONE
     hi Format       cterm=None          ctermbg=NONE    ctermfg=NONE
-    hi Special      cterm=underline     ctermbg=NONE    ctermfg=NONE
+    hi Special      cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Constant     cterm=None          ctermbg=NONE    ctermfg=NONE
     hi PreProc      cterm=None                          ctermfg=NONE
     hi Directive    cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Conditional  cterm=NONE          ctermbg=NONE    ctermfg=NONE
-    hi Comment      cterm=NONE          ctermbg=NONE    ctermfg=245
+    hi Comment      cterm=NONE          ctermbg=NONE    ctermfg=10
     hi Func         cterm=None          ctermbg=8       ctermfg=12
     hi Identifier   cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Statement    cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Ignore       cterm=bold                          ctermfg=NONE
-    hi String       cterm=underline                     ctermfg=NONE
-    hi ErrorMsg     cterm=reverse       ctermbg=15      ctermfg=9
-    hi Error        cterm=reverse       ctermbg=15      ctermfg=9
+    hi String       cterm=NONE                          ctermfg=NONE
+    hi ErrorMsg     cterm=NONE          ctermbg=NONE    ctermfg=9
+    hi Error        cterm=NONE          ctermbg=NONE    ctermfg=9
+    hi SpellBad     cterm=NONE          ctermbg=NONE    ctermfg=9
     hi Todo         cterm=bold,standout ctermbg=0       ctermfg=11
     hi MatchParen   cterm=bold          ctermbg=12      ctermfg=NONE
     hi ColorColumn                      ctermbg=255
+    hi CursorLine   cterm=NONE          ctermbg=0       ctermfg=NONE
   endif
 else
   echo "Not supported"
