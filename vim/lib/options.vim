@@ -1,7 +1,6 @@
 set tabstop=2 expandtab shiftwidth=2                     " Set 2-spaces instead of tabs.
 set number                                               " Set line numbers on.
 set autoindent                                           " Use smart indentation.
-set background=dark                                      " Who would use a light terminal?
 set showmatch                                            " Show matching brackets.
 set ignorecase smartcase                                 " Do smart case matching.
 set incsearch                                            " Incremental search.
