@@ -14,6 +14,8 @@ fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/lib/\* --filter='grep -v -e ^Plug || true'
 fresh-options
 
+fresh vim/unplugged/colors --file=~/.vim/colors/
+
 fresh junegunn/vim-plug plug.vim --file=~/.config/nvim/autoload/plug.vim
 fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
     fresh vim/plug_before.vim
@@ -21,6 +23,8 @@ fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
     fresh vim/plug_after.vim
     fresh vim/lib/\* --filter='grep -v -e ^Plug || true'
 fresh-options
+
+fresh vim/unplugged/colors --file=~/.config/nvim/colors/
 
 fresh-options --file=~/.zshrc --marker='# ========='
     fresh zsh/antigen_before.zsh
