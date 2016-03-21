@@ -12,4 +12,8 @@ Installation
   FRESH_LOCAL_SOURCE=Nemo157/dotfiles bash <(curl -sL get.freshshell.com)
   ````
 
-* Rerun `fresh` to ensure private dotfiles are loaded
+* Installing with private dotfiles (if you are me)
+  ````
+  FRESH_LOCAL_SOURCE=Nemo157/dotfiles PRIVATE=true bash <(curl -sL get.freshshell.com)
+  fresh
+  ````
