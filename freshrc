@@ -40,8 +40,11 @@ fresh-options
 fresh js --file=~/.js/
 ln -fs ~/.dotfiles/irssi ~/.irssi
 
-fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
-[[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
+if [[ "x${PRIVATE-}x" != "xx" || -e ~/.freshrc.private ]]; then
+    echo "Installing private files..."
+    fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
+    [[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
+fi
 
 fresh_after_build () {
     if which vim &>/dev/null; then
