@@ -41,9 +41,23 @@ fresh js --file=~/.js/
 ln -fs ~/.dotfiles/irssi ~/.irssi
 
 if [[ "x${PRIVATE-}x" != "xx" || -e ~/.freshrc.private ]]; then
-    echo "Installing private files..."
+    echo "Installing private dotfiles..."
     fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
     [[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
+fi
+
+if [[ -e ~/.freshsources ]]; then
+    while read -a line; do
+        local name="${line[0]}"
+        local source="${line[1]}"
+        local repo_name="$(_repo_name "$source")"
+        echo "Installing all extra dotfiles from $name ($source)..."
+        fresh $source freshrc --file=~/.freshrc.$name --marker='# ========='
+        local _FRESH_LOCAL="${FRESH_LOCAL:-}"
+        export FRESH_LOCAL="$FRESH_PATH/source/$repo_name"
+        [[ -e ~/.freshrc.$name ]] && source ~/.freshrc.$name
+        export FRESH_LOCAL="$_FRESH_LOCAL"
+    done < ~/.freshsources
 fi
 
 fresh_after_build () {
@@ -66,4 +80,18 @@ fresh_after_build () {
         echo "Installing antigen plugins..."
         zsh -c 'source ~/.zshrc'
     fi
+}
+
+# https://github.com/freshshell/fresh/blob/15dc09af57ecbe43578b9809579d46772a7e3be3/bin/fresh#L131
+_repo_name() {
+    local REPO_NAME="$1"
+    if echo "$REPO_NAME" | grep -q :; then
+        REPO_NAME="$(echo "$REPO_NAME" | sed -e 's#^.*@##' -e 's#^.*://##' -e 's#:#/#' -e 's/\.git$//')"
+    fi
+    if [[ "$REPO_NAME" == github.com/* ]]; then
+        REPO_NAME="$(echo "$REPO_NAME" | sed 's#^github\.com/##')"
+    else
+        REPO_NAME="$(echo "$REPO_NAME" | cut -d/ -f1)/$(echo "$REPO_NAME" | cut -d/ -f2- | tr / -)"
+    fi
+    echo "$REPO_NAME"
 }
