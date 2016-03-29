@@ -1,6 +1,11 @@
 ## Load additional completions from https://github.com/zsh-users/zsh-completions
 antigen bundle zsh-users/zsh-completions src
 
+## unobtrusize autosuggestions
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+antigen bundle zsh-users/zsh-autosuggestions
+bindkey '^n' autosuggest-accept
+
 ## Setup completion styles
 # case-insensitive (all),partial-word and then substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
