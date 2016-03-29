@@ -4,7 +4,7 @@ n="
 setup_vcs_info () {
   autoload -Uz vcs_info
   local vcs="$PR_GREEN%s"
-  local branch="$PR_BLUE : $PR_YELLOW%b"
+  local branch="$PR_BLUE ᛘ $PR_YELLOW%b"
   local lights="%c%u"
   local action="$PR_BLUE | $PR_RED%a"
 
