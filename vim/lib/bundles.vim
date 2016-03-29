@@ -1,9 +1,6 @@
 " Auto completion popup
 Plug 'vim-scripts/AutoComplPop'
 
-" Clang based C/C++ Completion
-Plug 'Rip-Rip/clang_complete'
-
 " Better tabs
 Plug 'vim-scripts/Smart-Tabs'
 
