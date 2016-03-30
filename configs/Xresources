@@ -41,6 +41,6 @@ XTerm*color15:               S_base3
 XTerm*loginShell: true
 
 XTerm*font: -*-fixed-medium-r-normal--18-*-*-*-*-*-iso10646-1
-XTerm*boldFont: -*-fixed-medium-r-normal--18-*-*-*-*-*-iso10646-1
+XTerm*allowBoldFonts: false
 XTerm*termName: xterm-256color
 XTerm*saveLines: 0
