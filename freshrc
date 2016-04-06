@@ -37,6 +37,8 @@ fresh-options --file=~/.tmux.conf --marker='# ========='
     fresh tmux/lib/\*
 fresh-options
 
+fresh i3/config --file=~/.i3/config
+
 fresh js --file=~/.js/
 ln -fs ~/.dotfiles/irssi ~/.irssi
 

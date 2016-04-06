@@ -1,0 +1,70 @@
+# Please see http://i3wm.org/docs/userguide.html for a complete reference!
+
+set $mod Mod1
+
+font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+
+floating_modifier $mod
+bindsym $mod+Return exec st
+bindsym $mod+Shift+colon kill
+bindsym $mod+space exec dmenu_run
+
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+bindsym $mod+Shift+H move left
+bindsym $mod+Shift+J move down
+bindsym $mod+Shift+K move up
+bindsym $mod+Shift+L move right
+
+bindsym $mod+d split h
+bindsym $mod+v split v
+bindsym $mod+f fullscreen
+
+bindsym $mod+o layout stacking
+bindsym $mod+comma layout tabbed
+bindsym $mod+period layout toggle split
+
+bindsym $mod+a focus parent
+
+bindsym $mod+ampersand workspace 1
+bindsym $mod+bracketleft workspace 2
+bindsym $mod+braceleft workspace 3
+bindsym $mod+braceright workspace 4
+bindsym $mod+parenleft workspace 5
+bindsym $mod+equal workspace 6
+bindsym $mod+asterisk workspace 7
+bindsym $mod+parenright workspace 8
+bindsym $mod+plus workspace 9
+bindsym $mod+bracketright workspace 10
+
+bindsym $mod+Shift+percent move container to workspace 1
+bindsym $mod+Shift+7 move container to workspace 2
+bindsym $mod+Shift+5 move container to workspace 3
+bindsym $mod+Shift+3 move container to workspace 4
+bindsym $mod+Shift+1 move container to workspace 5
+bindsym $mod+Shift+9 move container to workspace 6
+bindsym $mod+Shift+0 move container to workspace 7
+bindsym $mod+Shift+2 move container to workspace 8
+bindsym $mod+Shift+4 move container to workspace 9
+bindsym $mod+Shift+6 move container to workspace 10
+
+bindsym $mod+Shift+C reload
+bindsym $mod+Shift+P restart
+bindsym $mod+Shift+greater exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+bindsym $mod+r mode "resize"
+
+bar {
+        status_command i3status
+}
+
+bindsym $mod+backslash exec i3lock -c 002b36
+
+default_orientation vertical
+
+hide_edge_borders both
+focus_follows_mouse no
+# mouse_warping none
