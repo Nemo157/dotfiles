@@ -1,0 +1,16 @@
+set header_cache = /tmp/mutt/cache/headers
+set message_cachedir = /tmp/mutt/cache/bodies
+set tmpdir = /tmp
+
+set delete
+set sleep_time = 0
+set sort = threads
+set smart_wrap
+set tilde
+
+auto_view text/html
+
+alternative_order text/plain text/enriched text/html
+
+unset imap_passive
+set imap_keepalive=120
