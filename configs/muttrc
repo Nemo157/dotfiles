@@ -14,3 +14,12 @@ alternative_order text/plain text/enriched text/html
 
 unset imap_passive
 set imap_keepalive=120
+
+bind index "h" noop
+bind index "l" display-message
+bind index "~" imap-fetch-mail
+bind index "a" save-message
+
+bind pager "h" exit
+bind pager "i" noop
+bind pager "a" save-message
