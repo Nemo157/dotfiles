@@ -38,9 +38,11 @@ fresh-options --file=~/.tmux.conf --marker='# ========='
 fresh-options
 
 fresh i3/config --file=~/.i3/config
+fresh irssi/config --file=~/.irssi/config
+fresh irssi/default.theme --file=~/.irssi/default.theme
+fresh irssi/scripts --file=~/.irssi/scripts/
 
 fresh js --file=~/.js/
-ln -fs ~/.dotfiles/irssi ~/.irssi
 
 if [[ "x${PRIVATE-}x" != "xx" || -e ~/.freshrc.private ]]; then
     echo "Installing private dotfiles..."
