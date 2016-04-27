@@ -11,3 +11,6 @@ fi
 alias man=run-help
 
 if [[ -x $(which sudo) ]] alias fu='sudo $( fc -ln -1 )'
+
+alias tmux_mutt='tmux new-window -t 9 env EDITOR=vim mutt'
+alias tmux_irssi='tmux new-window -t 10 irssi'
