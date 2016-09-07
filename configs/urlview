@@ -1,2 +1,2 @@
-COMMAND xdg-open %s >/dev/null
+COMMAND tmux new-window -- elinks %s
 WRAP yes
