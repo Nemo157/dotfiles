@@ -13,6 +13,6 @@ case $(cat /sys/class/power_supply/BAT0/status) in
     ;;
 esac
 
-percent=$(python -c "print('%2d' % ($(cat /sys/class/power_supply/BAT0/energy_now).0 / $(cat /sys/class/power_supply/BAT0/energy_full).0 * 100))")
+percent=$(cat /sys/class/power_supply/BAT0/capacity)
 
 echo "$symbol $percent%"
