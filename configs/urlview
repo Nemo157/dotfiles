@@ -1,2 +1,2 @@
-COMMAND tmux new-window -- elinks %s
+COMMAND open %s
 WRAP yes
