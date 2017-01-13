@@ -6,6 +6,8 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
+fresh yamllint --file=~/.config/yamllint/
+
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/plug_before.vim
