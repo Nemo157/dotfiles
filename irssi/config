@@ -192,6 +192,7 @@ settings = {
     print_active_channel = "yes";
   };
   "irc/flood" = { flood_max_msgs = "0"; };
+  "perl/core/scripts" = { twitter_config_file = "~/.twitter"; };
 };
 
 hilights = ( { text = "nemo157"; nick = "yes"; word = "yes"; } );
