@@ -256,7 +256,7 @@ sub send_to_api {
                 $ENV{https_proxy} = $proxy;
             }
 
-            my $notifier_cmd = "/Users/nemo157/bin/terminal-notifier -title Irssi -activate com.googlecode.iterm2";
+            my $notifier_cmd = "terminal-notifier -title Irssi -activate com.googlecode.iterm2";
             my $notify_args;
 
             if ($type eq 'notification') {
@@ -349,9 +349,9 @@ sub are_settings_valid {
         return 0;
     }
 
-    `/Users/nemo157/bin/terminal-notifier -list ALL`;
+    `terminal-notifier -list ALL`;
     if ($? != 0) {
-        Irssi::print("IrssiNotifier: /Users/nemo157/bin/terminal-notifier not found.");
+        Irssi::print("IrssiNotifier: terminal-notifier not found.");
         return 0;
     }
 
