@@ -6,19 +6,19 @@ if exists("syntax_on")
     syntax reset
 endif
 
-let colors_name = "solarized-eink"
+let colors_name = "solarized-min"
 
 if !has('gui_running')
   if &background == "light"
      echo "Not supported"
   else
     hi Normal       cterm=NONE          ctermbg=NONE    ctermfg=12
-    hi SpecialKey   cterm=NONE          ctermbg=0       ctermfg=NONE
+    hi SpecialKey   cterm=bold                          ctermfg=NONE
     hi IncSearch    cterm=reverse                       ctermfg=NONE
     hi Search       cterm=reverse                       ctermfg=NONE
     hi MoreMsg      cterm=bold                          ctermfg=NONE
     hi ModeMsg      cterm=bold                          ctermfg=NONE
-    hi LineNr       cterm=NONE          ctermbg=0       ctermfg=10
+    hi LineNr       cterm=NONE                          ctermfg=238
     hi StatusLine   cterm=bold,reverse                  ctermfg=NONE
     hi StatusLineNC cterm=reverse                       ctermfg=NONE
     hi VertSplit    cterm=reverse                       ctermfg=NONE
@@ -44,7 +44,6 @@ if !has('gui_running')
     hi Directive    cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Conditional  cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Comment      cterm=NONE          ctermbg=NONE    ctermfg=10
-    hi Conceal      cterm=NONE          ctermbg=NONE    ctermfg=10
     hi Func         cterm=None          ctermbg=8       ctermfg=12
     hi Identifier   cterm=NONE          ctermbg=NONE    ctermfg=NONE
     hi Statement    cterm=NONE          ctermbg=NONE    ctermfg=NONE
@@ -55,9 +54,8 @@ if !has('gui_running')
     hi SpellBad     cterm=NONE          ctermbg=NONE    ctermfg=9
     hi Todo         cterm=bold,standout ctermbg=0       ctermfg=11
     hi MatchParen   cterm=bold          ctermbg=12      ctermfg=NONE
-    hi ColorColumn  cterm=NONE          ctermbg=0       ctermfg=3
+    hi ColorColumn                      ctermbg=255
     hi CursorLine   cterm=NONE          ctermbg=0       ctermfg=NONE
-    hi CursorLineNr cterm=NONE          ctermbg=0       ctermfg=14
   endif
 else
   echo "Not supported"
