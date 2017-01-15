@@ -58,9 +58,9 @@ zstyle '*' single-ignored show
 
 ## Load additional ZSH completion scripts.
 # My completion scripts
-fpath=($ZDOTDIR/functions/completion $fpath)
+fpath+=$ZDOTDIR/.zfunc
 # The Homebrew installed completion scripts.
-fpath=(/usr/local/share/zsh-completions $fpath)
+fpath+=/usr/local/share/zsh-completions
 
 autoload -U compinit
 compinit
