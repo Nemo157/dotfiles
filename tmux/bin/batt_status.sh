@@ -31,4 +31,4 @@ then
   time=$(pmset -g batt | egrep -o "[[:digit:]]{1,2}:[[:digit:]]{2}")
 fi
 
-echo "$symbol $percent $time"
+echo "$symbol $percent% $time"
