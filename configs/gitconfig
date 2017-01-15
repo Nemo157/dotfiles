@@ -9,9 +9,6 @@
     excludesfile = ~/.gitignore
     safecrlf = true
 
-[push]
-    default = upstream
-
 [color]
     ui = auto
 
