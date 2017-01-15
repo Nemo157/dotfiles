@@ -27,7 +27,7 @@ then
     AC) symbol=$power ;;
     Battery) symbol=$battery ;;
   esac
-  percent=$(pmset -g batt | egrep -o "[[:digit:]]{1,3}(?:%%)")
+  percent=$(pmset -g batt | ack -o "[[:digit:]]{1,3}(?=%)")
   time=$(pmset -g batt | egrep -o "[[:digit:]]{1,2}:[[:digit:]]{2}")
 fi
 
