@@ -23,3 +23,7 @@ bind index "a" save-message
 bind pager "h" exit
 bind pager "i" noop
 bind pager "a" save-message
+
+bind pager  display-toggle-weed
+
+bind pager  what-key

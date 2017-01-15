@@ -57,6 +57,17 @@ bindsym $mod+Shift+greater exec "i3-nagbar -t warning -m 'You pressed the exit s
 
 bindsym $mod+r mode "resize"
 
+mode "resize" {
+  bindsym h resize shrink width 10 px or 10 ppt
+  bindsym j resize shrink height 10 px or 10 ppt
+  bindsym k resize grow height 10 px or 10 ppt
+  bindsym l resize grow width 10 px or 10 ppt
+
+  bindsym Esc mode "default"
+  bindsym Return mode "default"
+  bindsym $mod+r mode "default"
+}
+
 bar {
         status_command i3status
 }

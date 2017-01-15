@@ -1,1 +1,2 @@
-COMMAND xdg-open %s >/dev/null
+COMMAND open %s
+WRAP yes
