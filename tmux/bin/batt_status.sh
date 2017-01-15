@@ -1,18 +1,34 @@
 #!/bin/sh
 
-[ -f /sys/class/power_supply/BAT0/status ] || exit 1
-[ -f /sys/class/power_supply/BAT0/energy_now ] || exit 1
-[ -f /sys/class/power_supply/BAT0/energy_full ] || exit 1
+unknown='❓'
+battery='🔋'
+power='🔌'
 
-case $(cat /sys/class/power_supply/BAT0/status) in
-  Discharging)
-    symbol='🔋'
-    ;;
-  Charging)
-    symbol='🔌'
-    ;;
-esac
+symbol=$unknown
+percent='??'
+time='?:??'
 
-percent=$(cat /sys/class/power_supply/BAT0/capacity)
+if [ -f /sys/class/power_supply/BAT0/status ]
+then
+  case $(cat /sys/class/power_supply/BAT0/status) in
+    Discharging) symbol=$battery ;;
+    Charging) symbol=$power ;;
+  esac
+fi
 
-echo "$symbol $percent%"
+if [ -f /sys/class/power_supply/BAT0/capacity ]
+then
+  percent=$(cat /sys/class/power_supply/BAT0/capacity)
+fi
+
+if which pmset >/dev/null
+then
+  case $(pmset -g batt | egrep -o "AC|Battery" -m 1) in
+    AC) symbol=$power ;;
+    Battery) symbol=$battery ;;
+  esac
+  percent=$(pmset -g batt | egrep -o "[[:digit:]]{1,3}(?:%%)")
+  time=$(pmset -g batt | egrep -o "[[:digit:]]{1,2}:[[:digit:]]{2}")
+fi
+
+echo "$symbol $percent $time"
