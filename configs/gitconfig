@@ -44,3 +44,15 @@
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
 
+[url "git@gitlab.com:"]
+    pushInsteadOf = "https://gitlab.com/"
+
+[url "git@gist.github.com:"]
+    pushInsteadOf = "https://gist.github.com/"
+
+[url "git@git.nemo157.com:"]
+    pushInsteadOf = "https://git.nemo157.com/"
+
+[url "git@grarr.nemo157.com:"]
+    pushInsteadOf = "https://grarr.nemo157.com/"
+
