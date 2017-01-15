@@ -138,9 +138,9 @@ abstracts = {
 
 
   # $0 = nick mode, $1 = nick
-  ownmsgnick = "{msgnick $0 $1$2-}";
+  ownmsgnick = "{msgnick $0 $1 $2-}";
   #ownnick = "%W$*%n";
-  ownnick = "%g$*%n%k%n";
+  ownnick = "%g$*%n";
 
   # public message in channel, $0 = nick mode, $1 = nick
   pubmsgnick = "{msgnick $0 $1-}";
