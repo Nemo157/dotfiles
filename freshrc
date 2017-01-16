@@ -48,7 +48,7 @@ fresh tmux/bin --file=~/.tmux/bin/
 fresh i3/config --file=~/.i3/config
 fresh irssi/config --file=~/.irssi/config
 fresh irssi/default.theme --file=~/.irssi/default.theme
-fresh irssi/scripts --file=~/.irssi/scripts/
+fresh irssi/scripts --file=~/.irssi/scripts/autorun/
 
 fresh js --file=~/.js/
 
