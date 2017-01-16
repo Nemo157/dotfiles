@@ -59,16 +59,20 @@ if [[ "x${PRIVATE-}x" != "xx" || -e ~/.freshrc.private ]]; then
 fi
 
 if [[ -e ~/.freshsources ]]; then
-    while read -a line; do
-        local name="${line[0]}"
-        local source="${line[1]}"
-        local repo_name="$(_repo_name "$source")"
+    load_extra_source() {
+        local name="$1"
+        local source="$2"
+        local repo_name
+        repo_name="$(_repo_name "$source")"
         echo "Installing all extra dotfiles from $name ($source)..."
-        fresh $source freshrc --file=~/.freshrc.$name --marker='# ========='
+        fresh "$source" freshrc --file="~/.freshrc.$name" --marker='# ========='
         local _FRESH_LOCAL="${FRESH_LOCAL:-}"
         export FRESH_LOCAL="$FRESH_PATH/source/$repo_name"
-        [[ -e ~/.freshrc.$name ]] && source ~/.freshrc.$name
+        [[ -e "$HOME/.freshrc.$name" ]] && source "$HOME/.freshrc.$name"
         export FRESH_LOCAL="$_FRESH_LOCAL"
+    }
+    while read -ra line; do
+      load_extra_source "${line[@]}"
     done < ~/.freshsources
 fi
 
