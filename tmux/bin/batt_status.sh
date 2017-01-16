@@ -8,20 +8,28 @@ symbol=$unknown
 percent='??'
 time='?:??'
 
-if [ -f /sys/class/power_supply/BAT0/status ]
+BAT0=/sys/class/power_supply/BAT0
+
+if [ -f $BAT0/status ]
 then
-  case $(cat /sys/class/power_supply/BAT0/status) in
+  case $(cat $BAT0/status) in
     Discharging) symbol=$battery ;;
     Charging) symbol=$power ;;
   esac
 fi
 
-if [ -f /sys/class/power_supply/BAT0/capacity ]
+if [ -f $BAT0/capacity ]
 then
-  percent=$(cat /sys/class/power_supply/BAT0/capacity)
+  percent=$(cat $BAT0/capacity)
 fi
 
-if which pmset >/dev/null
+if [ -f $BAT0/power_now ] && [ -f $BAT0/energy_now ]
+then
+  minutes=$(expr $(cat $BAT0/energy_now) '*' 60 / $(cat $BAT0/power_now))
+  time=$(expr $minutes / 60):$(expr $minutes % 60)
+fi
+
+if which pmset >/dev/null 2>/dev/null
 then
   case $(pmset -g batt | egrep -o "AC|Battery" -m 1) in
     AC) symbol=$power ;;
