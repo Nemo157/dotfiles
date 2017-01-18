@@ -1,0 +1,22 @@
+#!/bin/sh
+
+check () {
+  test -x "$1" && export pbcopy="$*"
+}
+
+check /bin/xclip -in -selection clipboard
+check /usr/bin/xclip -in -selection clipboard
+check /usr/local/bin/xclip -in -selection clipboard
+check /bin/pbcopy
+check /usr/bin/pbcopy
+check /usr/local/bin/pbcopy
+
+echo "$pbcopy"
+
+if test -n "$pbcopy"
+then
+  $pbcopy "$*"
+else
+  echo "Could not find a 'pbcopy' to use"
+  exit 1
+fi
