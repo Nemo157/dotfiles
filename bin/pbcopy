@@ -13,7 +13,7 @@ check /usr/local/bin/pbcopy
 
 if test -n "$pbcopy"
 then
-  $pbcopy "$*"
+  $pbcopy
 else
   echo "Could not find a 'pbcopy' to use"
   exit 1
