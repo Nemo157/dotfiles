@@ -25,8 +25,13 @@ fi
 
 if [ -f $BAT0/power_now ] && [ -f $BAT0/energy_now ]
 then
-  minutes=$(( $(cat $BAT0/energy_now) * 60 / $(cat $BAT0/power_now) ))
-  time=$(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))
+  if [ "$(cat $BAT0/power_now)" = 0 ]
+  then
+    time='0:00'
+  else
+    minutes=$(( $(cat $BAT0/energy_now) * 60 / $(cat $BAT0/power_now) ))
+    time=$(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))
+  fi
 fi
 
 if which pmset >/dev/null 2>/dev/null
