@@ -11,8 +11,6 @@ check /bin/pbpaste
 check /usr/bin/pbpaste
 check /usr/local/bin/pbpaste
 
-echo "$pbpaste"
-
 if test -n "$pbpaste"
 then
   $pbpaste "$*"
