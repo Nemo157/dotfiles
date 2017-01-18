@@ -11,8 +11,6 @@ check /bin/pbcopy
 check /usr/bin/pbcopy
 check /usr/local/bin/pbcopy
 
-echo "$pbcopy"
-
 if test -n "$pbcopy"
 then
   $pbcopy "$*"
