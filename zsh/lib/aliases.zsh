@@ -11,7 +11,3 @@ if [[ -x $(which sudo) ]] {
 
 alias tmux_mutt='tmux new-window -t 9 mutt'
 alias tmux_irssi='tmux new-window -t 10 irssi'
-
-if (! (which open >&-) && (which xdg-open >&-)) {
-  alias open='xdg-open'
-}
