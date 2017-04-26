@@ -42,6 +42,9 @@
     frp = !bash -c 'git fetch && [[ \"$(git intersect origin/master)\" == \"\" ]] && git rebase origin/master && git push || echo \"Intersecting files:\n\" && git intersect origin/master' -
     ri = rebase --interactive --autosquash
     rc = rebase --continue
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit --all
+    lo = log --graph --decorate --pretty=oneline --abbrev-commit --all --max-count=10
+    brs = log --graph --decorate --pretty=oneline --abbrev-commit --all --simplify-by-decoration
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
