@@ -23,5 +23,7 @@ set laststatus=2                                         " Always show the statu
 set wildmenu                                             " Show a menu when tab-completing
 set modeline                                             " Allow modelines
 set cedit=<Esc>                                          " Use <Esc> to enter command line editing mode
+set timeoutlen=1000
+set ttimeoutlen=10
 
 let g:tex_flavor = "latex"                               " Give latex higher priority over tex.
