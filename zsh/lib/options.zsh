@@ -3,6 +3,10 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 
+
+# 10ms for key sequences, reduces delay after hitting ESC
+KEYTIMEOUT=1
+
 my_options=(
   hist_ignore_all_dups # Don't add any duplicates to the history.
   hist_ignore_space    # Don't add lines that start with a space to the history.
