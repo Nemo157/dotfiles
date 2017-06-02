@@ -10,7 +10,8 @@ fresh gnachman/iTerm2 tests/imgcat --bin
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
 
-fresh yamllint --file=~/.config/yamllint/
+fresh config/yamllint --file=~/.config/yamllint/
+fresh config/beets --file=~/.config/beets/
 
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
