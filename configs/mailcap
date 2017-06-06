@@ -1,2 +1,3 @@
 text/html; elinks -dump %s; nametemplate=%s.html; copiousoutput;
 image/*; display %s
+application/pdf; open %s && read
