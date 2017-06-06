@@ -48,6 +48,8 @@
     lol = log --graph --decorate --pretty=oneline --abbrev-commit --all
     lo = log --graph --decorate --pretty=oneline --abbrev-commit --all --max-count=10
     brs = log --graph --decorate --pretty=oneline --abbrev-commit --all --simplify-by-decoration
+    co = checkout
+    ci = commit
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
