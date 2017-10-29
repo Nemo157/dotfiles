@@ -1,6 +1,5 @@
 " Language syntaxes.
 Plug 'Nemo157/glsl.vim'
-Plug 'plasticboy/vim-markdown'
 Plug 'kchmck/vim-coffee-script'
 Plug 'PProvost/vim-ps1'
 Plug 'dimituri/JSON.vim'
