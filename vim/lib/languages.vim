@@ -17,3 +17,4 @@ Plug 'mustache/vim-mustache-handlebars'
 Plug 'heartsentwined/vim-emblem'
 Plug 'urbit/urbit', { 'rtp': 'extras/hoon.vim/' }
 Plug 'lambdatoast/elm.vim'
+Plug 'ledger/vim-ledger'
