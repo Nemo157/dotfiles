@@ -1,0 +1,10 @@
+directory: ~/Music
+library: ~/.beets.db
+
+plugins: random bpd replaygain
+
+import:
+  move: yes
+
+replaygain:
+  backend: gstreamer

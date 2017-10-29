@@ -24,6 +24,9 @@
     xfuncname = " *((mod|impl|fn|struct|enum) .*)$"
     wordRegex = "[a-zA-Z_][a-zA-Z0-9_]*|[-+0-9.e]+[fFlL]?|0[xXbB]?[0-9a-fA-F]+[lL]?|[-+*/<>%&^|=!]=|<<=?|>>=?|&&|\\|\\||::|[-=]>|[<>]|[^[:space:]]|[\\xc0-\\xff][\\x80-\\xbf]+"
 
+[fetch]
+    prune = true
+
 [alias]
     di = diff --color-words
     fb  = !git fetch && git br -av
@@ -45,6 +48,8 @@
     lol = log --graph --decorate --pretty=oneline --abbrev-commit --all
     lo = log --graph --decorate --pretty=oneline --abbrev-commit --all --max-count=10
     brs = log --graph --decorate --pretty=oneline --abbrev-commit --all --simplify-by-decoration
+    co = checkout
+    ci = commit
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
