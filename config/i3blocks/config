@@ -47,7 +47,7 @@ interval=10
 separator=false
 
 [bandwidth3]
-command=~/.i3/blocks/$BLOCK_NAME -p 'printf "%-5.1f/%5.1f %s/s\n", rx, wx, unit'
+command=~/.i3/blocks/$BLOCK_NAME -p 'printf "%4.1f/%-4.1f %s/s\n", rx, wx, unit'
 interval=persist
 
 
