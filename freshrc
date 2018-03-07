@@ -13,6 +13,7 @@ fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh config/yamllint --file=~/.config/yamllint/
 fresh config/beets --file=~/.config/beets/
 fresh config/alacritty --file=~/.config/alacritty/
+fresh config/i3blocks --file=~/.config/i3blocks/
 
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
@@ -51,6 +52,26 @@ fresh i3/config --file=~/.i3/config
 fresh irssi/config --file=~/.irssi/config
 fresh irssi/default.theme --file=~/.irssi/default.theme
 fresh irssi/scripts --file=~/.irssi/scripts/autorun/
+
+scripts=(
+  volume
+  memory
+  disk
+  iface
+  wifi
+  bandwidth3
+  cpu_usage
+  load_average
+  battery
+  time
+  mediaplayer
+  openvpn
+  temperature
+)
+for script in ${scripts[*]}
+do
+  fresh vivien/i3blocks-contrib "$script/$script" --bin="~/.i3/blocks/$script"
+done
 
 fresh js --file=~/.js/
 

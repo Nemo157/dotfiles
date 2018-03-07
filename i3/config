@@ -69,7 +69,7 @@ mode "resize" {
 }
 
 bar {
-        status_command i3status
+  status_command i3blocks
 }
 
 bindsym $mod+backslash exec i3lock -c 002b36
