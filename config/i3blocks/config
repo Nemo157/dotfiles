@@ -3,6 +3,9 @@ separator_block_width=15
 markup=none
 
 
+[arch-update]
+interval=5
+
 [mediaplayer]
 instance=mpd
 interval=5
