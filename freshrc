@@ -13,6 +13,7 @@ fresh johanhaleby/kubetail kubetail --bin
 
 fresh config/yamllint --file=~/.config/yamllint/
 fresh config/beets --file=~/.config/beets/
+fresh config/ncmpcpp --file=~/.config/ncmpcpp/
 fresh config/alacritty --file=~/.config/alacritty/
 fresh config/i3blocks --file=~/.config/i3blocks/
 
@@ -55,24 +56,26 @@ fresh irssi/default.theme --file=~/.irssi/default.theme
 fresh irssi/scripts --file=~/.irssi/scripts/autorun/
 
 scripts=(
-  volume
-  memory
+  bandwidth3
+  battery
+  cpu_usage
   disk
   iface
-  wifi
-  bandwidth3
-  cpu_usage
   load_average
-  battery
-  time
   mediaplayer
+  memory
   openvpn
   temperature
+  time
+  volume
+  wifi
 )
 for script in ${scripts[*]}
 do
   fresh vivien/i3blocks-contrib "$script/$script" --bin="~/.i3/blocks/$script"
 done
+# Of course there has to be a special one...
+fresh vivien/i3blocks-contrib "arch-update/arch-update.py" --bin="~/.i3/blocks/arch-update"
 
 fresh js --file=~/.js/
 
