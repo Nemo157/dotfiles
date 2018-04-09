@@ -45,4 +45,4 @@ XTerm*allowBoldFonts: false
 XTerm*termName: xterm-256color
 XTerm*saveLines: 0
 
-Xcursor.size: 200
+Xcursor.size: 1
