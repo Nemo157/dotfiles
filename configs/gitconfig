@@ -18,11 +18,18 @@
 [diff]
     noprefix = true
     algorithm = patience
-    tool = vimdiff3
+    tool = vimdiff
 
 [diff.rust]
     xfuncname = " *((mod|impl|fn|struct|enum) .*)$"
     wordRegex = "[a-zA-Z_][a-zA-Z0-9_]*|[-+0-9.e]+[fFlL]?|0[xXbB]?[0-9a-fA-F]+[lL]?|[-+*/<>%&^|=!]=|<<=?|>>=?|&&|\\|\\||::|[-=]>|[<>]|[^[:space:]]|[\\xc0-\\xff][\\x80-\\xbf]+"
+
+[merge]
+    conflictstyle = diff3
+    tool = vimdiff
+
+[mergetool]
+    keepBackup = false
 
 [fetch]
     prune = true
@@ -66,3 +73,4 @@
 [url "git@grarr.nemo157.com:"]
     pushInsteadOf = "https://grarr.nemo157.com/"
 
+# vim:ft=gitconfig:
