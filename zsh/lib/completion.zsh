@@ -64,3 +64,7 @@ fpath+=/usr/local/share/zsh-completions
 
 autoload -U compinit
 compinit
+
+if [ $commands[kubectl] ]; then
+  source <(kubectl completion zsh)
+fi

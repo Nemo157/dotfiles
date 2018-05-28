@@ -9,9 +9,13 @@ fresh bin/\* --bin
 fresh gnachman/iTerm2 tests/imgcat --bin
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
+fresh johanhaleby/kubetail kubetail --bin
 
 fresh config/yamllint --file=~/.config/yamllint/
 fresh config/beets --file=~/.config/beets/
+fresh config/ncmpcpp --file=~/.config/ncmpcpp/
+fresh config/alacritty --file=~/.config/alacritty/
+fresh config/i3blocks --file=~/.config/i3blocks/
 
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
@@ -50,6 +54,28 @@ fresh i3/config --file=~/.i3/config
 fresh irssi/config --file=~/.irssi/config
 fresh irssi/default.theme --file=~/.irssi/default.theme
 fresh irssi/scripts --file=~/.irssi/scripts/autorun/
+
+scripts=(
+  bandwidth3
+  battery
+  cpu_usage
+  disk
+  iface
+  load_average
+  mediaplayer
+  memory
+  openvpn
+  temperature
+  time
+  volume
+  wifi
+)
+for script in ${scripts[*]}
+do
+  fresh vivien/i3blocks-contrib "$script/$script" --bin="~/.i3/blocks/$script"
+done
+# Of course there has to be a special one...
+fresh vivien/i3blocks-contrib "arch-update/arch-update.py" --bin="~/.i3/blocks/arch-update"
 
 fresh js --file=~/.js/
 

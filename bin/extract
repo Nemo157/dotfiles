@@ -57,6 +57,7 @@ extract() {
         ;;
       *.7z)
         program=7z
+        args+='x'
         ;;
       *)
         echo "'$file' cannot be extracted via extract"
