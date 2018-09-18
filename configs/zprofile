@@ -79,6 +79,9 @@ function () {
     then
       source "$(brew --prefix nvm)/nvm.sh"
     fi
+  elif [[ -s /usr/share/nvm/nvm.sh ]]
+  then
+    source /usr/share/nvm/nvm.sh
   fi
 
 }
