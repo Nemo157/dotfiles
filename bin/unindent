@@ -1,0 +1,3 @@
+#!/bin/sh
+
+pbpaste | sed 's/^    //' | pbcopy
