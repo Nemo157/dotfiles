@@ -68,3 +68,7 @@ compinit
 if [ $commands[kubectl] ]; then
   source <(kubectl completion zsh)
 fi
+
+if [ $commands[newt] ]; then
+  complete -C "newt complete" newt
+fi
