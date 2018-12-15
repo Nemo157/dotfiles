@@ -32,7 +32,7 @@ extract() {
         ;;
       *.rar)
         program=unrar
-        args+='e'
+        args+='x'
         ;;
       *.gz)
         program=gunzip
