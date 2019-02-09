@@ -60,6 +60,7 @@
     brs = log --graph --decorate --pretty=oneline --abbrev-commit --all --simplify-by-decoration
     co = checkout
     ci = commit
+    abs = absorb -b origin/HEAD
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
