@@ -63,7 +63,7 @@ mode "resize" {
   bindsym k resize grow height 10 px or 10 ppt
   bindsym l resize grow width 10 px or 10 ppt
 
-  bindsym Esc mode "default"
+  bindsym Escape mode "default"
   bindsym Return mode "default"
   bindsym $mod+r mode "default"
 }
