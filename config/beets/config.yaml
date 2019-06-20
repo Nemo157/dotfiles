@@ -1,10 +1,13 @@
 directory: ~/Music
 library: ~/.beets.db
 
-plugins: random bpd replaygain
+plugins: random bpd replaygain fetchart
 
 import:
   move: yes
 
 replaygain:
   backend: gstreamer
+
+fetchart:
+  sources: [filesystem, coverart]
