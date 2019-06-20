@@ -53,6 +53,7 @@ if !has('gui_running')
     hi ErrorMsg     cterm=NONE          ctermbg=NONE    ctermfg=9
     hi Error        cterm=NONE          ctermbg=NONE    ctermfg=9
     hi SpellBad     cterm=NONE          ctermbg=NONE    ctermfg=9
+    hi SpellCap     cterm=NONE          ctermbg=NONE    ctermfg=3
     hi Todo         cterm=bold,standout ctermbg=0       ctermfg=11
     hi MatchParen   cterm=bold          ctermbg=12      ctermfg=NONE
     hi ColorColumn  cterm=NONE          ctermbg=0       ctermfg=3
