@@ -4,7 +4,8 @@ markup=none
 
 
 [arch-update]
-interval=5
+interval=43200
+markup=pango
 
 [mediaplayer]
 instance=mpd
