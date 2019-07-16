@@ -71,19 +71,6 @@ function () {
   export_if_exists GOPATH "$HOME/go"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
-
-  export_if_exists NVM_DIR "$HOME/.nvm"
-  if which brew >/dev/null
-  then
-    if [[ -s "$(brew --prefix nvm)/nvm.sh" ]]
-    then
-      source "$(brew --prefix nvm)/nvm.sh"
-    fi
-  elif [[ -s /usr/share/nvm/nvm.sh ]]
-  then
-    source /usr/share/nvm/nvm.sh
-  fi
-
 }
 
 true
