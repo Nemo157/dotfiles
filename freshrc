@@ -10,6 +10,7 @@ fresh gnachman/iTerm2 tests/imgcat --bin
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
+fresh jwiegley/git-scripts git-forest --bin
 
 fresh config/yamllint --file=~/.config/yamllint/
 fresh config/beets --file=~/.config/beets/
