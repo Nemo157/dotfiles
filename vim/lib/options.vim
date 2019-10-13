@@ -22,6 +22,7 @@ set guifont=Consolas                                     " Use Consolas as the f
 set laststatus=2                                         " Always show the status line
 set wildmenu                                             " Show a menu when tab-completing
 set modeline                                             " Allow modelines
+set modelines=10
 set cedit=<Esc>                                          " Use <Esc> to enter command line editing mode
 set timeoutlen=1000
 set ttimeoutlen=10
