@@ -78,4 +78,4 @@ default_orientation vertical
 
 hide_edge_borders both
 focus_follows_mouse no
-# mouse_warping none
+mouse_warping none
