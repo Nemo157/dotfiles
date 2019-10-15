@@ -12,3 +12,6 @@ function! BuildComposer(info) " Plug (hack for sorting)
   endif " Plug (hack for sorting)
 endfunction " Plug (hack for sorting)
 Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
+
+let g:markdown_composer_syntax_theme='solarized-dark'
+let g:markdown_composer_custom_css=['http://thomasf.github.io/solarized-css/solarized-dark.min.css']
