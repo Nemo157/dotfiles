@@ -2,6 +2,9 @@
     name = Wim Looman
     email = wim@nemo157.com
 
+[advice]
+    detachedHead = false
+
 [github]
     user = Nemo157
 
