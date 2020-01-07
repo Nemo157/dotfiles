@@ -72,6 +72,11 @@ function () {
   export_if_exists GOPATH "$HOME/go"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+
+  if [[ -x "$(which sccache)" ]]
+  then
+    export RUSTC_WRAPPER=sccache
+  fi
 }
 
 true
