@@ -10,7 +10,7 @@ if !has('gui_running')
      echo "Not supported"
   else
     hi Normal       cterm=none          ctermbg=none    ctermfg=none
-    hi SpecialKey   cterm=none          ctermbg=8       ctermfg=none
+    hi SpecialKey   cterm=none          ctermbg=none    ctermfg=8
     hi IncSearch    cterm=reverse                       ctermfg=none
     hi Search       cterm=reverse                       ctermfg=none
     hi MoreMsg      cterm=bold                          ctermfg=none
