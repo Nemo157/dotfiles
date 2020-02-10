@@ -1,7 +1,5 @@
 " Stuff still to put in separate files
 
-let mapleader = ","
-
 map <leader>n :lnext<CR>
 map <leader>p :lprev<CR>
 

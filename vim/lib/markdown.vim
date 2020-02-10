@@ -2,15 +2,17 @@
 Plug 'plasticboy/vim-markdown'
 
 " Realtime rendered preview
-function! BuildComposer(info) " Plug (hack for sorting)
-  if a:info.status != 'unchanged' || a:info.force " Plug (hack for sorting)
-    if has('nvim') " Plug (hack for sorting)
-      !cargo build --release --locked \# Plug (hack for sorting)
-    else " Plug (hack for sorting)
-      !cargo build --release --locked --no-default-features --features json-rpc \# Plug (hack for sorting)
-    endif " Plug (hack for sorting)
-  endif " Plug (hack for sorting)
-endfunction " Plug (hack for sorting)
+" PlugInclude
+function! BuildComposer(info)
+  if a:info.status != 'unchanged' || a:info.force
+    if has('nvim')
+      !cargo build --release --locked
+    else
+      !cargo build --release --locked --no-default-features --features json-rpc
+    endif
+  endif
+endfunction
+" /PlugInclude
 Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
 
 let g:markdown_composer_syntax_theme='solarized-dark'
