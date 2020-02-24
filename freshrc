@@ -51,6 +51,7 @@ fresh-options
 
 fresh tmux/bin --file=~/.tmux/bin/
 
+fresh cargo/config --file=~/.cargo/config
 fresh i3/config --file=~/.i3/config
 fresh irssi/config --file=~/.irssi/config
 fresh irssi/default.theme --file=~/.irssi/default.theme
