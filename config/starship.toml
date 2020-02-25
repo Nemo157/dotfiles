@@ -1,0 +1,110 @@
+prompt_order = [
+    "username",
+    "hostname",
+    "kubernetes",
+    "directory",
+    "git_branch",
+    "git_commit",
+    "git_state",
+    "hg_branch",
+    "package",
+    "dotnet",
+    "elm",
+    "golang",
+    "haskell",
+    "java",
+    "nodejs",
+    "php",
+    "python",
+    "ruby",
+    "rust",
+    "terraform",
+    "nix_shell",
+    "conda",
+    "memory_usage",
+    "aws",
+    "env_var",
+    "crystal",
+    "cmd_duration",
+    "line_break",
+    "jobs",
+    "battery",
+    "time",
+    "git_status",
+    "character",
+]
+
+[character]
+symbol = "→"
+vicmd_symbol = " "
+style_success = ""
+style_failure = "red"
+
+[time]
+disabled = false
+format = "%H:%M"
+style = "cyan"
+
+[username]
+style_user = "green"
+show_always = true
+
+[hostname]
+style = "green"
+ssh_only = false
+
+[directory]
+style = "purple"
+truncate_to_repo = false
+
+[git_branch]
+style = "yellow"
+symbol = " "
+
+[git_status]
+style = "red dimmed"
+
+[cmd_duration]
+style = "purple"
+
+
+[aws]
+symbol = " "
+
+[battery]
+full_symbol = ""
+charging_symbol = ""
+discharging_symbol = ""
+
+[conda]
+symbol = " "
+
+[golang]
+symbol = " "
+
+[hg_branch]
+symbol = " "
+
+[java]
+symbol = " "
+
+[memory_usage]
+symbol = " "
+
+[nodejs]
+symbol = " "
+
+[package]
+symbol = " "
+
+[php]
+symbol = " "
+
+[python]
+symbol = " "
+
+[ruby]
+symbol = " "
+
+[rust]
+symbol = " "

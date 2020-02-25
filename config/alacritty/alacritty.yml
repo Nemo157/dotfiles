@@ -6,7 +6,7 @@ scrolling:
   history: 0
 
 font:
-  normal: { family: Fira Code }
+  normal: { family: Fira Code Nerd Font }
   size: 9.0
   use_thin_strokes: true
 

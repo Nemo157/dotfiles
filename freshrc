@@ -12,11 +12,17 @@ fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
 fresh jwiegley/git-scripts git-forest --bin
 
-fresh config/yamllint --file=~/.config/yamllint/
-fresh config/beets --file=~/.config/beets/
-fresh config/ncmpcpp --file=~/.config/ncmpcpp/
-fresh config/alacritty --file=~/.config/alacritty/
-fresh config/i3blocks --file=~/.config/i3blocks/
+for f in "$FRESH_LOCAL"/config/*
+do
+  if [[ -d "$f" ]]
+  then
+    f=$(basename "$f")
+    fresh config/"$f" --file=~/.config/"$f"/
+  else
+    f=$(basename "$f")
+    fresh config/"$f" --file=~/.config/"$f"
+  fi
+done
 
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
