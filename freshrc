@@ -97,14 +97,13 @@ if [[ -e ~/.freshsources ]]; then
     load_extra_source() {
         local name="$1"
         local source="$2"
-        local repo_name
-        repo_name="$(_repo_name "$source")"
         echo "Installing all extra dotfiles from $name ($source)..."
         fresh "$source" freshrc --file="~/.freshrc.$name" --marker='# ========='
-        local _FRESH_LOCAL="${FRESH_LOCAL:-}"
-        export FRESH_LOCAL="$FRESH_PATH/source/$repo_name"
-        [[ -e "$HOME/.freshrc.$name" ]] && source "$HOME/.freshrc.$name"
-        export FRESH_LOCAL="$_FRESH_LOCAL"
+        if [[ -e "$HOME/.freshrc.$name" ]]; then
+          source "$HOME/.freshrc.$name"
+        else
+          echo "First time install $name, rerun"
+        fi
     }
     while read -ra line; do
       load_extra_source "${line[@]}"
@@ -135,18 +134,4 @@ fresh_after_build () {
         echo "Installing antigen plugins..."
         zsh -c 'source ~/.zshrc'
     fi
-}
-
-# https://github.com/freshshell/fresh/blob/15dc09af57ecbe43578b9809579d46772a7e3be3/bin/fresh#L131
-_repo_name() {
-    local REPO_NAME="$1"
-    if echo "$REPO_NAME" | grep -q :; then
-        REPO_NAME="$(echo "$REPO_NAME" | sed -e 's#^.*@##' -e 's#^.*://##' -e 's#:#/#' -e 's/\.git$//')"
-    fi
-    if [[ "$REPO_NAME" == github.com/* ]]; then
-        REPO_NAME="$(echo "$REPO_NAME" | sed 's#^github\.com/##')"
-    else
-        REPO_NAME="$(echo "$REPO_NAME" | cut -d/ -f1)/$(echo "$REPO_NAME" | cut -d/ -f2- | tr / -)"
-    fi
-    echo "$REPO_NAME"
 }
