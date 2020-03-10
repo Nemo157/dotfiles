@@ -50,12 +50,13 @@ if !has('gui_running')
     hi ErrorMsg     cterm=none          ctermbg=none    ctermfg=1
     hi Error        cterm=none          ctermbg=none    ctermfg=1
     hi SpellBad     cterm=none          ctermbg=none    ctermfg=1
-    hi SpellCap     cterm=none          ctermbg=none    ctermfg=1
-    hi Todo         cterm=none          ctermbg=none    ctermfg=1
+    hi SpellCap     cterm=none          ctermbg=none    ctermfg=3
+    hi Todo         cterm=none          ctermbg=none    ctermfg=3
     hi MatchParen   cterm=none          ctermbg=3       ctermfg=none
     hi ColorColumn  cterm=none          ctermbg=0       ctermfg=1
     hi CursorLine   cterm=none          ctermbg=none    ctermfg=none
     hi CursorLineNr cterm=none          ctermbg=0       ctermfg=10
+    hi SignColumn   cterm=none          ctermbg=0       ctermfg=10
   endif
 else
   echo "Not supported"
