@@ -57,6 +57,9 @@ if !has('gui_running')
     hi CursorLine   cterm=none          ctermbg=none    ctermfg=none
     hi CursorLineNr cterm=none          ctermbg=0       ctermfg=10
     hi SignColumn   cterm=none          ctermbg=0       ctermfg=10
+
+    hi AleErrorSign   cterm=none ctermbg=0 ctermfg=1
+    hi AleWarningSign cterm=none ctermbg=0 ctermfg=3
   endif
 else
   echo "Not supported"
