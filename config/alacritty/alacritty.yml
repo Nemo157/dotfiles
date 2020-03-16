@@ -1,3 +1,6 @@
+env:
+  background: light
+
 window:
   padding: { x: 0, y: 0 }
   startup_mode: 'Maximized'
@@ -18,65 +21,91 @@ draw_bold_text_with_bright_colors: false
 
 # yamllint disable rule:colons
 schemes:
-  solarized_dark: &solarized_dark
+  solarized_light: &solarized_light
     primary:
-      background: '0x002b36'
-      foreground: '0x839496'
+      background: '#fdf6e3'
+      foreground: '#657b83'
 
     cursor:
-      text:   '0x002b36'
-      cursor: '0x839496'
+      text:   '#fdf6e3'
+      cursor: '#657b83'
 
     normal:
-      black:   '0x073642'
-      red:     '0xdc322f'
-      green:   '0x859900'
-      yellow:  '0xb58900'
-      blue:    '0x268bd2'
-      magenta: '0xd33682'
-      cyan:    '0x2aa198'
-      white:   '0xeee8d5'
+      black:   '#073642'
+      red:     '#dc322f'
+      green:   '#859900'
+      yellow:  '#b58900'
+      blue:    '#268bd2'
+      magenta: '#d33682'
+      cyan:    '#2aa198'
+      white:   '#eee8d5'
 
     bright:
-      black:   '0x002b36'
-      red:     '0xcb4b16'
-      green:   '0x586e75'
-      yellow:  '0x657b83'
-      blue:    '0x839496'
-      magenta: '0x6c71c4'
-      cyan:    '0x93a1a1'
-      white:   '0xfdf6e3'
+      black:   '#002b36'
+      red:     '#cb4b16'
+      green:   '#586e75'
+      yellow:  '#657b83'
+      blue:    '#839496'
+      magenta: '#6c71c4'
+      cyan:    '#93a1a1'
+      white:   '#fdf6e3'
+
+  solarized_dark: &solarized_dark
+    primary:
+      background: '#002b36'
+      foreground: '#839496'
+
+    cursor:
+      text:   '#002b36'
+      cursor: '#839496'
+
+    normal:
+      black:   '#073642'
+      red:     '#dc322f'
+      green:   '#859900'
+      yellow:  '#b58900'
+      blue:    '#268bd2'
+      magenta: '#d33682'
+      cyan:    '#2aa198'
+      white:   '#eee8d5'
+
+    bright:
+      black:   '#002b36'
+      red:     '#cb4b16'
+      green:   '#586e75'
+      yellow:  '#657b83'
+      blue:    '#839496'
+      magenta: '#6c71c4'
+      cyan:    '#93a1a1'
+      white:   '#fdf6e3'
 
   ayu_dark: &ayu_dark
-    # Default colors
     primary:
-      background: '0x0A0E14'
-      foreground: '0xB3B1AD'
+      background: '#0A0E14'
+      foreground: '#B3B1AD'
 
-    # Normal colors
     normal:
-      black: '0x01060E'
-      red: '0xEA6C73'
-      green: '0x91B362'
-      yellow: '0xF9AF4F'
-      blue: '0x53BDFA'
-      magenta: '0xFAE994'
-      cyan: '0x90E1C6'
-      white: '0xC7C7C7'
+      black:   '#01060E'
+      red:     '#EA6C73'
+      green:   '#91B362'
+      yellow:  '#F9AF4F'
+      blue:    '#53BDFA'
+      magenta: '#FAE994'
+      cyan:    '#90E1C6'
+      white:   '#C7C7C7'
 
-    # Bright colors
     bright:
-      black: '0x686868'
-      red: '0xF07178'
-      green: '0xC2D94C'
-      yellow: '0xFFB454'
-      blue: '0x59C2FF'
-      magenta: '0xFFEE99'
-      cyan: '0x95E6CB'
-      white: '0xFFFFFF'
+      black:   '#686868'
+      red:     '#F07178'
+      green:   '#C2D94C'
+      yellow:  '#FFB454'
+      blue:    '#59C2FF'
+      magenta: '#FFEE99'
+      cyan:    '#95E6CB'
+      white:   '#FFFFFF'
 # yamllint enable rule:colons
 
-colors: *ayu_dark
+colors: *solarized_light
 
 mouse:
   double_click: { threshold: 300 }
