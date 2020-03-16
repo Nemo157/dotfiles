@@ -87,12 +87,6 @@ fresh vivien/i3blocks-contrib "arch-update/arch-update.py" --bin="~/.i3/blocks/a
 
 fresh js --file=~/.js/
 
-if [[ "x${PRIVATE-}x" != "xx" || -e ~/.freshrc.private ]]; then
-    echo "Installing private dotfiles..."
-    fresh Nemo157/private_dotfiles freshrc.private --file=~/.freshrc.private --marker='# ========='
-    [[ -e ~/.freshrc.private ]] && source ~/.freshrc.private
-fi
-
 if [[ -e ~/.freshsources ]]; then
     load_extra_source() {
         local name="$1"
