@@ -1,6 +1,10 @@
 Plug 'w0rp/ale'
 
-set signcolumn=number
+try
+  set signcolumn=number
+catch
+  set signcolumn=yes
+endtry
 
 let g:ale_sign_error=''
 let g:ale_sign_warning=' '
