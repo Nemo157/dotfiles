@@ -7,7 +7,7 @@ font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
 floating_modifier $mod
 bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+colon kill
-bindsym $mod+space exec dmenu_run
+bindsym $mod+space exec rofi -show run
 
 bindsym $mod+h focus left
 bindsym $mod+j focus down
