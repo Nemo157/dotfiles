@@ -1,8 +1,13 @@
 #!/bin/sh
 
-if which scutil >/dev/null
+if type scutil >/dev/null
 then
   vpn=$(scutil --nc list | grep "(Connected)" | sed -E "s/[[:space:]]{2,}/	/g" | cut -f 3 | tr -d "\"")
+fi
+
+if type systemctl >/dev/null
+then
+  vpn=$(systemctl show 'openvpn-client@*' --property Id --value | sed -E 's/openvpn-client@(.*)\.service/\1/')
 fi
 
 if [ -n "$vpn" ]
