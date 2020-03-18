@@ -55,12 +55,17 @@ hi CursorLine     cterm=none          ctermbg=none    ctermfg=none
 
 execute 'hi Folded         cterm=none ctermbg=' . s:bg . ' ctermfg=8'
 execute 'hi FoldColumn     cterm=none ctermbg=' . s:bg . ' ctermfg=8'
-execute 'hi LineNr         cterm=none ctermbg=' . s:bg . ' ctermfg=2'
+execute 'hi LineNr         cterm=none ctermbg=' . s:bg . ' ctermfg=10'
 execute 'hi StatusLine     cterm=bold ctermbg=' . s:bg . ' ctermfg=' . s:fg
 execute 'hi StatusLineNC   cterm=none ctermbg=' . s:bg . ' ctermfg=' . s:fg
 execute 'hi VertSplit      cterm=none ctermbg=' . s:bg . ' ctermfg=14'
 execute 'hi ColorColumn    cterm=none ctermbg=' . s:bg . ' ctermfg=1'
 execute 'hi CursorLineNr   cterm=none ctermbg=' . s:bg . ' ctermfg=10'
 execute 'hi SignColumn     cterm=none ctermbg=' . s:bg . ' ctermfg=10'
+
 execute 'hi AleErrorSign   cterm=none ctermbg=' . s:bg . ' ctermfg=1'
 execute 'hi AleWarningSign cterm=none ctermbg=' . s:bg . ' ctermfg=3'
+execute 'hi SignifySignAdd             ctermbg=' . s:bg . ' ctermfg=2'
+execute 'hi SignifySignChange          ctermbg=' . s:bg . ' ctermfg=3'
+execute 'hi SignifySignDelete          ctermbg=' . s:bg . ' ctermfg=1'
+execute 'hi SignifySignDeleteFirstLine ctermbg=' . s:bg . ' ctermfg=1'

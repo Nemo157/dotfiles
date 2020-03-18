@@ -28,3 +28,5 @@ set timeoutlen=1000
 set ttimeoutlen=10
 
 let g:tex_flavor = "latex"                               " Give latex higher priority over tex.
+
+set updatetime=100

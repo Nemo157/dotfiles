@@ -1,1 +1,10 @@
 Plug 'vitapluvia/vim-gurl'
+Plug 'tpope/vim-fugitive'
+Plug 'https://github.com/tpope/vim-rhubarb'
+Plug 'https://github.com/shumphrey/fugitive-gitlab.vim'
+Plug 'https://github.com/mhinz/vim-signify'
+
+let g:signify_sign_add = '+'
+let g:signify_sign_delete = '-'
+let g:signify_sign_delete_first_line = '-'
+let g:signify_sign_change = '~'
