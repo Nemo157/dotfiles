@@ -2,7 +2,7 @@
 
 if type scutil >/dev/null
 then
-  vpn=$(scutil --nc list | grep "(Connected)" | sed -E "s/[[:space:]]{2,}/	/g" | cut -f 3 | tr -d "\"")
+  vpn=$(scutil --nc list | grep "(Connected)" | sed -E 's/.*"(.*)".*/\1/g')
 fi
 
 if type systemctl >/dev/null
