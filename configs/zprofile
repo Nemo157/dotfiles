@@ -41,6 +41,10 @@ function () {
     [[ -d "$dir" ]] && export $var_name="$dir"
   }
 
+  source_if_exists () {
+    [[ -f "$1" ]] && source "$1"
+  }
+
   prepend_if_exists PATH "$HOME/bin"
   prepend_if_exists PATH "$HOME/node_modules/.bin"
   prepend_if_exists PATH "$HOME/Library/Haskell/bin"
@@ -72,6 +76,8 @@ function () {
   export_if_exists GOPATH "$HOME/go"
   export_if_exists EC2_AMITOOL_HOME "/usr/local/Library/LinkedKegs/ec2-ami-tools/jars"
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
+
+  source_if_exists ~/.nix-profile/etc/profile.d/nix.sh
 }
 
 true
