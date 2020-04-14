@@ -26,6 +26,7 @@ set modelines=10
 set cedit=<Esc>                                          " Use <Esc> to enter command line editing mode
 set timeoutlen=1000
 set ttimeoutlen=10
+set fillchars=vert:¦,diff:⸳
 
 let g:tex_flavor = "latex"                               " Give latex higher priority over tex.
 

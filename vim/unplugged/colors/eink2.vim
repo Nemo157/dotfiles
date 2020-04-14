@@ -25,10 +25,10 @@ hi Visual         cterm=none                          ctermfg=3
 hi VisualNOS      cterm=bold                          ctermfg=none
 hi WarningMsg     cterm=standout                      ctermfg=none
 hi WildMenu       cterm=standout                      ctermfg=none
-hi DiffAdd        cterm=bold          ctermbg=none    ctermfg=2
-hi DiffChange     cterm=none          ctermbg=none    ctermfg=5
-hi DiffDelete     cterm=bold          ctermbg=none    ctermfg=1
-hi DiffText       cterm=none          ctermbg=none    ctermfg=13
+hi DiffAdd        cterm=none          ctermbg=none    ctermfg=2
+hi DiffChange     cterm=none          ctermbg=none    ctermfg=3
+hi DiffDelete     cterm=none          ctermbg=none    ctermfg=1
+hi DiffText       cterm=none          ctermbg=none    ctermfg=8
 hi Type           cterm=none          ctermbg=none    ctermfg=none
 hi Keyword        cterm=none          ctermbg=none    ctermfg=none
 hi Number         cterm=none          ctermbg=none    ctermfg=none
@@ -51,6 +51,8 @@ hi Todo           cterm=none          ctermbg=none    ctermfg=3
 hi MatchParen     cterm=none          ctermbg=3       ctermfg=none
 hi CursorLine     cterm=none          ctermbg=none    ctermfg=none
 
+hi link SpecialComment Comment
+
 execute 'hi Comment         cterm=none ctermbg=none       ctermfg='.s:lofg
 execute 'hi Conceal         cterm=none ctermbg=none       ctermfg='.s:hifg
 execute 'hi Func            cterm=none ctermbg='.s:lofg.' ctermfg=12'
@@ -67,7 +69,3 @@ execute 'hi SignColumn      cterm=none ctermbg='.s:hibg.' ctermfg=10'
 
 execute 'hi AleErrorSign    cterm=none ctermbg='.s:hibg.' ctermfg=1'
 execute 'hi AleWarningSign  cterm=none ctermbg='.s:hibg.' ctermfg=3'
-execute 'hi SignifySignAdd             ctermbg='.s:hibg.' ctermfg=2'
-execute 'hi SignifySignChange          ctermbg='.s:hibg.' ctermfg=3'
-execute 'hi SignifySignDelete          ctermbg='.s:hibg.' ctermfg=1'
-execute 'hi SignifySignDeleteFirstLine ctermbg='.s:hibg.' ctermfg=1'
