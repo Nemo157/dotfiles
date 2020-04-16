@@ -1,8 +1,8 @@
 ## Setup colour schemes
-if [[ -x $(which dircolors) ]] then
-  if [[ -f ~/.dir_colors ]] then
+if [ $commands[dircolors] ]; then
+  if [[ -f ~/.dir_colors ]]; then
     eval $(dircolors -b ~/.dir_colors)
-  elif [[ -f /etc/DIR_COLORS ]] then
+  elif [[ -f /etc/DIR_COLORS ]]; then
     eval $(dircolors -b /etc/DIR_COLORS)
   fi
 fi

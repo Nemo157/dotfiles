@@ -56,14 +56,12 @@ zstyle '*' single-ignored show
 fpath+=$ZDOTDIR/.zfunc
 # The Homebrew installed completion scripts.
 fpath+=/usr/local/share/zsh-completions
+if [ $commands[rustc] ] && rustc --print sysroot &>/dev/null; then
+  fpath+=$(rustc --print sysroot)/share/zsh/site-functions
+fi
 
 autoload -U compinit
 compinit
 
-if [ $commands[kubectl] ]; then
-  source <(kubectl completion zsh)
-fi
-
-if [ $commands[newt] ]; then
-  complete -C "newt complete" newt
-fi
+[ $commands[kubectl] ] && source <(kubectl completion zsh)
+[ $commands[newt] ] && complete -C "newt complete" newt
