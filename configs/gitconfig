@@ -65,6 +65,7 @@
     ci = commit
     abs = absorb -b origin/HEAD
     flo = !git forest --all --reverse --pretty=format:\"%C(yellow)%h %C(blue)(%ar) %C(reset)%s\" --color --style=2
+    f = fetch --all
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
