@@ -153,9 +153,9 @@ setup_custom_prompt () {
   }
 }
 
-if type starship >/dev/null
+if [ $commands[starship] ]
 then
-  eval "$(starship init zsh)">/dev/null
+  eval "$(starship init zsh)" >/dev/null
 else
   setup_custom_prompt
 fi
