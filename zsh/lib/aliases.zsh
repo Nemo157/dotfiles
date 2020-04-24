@@ -11,4 +11,4 @@ fi
 
 alias tmux_mutt='tmux new-window -t 9 mutt'
 alias tmux_irssi='tmux new-window -t 10 irssi'
-alias ytop='ytop -c default-dark'
+alias ytop='ytop -c ansi-8'
