@@ -12,5 +12,5 @@ fi
 
 if [ -n "$vpn" ]
 then
-  echo "🔐 $vpn"
+  echo "  🔐$vpn"
 fi

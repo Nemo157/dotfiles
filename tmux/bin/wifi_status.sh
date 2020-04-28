@@ -13,5 +13,5 @@ fi
 
 if [ -n "$ssid" ]
 then
-  echo "📶 $ssid"
+  echo "  📶$ssid"
 fi

@@ -1,13 +1,12 @@
 #!/bin/sh
 
-unknown='❓'
-battery='🔋'
-power='🔌'
+battery='  🔋'
+power='  🔌'
 one_hundred='💯'
 
-symbol=$unknown
-percent='??'
-time='?:??'
+symbol=''
+percent=''
+time=''
 
 BAT0=/sys/class/power_supply/BAT0
 
@@ -17,24 +16,24 @@ then
     Discharging)
       symbol=$battery
       if [ "$(cat $BAT0/power_now)" = 0 ]; then
-        time='–:––'
+        time=''
       else
         minutes=$(( $(cat $BAT0/energy_now) * 60 / $(cat $BAT0/power_now) ))
-        time=$(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))
+        time=" $(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))"
       fi
       ;;
     Charging)
       symbol=$power
       if [ "$(cat $BAT0/power_now)" = 0 ]; then
-        time='–:––'
+        time=''
       else
         minutes=$(( ($(cat $BAT0/energy_full) - $(cat $BAT0/energy_now)) * 60 / $(cat $BAT0/power_now) ))
-        time=$(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))
+        time=" $(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))"
       fi
       ;;
     'Not charging')
       symbol=$power
-      time='–:––'
+      time=''
       ;;
   esac
 
@@ -51,7 +50,7 @@ if command -v pmset; then
       ;;
   esac
   percent=$(pmset -g batt | ack -o "[[:digit:]]{1,3}(?=%)")
-  time=$(pmset -g batt | grep -E -o "[[:digit:]]{1,2}:[[:digit:]]{2}")
+  time=" $(pmset -g batt | grep -E -o "[[:digit:]]{1,2}:[[:digit:]]{2}")"
 fi
 
 if [ "$percent" -lt 5 ]; then
@@ -70,4 +69,4 @@ then
   percent="$one_hundred"
 fi
 
-echo "$color$symbol $percent% $time"
+echo "$color$symbol$percent%$time"
