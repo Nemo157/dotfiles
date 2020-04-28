@@ -9,3 +9,5 @@ Thumbs.db
 *.swp
 .clang-tidy
 .clangd/
+.envrc
+.env
