@@ -69,4 +69,8 @@ then
   percent="$one_hundred"
 fi
 
-echo "$color$symbol$percent%$time"
+if [ "$percent" ]; then
+  percent="$percent%"
+fi
+
+echo "$color$symbol$percent$time"
