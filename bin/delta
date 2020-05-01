@@ -1,0 +1,15 @@
+#!/bin/sh
+
+delta=$(which -a delta | tail -n -1 | head -n 1)
+
+exec $delta \
+    --theme ansi-light \
+    --plus-color white \
+    --minus-color white \
+    --plus-emph-color white \
+    --minus-emph-color white \
+    --commit-style plain \
+    --file-style box \
+    --hunk-style plain \
+    --keep-plus-minus-markers \
+    "$@"

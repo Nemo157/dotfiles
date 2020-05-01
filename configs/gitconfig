@@ -11,10 +11,10 @@
 [core]
     excludesfile = ~/.gitignore
     safecrlf = true
-    pager = delta --theme ansi-light --plus-color=white --minus-color=white --plus-emph-color=white --minus-emph-color=white --commit-style=plain --file-style=box --hunk-style=plain --keep-plus-minus-markers
+    pager = delta
 
 [interactive]
-    diffFilter = delta --color-only --theme ansi-light --plus-color=white --minus-color=white --plus-emph-color=white --minus-emph-color=white
+    diffFilter = delta --color-only
 
 [push]
     default = simple
