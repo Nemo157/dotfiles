@@ -1,6 +1,6 @@
 [user]
     name = Wim Looman
-    email = wim@nemo157.com
+    email = git@nemo157.com
 
 [advice]
     detachedHead = false
