@@ -17,7 +17,7 @@ $TMUX -u has-session -t "$1"
 if [[ $? -ne 0 ]]
 then
   echo "Creating session $1"
-  $TMUX -u new-session -d -s "$1"
+  ssh-agent $TMUX -u new-session -d -s "$1"
 fi
 
 $TMUX -u attach-session -t "$1"
