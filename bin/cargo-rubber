@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -eu
+
+shift
+
+trap '
+  echo "  [36;1mUnblocking[0m modifications" >&2
+  chmod -R u+w ~/.cargo/registry ~/.cargo/git
+' exit
+
+echo '    [36;1mFetching[0m dependencies' >&2
+cargo fetch --locked
+echo '    [36;1mBlocking[0m modifications' >&2
+chmod -R u-w ~/.cargo/registry ~/.cargo/git
+echo '     [36;1mRunning[0m `cargo '"$@"'`' >&2
+cargo "$@"
