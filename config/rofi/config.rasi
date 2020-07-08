@@ -1,0 +1,8 @@
+configuration {
+  modi: "drun,window,run";
+  show-icons: true;
+  kb-mode-next: "Shift+Right,Tab";
+  kb-mode-previous: "Shift+Left";
+  kb-row-up: "Up,Control+p";
+  kb-row-tab: "";
+}
