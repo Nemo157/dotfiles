@@ -45,17 +45,17 @@ hi Comment         cterm=none          ctermbg=none    ctermfg=14
 hi Conceal         cterm=none          ctermbg=none    ctermfg=10
 hi Func            cterm=none          ctermbg=14      ctermfg=12
 hi SpecialKey      cterm=none          ctermbg=none    ctermfg=14
-hi Folded          cterm=none          ctermbg=7       ctermfg=14
-hi FoldColumn      cterm=none          ctermbg=7       ctermfg=14
-hi LineNr          cterm=none          ctermbg=7       ctermfg=10
-hi StatusLine      cterm=bold          ctermbg=7       ctermfg=10
-hi StatusLineNC    cterm=none          ctermbg=7       ctermfg=10
-hi VertSplit       cterm=none          ctermbg=7       ctermfg=14
-hi ColorColumn     cterm=none          ctermbg=7       ctermfg=1
-hi CursorLineNr    cterm=none          ctermbg=7       ctermfg=10
-hi SignColumn      cterm=none          ctermbg=7       ctermfg=10
+hi Folded          cterm=none          ctermbg=0       ctermfg=14
+hi FoldColumn      cterm=none          ctermbg=0       ctermfg=14
+hi LineNr          cterm=none          ctermbg=0       ctermfg=10
+hi StatusLine      cterm=bold          ctermbg=0       ctermfg=10
+hi StatusLineNC    cterm=none          ctermbg=0       ctermfg=10
+hi VertSplit       cterm=none          ctermbg=0       ctermfg=14
+hi ColorColumn     cterm=none          ctermbg=0       ctermfg=1
+hi CursorLineNr    cterm=none          ctermbg=0       ctermfg=10
+hi SignColumn      cterm=none          ctermbg=0       ctermfg=10
 
-hi AleErrorSign    cterm=none          ctermbg=7       ctermfg=1
-hi AleWarningSign  cterm=none          ctermbg=7       ctermfg=3
+hi AleErrorSign    cterm=none          ctermbg=0       ctermfg=1
+hi AleWarningSign  cterm=none          ctermbg=0       ctermfg=3
 
 hi link SpecialComment Comment

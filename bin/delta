@@ -3,11 +3,11 @@
 delta=$(which -a delta | tail -n -1 | head -n 1)
 
 exec $delta \
-    --theme ansi-light \
-    --plus-color white \
-    --minus-color white \
-    --plus-emph-color white \
-    --minus-emph-color white \
+    --theme ansi-dark \
+    --plus-color black \
+    --minus-color black \
+    --plus-emph-color black \
+    --minus-emph-color black \
     --commit-style plain \
     --file-style box \
     --hunk-style plain \
