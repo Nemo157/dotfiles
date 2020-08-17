@@ -40,15 +40,16 @@ then
     args+="$(val '.targets[0]')"
 fi
 
+env_args=()
 if [[ "$(val '.["rustc-args"]')" != "null" ]]
 then
-    export RUSTCARGS="${RUSTCARGS-} $(val '.["rustc-args"]')"
+    env_args+="RUSTCFLAGS=${RUSTCFLAGS-} $(val '.["rustc-args"] | join(" ")')"
 fi
 
 if [[ "$(val '.["rustdoc-args"]')" != "null" ]]
 then
-    export RUSTDOCARGS="${RUSTDOCARGS-} $(val '.["rustdoc-args"] | join(" ")')"
+    env_args+="RUSTDOCFLAGS=${RUSTDOCFLAGS-} $(val '.["rustdoc-args"] | join(" ")')"
 fi
 
-echo '     [36;1mRunning[0m `cargo '"${args[@]}"'`' >&2
-cargo doc "${args[@]}"
+echo '     [36;1mRunning[0m `env '"${env_args[@]}"' cargo '"${args[@]}"'`' >&2
+env "${env_args[@]}" cargo doc "${args[@]}"
