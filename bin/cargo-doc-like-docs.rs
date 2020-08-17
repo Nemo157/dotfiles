@@ -10,7 +10,7 @@ val() {
     echo "$metadata" | jq -r "$1"
 }
 
-typeset -a args
+args=($@ --no-deps --locked)
 
 if [[ "$(val '.["all-features"]')" = "true" ]]
 then
@@ -50,5 +50,5 @@ then
     export RUSTDOCARGS="${RUSTDOCARGS-} $(val '.["rustdoc-args"] | join(" ")')"
 fi
 
-echo cargo doc --no-deps "${args[@]}" "$@"
-cargo doc --no-deps "${args[@]}" "$@"
+echo '     [36;1mRunning[0m `cargo '"${args[@]}"'`' >&2
+cargo doc "${args[@]}"
