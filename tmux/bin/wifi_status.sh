@@ -5,6 +5,11 @@ then
   ssid=$(iwconfig 2>/dev/null | awk 'START { code = 1 } match($0, /ESSID:".*"/) { print substr($0, RSTART + 7, RLENGTH - 8); code = 0 } END { exit(code) }')
 fi
 
+if which iw >/dev/null 2>/dev/null
+then
+  ssid=$(iw dev 2>/dev/null | awk '/ssid/ { print $2 }')
+fi
+
 airport=/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport
 if [ -x $airport ]
 then
