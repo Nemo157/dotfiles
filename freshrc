@@ -24,6 +24,8 @@ do
   fi
 done
 
+fresh config/mpd/mpd.conf --file=~/.mpd/mpd.conf
+
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
     fresh vim/plug_before.vim
