@@ -5,6 +5,9 @@
 [advice]
     detachedHead = false
 
+[init]
+    defaultBranch = "prīmum"
+
 [github]
     user = Nemo157
 
