@@ -10,7 +10,6 @@ prompt_order = [
     "package",
     "dotnet",
     "elm",
-    "golang",
     "haskell",
     "java",
     "nodejs",
