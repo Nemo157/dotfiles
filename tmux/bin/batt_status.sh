@@ -1,10 +1,11 @@
 #!/bin/sh
 
-battery='  🔋'
-power='  🔌'
+battery='🔋'
+power='🔌'
+unknown='❓'
 one_hundred='💯'
 
-symbol=''
+symbol=$unknown
 percent=''
 time=''
 
@@ -31,7 +32,7 @@ then
         time=" $(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))"
       fi
       ;;
-    'Not charging')
+    Full|'Not charging')
       symbol=$power
       time=''
       ;;
@@ -73,4 +74,4 @@ if [ "$percent" ]; then
   percent="$percent%"
 fi
 
-echo "$color$symbol$percent$time"
+echo "  $color$symbol$percent$time"
