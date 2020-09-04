@@ -10,7 +10,9 @@ val() {
     echo "$metadata" | jq -r "$1"
 }
 
-args=($@ --no-deps --locked)
+args=($@ --locked)
+env_args=()
+rustdoc_args=(-Z unstable-options)
 
 if [[ "$(val '.["all-features"]')" = "true" ]]
 then
@@ -40,16 +42,33 @@ then
     args+="$(val '.targets[0]')"
 fi
 
-env_args=()
 if [[ "$(val '.["rustc-args"]')" != "null" ]]
 then
     env_args+="RUSTCFLAGS=${RUSTCFLAGS-} $(val '.["rustc-args"] | join(" ")')"
 fi
 
-if [[ "$(val '.["rustdoc-args"]')" != "null" ]]
-then
-    env_args+="RUSTDOCFLAGS=${RUSTDOCFLAGS-} $(val '.["rustdoc-args"] | join(" ")')"
-fi
+val '.["rustdoc-args"] // empty | .[]' | while read -r arg
+do
+    rustdoc_args+="$arg"
+done
 
-echo '     [36;1mRunning[0m `env '"${env_args[@]}"' cargo '"${args[@]}"'`' >&2
-env "${env_args[@]}" cargo doc "${args[@]}"
+cargo metadata --format-version=1 \
+  | jq -r '
+      . as $data
+    | .resolve.root as $root
+    | .resolve.nodes[]
+    | select(.id == $root)
+    | .deps[]
+    | . as $dep
+    | $data.packages[]
+    | select(.id == $dep.pkg)
+    | "\(.name | gsub("-"; "_")) \(.name) \(.version)"
+  ' \
+  | while read -r crate package version
+    do
+        rustdoc_args+="--extern-html-root-url"
+        rustdoc_args+="$crate=https://docs.rs/$package/$version"
+    done
+
+echo '     [36;1mRunning[0m `env '"${env_args[@]}"' cargo rustdoc '"${args[@]}"' -- '"${rustdoc_args[@]}"'`' >&2
+env "${env_args[@]}" cargo rustdoc "${args[@]}" -- "${rustdoc_args[@]}"
