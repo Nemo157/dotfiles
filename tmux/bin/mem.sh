@@ -3,11 +3,11 @@
 percents=$(
   atop -PMEM -r \
   | grep '^MEM' \
-  | cut -d' ' -f8,9,10,11 \
+  | cut -d' ' -f8- \
   | tail -n5 \
-  | while read -r total free cache1 cache2
+  | while read -r total free cache buffer slab dirty_cache reclaimable_slab rest
     do
-      echo $(( 1 - ((0.0 + free + cache1 + cache2) / total) ))
+      echo $(( 1 - ((0.0 + free + cache + buffer - dirty_cache + reclaimable_slab) / total) ))
     done
 )
 
