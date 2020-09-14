@@ -9,26 +9,26 @@ symbol=$unknown
 percent=''
 time=''
 
-BAT0=/sys/class/power_supply/BAT0
+BAT=/sys/class/power_supply/BAT?
 
-if [ -f $BAT0/status ] && [ -f $BAT0/capacity ] && [ -f $BAT0/power_now ] && [ -f $BAT0/energy_now ]
+if [ -f $BAT/status ] && [ -f $BAT/capacity ] && [ -f $BAT/power_now ] && [ -f $BAT/energy_now ]
 then
-  case $(cat $BAT0/status) in
+  case $(cat $BAT/status) in
     Discharging)
       symbol=$battery
-      if [ "$(cat $BAT0/power_now)" = 0 ]; then
+      if [ "$(cat $BAT/power_now)" = 0 ]; then
         time=''
       else
-        minutes=$(( $(cat $BAT0/energy_now) * 60 / $(cat $BAT0/power_now) ))
+        minutes=$(( $(cat $BAT/energy_now) * 60 / $(cat $BAT/power_now) ))
         time=" $(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))"
       fi
       ;;
     Charging)
       symbol=$power
-      if [ "$(cat $BAT0/power_now)" = 0 ]; then
+      if [ "$(cat $BAT/power_now)" = 0 ]; then
         time=''
       else
-        minutes=$(( ($(cat $BAT0/energy_full) - $(cat $BAT0/energy_now)) * 60 / $(cat $BAT0/power_now) ))
+        minutes=$(( ($(cat $BAT/energy_full) - $(cat $BAT/energy_now)) * 60 / $(cat $BAT/power_now) ))
         time=" $(( minutes / 60 )):$(printf %02d $(( minutes % 60 )))"
       fi
       ;;
@@ -38,7 +38,7 @@ then
       ;;
   esac
 
-  percent=$(cat $BAT0/capacity)
+  percent=$(cat $BAT/capacity)
 fi
 
 if command -v pmset; then
