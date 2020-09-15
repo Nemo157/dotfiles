@@ -11,7 +11,7 @@ val() {
 }
 
 args=($@ --locked)
-env_args=()
+env_args=(DOCS_RS=1)
 rustdoc_args=(-Z unstable-options)
 
 if [[ "$(val '.["all-features"]')" = "true" ]]
