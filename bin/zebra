@@ -1,0 +1,7 @@
+#!/bin/sh
+
+while read -r line
+do
+  echo "$line"
+  read -r line && echo "[40m$line[0m"
+done
