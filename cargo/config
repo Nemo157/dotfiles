@@ -5,6 +5,7 @@ rustflags = [
   "--remap-path-prefix=/home/nemo157/.cargo=\u001b[36;1mcargo\u001b[0m",
   "--remap-path-prefix=/home/nemo157/.cargo/registry/src/github.com-1ecc6299db9ec823=crates.io\u001b[0m",
   "--remap-path-prefix=/home/nemo157/.rustup=\u001b[36;1mrustup\u001b[0m",
+  "--cap-lints=warn",
 ]
 
 [target.x86_64-unknown-linux-gnu]
@@ -14,4 +15,5 @@ rustflags = [
   "--remap-path-prefix=/home/nemo157/.cargo/registry/src/github.com-1ecc6299db9ec823=\u001b[36;1mcrates.io\u001b[0m",
   "--remap-path-prefix=/home/nemo157/.rustup=\u001b[36;1mrustup\u001b[0m",
   "-C", "link-arg=-fuse-ld=lld",
+  "--cap-lints=warn",
 ]
