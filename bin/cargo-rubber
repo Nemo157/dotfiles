@@ -33,9 +33,8 @@ echo '    [36;1mFetching[0m dependencies' >&2
 if ! cargo fetch "--manifest-path=$root/Cargo.toml" --locked
 then
   echo '    [31;1mRelocking[0m dependencies' >&2
-  cargo generate-lockfile "--manifest-path=$root/Cargo.toml"
   echo '    [36;1mFetching[0m dependencies' >&2
-  cargo fetch "--manifest-path=$root/Cargo.toml" --locked
+  cargo fetch "--manifest-path=$root/Cargo.toml"
 fi
 
 target_dir="$(cargo metadata "--manifest-path=$root/Cargo.toml" --format-version 1 | jq -r .target_directory)"
