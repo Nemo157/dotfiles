@@ -1,6 +1,5 @@
 window:
   padding: { x: 0, y: 0 }
-  startup_mode: Fullscreen
 
 scrolling:
   history: 0
