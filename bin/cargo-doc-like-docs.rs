@@ -52,11 +52,8 @@ do
     rustdoc_args+="$arg"
 done
 
-metaval() {
-    env "${env_args[@]}" cargo metadata --format-version=1 "${args[@]}" | jq -r "$1"
-}
-
-metaval '
+cargo metadata --format-version=1 \
+  | jq -r '
       . as $data
     | .resolve.root as $root
     | .resolve.nodes[]
@@ -71,20 +68,6 @@ metaval '
     do
         rustdoc_args+="--extern-html-root-url"
         rustdoc_args+="$crate=https://docs.rs/$package/$version"
-    done
-
-echo '     [36;1mRunning[0m `env '"${env_args[@]}"' cargo check '"${args[@]}"' --message-format=json`' >&2
-env "${env_args[@]}" cargo check "${args[@]}" --message-format=json \
-  | jq -r '
-      select(.reason == "compiler-artifact")
-    | select(.target.kind[] | contains("lib"))
-    | "\(.package_id)\u001F\(.filenames[])"
-  ' \
-  | while IFS="$(printf '\x1F')" read -r id file
-    do
-        export id
-        rustdoc_args+="--extern-html-root-url"
-        rustdoc_args+="$file=$(metaval '.packages[] | select(.id == env.id) | "https://docs.rs/\(.name)/\(.version)"')"
     done
 
 echo '     [36;1mRunning[0m `env '"${env_args[@]}"' cargo rustdoc '"${args[@]}"' -- '"${rustdoc_args[@]}"'`' >&2
