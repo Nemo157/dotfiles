@@ -1,0 +1,7 @@
+hi Border       cterm=none      ctermbg=0      ctermfg=10
+hi TopLine      cterm=none      ctermbg=0      ctermfg=10
+hi TopLineSel   cterm=none      ctermbg=none   ctermfg=5
+hi CmdLine      cterm=none      ctermbg=0      ctermfg=10
+hi StatusLine   cterm=none      ctermbg=0      ctermfg=7
+hi CurrLine     cterm=reverse   ctermbg=none   ctermfg=none
+hi Win          cterm=none      ctermbg=none   ctermfg=none
