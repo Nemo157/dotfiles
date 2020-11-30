@@ -48,10 +48,10 @@ style_success = ""
 style_failure = "red"
 
 [cmd_duration]
-style = "bright-cyan"
+style = "purple"
 
 [directory]
-style = "bright-cyan"
+style = "purple"
 truncate_to_repo = false
 
 [conda]

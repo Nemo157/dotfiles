@@ -30,7 +30,7 @@ schemes:
       green:   '0x859900'
       yellow:  '0xb58900'
       blue:    '0x268bd2'
-      magenta: '0x6c71c4'
+      magenta: '0xd33682'
       cyan:    '0x2aa198'
       white:   '0x586e75'
     bright:
@@ -40,7 +40,7 @@ schemes:
       yellow:  '0x93a1a1'
       blue:    '0x657b83'
       magenta: '0x073642'
-      cyan:    '0xd33682'
+      cyan:    '0x6c71c4'
       white:   '0x002b36'
 
   base16_solarized_dark: &base16_solarized_dark
@@ -56,7 +56,7 @@ schemes:
       green:   '0x859900'
       yellow:  '0xb58900'
       blue:    '0x268bd2'
-      magenta: '0x6c71c4'
+      magenta: '0xd33682'
       cyan:    '0x2aa198'
       white:   '0x93a1a1'
     bright:
@@ -66,7 +66,7 @@ schemes:
       yellow:  '0x586e75'
       blue:    '0x839496'
       magenta: '0xeee8d5'
-      cyan:    '0xd33682'
+      cyan:    '0x6c71c4'
       white:   '0xfdf6e3'
 # yamllint enable rule:colons
 
