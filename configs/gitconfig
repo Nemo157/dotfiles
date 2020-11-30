@@ -16,6 +16,12 @@
     safecrlf = true
     pager = delta
 
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
+
 [interactive]
     diffFilter = delta --hunk-header-style raw
 
