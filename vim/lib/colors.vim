@@ -1,4 +1,4 @@
 " Color scheme.
 Plug 'altercation/vim-colors-solarized'
 
-colorscheme eink2
+colorscheme base16-eink2

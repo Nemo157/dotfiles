@@ -29,27 +29,27 @@
     ui = auto
 
 [delta]
-    syntax-theme = ansi-dark
-    plus-style = syntax black
-    plus-emph-style = white green
+    syntax-theme = base16
+    plus-style = normal brightgreen
+    plus-emph-style = brightwhite green
     plus-empty-line-marker-style = green normal
-    minus-style = normal black
-    minus-emph-style = white red
+    minus-style = brightyellow brightgreen
+    minus-emph-style = brightwhite red
     minus-empty-line-marker-style = red normal
     keep-plus-minus-markers = true
     line-numbers = true
-    line-numbers-minus-style = red black
-    line-numbers-zero-style = normal black
-    line-numbers-plus-style = green black
+    line-numbers-minus-style = red brightgreen
+    line-numbers-zero-style = brightwhite brightgreen
+    line-numbers-plus-style = green brightgreen
     line-numbers-left-format = "{nm:>4} "
-    line-numbers-left-style = white black
+    line-numbers-left-style = brightwhite brightgreen
     line-numbers-right-format = "{np:>4} "
-    line-numbers-right-style = white black
-    hunk-header-style = brightblack brightblack
+    line-numbers-right-style = brightwhite brightgreen
+    hunk-header-style = black black
     hunk-header-decoration-style = plain
     commit-style = raw
-    file-style = white
-    file-decoration-style = white box
+    file-style = brightwhite
+    file-decoration-style = brightwhite box
 
 [diff]
     noprefix = true
