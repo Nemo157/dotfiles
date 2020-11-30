@@ -116,6 +116,11 @@ fresh_after_build () {
         vim +PlugInstall +qa
     fi
 
+    if which bat &>/dev/null; then
+        echo "Building bat cache..."
+        bat cache --build
+    fi
+
     if which nvim &>/dev/null; then
         echo "Installing neovim plugins..."
         nvim +PlugInstall +qa

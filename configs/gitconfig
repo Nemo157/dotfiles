@@ -35,8 +35,8 @@
     ui = auto
 
 [delta]
-    syntax-theme = base16
-    plus-style = normal brightgreen
+    syntax-theme = base16-eink2
+    plus-style = syntax brightgreen
     plus-emph-style = brightwhite green
     plus-empty-line-marker-style = green normal
     minus-style = brightyellow brightgreen
