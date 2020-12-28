@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 
 set -eu
 
@@ -7,37 +7,27 @@ then
   shift
 fi
 
-manifest=
+manifest=()
 case "${1:-}" in
   --manifest-path=*)
-    manifest="${1#--manifest-path=}"
+    manifest+="$1"
     shift
     ;;
   --manifest-path)
-    manifest="$2"
+    manifest+="--manifest-path=$2"
     shift
     shift
     ;;
 esac
 
-root="$(pwd)"
-if [ -n "$manifest" ]
-then
-    root="$(dirname "$(realpath "$manifest")")"
-fi
-
 subcommand="${1:?missing subcommand}"
 shift
 
 echo '    [36;1mFetching[0m dependencies' >&2
-if ! cargo fetch "--manifest-path=$root/Cargo.toml" --locked
-then
-  echo '    [31;1mRelocking[0m dependencies' >&2
-  echo '    [36;1mFetching[0m dependencies' >&2
-  cargo fetch "--manifest-path=$root/Cargo.toml"
-fi
+cargo fetch "$manifest[@]" --locked
 
-target_dir="$(cargo metadata "--manifest-path=$root/Cargo.toml" --format-version 1 | jq -r .target_directory)"
+root="$(cargo metadata "$manifest[@]" --format-version 1 | jq -r .workspace_root)"
+target_dir="$(cargo metadata "$manifest[@]" --format-version 1 | jq -r .target_directory)"
 mkdir -p "$target_dir"
 
 echo '     [36;1mRunning[0m `cargo '"$subcommand$([ $# -gt 0 ] && echo " ")$@"'`' >&2
@@ -51,5 +41,5 @@ bwrap \
   --unshare-net \
   cargo \
     "$subcommand" \
-    "--manifest-path=$root/Cargo.toml" \
+    "$manifest[@]" \
     "$@"
