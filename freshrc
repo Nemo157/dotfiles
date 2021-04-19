@@ -57,6 +57,8 @@ fresh-options --file=~/.tmux.conf --marker='# ========='
     fresh tmux/lib/\*
 fresh-options
 
+fresh https://github.com/cespare/vim-toml . --file=~/.vim/pack/plugins/start/toml/
+
 fresh tmux/bin --file=~/.tmux/bin/
 
 fresh cargo/config --file=~/.cargo/config
