@@ -6,6 +6,8 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
+fresh pam_environment --file
+
 fresh gnachman/iTerm2 tests/imgcat --bin
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
@@ -21,6 +23,18 @@ do
   else
     f=$(basename "$f")
     fresh config/"$f" --file=~/.config/"$f"
+  fi
+done
+
+for f in "$FRESH_LOCAL"/data/*
+do
+  if [[ -d "$f" ]]
+  then
+    f=$(basename "$f")
+    fresh data/"$f" --file=~/.local/share/"$f"/
+  else
+    f=$(basename "$f")
+    fresh data/"$f" --file=~/.local/share/"$f"
   fi
 done
 
