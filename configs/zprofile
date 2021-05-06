@@ -61,6 +61,7 @@ function () {
   append_if_exists PATH "$HOME/go/bin"
   append_if_exists PATH "$HOME/.cargo/bin"
   append_if_exists PATH "$HOME/.wasmtime/bin"
+  append_if_exists PATH "$HOME/.radicle/bin"
 
   append_if_exists PYTHONPATH "/usr/local/lib/python2.6/site-packages/"
   append_if_exists PYTHONPATH "/Library/Python/2.6/site-packages/"
