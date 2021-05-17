@@ -75,7 +75,7 @@ fresh https://github.com/cespare/vim-toml . --file=~/.vim/pack/plugins/start/tom
 
 fresh tmux/bin --file=~/.tmux/bin/
 
-fresh cargo/config --file=~/.cargo/config
+fresh cargo/config --file=~/.cargo/config --filter="sed 's/\$HOME/${HOME//\//\\/}/g'"
 fresh i3/config --file=~/.i3/config
 fresh irssi/config --file=~/.irssi/config
 fresh irssi/default.theme --file=~/.irssi/default.theme
