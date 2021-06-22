@@ -1,5 +1,5 @@
 configuration {
-  modi: "drun,window,run";
+  modi: "drun,window,run,emoji:rofimoji";
   show-icons: true;
   kb-mode-next: "Shift+Right,Tab";
   kb-mode-previous: "Shift+Left";
