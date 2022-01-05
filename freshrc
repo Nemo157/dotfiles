@@ -60,6 +60,8 @@ fresh-options
 
 fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
 
+fresh https://github.com/cespare/vim-toml . --file=~/.config/nvim/pack/plugins/start/toml/
+
 fresh-options --file=~/.zshrc --marker='# ========='
     fresh zsh/antigen_before.zsh
     fresh zsh/lib/\* --filter='grep -e ^antigen -e '"'"'^#'"'"' || true'
