@@ -34,6 +34,9 @@
 [color]
     ui = auto
 
+[credential]
+    helper = cache
+
 [delta]
     syntax-theme = base16-eink2
     plus-style = syntax brightgreen
