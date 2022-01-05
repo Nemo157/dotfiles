@@ -9,6 +9,7 @@ rustflags = [
   "--remap-path-prefix=$HOME/.cargo/registry/src/github.com-1ecc6299db9ec823=crates.io\u001b[0m",
   "--remap-path-prefix=$HOME/.rustup=\u001b[36;1mrustup\u001b[0m",
   "--cap-lints=warn",
+  "-Zrandomize-layouts",
 ]
 
 [target.x86_64-unknown-linux-gnu]
@@ -20,6 +21,7 @@ rustflags = [
   "--cap-lints=warn",
   "-C", "link-arg=-fuse-ld=lld",
   "-C", "target-cpu=native",
+  "-Zrandomize-layouts",
 ]
 
 [profile.release]
