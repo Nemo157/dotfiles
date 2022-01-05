@@ -61,6 +61,8 @@ fresh-options
 fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
 
 fresh https://github.com/cespare/vim-toml . --file=~/.config/nvim/pack/plugins/start/toml/
+fresh https://github.com/nvim-lua/plenary.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
+fresh https://github.com/nvim-telescope/telescope.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
 
 fresh-options --file=~/.zshrc --marker='# ========='
     fresh zsh/antigen_before.zsh
