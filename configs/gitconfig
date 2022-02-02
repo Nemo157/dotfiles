@@ -99,7 +99,7 @@
     ri = rebase --interactive --autosquash
     rc = rebase --continue
     lol = log --graph --decorate --pretty=oneline --abbrev-commit --all
-    lol2 = log --graph --pretty=format:'\t\t%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --all
+    lol2 = log --graph --pretty=tformat:'%C(bold yellow)%D%Creset %>|(16)%Cred%h%Creset %s %>|(140)%Cgreen%ar %>|(156)%C(bold blue)%an%Creset %C(cyan)%G?' --abbrev-commit --date=relative --all
     lo = log --graph --decorate --pretty=oneline --abbrev-commit --all --max-count=10
     brs = log --graph --decorate --pretty=oneline --abbrev-commit --all --simplify-by-decoration
     co = checkout
