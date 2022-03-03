@@ -1,37 +1,7 @@
-prompt_order = [
-    "username",
-    "hostname",
-    "kubernetes",
-    "directory",
-    "git_branch",
-    "git_commit",
-    "git_state",
-    "hg_branch",
-    "package",
-    "dotnet",
-    "elm",
-    "haskell",
-    "java",
-    "nodejs",
-    "php",
-    "python",
-    "ruby",
-    "rust",
-    "terraform",
-    "nix_shell",
-    "conda",
-    "memory_usage",
-    "aws",
-    "env_var",
-    "crystal",
-    "cmd_duration",
-    "line_break",
-    "jobs",
-    "battery",
-    "time",
-    "git_status",
-    "character",
-]
+format = """
+$username[@](green dimmed)$hostname $directory$git_branch$git_commit$git_state$git_status$all
+$jobs$battery$time($status )$cmd_duration$character
+"""
 
 [aws]
 symbol = " "
@@ -42,10 +12,9 @@ charging_symbol = ""
 discharging_symbol = ""
 
 [character]
-symbol = "→"
-vicmd_symbol = " "
-style_success = ""
-style_failure = "red"
+success_symbol = "→"
+error_symbol = "[→](red)"
+vicmd_symbol = "[↓](yellow)"
 
 [cmd_duration]
 style = "purple"
@@ -79,11 +48,15 @@ symbol = " "
 symbol = " "
 
 [hostname]
+format = "[$hostname]($style)"
 style = "green"
 ssh_only = false
 
 [java]
 symbol = " "
+
+[line_break]
+disabled = true
 
 [memory_usage]
 symbol = " "
@@ -112,11 +85,27 @@ symbol = " "
 style = "red"
 symbol = " "
 
+[status]
+disabled = false
+symbol                = "✖ "
+success_symbol        = "✔️"
+not_executable_symbol = "🚫 "
+not_found_symbol      = "🔍"
+sigint_symbol         = "🧱 "
+signal_symbol         = "⚡"
+format = "[$symbol($common_meaning)(SIG$signal_name)($maybe_int)]($style)"
+pipestatus_separator = " | "
+pipestatus_format = "\\[ $pipestatus \\] → [$symbol($common_meaning)(SIG$signal_name)($maybe_int)]($style)"
+map_symbol = true
+pipestatus = true
+
 [time]
 disabled = false
-format = "%H:%M"
-style = "cyan"
+format = "[$time]($style) "
+style = "yellow dimmed"
+time_format = "%H:%M"
 
 [username]
+format = "[$user]($style)"
 style_user = "green"
 show_always = true
