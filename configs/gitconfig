@@ -82,6 +82,9 @@
 [fetch]
     prune = true
 
+[gc]
+    auto = 200
+
 [alias]
     di = diff --color-words
     fb  = !git fetch && git br -av
