@@ -8,7 +8,6 @@ fresh bin/\* --bin
 
 fresh pam_environment --file
 
-fresh gnachman/iTerm2 tests/imgcat --bin
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
