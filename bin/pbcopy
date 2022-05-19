@@ -11,6 +11,11 @@ check /bin/pbcopy
 check /usr/bin/pbcopy
 check /usr/local/bin/pbcopy
 
+if test -w ~/.clipper.sock
+then
+  export pbcopy="nc -U ~/.clipper.sock"
+fi
+
 if test -n "$pbcopy"
 then
   $pbcopy
