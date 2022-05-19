@@ -87,13 +87,13 @@ symbol = " "
 
 [status]
 disabled = false
-symbol                = "✖ "
-success_symbol        = "✔️"
-not_executable_symbol = "🚫 "
-not_found_symbol      = "🔍"
-sigint_symbol         = "🧱 "
+symbol                = "●"
+success_symbol        = "○"
+not_executable_symbol = "◓"
+not_found_symbol      = "◐"
+sigint_symbol         = "◒"
 signal_symbol         = "⚡"
-format = "[$symbol($common_meaning)(SIG$signal_name)($maybe_int)]($style)"
+format = "[$symbol( $common_meaning)( SIG$signal_name)( $maybe_int)]($style)"
 pipestatus_separator = " | "
 pipestatus_format = "\\[ $pipestatus \\] → [$symbol($common_meaning)(SIG$signal_name)($maybe_int)]($style)"
 map_symbol = true
