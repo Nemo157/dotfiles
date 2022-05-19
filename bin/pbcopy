@@ -1,25 +1,25 @@
 #!/bin/sh
 
-check () {
-  test -x "$1" && export pbcopy="$*"
+try () {
+  if test -x "$1"
+  then
+    "$*"
+    exit 0
+  fi
 }
 
-check /bin/xclip -in -selection clipboard
-check /usr/bin/xclip -in -selection clipboard
-check /usr/local/bin/xclip -in -selection clipboard
-check /bin/pbcopy
-check /usr/bin/pbcopy
-check /usr/local/bin/pbcopy
-
-if test -w ~/.clipper.sock
+if socat -u OPEN:/dev/null UNIX-CONNECT:"$HOME"/.clipper.sock 2>/dev/null
 then
-  export pbcopy="nc -U ~/.clipper.sock"
+  socat - UNIX-CLIENT:"$HOME"/.clipper.sock
+  exit 0
 fi
 
-if test -n "$pbcopy"
-then
-  $pbcopy
-else
-  echo "Could not find a 'pbcopy' to use"
-  exit 1
-fi
+try /bin/xclip -in -selection clipboard
+try /usr/bin/xclip -in -selection clipboard
+try /usr/local/bin/xclip -in -selection clipboard
+try /bin/pbcopy
+try /usr/bin/pbcopy
+try /usr/local/bin/pbcopy
+
+echo "Could not find a 'pbcopy' to use"
+exit 1
