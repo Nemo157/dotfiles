@@ -38,7 +38,7 @@ symbol = " "
 style = "green"
 
 [git_status]
-style = "red dimmed"
+style = "red"
 
 [golang]
 style = "cyan"
@@ -102,7 +102,7 @@ pipestatus = true
 [time]
 disabled = false
 format = "[$time]($style) "
-style = "yellow dimmed"
+style = "yellow"
 time_format = "%H:%M"
 
 [username]
