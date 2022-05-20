@@ -17,159 +17,83 @@ draw_bold_text_with_bright_colors: false
 
 # yamllint disable rule:colons
 schemes:
-  base16_solarized_light: &base16_solarized_light
+  solarized_light: &solarized_light
     primary:
-      background: '0xfdf6e3'
-      foreground: '0x586e75'
+      background: '#fdf6e3'
+      foreground: '#657b83'
     cursor:
-      text: '0xfdf6e3'
-      cursor: '0x586e75'
+      text:   '#fdf6e3'
+      cursor: '#657b83'
     normal:
-      black:   '0xfdf6e3'
-      red:     '0xdc322f'
-      green:   '0x859900'
-      yellow:  '0xb58900'
-      blue:    '0x268bd2'
-      magenta: '0xd33682'
-      cyan:    '0x2aa198'
-      white:   '0x586e75'
+      black:   '#eee8d5'
+      red:     '#dc322f'
+      green:   '#859900'
+      yellow:  '#b58900'
+      blue:    '#268bd2'
+      magenta: '#d33682'
+      cyan:    '#2aa198'
+      white:   '#073642'
     bright:
-      black:   '0x839496'
-      red:     '0xcb4b16'
-      green:   '0xeee8d5'
-      yellow:  '0x93a1a1'
-      blue:    '0x657b83'
-      magenta: '0x073642'
-      cyan:    '0x6c71c4'
-      white:   '0x002b36'
+      black:   '#fdf6e3'
+      red:     '#cb4b16'
+      green:   '#586e75'
+      yellow:  '#657b83'
+      blue:    '#839496'
+      magenta: '#6c71c4'
+      cyan:    '#93a1a1'
+      white:   '#002b36'
 
-  base16_solarized_dark: &base16_solarized_dark
+  solarized_dark: &solarized_dark
     primary:
-      background: '0x002b36'
-      foreground: '0x93a1a1'
+      background: '#002b36'
+      foreground: '#839496'
     cursor:
-      text: '0x002b36'
-      cursor: '0x93a1a1'
+      text:   '#002b36'
+      cursor: '#839496'
     normal:
-      black:   '0x002b36'
-      red:     '0xdc322f'
-      green:   '0x859900'
-      yellow:  '0xb58900'
-      blue:    '0x268bd2'
-      magenta: '0xd33682'
-      cyan:    '0x2aa198'
-      white:   '0x93a1a1'
+      black:   '#073642'
+      red:     '#dc322f'
+      green:   '#859900'
+      yellow:  '#b58900'
+      blue:    '#268bd2'
+      magenta: '#d33682'
+      cyan:    '#2aa198'
+      white:   '#eee8d5'
     bright:
-      black:   '0x657b83'
-      red:     '0xcb4b16'
-      green:   '0x073642'
-      yellow:  '0x586e75'
-      blue:    '0x839496'
-      magenta: '0xeee8d5'
-      cyan:    '0x6c71c4'
-      white:   '0xfdf6e3'
+      black:   '#002b36'
+      red:     '#cb4b16'
+      green:   '#93a1a1'
+      yellow:  '#839496'
+      blue:    '#657b83'
+      magenta: '#6c71c4'
+      cyan:    '#586e75'
+      white:   '#fdf6e3'
 
-  base16_zenburn: &base16_zenburn
-    # Default colors
+  ayu_dark: &ayu_dark
     primary:
-      background: '0x383838'
-      foreground: '0xdcdccc'
-
-    # Colors the cursor will use if `custom_cursor_colors` is true
-    cursor:
-      text: '0x383838'
-      cursor: '0xdcdccc'
-
-    # Normal colors
+      background: '#0A0E14'
+      foreground: '#B3B1AD'
     normal:
-      black:   '0x383838'
-      red:     '0xdca3a3'
-      green:   '0x5f7f5f'
-      yellow:  '0xe0cf9f'
-      blue:    '0x7cb8bb'
-      magenta: '0xdc8cc3'
-      cyan:    '0x93e0e3'
-      white:   '0xdcdccc'
-
-    # Bright colors
+      black:   '#01060E'
+      red:     '#EA6C73'
+      green:   '#91B362'
+      yellow:  '#F9AF4F'
+      blue:    '#53BDFA'
+      magenta: '#FAE994'
+      cyan:    '#90E1C6'
+      white:   '#C7C7C7'
     bright:
-      black:   '0x6f6f6f'
-      red:     '0xdfaf8f'
-      green:   '0x404040'
-      yellow:  '0x606060'
-      blue:    '0x808080'
-      magenta: '0xc0c0c0'
-      cyan:    '0x000000'
-      white:   '0xffffff'
-
-  base16_gruvbox_dark_medium: &base16_gruvbox_dark_medium
-    # Default colors
-    primary:
-      background: '0x282828'
-      foreground: '0xd5c4a1'
-
-    # Colors the cursor will use if `custom_cursor_colors` is true
-    cursor:
-      text: '0x282828'
-      cursor: '0xd5c4a1'
-
-    # Normal colors
-    normal:
-      black:   '0x282828'
-      red:     '0xfb4934'
-      green:   '0xb8bb26'
-      yellow:  '0xfabd2f'
-      blue:    '0x83a598'
-      magenta: '0xd3869b'
-      cyan:    '0x8ec07c'
-      white:   '0xd5c4a1'
-
-    # Bright colors
-    bright:
-      black:   '0x665c54'
-      red:     '0xfe8019'
-      green:   '0x3c3836'
-      yellow:  '0x504945'
-      blue:    '0xbdae93'
-      magenta: '0xebdbb2'
-      cyan:    '0xd65d0e'
-      white:   '0xfbf1c7'
-
-  base16_gruvbox_light_medium: &base16_gruvbox_light_medium
-    # Default colors
-    primary:
-      background: '0xfbf1c7'
-      foreground: '0x504945'
-
-    # Colors the cursor will use if `custom_cursor_colors` is true
-    cursor:
-      text: '0xfbf1c7'
-      cursor: '0x504945'
-
-    # Normal colors
-    normal:
-      black:   '0xfbf1c7'
-      red:     '0x9d0006'
-      green:   '0x79740e'
-      yellow:  '0xb57614'
-      blue:    '0x076678'
-      magenta: '0x8f3f71'
-      cyan:    '0x427b58'
-      white:   '0x504945'
-
-    # Bright colors
-    bright:
-      black:   '0xbdae93'
-      red:     '0xaf3a03'
-      green:   '0xebdbb2'
-      yellow:  '0xd5c4a1'
-      blue:    '0x665c54'
-      magenta: '0x3c3836'
-      cyan:    '0xd65d0e'
-      white:   '0x282828'
+      black:   '#686868'
+      red:     '#F07178'
+      green:   '#C2D94C'
+      yellow:  '#FFB454'
+      blue:    '#59C2FF'
+      magenta: '#FFEE99'
+      cyan:    '#95E6CB'
+      white:   '#FFFFFF'
 # yamllint enable rule:colons
 
-colors: *base16_solarized_light
+colors: *solarized_dark
 
 mouse:
   double_click: { threshold: 300 }

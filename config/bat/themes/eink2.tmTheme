@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <!--
+        This theme is meant for users who configure their terminal with a base16
+        color theme.
+
+        base16: https://github.com/chriskempson/base16
+
+        The colors in this theme are encoded as #RRGGBBAA where RR is an ANSI
+        palette number from 00 to 0f (the 8 colors and their bright versions),
+        and AA is the special value 00 to indicate this encoding is being used.
+        -->
+        <key>author</key>
+        <string>Nemo157</string>
+        <key>name</key>
+        <string>eink</string>
+        <key>colorSpaceName</key>
+        <string>sRGB</string>
+        <key>settings</key>
+        <array>
+            <dict>
+                <key>settings</key>
+                <dict>
+                    <key>background</key>
+                    <string>#00000000</string>
+                    <key>caret</key>
+                    <string>#00000001</string>
+                    <key>foreground</key>
+                    <string>#00000001</string>
+                    <key>invisibles</key>
+                    <string>#0b000000</string>
+                    <key>lineHighlight</key>
+                    <string>#0b000000</string>
+                    <key>selection</key>
+                    <string>#0e000000</string>
+                    <key>gutter</key>
+                    <string>#08000000</string>
+                    <key>gutterForeground</key>
+                    <string>#0b000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Comments</string>
+                <key>scope</key>
+                <string>comment, punctuation.definition.comment</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#0e000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Illegal</string>
+                <key>scope</key>
+                <string>invalid.illegal</string>
+                <key>settings</key>
+                <dict>
+                    <key>background</key>
+                    <string>#01000000</string>
+                    <key>foreground</key>
+                    <string>#0f000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Broken</string>
+                <key>scope</key>
+                <string>invalid.broken</string>
+                <key>settings</key>
+                <dict>
+                    <key>background</key>
+                    <string>#09000000</string>
+                    <key>foreground</key>
+                    <string>#00000000</string>
+                </dict>
+            </dict>
+        </array>
+        <key>uuid</key>
+        <string>uuid</string>
+    </dict>
+</plist>

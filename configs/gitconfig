@@ -38,27 +38,27 @@
     helper = cache
 
 [delta]
-    syntax-theme = base16-eink2
-    plus-style = syntax brightgreen
-    plus-emph-style = brightwhite green
+    syntax-theme = eink2
+    plus-style = syntax black
+    plus-emph-style = white green
     plus-empty-line-marker-style = green normal
-    minus-style = brightyellow brightgreen
-    minus-emph-style = brightwhite red
+    minus-style = normal black
+    minus-emph-style = white red
     minus-empty-line-marker-style = red normal
     keep-plus-minus-markers = true
     line-numbers = true
-    line-numbers-minus-style = red brightgreen
-    line-numbers-zero-style = brightwhite brightgreen
-    line-numbers-plus-style = green brightgreen
+    line-numbers-minus-style = red black
+    line-numbers-zero-style = normal black
+    line-numbers-plus-style = green black
     line-numbers-left-format = "{nm:>4} "
-    line-numbers-left-style = brightwhite brightgreen
+    line-numbers-left-style = white black
     line-numbers-right-format = "{np:>4} "
-    line-numbers-right-style = brightwhite brightgreen
-    hunk-header-style = black black
+    line-numbers-right-style = white black
+    hunk-header-style = brightblack brightblack
     hunk-header-decoration-style = plain
     commit-style = raw
-    file-style = brightwhite
-    file-decoration-style = brightwhite box
+    file-style = white
+    file-decoration-style = white box
 
 [diff]
     noprefix = true
