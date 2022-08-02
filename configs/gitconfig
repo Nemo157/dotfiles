@@ -23,7 +23,7 @@
     gpgsign = true
 
 [interactive]
-    diffFilter = delta --hunk-header-style raw
+    diffFilter = delta --color-only
 
 [push]
     default = simple
