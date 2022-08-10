@@ -28,9 +28,13 @@
 [push]
     default = simple
     autoSetupRemote = true
+    recurseSubmodules = check
 
 [pull]
     ff = only
+
+[submodule]
+    fetchJobs = 0
 
 [color]
     ui = auto
@@ -65,6 +69,7 @@
     noprefix = true
     algorithm = patience
     tool = vimdiff
+    submodule = log
 
 [diff.rust]
     xfuncname = " *((mod|impl|fn|struct|enum) .*)$"
