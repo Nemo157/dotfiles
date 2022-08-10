@@ -67,7 +67,7 @@
 
 [diff]
     noprefix = true
-    algorithm = patience
+    algorithm = histogram
     tool = vimdiff
     submodule = log
 
