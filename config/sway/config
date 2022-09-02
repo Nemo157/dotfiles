@@ -92,3 +92,7 @@ default_orientation vertical
 hide_edge_borders both
 focus_follows_mouse no
 mouse_warping none
+
+for_window [title="ImageMagick: -"] floating enable
+
+bindsym $mod+p exec pbpaste-to-qr
