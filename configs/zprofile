@@ -1,3 +1,4 @@
+export DO_NOT_TRACK=1
 export UNISONLOCALHOSTNAME="lol3.roaming.nemo157.com"
 
 function () {
