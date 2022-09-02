@@ -96,3 +96,4 @@ mouse_warping none
 for_window [title="ImageMagick: -"] floating enable
 
 bindsym $mod+p exec pbpaste-to-qr
+bindsym $mod+shift+space exec grim -g "$(slurp)" - | wl-copy
