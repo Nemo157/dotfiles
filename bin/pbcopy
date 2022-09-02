@@ -1,25 +1,18 @@
-#!/bin/sh
-
-try () {
-  if test -x "$1"
-  then
-    "$*"
-    exit 0
-  fi
-}
+#!/usr/bin/env zsh
 
 if socat -u OPEN:/dev/null UNIX-CONNECT:"$HOME"/.clipper.sock 2>/dev/null
 then
   socat - UNIX-CLIENT:"$HOME"/.clipper.sock
-  exit 0
+elif [[ -v WAYLAND_DISPLAY && -n "$commands[wl-copy]" ]]
+then
+  wl-copy --trim-newline
+elif [[ -v DISPLAY && -n "$commands[xclip]" ]]
+then
+  xclip -in -selection clipboard
+elif [[ -x /usr/bin/pbcopy ]]
+then
+  /usr/bin/pbcopy
+else
+  echo 'missing copy implementation' >&2
+  exit 1
 fi
-
-try /bin/xclip -in -selection clipboard
-try /usr/bin/xclip -in -selection clipboard
-try /usr/local/bin/xclip -in -selection clipboard
-try /bin/pbcopy
-try /usr/bin/pbcopy
-try /usr/local/bin/pbcopy
-
-echo "Could not find a 'pbcopy' to use"
-exit 1

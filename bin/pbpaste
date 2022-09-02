@@ -1,20 +1,12 @@
-#!/bin/sh
+#!/usr/bin/env zsh
 
-check () {
-  test -x "$1" && export pbpaste="$*"
-}
-
-check /bin/xclip -out -selection clipboard
-check /usr/bin/xclip -out -selection clipboard
-check /usr/local/bin/xclip -out -selection clipboard
-check /bin/pbpaste
-check /usr/bin/pbpaste
-check /usr/local/bin/pbpaste
-
-if test -n "$pbpaste"
-then
-  $pbpaste "$*"
+if [[ -v WAYLAND_DISPLAY && -n "$commands[wl-paste]" ]]; then
+  wl-paste --no-newline
+elif [[ -v DISPLAY && -n "$commands[xclip]" ]]; then
+  xclip -out -selection clipboard
+elif [[ -x /usr/bin/pbpaste ]]; then
+  /usr/bin/pbpaste
 else
-  echo "Could not find a 'pbpaste' to use"
+  echo 'missing paste implementation' >&2
   exit 1
 fi
