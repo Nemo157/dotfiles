@@ -71,6 +71,8 @@ bindsym $mod+shift+period exec swaynag -t warning -m 'Exit sway?' -b 'Yes' 'sway
 
 bindsym $mod+r mode "resize"
 
+bindsym $mod+m exec toggle-mute
+
 mode "resize" {
   bindsym h resize shrink width 10 px or 10 ppt
   bindsym j resize shrink height 10 px or 10 ppt
