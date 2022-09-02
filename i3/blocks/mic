@@ -1,0 +1,11 @@
+#!/usr/bin/env zsh
+
+id="$(pulsemixer --list-sources | grep 'Default' | cut -d ' ' -f 3 | tr -d ',')"
+name="$(pulsemixer --list-sources | grep "$id" | cut -d ',' -f 2 | cut -d ' ' -f 3-)"
+
+if [[ "$(pulsemixer --id "$id" --get-mute)" -eq "1" ]]
+then
+  echo "<span color='yellow'> $name</span>"
+else
+  echo "<span color='red'> $name</span>"
+fi

@@ -16,6 +16,10 @@ label=VOL
 instance=Master
 interval=60
 
+[mic]
+interval=60
+signal=8
+markup=pango
 
 [memory]
 label=MEM

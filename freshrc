@@ -105,6 +105,7 @@ do
 done
 # Of course there has to be a special one...
 fresh vivien/i3blocks-contrib "arch-update/arch-update.py" --bin="~/.i3/blocks/arch-update"
+fresh i3/blocks/mic --bin=~/.i3/blocks/mic
 
 fresh js --file=~/.js/
 

@@ -14,6 +14,8 @@ toggle() {
   else
     notify-send -e "unmuted" "$name"
   fi
+
+  pkill -RTMIN+8 i3blocks
 }
 
 if ! output="$(toggle 2>&1)"
