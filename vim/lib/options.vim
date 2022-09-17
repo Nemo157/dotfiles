@@ -27,6 +27,7 @@ set cedit=<Esc>                                          " Use <Esc> to enter co
 set timeoutlen=1000
 set ttimeoutlen=10
 set fillchars=vert:¦,diff:⸳
+set nofixendofline
 
 let g:tex_flavor = "latex"                               " Give latex higher priority over tex.
 
