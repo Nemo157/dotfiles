@@ -7,7 +7,7 @@ fi
 
 if type systemctl >/dev/null
 then
-  vpn=$(systemctl show 'openvpn-client@*' --property Id --value | sed -E 's/openvpn-client@(.*)\.service/\1/')
+  vpn=$(systemctl show --state active 'openvpn-client@*' --property Id --value | sed -E 's/openvpn-client@(.*)\.service/\1/')
 fi
 
 if [ -n "$vpn" ]
