@@ -60,7 +60,8 @@ if [ $commands[rustc] ] && rustc --print sysroot &>/dev/null; then
   fpath+=$(rustc --print sysroot)/share/zsh/site-functions
 fi
 
-autoload -U compinit
+autoload -U compinit bashcompinit
 compinit
+bashcompinit
 
 [ $commands[newt] ] && complete -C "newt complete" newt
