@@ -63,5 +63,4 @@ fi
 autoload -U compinit
 compinit
 
-[ $commands[kubectl] ] && source <(kubectl completion zsh)
 [ $commands[newt] ] && complete -C "newt complete" newt
