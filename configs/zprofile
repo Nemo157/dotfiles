@@ -84,6 +84,7 @@ function () {
   export_if_exists EC2_HOME "/usr/local/Library/LinkedKegs/ec2-api-tools/jars"
 
   source_if_exists ~/.nix-profile/etc/profile.d/nix.sh
+  source_if_exists /usr/share/zephyr-sdk/zephyrrc
 }
 
 true
