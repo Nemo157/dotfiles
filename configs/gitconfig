@@ -118,6 +118,7 @@
     flo = !git forest --all --reverse --pretty=format:\"%C(yellow)%h %C(blue)(%ar) %C(reset)%s\" --color --style=2
     f = fetch --all
     s = show --show-signature
+    pushf = push --force-with-lease --force-if-includes
 
 [url "git@github.com:"]
     pushInsteadOf = "https://github.com/"
