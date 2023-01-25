@@ -5,4 +5,4 @@ do
   args="$args \"$arg\""
 done
 
-tmux new-window -n "ssh $1" "ssh $args -t '~/bin/tmux-session client'"
+tmux new-window -n "ssh $1" "ssh $args -t tmux -u new-session -s master-$(hostname --short) -t master -A"
