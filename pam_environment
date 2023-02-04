@@ -1,2 +1,0 @@
-SSH_AUTH_SOCK DEFAULT="${XDG_RUNTIME_DIR}/ssh-agent.socket"
-RUSTUP_UPDATE_ROOT DEFAULT=https://dev-static.rust-lang.org/rustup

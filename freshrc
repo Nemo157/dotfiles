@@ -6,8 +6,6 @@ fresh freshshell/fresh contrib/completion/fresh-completion.bash
 fresh configs/\* --file
 fresh bin/\* --bin
 
-fresh pam_environment --file
-
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
