@@ -43,7 +43,7 @@ then
     shift
   done
 
-  CLIPPYFLAGS="$clippy_args[@]" RUSTDOCFLAGS="--no-run --nocapture --test-builder cargo-rustdoc-clippy -Z unstable-options $rustdoc_args[@]" exec cargo test --doc "$cargo_args[@]"
+  CLIPPYFLAGS="${(j:\x1E:)clippy_args}" RUSTDOCFLAGS="--no-run --nocapture --test-builder "$0" -Z unstable-options $rustdoc_args[@]" exec cargo test --doc "$cargo_args[@]"
 else
-  exec clippy-driver ${=CLIPPYFLAGS} "$@"
+  exec clippy-driver "${(@s:\x1E:)CLIPPYFLAGS}" "$@"
 fi
