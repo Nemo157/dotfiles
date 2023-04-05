@@ -45,5 +45,10 @@ then
 
   CLIPPYFLAGS="${(j:\x1E:)clippy_args}" RUSTDOCFLAGS="--no-run --nocapture --test-builder "$0" -Z unstable-options $rustdoc_args[@]" exec cargo test --doc "$cargo_args[@]"
 else
-  exec clippy-driver "${(@s:\x1E:)CLIPPYFLAGS}" "$@"
+  if [[ "$CLIPPYFLAGS" != "" ]]
+  then
+    exec clippy-driver "${(@s:\x1E:)CLIPPYFLAGS}" "$@"
+  else
+    exec clippy-driver "$@"
+  fi
 fi
