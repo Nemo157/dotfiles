@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Partially cribbed from https://aditsachde.com/posts/yubikey-ssh/ -->
+<plist version="1.0">
+<dict>
+
+	<key>Label</key>
+	<string>com.homebrew.openssh.ssh-agent</string>
+
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/ssh-agent</string>
+		<string>-D</string>
+		<string>-a</string>
+		<string>~/.ssh/ssh-agent.socket</string>
+	</array>
+
+	<key>RunAtLoad</key>
+	<true/>
+
+	<!--
+		Without this it takes ~20s for ssh-sk-helper to actually talk to a
+		security key instead of ~300ms, the Standard ProcessType claims to have
+		only light resource limits, but :shrug:
+	-->
+	<key>ProcessType</key>
+	<string>Interactive</string>
+</dict>
+</plist>

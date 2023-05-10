@@ -35,6 +35,14 @@ do
   fi
 done
 
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    for f in "$FRESH_LOCAL"/Library/**/*; do
+        if [[ -f "$f" ]]; then
+            fresh "${f#$FRESH_LOCAL/}" --file "~/${f#$FRESH_LOCAL/}" --filter='sed "s#~#$HOME#g"'
+        fi
+    done
+fi
+
 fresh config/mpd/mpd.conf --file=~/.mpd/mpd.conf
 
 fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
@@ -152,5 +160,10 @@ fresh_after_build () {
         fi
         echo "Installing antigen plugins..."
         zsh -c 'source ~/.zshrc'
+    fi
+
+
+    if which launchctl &>/dev/null; then
+        launchctl disable gui/$UID/com.openssh.ssh-agent
     fi
 }
