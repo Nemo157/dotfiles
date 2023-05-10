@@ -7,7 +7,6 @@ scrolling:
 font:
   normal: { family: FiraCode Nerd Font }
   size: 11.0
-  use_thin_strokes: true
 
 bell:
   duration: 0
