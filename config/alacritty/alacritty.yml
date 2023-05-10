@@ -115,4 +115,4 @@ shell:
   args:
   - --login
   - -c
-  - tmux-session master
+  - tmux -u new-session -s master-$(hostname -s) -t master -A
