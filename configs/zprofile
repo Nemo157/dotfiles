@@ -23,12 +23,10 @@ export RUSTUP_UPDATE_ROOT=https://dev-static.rust-lang.org/rustup
 # grep
 export GREP_COLOR='38;5;108'
 
-if [ ! "$SSH_AUTH_SOCK" ]; then
-  if [ "$XDG_RUNTIME_DIR" ]; then
-    export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
-  else
-    export SSH_AUTH_SOCK="$HOME/.ssh/ssh-agent.socket"
-  fi
+if [ "$XDG_RUNTIME_DIR" ]; then
+  export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+else
+  export SSH_AUTH_SOCK="$HOME/.ssh/ssh-agent.socket"
 fi
 
 ## Add extra paths, only if they exist and only if they're not already added.
