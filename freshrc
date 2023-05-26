@@ -132,8 +132,6 @@ if [[ -e ~/.freshsources ]]; then
     done < ~/.freshsources
 fi
 
-fresh ssh/config.star --file=~/.ssh/config
-
 fresh_after_build () {
     mkdir -p ~/.ssh/control
 
