@@ -1,0 +1,11 @@
+if [ "$SSH_AUTH_SOCK" ]; then
+  if [ "$XDG_RUNTIME_DIR" ]; then
+    SSH_AUTH_SOCK_REDIRECT="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+  else
+    SSH_AUTH_SOCK_REDIRECT="$HOME/.ssh/ssh-agent.socket"
+  fi
+
+  if [ ! -S "$SSH_AUTH_SOCK_REDIRECT" ] && [ -S "$SSH_AUTH_SOCK" ]; then
+    ln -sf "$SSH_AUTH_SOCK" "$SSH_AUTH_SOCK_REDIRECT"
+  fi
+fi

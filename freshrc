@@ -132,6 +132,8 @@ if [[ -e ~/.freshsources ]]; then
     done < ~/.freshsources
 fi
 
+fresh ssh/rc --file=~/.ssh/rc
+
 fresh_after_build () {
     mkdir -p ~/.ssh/control
 
