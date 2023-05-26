@@ -7,7 +7,7 @@ import:
   move: true
 
 replaygain:
-  backend: gstreamer
+  backend: ffmpeg
 
 fetchart:
   sources: [filesystem, coverart]
