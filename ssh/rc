@@ -5,7 +5,7 @@ if [ "$SSH_AUTH_SOCK" ]; then
     SSH_AUTH_SOCK_REDIRECT="$HOME/.ssh/ssh-agent.socket"
   fi
 
-  if [ ! -S "$SSH_AUTH_SOCK_REDIRECT" ] && [ -S "$SSH_AUTH_SOCK" ]; then
+  if [ -S "$SSH_AUTH_SOCK" ]; then
     ln -sf "$SSH_AUTH_SOCK" "$SSH_AUTH_SOCK_REDIRECT"
   fi
 fi
