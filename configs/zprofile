@@ -1,20 +1,6 @@
 export DO_NOT_TRACK=1
 export UNISONLOCALHOSTNAME="lol3.roaming.nemo157.com"
 
-function () {
-  set_locale () {
-    if (locale -a | grep "$1" >/dev/null) {
-      export LANG="$1"
-      export LC_ALL="$1"
-      true
-    } else {
-      false
-    }
-  }
-
-  set_locale en_NZ.UTF-8 || set_locale en_NZ.utf8 || set_locale en_US.UTF-8 || set_locale en_US.utf8
-}
-
 export EDITOR=vim
 # https://github.com/rust-lang/cargo/issues/8832#issuecomment-750928224
 export __CARGO_FORCE_NEW_FEATURES=compare
