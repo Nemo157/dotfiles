@@ -1,5 +1,4 @@
 [build]
-rustc-wrapper = "sccache"
 target-dir = "$HOME/.cargo/shared-target"
 incremental = true
 pipelining = true
