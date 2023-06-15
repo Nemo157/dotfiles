@@ -23,18 +23,6 @@ do
   fi
 done
 
-for f in "$FRESH_LOCAL"/data/*
-do
-  if [[ -d "$f" ]]
-  then
-    f=$(basename "$f")
-    fresh data/"$f" --file=~/.local/share/"$f"/
-  else
-    f=$(basename "$f")
-    fresh data/"$f" --file=~/.local/share/"$f"
-  fi
-done
-
 if [[ "$(uname -s)" == "Darwin" ]]; then
     for f in "$FRESH_LOCAL"/Library/**/*; do
         if [[ -f "$f" ]]; then
