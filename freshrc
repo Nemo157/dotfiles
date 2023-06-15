@@ -11,14 +11,11 @@ fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
 fresh jwiegley/git-scripts git-forest --bin
 
-for f in "$FRESH_LOCAL"/config/*
+for f in "$FRESH_LOCAL"/config/* "$FRESH_LOCAL"/config/*/* "$FRESH_LOCAL"/config/*/*/* "$FRESH_LOCAL"/config/*/*/*/*
 do
-  if [[ -d "$f" ]]
+  if [[ -f "$f" ]]
   then
-    f=$(basename "$f")
-    fresh config/"$f" --file=~/.config/"$f"/
-  else
-    f=$(basename "$f")
+    f=$(realpath --relative-to="$FRESH_LOCAL"/config "$f")
     fresh config/"$f" --file=~/.config/"$f"
   fi
 done
@@ -120,7 +117,8 @@ if [[ -e ~/.freshsources ]]; then
     done < ~/.freshsources
 fi
 
-fresh ssh/rc --file=~/.ssh/rc
+fresh Nemo157/sshagmux configs/sshagmux.service --file=~/.config/systemd/user/sshagmux.service
+fresh Nemo157/sshagmux configs/ssh.rc --file=~/.ssh/rc
 
 fresh_after_build () {
     mkdir -p ~/.ssh/control
