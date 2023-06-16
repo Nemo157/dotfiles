@@ -123,6 +123,10 @@ fresh Nemo157/sshagmux configs/ssh.rc --file=~/.ssh/rc
 fresh_after_build () {
     mkdir -p ~/.ssh/control
 
+    if which systemctl &>/dev/null; then
+        systemctl --user daemon-reload
+    fi
+
     if which vim &>/dev/null; then
         echo "Installing vim plugins..."
         vim +PlugInstall +qa
