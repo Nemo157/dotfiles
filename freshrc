@@ -28,7 +28,7 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
   recursive Library --file=~/Library/ --filter='sed "s#~#$HOME#g"'
 fi
 
-source fresh/*
+for f in fresh/*; do source $f; done
 
 fresh_after_build_bat () {
     if which bat &>/dev/null; then
