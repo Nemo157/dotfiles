@@ -9,21 +9,24 @@ fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
 fresh jwiegley/git-scripts git-forest --bin
 
-for f in "$FRESH_LOCAL"/config/* "$FRESH_LOCAL"/config/*/* "$FRESH_LOCAL"/config/*/*/* "$FRESH_LOCAL"/config/*/*/*/*
-do
-  if [[ -f "$f" ]]
-  then
-    f=$(realpath --relative-to="$FRESH_LOCAL"/config "$f")
-    fresh config/"$f" --file=~/.config/"$f"
-  fi
-done
+recursive () {
+  shopt -s globstar
+  local in="$1"
+  local out="$2"
+  shift 2
+  for f in "$(realpath "$in")"/**; do
+    if [[ -f "$f" ]]; then
+      f="$(realpath --relative-to="$in" "$f")"
+      fresh "$in/$f" --file="$out/$f" "$@"
+    fi
+  done
+}
+
+recursive config ~/.config
+recursive data ~/.local/share
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-    for f in "$FRESH_LOCAL"/Library/**/*; do
-        if [[ -f "$f" ]]; then
-            fresh "${f#$FRESH_LOCAL/}" --file "~/${f#$FRESH_LOCAL/}" --filter='sed "s#~#$HOME#g"'
-        fi
-    done
+  recursive Library ~/Library --filter='sed "s#~#$HOME#g"'
 fi
 
 fresh config/mpd/mpd.conf --file=~/.mpd/mpd.conf
@@ -93,7 +96,7 @@ fresh Nemo157/sshagmux configs/sshagmux.service --file=~/.config/systemd/user/ss
 fresh Nemo157/sshagmux configs/sshagmux.socket --file=~/.config/systemd/user/sshagmux.socket
 fresh Nemo157/sshagmux configs/ssh.rc --file=~/.ssh/rc
 
-source vim/freshrc
+source fresh/*
 
 fresh_after_build_ssh () {
     mkdir -p ~/.ssh/control

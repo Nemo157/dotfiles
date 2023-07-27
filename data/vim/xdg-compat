@@ -1,6 +1,4 @@
-if has('nvim')
-  let $MYVIMRC=$HOME . "/.config/nvim/init.vim"
-else
+if !has('nvim')
   if empty($XDG_DATA_HOME)
     let $XDG_DATA_HOME=$HOME . "/.local/share"
   endif
@@ -22,26 +20,26 @@ else
   set backupdir=$XDG_STATE_HOME/vim/backup//
 
   set runtimepath=
-  set runtimepath+=$XDG_CONFIG_HOME/vim
-  set runtimepath+=$XDG_DATA_HOME/vim
+  set runtimepath+=$XDG_CONFIG_HOME/nvim
+  set runtimepath+=$XDG_DATA_HOME/nvim/site
   set runtimepath+=$VIM/vimfiles
   set runtimepath+=$VIMRUNTIME
   set runtimepath+=$VIM/vimfiles/after
-  set runtimepath+=$XDG_DATA_HOME/vim/after
-  set runtimepath+=$XDG_CONFIG_HOME/vim/after
+  set runtimepath+=$XDG_DATA_HOME/nvim/site/after
+  set runtimepath+=$XDG_CONFIG_HOME/nvim/after
 
   set packpath=
-  set packpath+=$XDG_CONFIG_HOME/vim
-  set packpath+=$XDG_DATA_HOME/vim
+  set packpath+=$XDG_CONFIG_HOME/nvim
+  set packpath+=$XDG_DATA_HOME/nvim/site
   set packpath+=$VIM/vimfiles
   set packpath+=$VIMRUNTIME
   set packpath+=$VIM/vimfiles/after
-  set packpath+=$XDG_DATA_HOME/vim/after
-  set packpath+=$XDG_CONFIG_HOME/vim/after
+  set packpath+=$XDG_DATA_HOME/nvim/site/after
+  set packpath+=$XDG_CONFIG_HOME/nvim/after
 
   set viminfofile=$XDG_STATE_HOME/vim/viminfo
-
-  let $MYVIMRC="$XDG_CONFIG_HOME/vim/vimrc"
 endif
+
+let $MYVIMRC=$HOME . "/.config/nvim/init.vim"
 
 source $MYVIMRC
