@@ -43,7 +43,7 @@ function () {
     [[ -f "$1" ]] && source "$1"
   }
 
-  prepend_if_exists PATH "$HOME/bin"
+  prepend_if_exists PATH "$HOME/.local/bin"
   prepend_if_exists PATH "$HOME/node_modules/.bin"
   prepend_if_exists PATH "$HOME/Library/Haskell/bin"
   prepend_if_exists PATH "/usr/local/heroku/bin"
