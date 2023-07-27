@@ -1,9 +1,6 @@
 fresh freshshell/fresh bin/fresh --bin
 fresh freshshell/fresh contrib/completion/fresh-completion.bash
 
-fresh configs/\* --file
-fresh bin/\* --bin
-
 fresh Rip-Rip/clang_complete bin/cc_args.py --bin
 fresh 4refr0nt/luatool luatool/luatool.py --bin
 fresh johanhaleby/kubetail kubetail --bin
@@ -17,117 +14,26 @@ recursive () {
   for f in "$(realpath "$in")"/**; do
     if [[ -f "$f" ]]; then
       f="$(realpath --relative-to="$in" "$f")"
-      fresh "$in/$f" --file="$out/$f" "$@"
+      fresh "$in/$f" "$out$f" "$@"
     fi
   done
 }
 
-recursive config ~/.config
-recursive data ~/.local/share
+recursive configs --file=~/. --filter='sed "s#\$\${{HOME}}#$HOME#g"'
+recursive bin --bin=~/bin/
+recursive config --file=~/.config/
+recursive data --file=~/.local/share/
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-  recursive Library ~/Library --filter='sed "s#~#$HOME#g"'
+  recursive Library --file=~/Library/ --filter='sed "s#~#$HOME#g"'
 fi
-
-fresh config/mpd/mpd.conf --file=~/.mpd/mpd.conf
-
-fresh-options --file=~/.zshrc --marker='# ========='
-    fresh zsh/antigen_before.zsh
-    fresh zsh/lib/\* --filter='grep -e ^antigen -e '"'"'^#'"'"' || true'
-    fresh zsh/antigen_after.zsh
-    fresh zsh/lib/\* --filter='grep -v -e ^antigen || true'
-fresh-options
-
-fresh-options --file=~/.tmux.conf --marker='# ========='
-    fresh tmux/lib/\*
-fresh-options
-
-fresh tmux/bin --file=~/.tmux/bin/
-
-fresh cargo/config --file=~/.cargo/config --filter="sed 's/\$HOME/${HOME//\//\\/}/g'"
-fresh i3/config --file=~/.i3/config
-fresh irssi/config --file=~/.irssi/config
-fresh irssi/default.theme --file=~/.irssi/default.theme
-fresh irssi/scripts --file=~/.irssi/scripts/autorun/
-
-scripts=(
-  bandwidth3
-  battery
-  cpu_usage
-  disk
-  iface
-  load_average
-  mediaplayer
-  memory
-  openvpn
-  temperature
-  time
-  volume
-  wifi
-)
-for script in ${scripts[*]}
-do
-  fresh vivien/i3blocks-contrib "$script/$script" --bin="~/.i3/blocks/$script"
-done
-# Of course there has to be a special one...
-fresh vivien/i3blocks-contrib "arch-update/arch-update.py" --bin="~/.i3/blocks/arch-update"
-fresh i3/blocks/mic --bin=~/.i3/blocks/mic
-
-fresh js --file=~/.js/
-
-if [[ -e ~/.freshsources ]]; then
-    load_extra_source() {
-        local name="$1"
-        local source="$2"
-        echo "Installing all extra dotfiles from $name ($source)..."
-        fresh "$source" freshrc --file="~/.freshrc.$name" --marker='# ========='
-        if [[ -e "$HOME/.freshrc.$name" ]]; then
-          source "$HOME/.freshrc.$name"
-        else
-          echo "First time install $name, rerun"
-        fi
-    }
-    while read -ra line; do
-      load_extra_source "${line[@]}"
-    done < ~/.freshsources
-fi
-
-fresh Nemo157/sshagmux configs/sshagmux.service --file=~/.config/systemd/user/sshagmux.service
-fresh Nemo157/sshagmux configs/sshagmux.socket --file=~/.config/systemd/user/sshagmux.socket
-fresh Nemo157/sshagmux configs/ssh.rc --file=~/.ssh/rc
 
 source fresh/*
-
-fresh_after_build_ssh () {
-    mkdir -p ~/.ssh/control
-
-    if which launchctl &>/dev/null; then
-        launchctl disable gui/$UID/com.openssh.ssh-agent
-    fi
-}
 
 fresh_after_build_bat () {
     if which bat &>/dev/null; then
         echo "Building bat cache..."
         bat cache --build
-    fi
-}
-
-fresh_after_build_systemd () {
-    if which systemctl &>/dev/null; then
-        systemctl --user daemon-reload
-    fi
-}
-
-fresh_after_build_zsh () {
-    if which zsh &>/dev/null; then
-        if [ ! -d ~/.zsh/antigen ]; then
-            echo "Installing antigen..."
-            mkdir -p ~/.zsh
-            git clone https://github.com/zsh-users/antigen.git ~/.zsh/antigen
-        fi
-        echo "Installing antigen plugins..."
-        zsh -c 'source ~/.zshrc'
     fi
 }
 

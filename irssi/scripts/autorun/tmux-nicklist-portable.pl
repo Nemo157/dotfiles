@@ -1,1 +1,0 @@
-../tmux-nicklist-portable.pl
