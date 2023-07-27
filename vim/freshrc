@@ -1,0 +1,37 @@
+fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
+fresh-options --file=~/.vimrc --marker='" ========='
+    fresh vim/plug_before.vim
+    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
+    fresh vim/plug_after.vim
+    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
+fresh-options
+
+fresh vim/unplugged --file=~/.vim/pack/unplugged/
+
+fresh junegunn/vim-plug plug.vim --file=~/.config/nvim/autoload/plug.vim
+fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
+    fresh vim/plug_before.vim
+    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
+    fresh vim/plug_after.vim
+    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
+fresh-options
+
+fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
+
+fresh https://github.com/cespare/vim-toml . --file=~/.config/nvim/pack/plugins/start/toml/
+fresh https://github.com/nvim-lua/plenary.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
+fresh https://github.com/nvim-telescope/telescope.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
+
+fresh https://github.com/cespare/vim-toml . --file=~/.vim/pack/plugins/start/toml/
+
+fresh_after_build_vim () {
+    if which vim &>/dev/null; then
+        echo "Installing vim plugins..."
+        vim +PlugInstall +qa
+    fi
+
+    if which nvim &>/dev/null; then
+        echo "Installing neovim plugins..."
+        nvim +PlugInstall +qa
+    fi
+}

@@ -30,30 +30,6 @@ fi
 
 fresh config/mpd/mpd.conf --file=~/.mpd/mpd.conf
 
-fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
-fresh-options --file=~/.vimrc --marker='" ========='
-    fresh vim/plug_before.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
-    fresh vim/plug_after.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
-fresh-options
-
-fresh vim/unplugged --file=~/.vim/pack/unplugged/
-
-fresh junegunn/vim-plug plug.vim --file=~/.config/nvim/autoload/plug.vim
-fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
-    fresh vim/plug_before.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
-    fresh vim/plug_after.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
-fresh-options
-
-fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
-
-fresh https://github.com/cespare/vim-toml . --file=~/.config/nvim/pack/plugins/start/toml/
-fresh https://github.com/nvim-lua/plenary.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
-fresh https://github.com/nvim-telescope/telescope.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
-
 fresh-options --file=~/.zshrc --marker='# ========='
     fresh zsh/antigen_before.zsh
     fresh zsh/lib/\* --filter='grep -e ^antigen -e '"'"'^#'"'"' || true'
@@ -64,8 +40,6 @@ fresh-options
 fresh-options --file=~/.tmux.conf --marker='# ========='
     fresh tmux/lib/\*
 fresh-options
-
-fresh https://github.com/cespare/vim-toml . --file=~/.vim/pack/plugins/start/toml/
 
 fresh tmux/bin --file=~/.tmux/bin/
 
@@ -118,30 +92,33 @@ if [[ -e ~/.freshsources ]]; then
 fi
 
 fresh Nemo157/sshagmux configs/sshagmux.service --file=~/.config/systemd/user/sshagmux.service
+fresh Nemo157/sshagmux configs/sshagmux.socket --file=~/.config/systemd/user/sshagmux.socket
 fresh Nemo157/sshagmux configs/ssh.rc --file=~/.ssh/rc
 
-fresh_after_build () {
+source vim/freshrc
+
+fresh_after_build_ssh () {
     mkdir -p ~/.ssh/control
 
-    if which systemctl &>/dev/null; then
-        systemctl --user daemon-reload
+    if which launchctl &>/dev/null; then
+        launchctl disable gui/$UID/com.openssh.ssh-agent
     fi
+}
 
-    if which vim &>/dev/null; then
-        echo "Installing vim plugins..."
-        vim +PlugInstall +qa
-    fi
-
+fresh_after_build_bat () {
     if which bat &>/dev/null; then
         echo "Building bat cache..."
         bat cache --build
     fi
+}
 
-    if which nvim &>/dev/null; then
-        echo "Installing neovim plugins..."
-        nvim +PlugInstall +qa
+fresh_after_build_systemd () {
+    if which systemctl &>/dev/null; then
+        systemctl --user daemon-reload
     fi
+}
 
+fresh_after_build_zsh () {
     if which zsh &>/dev/null; then
         if [ ! -d ~/.zsh/antigen ]; then
             echo "Installing antigen..."
@@ -151,9 +128,13 @@ fresh_after_build () {
         echo "Installing antigen plugins..."
         zsh -c 'source ~/.zshrc'
     fi
+}
 
-
-    if which launchctl &>/dev/null; then
-        launchctl disable gui/$UID/com.openssh.ssh-agent
-    fi
+fresh_after_build () {
+    for f in $(compgen -A function); do
+        if [[ "$f" = fresh_after_build_* ]]; then
+            echo "Running $f"
+            "$f"
+        fi
+    done
 }
