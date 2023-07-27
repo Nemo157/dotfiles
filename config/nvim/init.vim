@@ -122,6 +122,7 @@ au BufRead,BufNewFile *.crs setf rust
 au BufRead,BufNewFile .yamllint setf yaml
 au BufRead,BufNewFile vimrc setf vim
 au BufRead,BufNewFile freshrc setf bash
+au BufRead,BufNewFile freshrc.d/* setf bash
 
 " Have Vim jump to the last position when reopening a file
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
