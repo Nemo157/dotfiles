@@ -1,21 +1,22 @@
-fresh vim/vimrc --file=~/.vim/vimrc
+fresh vim/vimrc --file=~/.config/vim/vimrc
 fresh vim/vimrc --file=~/.config/nvim/init.vim
 
-fresh vim/unplugged --file=~/.vim/pack/unplugged/
-fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
+fresh vim/xdg-compat --file=~/.local/share/vim/xdg-compat
+fresh vim/unplugged --file=~/.local/share/vim/pack/unplugged/
+fresh vim/unplugged --file=~/.local/share/nvim/site/pack/unplugged/
 
-fresh vim/spell --file=~/.vim/spell/
-fresh vim/thesaurus --file=~/.vim/thesaurus/
+# fresh vim/spell --file=~/.local/share/vim/spell/
+fresh vim/thesaurus --file=~/.local/share/vim/thesaurus/
 
 slugify () {
-  LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]'
+  LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]' -
 }
 
 plug () {
   local plug=$1
   local slug=$(echo -n $plug | slugify)
-  fresh $plug . --file=~/.vim/pack/plugins/start/$slug/
-  fresh $plug . --file=~/.config/nvim/pack/plugins/start/$slug/
+  fresh $plug . --file=~/.local/share/vim/pack/plugins/start/$slug/
+  fresh $plug . --file=~/.local/share/nvim/site/pack/plugins/start/$slug/
 }
 
 plug Nemo157/vim_extensions
@@ -75,4 +76,10 @@ plug euclio/vim-markdown-composer
 
 fresh_after_build_vim_markdown_composer () {
     cargo install --git https://github.com/euclio/vim-markdown-composer --locked
+}
+
+fresh_after_build_vim_xdg_state_home () {
+  mkdir -p ~/.local/state/vim/swap
+  mkdir -p ~/.local/state/vim/undo
+  mkdir -p ~/.local/state/vim/backup
 }

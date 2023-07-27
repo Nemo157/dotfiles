@@ -27,10 +27,10 @@ set spell
 set suffixes+=.aux,.blg,.bbl,.log
 set tabstop=2 expandtab shiftwidth=2
 set textwidth=80
-set thesaurus+=~/.vim/thesaurus/mthesaur.txt
+set thesaurus+=~/.local/share/vim/thesaurus/mthesaur.txt
 set timeoutlen=1000
 set ttimeoutlen=10
-set undofile undodir=/tmp
+set undofile
 set updatetime=100
 set wildmenu
 
