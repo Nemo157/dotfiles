@@ -25,6 +25,9 @@
 [interactive]
     diffFilter = delta --color-only
 
+[blame]
+    ignoreRevsFile = .git-blame-ignore-revs
+
 [push]
     default = simple
     autoSetupRemote = true
