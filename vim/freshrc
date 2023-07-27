@@ -1,18 +1,19 @@
-fresh-options --file=~/.vimrc --marker='" ========='
-    fresh vim/lib/\*
-fresh-options
+fresh vim/vimrc --file=~/.vim/vimrc
+fresh vim/vimrc --file=~/.config/nvim/init.vim
 
 fresh vim/unplugged --file=~/.vim/pack/unplugged/
-
-fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
-    fresh vim/lib/\*
-fresh-options
-
 fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
+
+fresh vim/spell --file=~/.vim/spell/
+fresh vim/thesaurus --file=~/.vim/thesaurus/
+
+slugify () {
+  LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]'
+}
 
 plug () {
   local plug=$1
-  local slug=$(echo -n $plug | LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]' -)
+  local slug=$(echo -n $plug | slugify)
   fresh $plug . --file=~/.vim/pack/plugins/start/$slug/
   fresh $plug . --file=~/.config/nvim/pack/plugins/start/$slug/
 }
