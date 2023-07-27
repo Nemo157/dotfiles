@@ -1,5 +1,3 @@
-Plug 'w0rp/ale'
-
 try
   set signcolumn=yes:1
 catch

@@ -1,1 +1,0 @@
-Plug 'sgur/vim-editorconfig'

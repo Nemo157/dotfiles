@@ -1,1 +1,0 @@
-call plug#end()

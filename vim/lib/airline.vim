@@ -1,6 +1,3 @@
-Plug 'vim-airline/vim-airline'
-Plug 'Nemo157/vim-airline-themes'
-
 let g:airline_theme='base16'
 
 if !exists('g:airline_symbols')

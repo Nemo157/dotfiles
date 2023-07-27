@@ -1,5 +1,3 @@
-Plug 'rust-lang/rust.vim'
-
 au BufRead,BufNewFile *.crs setf rust
 
 au BufRead,BufNewFile *.rs let b:ale_linters = ['cargo-rubber']

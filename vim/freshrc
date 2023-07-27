@@ -1,37 +1,77 @@
-fresh junegunn/vim-plug plug.vim --file=~/.vim/autoload/plug.vim
 fresh-options --file=~/.vimrc --marker='" ========='
-    fresh vim/plug_before.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
-    fresh vim/plug_after.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
+    fresh vim/lib/\*
 fresh-options
 
 fresh vim/unplugged --file=~/.vim/pack/unplugged/
 
-fresh junegunn/vim-plug plug.vim --file=~/.config/nvim/autoload/plug.vim
 fresh-options --file=~/.config/nvim/init.vim --marker='" ========='
-    fresh vim/plug_before.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/'"
-    fresh vim/plug_after.vim
-    fresh vim/lib/\* --filter="awk '/^Plug/ { next }; /^"'"'" PlugInclude/, /^"'"'" \\/PlugInclude/ { next }; { print }'"
+    fresh vim/lib/\*
 fresh-options
 
 fresh vim/unplugged --file=~/.config/nvim/pack/unplugged/
 
-fresh https://github.com/cespare/vim-toml . --file=~/.config/nvim/pack/plugins/start/toml/
-fresh https://github.com/nvim-lua/plenary.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
-fresh https://github.com/nvim-telescope/telescope.nvim .  --file=~/.config/nvim/pack/plugins/start/telescope/
+plug () {
+  local plug=$1
+  local slug=$(echo -n $plug | LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]' -)
+  fresh $plug . --file=~/.vim/pack/plugins/start/$slug/
+  fresh $plug . --file=~/.config/nvim/pack/plugins/start/$slug/
+}
 
-fresh https://github.com/cespare/vim-toml . --file=~/.vim/pack/plugins/start/toml/
+plug Nemo157/vim_extensions
+plug Rip-Rip/clang_complete
+plug airblade/vim-gitgutter
+plug altercation/vim-colors-solarized
+plug easymotion/vim-easymotion
+plug jimenezrick/vimerl
+plug sgur/vim-editorconfig
+plug shumphrey/fugitive-gitlab.vim
+plug tpope/vim-fugitive
+plug tpope/vim-rhubarb
+plug vim-scripts/AutoComplPop
+plug vim-scripts/Smart-Tabs
+plug vitapluvia/vim-gurl
+plug walm/jshint.vim
 
-fresh_after_build_vim () {
-    if which vim &>/dev/null; then
-        echo "Installing vim plugins..."
-        vim +PlugInstall +qa
-    fi
+plug KohPoll/vim-less
+plug Nemo157/glsl.vim
+plug Nemo157/llvm.vim
+plug Nemo157/rpn.vim
+plug Nemo157/scala.vim
+plug PProvost/vim-ps1
+plug elixir-lang/vim-elixir
+plug heartsentwined/vim-emblem
+plug idris-hackers/idris-vim
+plug lambdatoast/elm.vim
+plug leafgarland/typescript-vim
+plug ledger/vim-ledger
+plug mustache/vim-mustache-handlebars
+plug plasticboy/vim-markdown
+plug raichoo/purescript-vim
+plug rust-lang/rust.vim
+plug slim-template/vim-slim
+plug tanob/mirah-vim
+plug zaiste/tmux.vim
 
-    if which nvim &>/dev/null; then
-        echo "Installing neovim plugins..."
-        nvim +PlugInstall +qa
-    fi
+plug Chiel92/vim-autoformat
+plug Nemo157/vim-airline-themes
+plug Shougo/echodoc.vim
+plug Shougo/unite.vim
+plug cespare/vim-toml
+plug ervandew/supertab
+plug gerw/vim-HiLinkTrace
+plug godlygeek/tabular
+plug junegunn/fzf
+plug mhinz/vim-tmuxify
+plug nathanaelkane/vim-indent-guides
+plug nvim-lua/plenary.nvim
+plug nvim-telescope/telescope.nvim
+plug tpope/vim-dispatch
+plug vim-airline/vim-airline
+plug w0rp/ale
+plug whatyouhide/vim-lengthmatters
+
+plug euclio/vim-markdown-composer
+
+fresh_after_build_vim_markdown_composer () {
+    cargo install --git https://github.com/euclio/vim-markdown-composer --locked
 }

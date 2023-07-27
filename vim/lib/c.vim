@@ -1,6 +1,3 @@
-" Clang based C/C++ Completion
-Plug 'Rip-Rip/clang_complete'
-
 let g:ale_c_parse_compile_commands=1
 let g:ale_c_clangtidy_checks = ['*', '-hicpp-signed-bitwise']
 

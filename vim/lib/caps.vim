@@ -7,4 +7,3 @@ command! WQA wqa
 command! -bang Q q<bang>
 command! -bang Qa q<bang>
 command! -bang QA q<bang>
-

@@ -11,4 +11,3 @@ endif
 " Big issue with this is SDL vs SDL2, both use SDL.h so need to only include
 " the SDL2 directory otherwise everything breaks.
 let g:syntastic_cpp_no_include_search=1
-

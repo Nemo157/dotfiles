@@ -10,4 +10,3 @@ au FileType c\|cpp setlocal tabstop=4 shiftwidth=4
 au FileType coffee setlocal tabstop=2 shiftwidth=2
 
 au BufWritePost vimrc source ~/.vimrc
-
