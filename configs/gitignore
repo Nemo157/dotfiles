@@ -12,3 +12,4 @@ Thumbs.db
 .envrc
 .env
 compile_commands.json
+.bacon-locations
