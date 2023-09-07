@@ -1,0 +1,17 @@
+blocks:
+- permission
+- user
+- group
+- size
+- date
+- git
+- name
+
+color:
+  when: auto
+  theme: custom
+
+date: relative
+dereference: false
+indicators: true
+total-size: true
