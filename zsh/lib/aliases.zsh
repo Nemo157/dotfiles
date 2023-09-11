@@ -1,9 +1,9 @@
 ## My custom aliases
 alias cd..='cd ..'
-alias ls='ls -h'
-alias ll='ls -l'
-alias lal='ls -al'
-alias man=run-help
+alias ls='lsd'
+alias ll='lsd -l'
+alias lal='lsd -Al'
+alias tree='lsd --tree'
 
 if [ $commands[sudo] ]; then
   alias fu='sudo $( fc -ln -1 )'
