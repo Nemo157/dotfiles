@@ -9,16 +9,13 @@ fresh johanhaleby/kubetail kubetail --bin
 fresh jwiegley/git-scripts git-forest --bin
 
 recursive () {
-  shopt -s globstar
   local in="$1"
   local out="$2"
   shift 2
   local dir="$(realpath "$FRESH_LOCAL/$in")"
-  for f in "$dir"/**; do
-    if [[ -f "$f" ]]; then
-      f="$(realpath --relative-to="$dir" "$f")"
-      fresh "$in/$f" "$out$f" "$@"
-    fi
+  for f in $(find "$dir" -type f); do
+    f=${f#$dir/}
+    fresh "$in/$f" "$out$f" "$@"
   done
 }
 

@@ -1,5 +1,5 @@
 slugify () {
-  echo -n $1 | LC_ALL=C tr --complement --squeeze-repeats '[:alnum:]' -
+  echo -n $1 | LC_ALL=C tr -Cs '[:alnum:]' -
 }
 
 plug () {
