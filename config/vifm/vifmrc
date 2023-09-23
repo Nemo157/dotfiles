@@ -21,6 +21,8 @@ if !has('win')
 endif
 set statusline="%= %A %10u:%-7g %15s %20d  "
 set quickview
+set grepprg="rg --line-number %i %a %s"
+set findprg="fd %A %s"
 
 colorscheme eink
 
