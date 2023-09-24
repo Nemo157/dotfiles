@@ -7,7 +7,7 @@ in {
 
     settings = {
       main = {
-        shell = "zsh --login -c tmux -u new-session -s master-$(hostname -s) -t master -A";
+        shell = "zsh --login -c 'tmux -u new-session -s master-$(hostname -s) -t master -A'";
         font = "FiraCode Nerd Font:size=11";
         word-delimiters = ",│`|:\"' ()[]{}<>";
       };

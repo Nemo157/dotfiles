@@ -9,5 +9,9 @@
     ./zsh.nix
   ];
 
-  home.packages = with pkgs; [ pstree ];
+  home.packages = with pkgs; [
+    pstree
+    htop
+    bat
+  ];
 }

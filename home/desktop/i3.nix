@@ -1,36 +1,16 @@
 { lib, config, pkgs, pkgs-unstable, pkgs-wayland, ... }:
 let
-  mod = config.wayland.windowManager.sway.config.modifier;
+  mod = config.xsession.windowManager.i3.config.modifier;
   sol = (import ../sol.nix);
 in {
-  programs.wofi.enable = true;
+  programs.rofi.enable = true;
 
-  wayland.windowManager.sway = {
+  xsession.enable = true;
+  xsession.windowManager.i3 = {
     enable = true;
-    package = pkgs-unstable.sway.override {
-      sway-unwrapped = pkgs-wayland.sway-unwrapped;
-
-      extraOptions = [
-        "--unsupported-gpu"
-      ];
-
-      extraSessionCommands = ''
-        export WLR_NO_HARDWARE_CURSORS=1
-        export WLR_RENDERER=vulkan
-        export MOZ_ENABLE_WAYLAND=1
-        export MOZ_USE_XINPUT2=1
-        export NIXOS_OZONE_WL=1
-      '';
-    };
 
     config = {
-      input."*" = with config.home.keyboard; {
-        xkb_layout = layout;
-        xkb_variant = variant;
-        xkb_options = lib.strings.concatStringsSep "," options;
-      };
-
-      terminal = "foot";
+      terminal = "alacritty";
 
       fonts = {
         names = ["monospace"];
@@ -43,7 +23,7 @@ in {
       };
 
       focus = {
-        followMouse = "no";
+        followMouse = false;
         mouseWarping = false;
       };
 
@@ -64,11 +44,11 @@ in {
         };
       };
 
-      keybindings = lib.mkOptionDefault {
+      keybindings = {
+        "${mod}+return" = "exec alacritty";
         "${mod}+space" = "exec rofi -show drun";
         "${mod}+m" = "exec toggle-mute";
-        "${mod}+backslash" = "exec swaylock -c 002b36";
-        "${mod}+Shift+space" = ''exec grim -p "$(slurp)" - | wl-copy'';
+        "${mod}+backslash" = "exec i3lock -c 002b36";
 
         "${mod}+ampersand" = "workspace 1";
         "${mod}+bracketleft" = "workspace 2";

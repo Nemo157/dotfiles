@@ -3,7 +3,7 @@ let
   sol = (import ../sol.nix);
 in {
   programs.alacritty = {
-    enable = false;
+    enable = true;
 
     settings = {
       window.padding = { x = 0; y = 0; };
