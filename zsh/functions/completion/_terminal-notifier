@@ -1,7 +1,0 @@
-#compdef terminal-notifier
-
-_arguments \
-    "-message+[The notification message]:message: " \
-    "-remove+[Removes a notification with the specified ‘group’ id.]:id: "
-
-return 0
