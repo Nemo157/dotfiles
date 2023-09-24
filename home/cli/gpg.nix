@@ -7,6 +7,6 @@
   };
   services.gpg-agent = {
     enable = true;
-    pinentryFlavor = "tty";
+    pinentryFlavor = "curses";
   };
 }

@@ -1,4 +1,4 @@
-{ ... }: {
+{ pkgs, ... }: {
   imports = [
     ./git
     ./gpg.nix
@@ -8,4 +8,6 @@
     ./vim.nix
     ./zsh.nix
   ];
+
+  home.packages = with pkgs; [ pstree ];
 }

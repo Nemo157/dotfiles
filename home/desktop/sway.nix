@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, pkgs-unstable, pkgs-wayland, ... }:
 let
   mod = config.wayland.windowManager.sway.config.modifier;
   sol = (import ../sol.nix);
@@ -7,18 +7,21 @@ in {
 
   wayland.windowManager.sway = {
     enable = true;
+    package = pkgs-unstable.sway.override {
+      sway-unwrapped = pkgs-wayland.sway-unwrapped;
 
-    extraOptions = [
-      "--unsupported-gpu"
-    ];
+      extraOptions = [
+        "--unsupported-gpu"
+      ];
 
-    extraSessionCommands = ''
-      export WLR_NO_HARDWARE_CURSORS=1
-      # export WLR_RENDERER=vulkan
-      export MOZ_ENABLE_WAYLAND=1
-      export MOZ_USE_XINPUT2=1
-      export NIXOS_OZONE_WL=1
-    '';
+      extraSessionCommands = ''
+        export WLR_NO_HARDWARE_CURSORS=1
+        export WLR_RENDERER=vulkan
+        export MOZ_ENABLE_WAYLAND=1
+        export MOZ_USE_XINPUT2=1
+        export NIXOS_OZONE_WL=1
+      '';
+    };
 
     config = {
       input = {
@@ -29,7 +32,7 @@ in {
         };
       };
 
-      terminal = "alacritty";
+      terminal = "foot";
 
       fonts = {
         names = ["monospace"];
