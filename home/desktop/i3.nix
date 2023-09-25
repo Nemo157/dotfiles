@@ -62,6 +62,7 @@ in {
         "${mod}+space" = "exec rofi -show drun";
         "${mod}+m" = "exec toggle-mute";
         "${mod}+backslash" = "exec i3lock -c 002b36";
+        "${mod}+shift+e" = "exec i3-nagbar -t warning -m 'Do you want to exit i3?' -b 'Yes' 'i3-msg exit'";
 
         "${mod}+ampersand" = "workspace 1";
         "${mod}+bracketleft" = "workspace 2";
