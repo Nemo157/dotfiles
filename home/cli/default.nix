@@ -6,7 +6,7 @@
     ./lsd.nix
     ./starship.nix
     ./tmux.nix
-    ./vim.nix
+    ./vim
     ./zsh.nix
   ];
 
