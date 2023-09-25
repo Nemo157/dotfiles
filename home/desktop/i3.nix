@@ -1,9 +1,22 @@
-{ lib, config, pkgs, pkgs-unstable, pkgs-wayland, ... }:
+{ lib, config, pkgs, ... }:
 let
   mod = config.xsession.windowManager.i3.config.modifier;
   sol = (import ../sol.nix);
 in {
-  programs.rofi.enable = true;
+  programs.rofi = {
+    enable = true;
+    extraConfig = {
+      modi = "drun,window,run,emoji:rofimoji";
+      show-icons = true;
+      kb-element-next = "";
+      kb-element-prev = "";
+      kb-mode-next = "Shift+Right,Tab";
+      kb-mode-previous = "Shift+Left";
+      kb-row-up = "Up,Control+p";
+      kb-row-tab = "";
+    };
+  };
+  home.packages = [ pkgs.rofimoji ];
 
   xsession.enable = true;
   xsession.windowManager.i3 = {

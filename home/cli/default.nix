@@ -10,8 +10,9 @@
   ];
 
   home.packages = with pkgs; [
-    pstree
-    htop
     bat
+    htop
+    pstree
+    ripgrep
   ];
 }
