@@ -5,6 +5,7 @@
     ./foot.nix
     ./fonts.nix
     ./i3.nix
+    ./mpv.nix
     ./sway.nix
   ];
 
