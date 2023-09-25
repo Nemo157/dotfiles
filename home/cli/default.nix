@@ -1,5 +1,6 @@
 { pkgs, ... }: {
   imports = [
+    ./bat
     ./git
     ./gpg.nix
     ./lsd.nix
@@ -10,7 +11,6 @@
   ];
 
   home.packages = with pkgs; [
-    bat
     fd
     htop
     pstree
