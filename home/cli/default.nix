@@ -11,6 +11,7 @@
 
   home.packages = with pkgs; [
     bat
+    fd
     htop
     pstree
     ripgrep

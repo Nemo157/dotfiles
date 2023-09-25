@@ -200,12 +200,28 @@
         "type": "github"
       }
     },
+    "nixur": {
+      "locked": {
+        "lastModified": 1695629172,
+        "narHash": "sha256-uyX3hb9n8O4DdtRLi3VsNLhhgsgV0NwDC0AJ3FT61rI=",
+        "owner": "nix-community",
+        "repo": "NUR",
+        "rev": "d68e23fbf48d0ac738fccb263ba30c7c3441cbe8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "NUR",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "nixpkgs-wayland": "nixpkgs-wayland"
+        "nixpkgs-wayland": "nixpkgs-wayland",
+        "nixur": "nixur"
       }
     },
     "systems": {

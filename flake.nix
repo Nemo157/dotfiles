@@ -8,24 +8,26 @@
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    nixur.url = "github:nix-community/NUR";
     home-manager = {
       url = "github:nix-community/home-manager/release-23.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, nixpkgs-unstable, nixpkgs-wayland, home-manager, ... }:
+  outputs = { nixpkgs, nixpkgs-unstable, nixpkgs-wayland, nixur, home-manager, ... }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      pkgs-unstable = nixpkgs-unstable.legacyPackages.${system};
+      pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+      pkgs-unstable = import nixpkgs-unstable { inherit system; };
       pkgs-wayland = nixpkgs-wayland.packages.${system};
+      nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
     in {
       homeConfigurations = {
         "nemo157@mithril" = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
-            inherit pkgs-unstable pkgs-wayland;
+            inherit pkgs-unstable pkgs-wayland nur;
           };
           modules = [
             ./home/nemo157.nix
