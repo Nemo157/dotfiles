@@ -1,4 +1,12 @@
-{ config, pkgs, nur, ... }: {
+{ config, pkgs, nur, ... }:
+let
+  csshacks = pkgs.fetchFromGitHub {
+    owner = "MrOtherGuy";
+    repo = "firefox-csshacks";
+    rev = "1ff9383984632fe91b8466730679e019de13c745";
+    sha256 = "sha256-KmkiSpxzlsPBWoX51o27l+X1IEh/Uv8RMkihGRxg98o=";
+  };
+in {
   programs.firefox = {
     enable = true;
     profiles.default = {
@@ -79,11 +87,10 @@
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
       };
 
-      userChrome = ''
-          #titlebar, #sidebar-header {
-            visibility: collapse !important;
-          }
-      '';
+      userChrome = builtins.concatStringsSep "\n" (builtins.map builtins.readFile [
+        "${csshacks}/chrome/hide_tabs_toolbar.css"
+        "${csshacks}/chrome/navbar_below_content.css"
+      ]);
 
       extensions = with nur.repos.rycee.firefox-addons; [
         augmented-steam

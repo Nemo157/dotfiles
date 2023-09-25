@@ -87,7 +87,7 @@ in {
         ];
       };
 
-      colors = light;
+      colors = dark;
     };
   };
 }
