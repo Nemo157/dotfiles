@@ -1,4 +1,4 @@
-{ config, pkgs, ... }: {
+{ lib, config, pkgs, ... }: {
   programs.tmux = {
     enable = true;
     escapeTime = 0;
@@ -52,11 +52,6 @@
       set -g status-right ""
       set -ag status-right '#[fg=terminal bg=terminal] · '
       set -ag status-right '#[bg=black]'
-      set -ag status-right '#(tmux-show-cpu)#(tmux-show-mem)'
-      set -ag status-right '#[fg=green]#(tmux-show-batt)'
-      set -ag status-right '#[fg=blue]#(tmux-show-wifi)'
-      set -ag status-right '#[fg=yellow]#(tmux-show-vpn)'
-      set -ag status-right '#[fg=red]#(tmux-show-disk)'
       set -ag status-right "#[fg=terminal]#(date '+  %Y-%m-%d %H:%M:%S') "
 
       set -g status-justify left
