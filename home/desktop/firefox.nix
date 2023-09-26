@@ -53,6 +53,17 @@ in {
             definedAliases = [ "@nw" ];
           };
 
+          Noogle = {
+            urls = [{
+              template = "https://noogle.dev/";
+              params = [
+                { name = "term"; value = "\"{searchTerms}\""; }
+              ];
+            }];
+            icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+            definedAliases = [ "@nf" ];
+          };
+
           ProtonDB = {
             urls = [{
               template = "https://www.protondb.com/search";
@@ -62,6 +73,17 @@ in {
             }];
             iconUpdateURL = "https://www.protondb.com/sites/protondb/images/favicon-32x32.png";
             definedAliases = [ "@pd" ];
+          };
+
+          "HomeManager Options" = {
+            urls = [{
+              template = "https://mipmip.github.io/home-manager-option-search/";
+              params = [
+                { name = "query"; value = "{searchTerms}"; }
+              ];
+            }];
+            icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+            definedAliases = [ "@ho" ];
           };
 
           "Amazon.de".metaData.hidden = true;
