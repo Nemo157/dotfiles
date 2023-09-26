@@ -9,7 +9,11 @@
 
   programs.home-manager.enable = true;
 
-  services.syncthing= {
+  home.packages = [
+    pkgs.stc-cli
+  ];
+
+  services.syncthing = {
     enable = true;
     tray.enable = true;
   };
