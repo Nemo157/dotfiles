@@ -1,6 +1,7 @@
-{ ... }: {
+{ pkgs, ... }: {
   imports = [
     ./alacritty.nix
+    ./darkman.nix
     ./firefox.nix
     ./foot.nix
     ./fonts.nix
