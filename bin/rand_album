@@ -1,5 +1,0 @@
-#!/bin/sh
-
-mpc clear >/dev/null
-sh -c "$(beet random -a -f 'mpc findadd album "$album"')"
-mpc play
