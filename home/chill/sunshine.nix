@@ -6,4 +6,15 @@
       Install.WantedBy = [ "graphical-session.target" ];
     };
   };
+
+  xdg.configFile."sunshine/apps.json".text = ''
+    {
+      "apps": [
+        {
+          "name": "Desktop",
+          "image-path": "desktop.png"
+        }
+      ]
+    }
+  '';
 }
