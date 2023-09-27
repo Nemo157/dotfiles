@@ -15,6 +15,9 @@
 
   age.secrets.listenbrainz-token.file = ./listenbrainz-token.age;
 
+  services.mpd-mpris.enable = true;
+  services.mpris-proxy.enable = true;
+
   services.listenbrainz-mpd = {
     enable = true;
     settings = {
