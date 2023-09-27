@@ -8,6 +8,7 @@ in {
     extraConfig = {
       modi = "drun,window,run,emoji:rofimoji";
       show-icons = true;
+      run-command = "bash -c 'systemd-run --user --unit=app-rofi-\$(systemd-escape $(cmd=({cmd}); echo $cmd))-\$RANDOM {cmd}'";
       kb-element-next = "";
       kb-element-prev = "";
       kb-mode-next = "Shift+Right,Tab";
