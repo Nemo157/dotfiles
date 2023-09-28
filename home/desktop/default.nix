@@ -3,8 +3,9 @@
     ./alacritty.nix
     ./darkman.nix
     ./firefox.nix
-    ./foot.nix
     ./fonts.nix
+    ./foot.nix
+    ./hyprland.nix
     ./i3.nix
     ./mpv.nix
     ./sway.nix

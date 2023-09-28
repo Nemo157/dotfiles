@@ -18,12 +18,17 @@
       url = "github:nix-community/home-manager/release-23.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hyprland = {
+      url = "github:hyprwm/Hyprland/v0.25.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     agenix,
     home-manager,
+    hyprland,
     nixpkgs,
     nixpkgs-unstable,
     nixpkgs-wayland,
@@ -44,6 +49,7 @@
         modules = [
           ./home/nemo157.nix
           ./home/mithril.nix
+          hyprland.homeManagerModules.default
           agenix.homeManagerModules.default
         ];
       };
