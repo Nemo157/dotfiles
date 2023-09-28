@@ -2,6 +2,13 @@
 let
   sol = builtins.mapAttrs (name: value: "rgb(${value})") (import ../sol.nix).nohash;
 in {
+  scripts.wl-screenshot = {
+    runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard ];
+    text = ''
+      grim -g "$(slurp)" - | wl-copy
+    '';
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
     nvidiaPatches = true;
@@ -60,6 +67,7 @@ in {
       bind = $mod, P, pseudo,
       bind = $mod, J, togglesplit,
       bind = $mod SHIFT CTRL, E, exit,
+      bind = $mod SHIFT, S, exec, wl-screenshot
 
       bind = $mod, H, movefocus, l
       bind = $mod, L, movefocus, r
