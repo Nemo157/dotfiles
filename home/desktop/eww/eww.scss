@@ -28,6 +28,20 @@ tooltip {
   padding: 0.2rem 0.4rem;
 }
 
+progressbar > trough {
+  min-width: 1px;
+}
+
+progressbar {
+  border-radius: 10px;
+  background-color: $base01;
+}
+
+progress {
+  border-radius: 10px;
+  background-color: $green;
+}
+
 .bar {
   color: $base00;
   background-color: $base3;
@@ -48,6 +62,23 @@ tooltip {
 
 .music {
   color: $orange;
+  font-size: 0.8rem;
+
+  progress {
+    background-color: $orange;
+  }
+
+  .album {
+    font-weight: bold;
+  }
+
+  .albumart {
+    margin-bottom: 2px;
+  }
+
+  .queue, .time {
+    font-size: 0.8em;
+  }
 }
 
 .tray {
@@ -70,5 +101,8 @@ tooltip {
 }
 
 .clock {
+  color: $base01;
   background-color: $base2;
+  .secondary { color: $base0; }
+  .tertiary { color: $base1; }
 }

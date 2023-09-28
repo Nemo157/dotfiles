@@ -5,4 +5,6 @@
     ./mpd.nix
     ./scripts.nix
   ];
+
+  services.playerctld.enable = true;
 }
