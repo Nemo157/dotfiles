@@ -1,11 +1,11 @@
 { lib, config, pkgs, ... }: {
-  home.file.".local/bin/rand-album".source = pkgs.writeShellScript "rand-album" (
-    let
-      mpc = lib.getExe pkgs.mpc-cli;
-      beet = "${config.programs.beets.package}/bin/beet";
-    in ''
-      ${mpc} clear >/dev/null
-      sh -c "$(${beet} random -a -f '${mpc} findadd album "$album"')"
-      ${mpc} play
-    '');
+  scripts.rand-album = {
+    runtimeInputs = [ pkgs.mpc-cli config.programs.beets.package ];
+    text = ''
+      mpc clear >/dev/null
+      # shellcheck disable=SC2016
+      sh -c "$(beet random -a -f 'mpc findadd album "$album"')"
+      mpc play
+    '';
+  };
 }
