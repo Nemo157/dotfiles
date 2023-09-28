@@ -1,7 +1,9 @@
 { config, pkgs, ... }: {
   programs.lsd = {
     enable = true;
-    enableAliases = true;
+
+    # TODO: use this on update
+    # enableAliases = true;
 
     settings = {
       blocks = [
@@ -24,6 +26,15 @@
       indicators = true;
       total-size = true;
     };
+  };
+
+  programs.zsh.shellAliases = {
+    ls = "${pkgs.lsd}/bin/lsd";
+    ll = "${pkgs.lsd}/bin/lsd -l";
+    la = "${pkgs.lsd}/bin/lsd -A";
+    lt = "${pkgs.lsd}/bin/lsd --tree";
+    lla = "${pkgs.lsd}/bin/lsd -lA";
+    llt = "${pkgs.lsd}/bin/lsd -l --tree";
   };
 
   # TODO: use https://github.com/nix-community/home-manager/commit/835465e8ba2459034e4ab192b1c6db35d1c0d638
