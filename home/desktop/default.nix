@@ -8,6 +8,7 @@
     ./hyprland.nix
     ./i3.nix
     ./mpv.nix
+    ./portal.nix
     ./rofi.nix
     ./sway.nix
   ];
