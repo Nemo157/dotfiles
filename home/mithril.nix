@@ -9,10 +9,6 @@
 
   programs.home-manager.enable = true;
 
-  home.sessionPath = [
-    "${config.home.homeDirectory}/.local/bin"
-  ];
-
   home.packages = [
     pkgs.stc-cli
     pkgs.flatpak

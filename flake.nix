@@ -47,6 +47,7 @@
           inherit pkgs-unstable pkgs-wayland nur;
         };
         modules = [
+          ./home/scripts.nix
           ./home/nemo157.nix
           ./home/mithril.nix
           hyprland.homeManagerModules.default
