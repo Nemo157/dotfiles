@@ -12,4 +12,16 @@
     package = pkgs-unstable.eww-wayland;
     configDir = ./eww;
   };
+
+  xdg.dataFile."light-mode.d/eww-light.sh" = {
+    source = pkgs.writeShellScript "eww-light.sh" ''
+      ${pkgs-unstable.eww-wayland}/bin/eww update color-scheme=light
+    '';
+  };
+
+  xdg.dataFile."dark-mode.d/eww-dark.sh" = {
+    source = pkgs.writeShellScript "eww-dark.sh" ''
+      ${pkgs-unstable.eww-wayland}/bin/eww update color-scheme=dark
+    '';
+  };
 }

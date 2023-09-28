@@ -1,5 +1,6 @@
+(defvar color-scheme "light")
 (defwidget taskbar []
-  (box :class "bar" :orientation "v" :space-evenly false :vexpand true
+  (box :class "bar ${color-scheme}" :orientation "v" :space-evenly false :vexpand true
     (workspaces)
     (music)
     (tray)
@@ -104,9 +105,9 @@
     (box :orientation "h" :space-evenly false
       (label :text {formattime(EWW_TIME, "%Y")})
       (label :class "tertiary" :text "-")
-      (label :text {formattime(EWW_TIME, "%d")})
-      (label :class "tertiary" :text "-")
       (label :text {formattime(EWW_TIME, "%m")})
+      (label :class "tertiary" :text "-")
+      (label :text {formattime(EWW_TIME, "%d")})
     )
     (box :orientation "h" :space-evenly false
       (label :text {formattime(EWW_TIME, "%H")})

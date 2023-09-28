@@ -21,10 +21,99 @@ $green:     #859900;
 }
 
 tooltip {
-  background-color: $base2;
+  background-color: $base02;
+  color: $base0;
+  border-color: $base0;
+}
+
+.bar.light {
   color: $base00;
+  background-color: $base3;
+
+  progressbar {
+    background-color: $base01;
+  }
+
+  .music {
+    &.paused {
+      color: $base00;
+      progress {
+        background-color: $base00;
+      }
+      .pause-button {
+        color: $base00;
+      }
+    }
+
+    .play-button, .pause-button {
+      color: $base03;
+      background-color: $base3;
+    }
+  }
+
+  .tray, .pies {
+    background-color: $base2;
+  }
+
+  .pie {
+    background-color: $base3;
+    .icon { color: $base3; }
+  }
+
+  .clock {
+    color: $base01;
+    background-color: $base2;
+    .secondary { color: $base0; }
+    .tertiary { color: $base1; }
+  }
+}
+
+.bar.dark {
+  color: $base0;
+  background-color: $base03;
+
+  progressbar {
+    background-color: $base1;
+  }
+
+  .music {
+    &.paused {
+      color: $base0;
+      progress {
+        background-color: $base0;
+      }
+      .pause-button {
+        color: $base0;
+      }
+    }
+
+    .play-button, .pause-button {
+      color: $base3;
+      background-color: $base03;
+    }
+  }
+
+  .tray, .pies {
+    background-color: $base02;
+  }
+
+  .pie {
+    background-color: $base03;
+    .icon { color: $base03; }
+  }
+
+  .clock {
+    color: $base1;
+    background-color: $base02;
+    .secondary { color: $base00; }
+    .tertiary { color: $base01; }
+  }
+}
+
+tooltip {
   border-radius: 5px;
-  border: 2px $base00 solid;
+  border-style: solid;
+  border-width: 2px;
   padding: 0.2rem 0.4rem;
 }
 
@@ -34,7 +123,6 @@ progressbar > trough {
 
 progressbar {
   border-radius: 10px;
-  background-color: $base01;
 }
 
 progress {
@@ -43,8 +131,6 @@ progress {
 }
 
 .bar {
-  color: $base00;
-  background-color: $base3;
   > * {
     padding: 0.2rem 0.4rem;
   }
@@ -75,13 +161,7 @@ progress {
   }
 
   &.paused {
-    color: $base00;
-    progress {
-      background-color: $base00;
-    }
-
     .pause-button {
-      color: $base00;
       opacity: 0.5;
     }
     :hover .pause-button {
@@ -100,9 +180,7 @@ progress {
 
   .play-button, .pause-button {
     opacity: 0;
-    color: $base03;
     font-size: 1.5rem;
-    background-color: $base3;
   }
 
   .album {
@@ -120,26 +198,12 @@ progress {
 
 .tray {
   color: $green;
-  background-color: $base2;
-}
-
-.pies {
-  background-color: $base2;
 }
 
 .pie {
-  background-color: $base3;
-
   &.mem { color: $yellow; }
   &.cpu { color: $cyan; }
   &.disk { color: $green; }
 
-  .icon { color: $base3; font-size: 2.5rem; }
-}
-
-.clock {
-  color: $base01;
-  background-color: $base2;
-  .secondary { color: $base0; }
-  .tertiary { color: $base1; }
+  .icon { font-size: 2.5rem; }
 }
