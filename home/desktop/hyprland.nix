@@ -19,6 +19,9 @@ in {
 
       monitor = ,highres,auto,1
 
+      exec-once = eww daemon
+      exec-once = eww open taskbar
+
       input {
         kb_layout = us
         kb_variant = dvp
