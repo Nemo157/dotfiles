@@ -81,8 +81,8 @@ in {
       bind = $mod SHIFT, braceleft, movetoworkspacesilent, 3
       bind = $mod SHIFT, braceright, movetoworkspacesilent, 4
 
-      bind = $mod, tab, workspace, +1
-      bind = $mod SHIFT, tab, workspace, -1
+      bind = $mod, tab, workspace, e+1
+      bind = $mod SHIFT, tab, workspace, e-1
 
       windowrule = noborder, Conky
       windowrule = float, Conky
