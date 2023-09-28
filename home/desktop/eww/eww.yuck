@@ -17,20 +17,37 @@
   )
 )
 
-(defpoll music :initial "{}" :interval "1s" `music-status`)
+(defpoll music :initial '{"queue":{"state":"stopped","position":0,"length":0}}' :interval "1s" `music-status`)
+
+(defwidget dynamic-label [class text]
+  (label
+    :class {class}
+    :text {text}
+    :visible {text != "null"}
+    :wrap true
+    :justify "center")
+)
 
 (defwidget music []
-  (box :orientation "v" :class "music" :space-evenly false :visible {music != "{}"}
-    (label :class "album" :text {music?.album})
-    (label :class "artist" :text {music?.artist})
-    (image :class "albumart" :image-width 89 :path {music?.albumart ?: ""})
-    (label :class "title" :text {music?.title} :wrap true)
-    (label :class "queue" :text "${music?.queue?.position} of ${music?.queue?.length}")
-    (progress :class "progress" :value {music?.time?.percent ?: 0})
-    (box :orientation "h" :class "time" :space-evenly false
-      (label :text "${music?.time?.current}")
-      (box :hexpand true)
-      (label :text "-${music?.time?.remaining}")
+  (box :orientation "v" :class 'music ${music.queue.state}' :space-evenly false
+    (dynamic-label :class "album" :text {music?.current?.album})
+    (dynamic-label :class "artist" :text {music?.current?.artist})
+    (eventbox :onclick "mpc toggle" :cursor {music.queue.state == "stopped" ?  "default" : "pointer"}
+      (overlay
+        (image :class "albumart" :image-width 89 :path {music?.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
+        (label :class "play-button" :text "")
+        (label :class "pause-button" :text "")
+      )
+    )
+    (dynamic-label :class "title" :text {music?.current?.title})
+    (box :orientation "v" :space-evenly false :visible {music.queue.position != 0}
+      (label :class "queue" :text "${music.queue.position} of ${music.queue.length}")
+      (progress :class "progress" :value {music?.time?.percent ?: 0})
+      (box :orientation "h" :class "time" :space-evenly false
+        (label :text "${music?.time?.current}")
+        (box :hexpand true)
+        (label :text "-${music?.time?.remaining}")
+      )
     )
   )
 )
