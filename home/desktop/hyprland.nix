@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 let
-  sol = (import ../sol.nix);
+  sol = builtins.mapAttrs (name: value: "rgb(${value})") (import ../sol.nix).nohash;
 in {
   wayland.windowManager.hyprland = {
     enable = true;
@@ -33,8 +33,8 @@ in {
         gaps_out = 0
         border_size = 1
         resize_on_border = true
-        col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-        col.inactive_border = rgba(595959aa)
+        col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
+        col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
         layout = dwindle;
       }
 
@@ -87,6 +87,20 @@ in {
       windowrule = noborder, Conky
       windowrule = float, Conky
       windowrule = pin, Conky
+    '';
+  };
+
+  xdg.dataFile."light-mode.d/hyprland-light.sh" = {
+    source = pkgs.writeShellScript "hyprland-light.sh" ''
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg'
+    '';
+  };
+
+  xdg.dataFile."dark-mode.d/hyprland-dark.sh" = {
+    source = pkgs.writeShellScript "hyprland-dark.sh" ''
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.magenta} ${sol.blue} ${sol.cyan} ${sol.green} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base03} ${sol.base02} ${sol.base01} ${sol.base00} 45deg'
     '';
   };
 }
