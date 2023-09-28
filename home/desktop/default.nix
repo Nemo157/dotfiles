@@ -2,6 +2,7 @@
   imports = [
     ./alacritty.nix
     ./darkman.nix
+    ./eww.nix
     ./firefox.nix
     ./fonts.nix
     ./foot.nix

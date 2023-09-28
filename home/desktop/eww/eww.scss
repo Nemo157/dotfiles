@@ -1,0 +1,74 @@
+$base03:    #002b36;
+$base02:    #073642;
+$base01:    #586e75;
+$base00:    #657b83;
+$base0:     #839496;
+$base1:     #93a1a1;
+$base2:     #eee8d5;
+$base3:     #fdf6e3;
+$yellow:    #b58900;
+$orange:    #cb4b16;
+$red:       #dc322f;
+$magenta:   #d33682;
+$violet:    #6c71c4;
+$blue:      #268bd2;
+$cyan:      #2aa198;
+$green:     #859900;
+
+* {
+  all: unset;
+  font-family: "FiraCode Nerd Font"
+}
+
+tooltip {
+  background-color: $base2;
+  color: $base00;
+  border-radius: 5px;
+  border: 2px $base00 solid;
+  padding: 0.2rem 0.4rem;
+}
+
+.bar {
+  color: $base00;
+  background-color: $base3;
+  > * {
+    padding: 0.2rem 0.4rem;
+  }
+  > *:first-child {
+    padding-top: 0.4rem;
+  }
+  > *:last-child {
+    padding-top: 0.4rem;
+  }
+}
+
+.workspaces {
+  color: $cyan;
+}
+
+.music {
+  color: $orange;
+}
+
+.tray {
+  color: $green;
+  background-color: $base2;
+}
+
+.pies {
+  background-color: $base2;
+}
+
+.pie {
+  background-color: $base3;
+
+  &.mem { color: $yellow; }
+  &.cpu { color: $cyan; }
+  &.disk { color: $green; }
+
+  .icon { color: $base3; font-size: 2.5rem; }
+}
+
+.clock {
+  background-color: $base2;
+}

@@ -1,0 +1,82 @@
+(defwidget taskbar []
+  (box :class "bar" :orientation "v" :space-evenly false :vexpand true
+    (workspaces)
+    (music)
+    (tray)
+    (pies)
+    (time)
+  )
+)
+
+(defwidget workspaces []
+  (box :orientation "v" :class "workspaces" :vexpand true :space-evenly false
+    (box :vexpand true)
+    (label :text "TODO:")
+    (label :text "workspaces")
+    (box :vexpand true)
+  )
+)
+
+(defwidget music []
+  (box :orientation "v" :class "music"
+    (label :text "TODO:")
+    (label :text "music")
+  )
+)
+
+(defwidget tray []
+  (box :orientation "v" :class "tray"
+    (label :text "TODO:")
+    (label :text "tray")
+  )
+)
+
+(defvar GiB {1024 * 1024 * 1024})
+
+(defwidget pie [value class tooltip]
+  (circular-progress
+      :tooltip {tooltip}
+      :value {value}
+      :class "pie ${class}"
+      :thickness 4
+      :start-at 75
+    (label :class "icon" :text "")
+  )
+)
+
+(defwidget data-pie [class used total]
+  (pie :class {class}
+    :value {used * 100 / total}
+    :tooltip "${round(used / GiB, 1)} / ${round(total / GiB, 1)} GiB" 
+  )
+)
+
+(defwidget pies []
+  (box :orientation "h" :class "pies" :halign "fill"
+    (data-pie :class "mem"
+      :used {EWW_RAM.used_mem}
+      :total {EWW_RAM.total_mem}
+    )
+    (pie :class "cpu"
+      :value {EWW_CPU.avg}
+      :tooltip "${round(EWW_CPU.avg, 2)}"
+    )
+    (data-pie :class "disk"
+      :used {EWW_DISK["/home"].used}
+      :total {EWW_DISK["/home"].total}
+    )
+  )
+)
+
+(defwidget time []
+  (box :orientation "v" :class "clock"
+    (label :text {formattime(EWW_TIME, "Y%Y %d %m")})
+    (label :text {formattime(EWW_TIME, "%H %M %z")})
+  )
+)
+
+(defwindow taskbar
+  :monitor 0
+  :exclusive true 
+  :geometry (geometry :height "100%" :anchor "center left")
+  (taskbar))
