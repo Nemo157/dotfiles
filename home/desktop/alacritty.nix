@@ -56,7 +56,7 @@ in {
     enable = true;
 
     settings = {
-      window.padding = { x = 0; y = 0; };
+      window.padding = { x = 5; y = 0; };
 
       scrolling.history = 0;
 
