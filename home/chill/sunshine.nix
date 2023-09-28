@@ -9,6 +9,9 @@
 
   xdg.configFile."sunshine/apps.json".text = ''
     {
+      "env": {
+        "PATH": "$(PATH)"
+      },
       "apps": [
         {
           "name": "Desktop",
