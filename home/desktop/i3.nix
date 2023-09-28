@@ -3,22 +3,6 @@ let
   mod = config.xsession.windowManager.i3.config.modifier;
   sol = (import ../sol.nix);
 in {
-  programs.rofi = {
-    enable = true;
-    extraConfig = {
-      modi = "drun,window,run,emoji:rofimoji";
-      show-icons = true;
-      run-command = "bash -c 'systemd-run --user --unit=app-rofi-\$(systemd-escape $(cmd=({cmd}); echo $cmd))-\$RANDOM {cmd}'";
-      kb-element-next = "";
-      kb-element-prev = "";
-      kb-mode-next = "Shift+Right,Tab";
-      kb-mode-previous = "Shift+Left";
-      kb-row-up = "Up,Control+p";
-      kb-row-tab = "";
-    };
-  };
-  home.packages = [ pkgs.rofimoji ];
-
   xsession.enable = true;
   xsession.windowManager.i3 = {
     enable = true;
