@@ -42,7 +42,11 @@ in {
         resize_on_border = true
         col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
         col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
-        layout = dwindle;
+        layout = dwindle
+      }
+
+      misc {
+        no_direct_scanout = false
       }
 
       animations {
