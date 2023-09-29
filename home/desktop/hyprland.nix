@@ -66,6 +66,10 @@ in {
       bind = $mod, SPACE, exec, rofi -show drun
       bind = $mod, P, pseudo,
       bind = $mod, J, togglesplit,
+      bind = $mod, W, killactive,
+      bind = $mod, F, fullscreen, 1
+      bind = $mod CTRL, F, togglefloating,
+      bind = $mod SHIFT, F, fullscreen, 0
       bind = $mod SHIFT CTRL, E, exit,
       bind = $mod SHIFT, S, exec, wl-screenshot
 
