@@ -6,8 +6,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "ralismark";
           repo = "eww";
-          rev = "2bfd3af0c0672448856d4bd778042a2ec28a7ca7";
-          hash = "sha256-t62kQiRhzTL5YO6p0+dsfLdQoK6ONjN47VKTl9axWl4=";
+          rev = "485dd6263df6123d41d04886a53715b037cf7aaf";
+          hash = "sha256-+iu16EVM5dcR5F83EEFjCXVZv1jwPgJq/EqG6M78sAw=";
         };
         cargoDeps = prev.cargoDeps.overrideAttrs (lib.const {
           name = "eww-${version}-vendor.tar.gz";
