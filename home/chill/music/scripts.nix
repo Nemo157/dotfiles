@@ -1,10 +1,11 @@
 { lib, config, pkgs, ... }: {
   scripts.rand-album = {
-    runtimeInputs = [ pkgs.mpc-cli config.programs.beets.package ];
+    runtimeInputs = [ pkgs.mpc-cli ];
     text = ''
       mpc clear >/dev/null
-      # shellcheck disable=SC2016
-      sh -c "$(beet random -a -f 'mpc findadd album "$album"')"
+      artist="$(mpc ls | shuf -n1)"
+      album="$(mpc ls "$artist" | shuf -n1)"
+      mpc add "$album"
       mpc play
     '';
   };
