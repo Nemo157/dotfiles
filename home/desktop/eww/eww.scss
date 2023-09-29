@@ -30,8 +30,12 @@ tooltip {
   color: $base00;
   background-color: $base3;
 
+  progress {
+    background-color: $base00;
+  }
   progressbar {
-    background-color: $base01;
+    background-color: $base2;
+    border-color: $base00;
   }
 
   .workspaces {
@@ -50,12 +54,12 @@ tooltip {
 
   .music {
     &.paused {
-      color: $base00;
+      color: $base1;
       progress {
-        background-color: $base00;
+        background-color: $base1;
       }
-      .pause-button {
-        color: $base00;
+      progressbar {
+        border-color: $base1;
       }
     }
 
@@ -103,8 +107,12 @@ tooltip {
   color: $base0;
   background-color: $base03;
 
+  progress {
+    background-color: $base0;
+  }
   progressbar {
-    background-color: $base1;
+    background-color: $base02;
+    border-color: $base0;
   }
 
   .workspaces {
@@ -123,12 +131,12 @@ tooltip {
 
   .music {
     &.paused {
-      color: $base0;
+      color: $base01;
       progress {
-        background-color: $base0;
+        background-color: $base01;
       }
-      .pause-button {
-        color: $base0;
+      progressbar {
+        border-color: $base01;
       }
     }
 
@@ -184,6 +192,7 @@ progressbar > trough {
 
 progressbar {
   border-radius: 10px;
+  border: 1px dotted;
 }
 
 progress {
@@ -232,11 +241,6 @@ progress {
 
 .music {
   font-size: 0.8rem;
-
-  color: $orange;
-  progress {
-    background-color: $orange;
-  }
 
   &.playing {
     :hover .pause-button {
