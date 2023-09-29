@@ -46,4 +46,55 @@
       ${pkgs-unstable.eww-wayland}/bin/eww update color-scheme=dark
     '';
   };
+
+
+  scripts."eww-hypr-workspaces" = {
+    runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq ];
+    text = ''
+      spaces() {
+        AWS=$(hyprctl activeworkspace -j | jq '.id')
+        AWI=$(hyprctl activewindow -j | jq -r '.address')
+        export AWS AWI
+        {
+          echo '[
+            {"workspace":{"id":1,"name":"einz"}},
+            {"workspace":{"id":2,"name":"zwei"}},
+            {"workspace":{"id":3,"name":"drei"}},
+            {"workspace":{"id":4,"name":"vier"}}
+          ]'
+          hyprctl clients -j
+        } | jq -sMc '
+              [
+                flatten
+                | group_by(.workspace.id)
+                | .[]
+                | .[0].workspace + {
+                    windows: [
+                      .[]
+                      | select(.address)
+                      | {
+                        class,
+                        title,
+                        active: (.address == env.AWI),
+                      }
+                    ]
+                  }
+                | . + {
+                    active: (.id | tostring == env.AWS),
+                  }
+              ]
+            '
+      }
+
+      spaces
+      SOCKET="UNIX-CONNECT:/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+      socat -u "$SOCKET" - | while read -r; do
+        spaces
+        # Some events like closing windows fire before everything is updated,
+        # check again after a little while :ferrisPensive:
+        sleep 0.1
+        spaces
+      done
+    '';
+  };
 }

@@ -1,7 +1,32 @@
+(defwidget v-box [?class ?halign ?space-evenly ?vexpand ?visible]
+  (box
+    :class {class}
+    :halign {halign ?: "fill"}
+    :orientation "v"
+    :space-evenly {space-evenly ?: false}
+    :vexpand {vexpand ?: false}
+    :visible {visible ?: true}
+    (children)
+  )
+)
+
+(defwidget h-box [?class ?halign ?space-evenly ?vexpand ?visible]
+  (box
+    :class {class}
+    :halign {halign ?: "fill"}
+    :orientation "h"
+    :space-evenly {space-evenly ?: false}
+    :vexpand {vexpand ?: false}
+    :visible {visible ?: true}
+    (children)
+  )
+)
+
 (defvar color-scheme "light")
 (defwidget taskbar []
-  (box :class "bar ${color-scheme}" :orientation "v" :space-evenly false :vexpand true
+  (v-box :class "bar ${color-scheme}" :vexpand true
     (workspaces)
+    (box :vexpand true)
     (music)
     (tray)
     (pies)
@@ -9,14 +34,25 @@
   )
 )
 
+(deflisten workspaces :initial "[]" "eww-hypr-workspaces")
 (defwidget workspaces []
-  (box :orientation "v" :class "workspaces" :vexpand true :space-evenly false
-    (box :vexpand true)
-    (label :text "TODO:")
-    (label :text "workspaces")
-    (box :vexpand true)
+  (box :orientation "v" :class "workspaces" :space-evenly false
+    (for workspace in workspaces
+      (eventbox :onclick "hyprctl dispatch workspace ${workspace.id}"
+        (box :orientation "v" :class "workspace ${workspace.active ? "active" : ""}" :space-evenly false
+          (label :class "name" :text "${workspace.name}")
+          (for window in {workspace.windows}
+            (v-box :class "window ${window.active ? "active" : ""}"
+              (label :class "class" :text "${window.class}")
+              (dynamic-label :class "title" :text "${window.title}")
+            )
+          )
+        )
+      )
+    )
   )
 )
+
 
 (defpoll music :initial '{"queue":{"state":"stopped","position":0,"length":0}}' :interval "1s" `music-status`)
 
@@ -26,11 +62,12 @@
     :text {text}
     :visible {text != "null"}
     :wrap true
+    :limit-width 50
     :justify "center")
 )
 
 (defwidget music []
-  (box :orientation "v" :class 'music ${music.queue.state}' :space-evenly false
+  (v-box :class 'music ${music.queue.state}'
     (dynamic-label :class "album" :text {music?.current?.album})
     (dynamic-label :class "artist" :text {music?.current?.artist})
     (eventbox :onclick "mpc toggle" :cursor {music.queue.state == "stopped" ?  "default" : "pointer"}
@@ -41,10 +78,10 @@
       )
     )
     (dynamic-label :class "title" :text {music?.current?.title})
-    (box :orientation "v" :space-evenly false :visible {music.queue.position != 0}
+    (v-box :visible {music.queue.position != 0}
       (label :class "queue" :text "${music.queue.position} of ${music.queue.length}")
       (progress :class "progress" :value {music?.time?.percent ?: 0})
-      (box :orientation "h" :class "time" :space-evenly false
+      (h-box :class "time"
         (label :text "${music?.time?.current}")
         (box :hexpand true)
         (label :text "-${music?.time?.remaining}")
@@ -54,7 +91,7 @@
 )
 
 (defwidget tray []
-  (box :orientation "v" :class "tray"
+  (v-box :class "tray"
     (systray :pack_direction "ltr" :halign "center")
   )
 )
@@ -83,7 +120,7 @@
 )
 
 (defwidget pies []
-  (box :orientation "h" :class "pies" :halign "fill"
+  (h-box :class "pies" :halign "fill" :space-evenly true
     (data-pie :class "mem" :icon "M"
       :used {EWW_RAM.used_mem}
       :total {EWW_RAM.total_mem}
@@ -100,15 +137,15 @@
 )
 
 (defwidget time []
-  (box :orientation "v" :class "clock"
-    (box :orientation "h" :space-evenly false
+  (v-box :class "clock"
+    (h-box
       (label :text {formattime(EWW_TIME, "%Y")})
       (label :class "tertiary" :text "-")
       (label :text {formattime(EWW_TIME, "%m")})
       (label :class "tertiary" :text "-")
       (label :text {formattime(EWW_TIME, "%d")})
     )
-    (box :orientation "h" :space-evenly false
+    (h-box
       (label :text {formattime(EWW_TIME, "%H")})
       (label :class "tertiary" :markup {EWW_TIME % 2 == 1 ? ":" : " "})
       (label :text {formattime(EWW_TIME, "%M")})

@@ -34,6 +34,20 @@ tooltip {
     background-color: $base01;
   }
 
+  .workspaces {
+    .workspace, .window {
+      color: $base1;
+      background-color: $base3;
+      border-color: $base1;
+
+      &.active {
+        color: $base01;
+        background-color: $base2;
+        border-color: $base01;
+      }
+    }
+  }
+
   .music {
     &.paused {
       color: $base00;
@@ -93,6 +107,20 @@ tooltip {
     background-color: $base1;
   }
 
+  .workspaces {
+    .workspace, .window {
+      color: $base01;
+      background-color: $base03;
+      border-color: $base01;
+
+      &.active {
+        color: $base1;
+        background-color: $base02;
+        border-color: $base1;
+      }
+    }
+  }
+
   .music {
     &.paused {
       color: $base0;
@@ -146,8 +174,7 @@ tooltip {
 
 tooltip {
   border-radius: 5px;
-  border-style: solid;
-  border-width: 2px;
+  border: 2px solid;
   padding: 0.2rem 0.4rem;
 }
 
@@ -177,7 +204,30 @@ progress {
 }
 
 .workspaces {
-  color: $cyan;
+  .workspace {
+    border: 1px solid;
+    margin-bottom: 0.2rem;
+
+    .name {
+      padding: 0.4rem 0.2rem;
+      font-weight: bold;
+      font-variant: small-caps;
+      font-size: 1.2rem;
+    }
+
+    .window {
+      border-top: 1px solid;
+      padding: 0.4rem 0.2rem;
+
+      .class {
+        font-weight: bold;
+      }
+
+      .title {
+        font-size: 0.8rem;
+      }
+    }
+  }
 }
 
 .music {
@@ -232,8 +282,7 @@ progress {
 
 .tray {
   window {
-    border-width: 2px;
-    border-style: solid;
+    border: 2px solid;
     border-radius: 5px;
   }
   menu {
@@ -242,8 +291,7 @@ progress {
   menuitem {
     padding: 0.2rem;
     arrow {
-      border-width: 3px;
-      border-style: solid;
+      border: 3px solid;
       border-radius: 5px;
     }
   }
