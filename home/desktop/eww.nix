@@ -1,4 +1,26 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
+  nixpkgs.overlays = [
+    (final: prev: {
+      eww-wayland = pkgs-unstable.eww-wayland.overrideAttrs (final: prev: rec {
+        version = "tray-3-dynamic-icons";
+        src = pkgs.fetchFromGitHub {
+          owner = "ralismark";
+          repo = "eww";
+          rev = "2bfd3af0c0672448856d4bd778042a2ec28a7ca7";
+          hash = "sha256-t62kQiRhzTL5YO6p0+dsfLdQoK6ONjN47VKTl9axWl4=";
+        };
+        cargoDeps = prev.cargoDeps.overrideAttrs (lib.const {
+          name = "eww-${version}-vendor.tar.gz";
+          inherit src;
+          outputHash = "sha256-fUTNlAvhfgqrro+4uKyTwQPtoru9AnBHmy0XcOMUfOI=";
+        });
+        buildInputs = prev.buildInputs ++ [
+          pkgs.libdbusmenu-gtk3
+        ];
+      });
+    })
+  ];
+
   xdg.dataFile."eww/no-album.png" = {
     source = pkgs.requireFile {
       name = "Generic-icon.png";
@@ -9,7 +31,7 @@
 
   programs.eww = {
     enable = true;
-    package = pkgs-unstable.eww-wayland;
+    package = pkgs.eww-wayland;
     configDir = ./eww;
   };
 

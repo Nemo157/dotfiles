@@ -55,8 +55,7 @@
 
 (defwidget tray []
   (box :orientation "v" :class "tray"
-    (label :text "TODO:")
-    (label :text "tray")
+    (systray :pack_direction "ltr" :halign "center")
   )
 )
 

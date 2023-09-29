@@ -51,7 +51,24 @@ tooltip {
     }
   }
 
-  .tray, .pies {
+  .tray {
+    background-color: $base2;
+    window {
+      color: $base00;
+      border-color: $base1;
+      background-color: $base3;
+    }
+    menuitem {
+      &:hover {
+        color: $yellow;
+      }
+      arrow {
+        border-color: $base01;
+      }
+    }
+  }
+
+  .pies {
     background-color: $base2;
   }
 
@@ -93,7 +110,24 @@ tooltip {
     }
   }
 
-  .tray, .pies {
+  .tray {
+    background-color: $base02;
+    window {
+      color: $base0;
+      border-color: $base01;
+      background-color: $base03;
+    }
+    menuitem {
+      &:hover {
+        color: $yellow;
+      }
+      arrow {
+        border-color: $base1;
+      }
+    }
+  }
+
+  .pies {
     background-color: $base02;
   }
 
@@ -197,7 +231,25 @@ progress {
 }
 
 .tray {
-  color: $green;
+  window {
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+  }
+  menu {
+    padding: 0.8rem 0.6rem;
+  }
+  menuitem {
+    padding: 0.2rem;
+    arrow {
+      border-width: 3px;
+      border-style: solid;
+      border-radius: 5px;
+    }
+  }
+  menuitem > box > label:first-child {
+    margin-left: 20px;
+  }
 }
 
 .pie {
