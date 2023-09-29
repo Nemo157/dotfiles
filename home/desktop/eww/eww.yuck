@@ -1,7 +1,8 @@
-(defwidget v-box [?class ?halign ?space-evenly ?vexpand ?visible]
+(defwidget v-box [?class ?halign ?space-evenly ?valign ?vexpand ?visible]
   (box
     :class {class}
     :halign {halign ?: "fill"}
+    :valign {valign ?: "fill"}
     :orientation "v"
     :space-evenly {space-evenly ?: false}
     :vexpand {vexpand ?: false}
@@ -10,10 +11,11 @@
   )
 )
 
-(defwidget h-box [?class ?halign ?space-evenly ?vexpand ?visible]
+(defwidget h-box [?class ?halign ?space-evenly ?valign ?vexpand ?visible]
   (box
     :class {class}
     :halign {halign ?: "fill"}
+    :valign {valign ?: "fill"}
     :orientation "h"
     :space-evenly {space-evenly ?: false}
     :vexpand {vexpand ?: false}
@@ -54,7 +56,9 @@
 )
 
 
-(defpoll music :initial '{"queue":{"state":"stopped","position":0,"length":0}}' :interval "1s" `music-status`)
+(deflisten music-queue :initial '{"position":0,"length":0}' "eww-music-queue")
+(deflisten music-status :initial '{"state":"stopped","position":0}' "eww-music-status")
+(deflisten music-metadata :initial '{"artist":"","album":"","title":"","duration":1}' "eww-music-metadata")
 
 (defwidget dynamic-label [class text]
   (label
@@ -66,25 +70,38 @@
     :justify "center")
 )
 
+(defwidget duration [?prefix value]
+    (label :text "${prefix}${round(value / 60, 0)}:${strlength(round(value % 60, 0)) < 2 ? "0" : ""}${round(value % 60, 0)}")
+)
+
 (defwidget music []
-  (v-box :class 'music ${music.queue.state}'
-    (dynamic-label :class "album" :text {music?.current?.album})
-    (dynamic-label :class "artist" :text {music?.current?.artist})
-    (eventbox :onclick "mpc toggle" :cursor {music.queue.state == "stopped" ?  "default" : "pointer"}
-      (overlay
-        (image :class "albumart" :image-width 89 :path {music?.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
-        (label :class "play-button" :text "")
-        (label :class "pause-button" :text "")
+  (v-box
+    (v-box :class 'music ${music-status.state}'
+      (dynamic-label :class "album" :text {music-metadata.album})
+      (dynamic-label :class "artist" :text {music-metadata.artist})
+      (eventbox :onclick "mpc toggle" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
+        (overlay
+          (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
+          (label :class "play-button" :text "")
+          (label :class "pause-button" :text "")
+        )
       )
-    )
-    (dynamic-label :class "title" :text {music?.current?.title})
-    (v-box :visible {music.queue.position != 0}
-      (label :class "queue" :text "${music.queue.position} of ${music.queue.length}")
-      (progress :class "progress" :value {music?.time?.percent ?: 0})
-      (h-box :class "time"
-        (label :text "${music?.time?.current}")
-        (box :hexpand true)
-        (label :text "-${music?.time?.remaining}")
+      (dynamic-label :class "title" :text {music-metadata.title})
+      (v-box :visible {music-queue.position != 0}
+        (label :class "queue" :text "${music-queue.position} of ${music-queue.length}")
+        (progress :class "progress" :value {music-status.position / music-metadata.duration * 100})
+        (h-box :class "time"
+          (duration :value {music-status.position})
+          (box :hexpand true)
+          (duration :prefix "-" :value {music-metadata.duration - music-status.position})
+        )
+      )
+      (eventbox :class "new-album" :onclick "rand-album" :cursor "pointer"
+        (centerbox
+          (label :text "󰀥")
+          (label :text "󰒟")
+          (label :text "󰀥")
+        )
       )
     )
   )
@@ -92,7 +109,7 @@
 
 (defwidget tray []
   (v-box :class "tray"
-    (systray :pack_direction "ltr" :halign "center")
+    (systray :pack-direction "ltr" :halign "center")
   )
 )
 

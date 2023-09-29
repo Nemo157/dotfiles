@@ -97,4 +97,64 @@
       done
     '';
   };
+
+  scripts.eww-music-queue = {
+    runtimeInputs = [ pkgs.mpc-cli pkgs.jq pkgs.playerctl ];
+    text = ''
+      playerctl -p mpd metadata -f '{{xesam:title}}}' -F | while read -r; do
+        {
+          mpc status '%songpos%\f%length%' | jq -R '
+            . / "\f"
+              | (.[0] | tonumber) as $position
+              | (.[1] | tonumber) as $length
+              | {
+                position: $position,
+                length: $length,
+              }
+          ' || true
+        } | jq -sMc 'map(to_entries) | flatten | from_entries'
+      done
+    '';
+  };
+
+  scripts.eww-music-status = {
+    runtimeInputs = [ pkgs.jq pkgs.playerctl ];
+    text = ''
+      format='{{status}}{{position}}'
+      script='
+        . / ""
+        | {
+            state: (.[0] | ascii_downcase),
+            position: (.[1] | tonumber / 1000000),
+          }
+      '
+      # I have no idea why this can't just be
+      #   playerctl -p mpd metadata -f "$format" -F | jq -RMc "$script"
+      # but for some reason that never updates when running under eww
+      # (it works fine when running the script from the shell directly)
+      playerctl -p mpd metadata -f "$format" -F | while read -r; do
+        playerctl -p mpd metadata -f "$format" | jq -RMc "$script"
+      done
+    '';
+  };
+
+  scripts.eww-music-metadata = {
+    runtimeInputs = [ pkgs.jq pkgs.playerctl ];
+    text = ''
+      format='{{xesam:albumArtist}}{{xesam:album}}{{xesam:title}}{{mpris:length}}{{mpris:artUrl}}'
+      script='
+        . / ""
+        | {
+            artist: .[0],
+            album: .[1],
+            title: .[2],
+            duration: (.[3] | tonumber / 1000000),
+            albumart: (.[4] | sub("file://"; ""))
+          }
+      '
+      playerctl -p mpd metadata -f "$format" -F | while read -r; do
+        playerctl -p mpd metadata -f "$format" | jq -RMc "$script"
+      done
+    '';
+  };
 }

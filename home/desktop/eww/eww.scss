@@ -69,6 +69,16 @@ tooltip {
     }
   }
 
+  .new-album {
+    color: $base00;
+    background-color: $base2;
+    border-color: $base00;
+    &:hover {
+      color: $base01;
+      border-color: $base01;
+    }
+  }
+
   .tray {
     background-color: $base2;
     window {
@@ -281,6 +291,15 @@ progress {
 
   .queue, .time {
     font-size: 0.8em;
+  }
+}
+
+.new-album {
+  font-size: 0.8rem;
+  border: 1px dotted;
+  border-radius: 2px;
+  &:hover {
+    border-style: solid;
   }
 }
 
