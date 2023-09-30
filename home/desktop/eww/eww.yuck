@@ -136,7 +136,7 @@
       :thickness 4
       :start-at 75
     (overlay
-      (label :class "icon" :text "")
+      (label :class "pie-overlay" :text "")
       (label :text {icon})
     )
   )

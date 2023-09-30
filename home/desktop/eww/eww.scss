@@ -102,7 +102,12 @@ tooltip {
 
   .pie {
     background-color: $base3;
-    .icon { color: $base3; }
+
+    &.mem { color: $yellow; }
+    &.cpu { color: $cyan; }
+    &.disk { color: $green; }
+
+    .pie-overlay { color: $base3; }
   }
 
   .clock {
@@ -179,7 +184,12 @@ tooltip {
 
   .pie {
     background-color: $base03;
-    .icon { color: $base03; }
+
+    &.mem { color: $yellow; }
+    &.cpu { color: $cyan; }
+    &.disk { color: $green; }
+
+    .pie-overlay { color: $base03; }
   }
 
   .clock {
@@ -324,9 +334,5 @@ progress {
 }
 
 .pie {
-  &.mem { color: $yellow; }
-  &.cpu { color: $cyan; }
-  &.disk { color: $green; }
-
-  .icon { font-size: 2.5rem; }
+  .pie-overlay { font-size: 2.5rem; }
 }
