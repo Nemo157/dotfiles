@@ -5,13 +5,10 @@
     ./eww.nix
     ./firefox.nix
     ./fonts.nix
-    ./foot.nix
     ./hyprland.nix
-    ./i3.nix
     ./mpv.nix
     ./portal.nix
     ./rofi.nix
-    ./sway.nix
   ];
 
   home.keyboard = {
