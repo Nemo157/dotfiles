@@ -19,7 +19,9 @@
           "${pkgs.eww-wayland}/bin"
           # eww tries to invoke things via sh
           "${pkgs.bash}/bin"
-          # access to my scripts
+          # scripts and tools used in event handlers
+          "${pkgs.playerctl}/bin"
+          "${pkgs.hyprland}/bin"
           config.binHome
         ];
         ExecStart = "eww daemon --no-daemonize";

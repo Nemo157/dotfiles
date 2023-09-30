@@ -92,7 +92,7 @@
     (v-box :class 'music ${music-status.state}'
       (dynamic-label :class "album" :text {music-metadata.album})
       (dynamic-label :class "artist" :text {music-metadata.artist})
-      (eventbox :onclick "mpc toggle" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
+      (eventbox :onclick "playerctl play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
         (overlay
           (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
           (label :class "play-button" :text "")

@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }: {
   scripts.rand-album = {
-    runtimeInputs = [ pkgs.mpc-cli ];
+    runtimeInputs = [ pkgs.mpc-cli pkgs.coreutils ];
     text = ''
       mpc clear >/dev/null
       artist="$(mpc ls | shuf -n1)"
