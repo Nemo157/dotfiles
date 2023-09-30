@@ -35,6 +35,42 @@
     configDir = ./eww;
   };
 
+  systemd.user.targets = {
+    tray = {
+      Unit = {
+        After = "graphical-session-pre.target";
+        BindsTo = "graphical-session-pre.target";
+      };
+    };
+  };
+
+  systemd.user.services = {
+    eww-daemon = {
+      Unit = {
+        After = "graphical-session-pre.target";
+        BindsTo = "graphical-session-pre.target";
+      };
+      Service = {
+        ExecStart = "${lib.getExe config.programs.eww.package} daemon --no-daemonize";
+        ExecReload = "${lib.getExe config.programs.eww.package} reload";
+      };
+    };
+    eww-taskbar = {
+      Unit = {
+        After = "eww-daemon.service";
+        BindsTo = "eww-daemon.service";
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${lib.getExe config.programs.eww.package} open taskbar";
+        RemainAfterExit = true;
+      };
+      Install = {
+        RequiredBy = [ "tray.target" ];
+      };
+    };
+  };
+
   xdg.dataFile."light-mode.d/eww-light.sh" = {
     source = pkgs.writeShellScript "eww-light.sh" ''
       ${pkgs-unstable.eww-wayland}/bin/eww update color-scheme=light
