@@ -1,6 +1,6 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
   scripts.eww-hypr-workspaces = {
-    runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq ];
+    runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq pkgs.coreutils ];
     text = ''
       spaces() {
         AWS=$(hyprctl activeworkspace -j | jq '.id')
