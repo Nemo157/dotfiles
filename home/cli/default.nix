@@ -13,6 +13,7 @@
   home.packages = with pkgs; [
     fd
     htop
+    jq
     pstree
     ripgrep
   ];
