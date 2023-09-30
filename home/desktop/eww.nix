@@ -143,13 +143,14 @@
     text = ''
       format='{{xesam:albumArtist}}{{xesam:album}}{{xesam:title}}{{mpris:length}}{{mpris:artUrl}}'
       script='
+        def ornull: if length > 0 then . else null end;
         . / ""
         | {
-            artist: .[0],
-            album: .[1],
-            title: .[2],
-            duration: (.[3] | tonumber / 1000000),
-            albumart: (.[4] | sub("file://"; ""))
+            artist: .[0] | ornull,
+            album: .[1] | ornull,
+            title: .[2] | ornull,
+            duration: (.[3] | if length > 0 then tonumber / 1000000 else 0 end),
+            albumart: (.[4] | sub("file://"; "") | ornull),
           }
       '
       playerctl -p mpd metadata -f "$format" -F | while read -r; do
