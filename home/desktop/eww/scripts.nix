@@ -22,7 +22,7 @@
                 | .[0].workspace + {
                     windows: [
                       .[]
-                      | select(.address)
+                      | select(.address and (.class | length > 0))
                       | {
                         class,
                         title,
@@ -30,6 +30,7 @@
                       }
                     ]
                   }
+                | select((.windows | any) or (.name | length > 0))
                 | . + {
                     active: (.id | tostring == env.AWS),
                   }
