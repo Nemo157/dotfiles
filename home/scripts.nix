@@ -2,7 +2,6 @@
 let
   inherit (lib) mkOption mapAttrs' nameValuePair types getExe;
   inherit (pkgs) writeShellApplication;
-  binHome = "${config.home.homeDirectory}/.local/bin";
 in {
   options = {
     scripts = mkOption {
@@ -17,10 +16,16 @@ in {
         };
       });
     };
+
+    binHome = mkOption {
+      type = types.path;
+      default = "${config.home.homeDirectory}/.local/bin";
+      readOnly = true;
+    };
   };
 
   config = {
-    home.sessionPath = [ binHome ];
+    home.sessionPath = [ config.binHome ];
 
     home.file = mapAttrs'
     (name: file:
@@ -29,7 +34,7 @@ in {
           inherit name;
           inherit (file) runtimeInputs text;
         });
-      in nameValuePair "${binHome}/${name}" { inherit source; }
+      in nameValuePair "${config.binHome}/${name}" { inherit source; }
     )
       config.scripts;
   };
