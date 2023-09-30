@@ -1,7 +1,6 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
   imports = [
     ./config.nix
-    ./darkman.nix
     ./overlay.nix
     ./scripts.nix
     ./systemd.nix

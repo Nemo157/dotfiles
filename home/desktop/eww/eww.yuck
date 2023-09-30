@@ -24,7 +24,9 @@
   )
 )
 
-(defvar color-scheme "light")
+(deflisten color-scheme
+  "eww-color-scheme")
+
 (defwidget taskbar []
   (v-box :class "bar ${color-scheme}" :vexpand true
     (workspaces)
