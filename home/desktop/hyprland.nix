@@ -97,6 +97,8 @@ in {
       bind = $mod, tab, workspace, e+1
       bind = $mod SHIFT, tab, workspace, e-1
 
+      bindm = $mod, mouse:272, movewindow
+
       windowrule = noborder, Conky
       windowrule = float, Conky
       windowrule = pin, Conky
