@@ -36,7 +36,10 @@
   )
 )
 
-(deflisten workspaces :initial "[]" "eww-hypr-workspaces")
+(deflisten workspaces
+  :initial "[]"
+  "eww-hypr-workspaces")
+
 (defwidget workspaces []
   (box :orientation "v" :class "workspaces" :space-evenly false
     (for workspace in workspaces
@@ -56,9 +59,17 @@
 )
 
 
-(deflisten music-queue :initial '{"position":0,"length":0}' "eww-music-queue")
-(deflisten music-status :initial '{"state":"stopped","position":0}' "eww-music-status")
-(deflisten music-metadata :initial '{"artist":"","album":"","title":"","duration":1}' "eww-music-metadata")
+(deflisten music-queue
+  :initial '{"position":0,"length":0}'
+  "eww-music-queue")
+
+(deflisten music-status
+  :initial '{"state":"stopped","position":0}'
+  "eww-music-status")
+
+(deflisten music-metadata
+  :initial '{"artist":"","album":"","title":"","duration":1}'
+  "eww-music-metadata")
 
 (defwidget dynamic-label [class text]
   (label
