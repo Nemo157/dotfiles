@@ -122,13 +122,7 @@
             position: (.[1] | tonumber / 1000000),
           }
       '
-      # I have no idea why this can't just be
-      #   playerctl -p mpd metadata -f "$format" -F | jq -RMc "$script"
-      # but for some reason that never updates when running under eww
-      # (it works fine when running the script from the shell directly)
-      playerctl -p mpd metadata -f "$format" -F | while read -r; do
-        playerctl -p mpd metadata -f "$format" | jq -RMc "$script"
-      done
+      playerctl -p mpd metadata -f "$format" -F | jq --unbuffered -RMc "$script"
     '';
   };
 
@@ -147,9 +141,7 @@
             albumart: (.[4] | sub("file://"; "") | ornull),
           }
       '
-      playerctl -p mpd metadata -f "$format" -F | while read -r; do
-        playerctl -p mpd metadata -f "$format" | jq -RMc "$script"
-      done
+      playerctl -p mpd metadata -f "$format" -F | jq --unbuffered -RMc "$script"
     '';
   };
 }
