@@ -50,16 +50,13 @@
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      overlays = [
-        (final: prev: {
-          # for mullvad exit-node support
-          tailscale = pkgs-unstable.tailscale;
-        })
-      ];
+      overlays = [ self.overlays.default ];
     };
     pkgs-wayland = nixpkgs-wayland.packages.${system};
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
   in {
+
+    overlays.default = (import ./overlay.nix { inherit pkgs-unstable; });
 
     nixosConfigurations = {
       mithril = nixpkgs.lib.nixosSystem {
