@@ -50,7 +50,16 @@
           (label :class "name" :text "${workspace.name}")
           (for window in {workspace.windows}
             (v-box :class "window ${window.active ? "active" : ""}"
-              (label :class "class" :text "${window.class}")
+              (image :class "icon" :image-width 64
+                :visible {window.icon != "null"}
+                :path {window.icon ?: "/home/nemo157/.local/share/eww/no-album.png"}
+                :tooltip {window.title}
+              )
+              (label :class "class"
+                :text "${window.class}"
+                :visible {window.icon == "null"}
+                :tooltip {window.title}
+              )
             )
           )
         )

@@ -2,6 +2,37 @@
   scripts.eww-hypr-workspaces = {
     runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq pkgs.coreutils ];
     text = ''
+      shopt -s nullglob
+
+      IFS=$':\n' read -r -a xdg_data_dirs <<<"''${XDG_DATA_DIRS?:}"
+      dirs=("''${xdg_data_dirs[@]/%//icons}")
+
+      add_icons() {
+        while read -r line
+        do
+          jq -Mc '.[]' <<<"$line" | while read -r workspace
+          do
+            windows=$(jq -Mc '.windows[]' <<<"$workspace" | while read -r window
+            do
+              class="$(jq -rM '.class' <<<"$window")"
+              for dir in "''${dirs[@]}"
+              do
+                for icon in "$dir"/hicolor/{scalable,64x64,128x128,256x256,48x48,32x32,16x16,512x512}/apps/*{"$class","''${class@L}","''${class@u}"}.{svg,png}
+                do
+                  if [ -f "$icon" ]
+                  then
+                    window="$(icon="$icon" jq -Mc '. + { icon: env.icon }' <<<"$window")"
+                    break 2
+                  fi
+                done
+              done
+              cat <<<"$window"
+            done | jq -sMc '{ windows: . }')
+            (cat <<<"$workspace"; cat <<<"$windows") | jq -sMc 'map(to_entries) | flatten | from_entries'
+          done | jq -sMc '.'
+        done
+      }
+
       spaces() {
         AWS=$(hyprctl activeworkspace -j | jq '.id')
         AWI=$(hyprctl activewindow -j | jq -r '.address')
@@ -15,27 +46,27 @@
           ]'
           hyprctl clients -j
         } | jq -sMc '
-              [
-                flatten
-                | group_by(.workspace.id)
-                | .[]
-                | .[0].workspace + {
-                    windows: [
-                      .[]
-                      | select(.address and (.class | length > 0))
-                      | {
-                        class,
-                        title,
-                        active: (.address == env.AWI),
-                      }
-                    ]
+          [
+            flatten
+            | group_by(.workspace.id)
+            | .[]
+            | .[0].workspace + {
+                windows: [
+                  .[]
+                  | select(.address and (.class | length > 0))
+                  | {
+                    class,
+                    title,
+                    active: (.address == env.AWI),
                   }
-                | select((.windows | any) or (.name | length > 0))
-                | . + {
-                    active: (.id | tostring == env.AWS),
-                  }
-              ]
-            '
+                ]
+              }
+            | select((.windows | any) or (.name | length > 0))
+            | . + {
+                active: (.id | tostring == env.AWS),
+              }
+          ]
+        ' | add_icons
       }
 
       spaces
