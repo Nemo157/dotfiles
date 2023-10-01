@@ -51,7 +51,6 @@
           (for window in {workspace.windows}
             (v-box :class "window ${window.active ? "active" : ""}"
               (label :class "class" :text "${window.class}")
-              (dynamic-label :class "title" :text "${window.title}")
             )
           )
         )
