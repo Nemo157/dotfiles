@@ -306,6 +306,22 @@
         "type": "github"
       }
     },
+    "pr-251162": {
+      "locked": {
+        "lastModified": 1694670062,
+        "narHash": "sha256-vYBueP1n1JPSbhD5clUgEzuNRzvzip6x+iuruRzSEVU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e9e21be1488852e7032499711baf2a289f825e50",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "pull/251162/head",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -314,7 +330,8 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nixpkgs-wayland": "nixpkgs-wayland",
-        "nixur": "nixur"
+        "nixur": "nixur",
+        "pr-251162": "pr-251162"
       }
     },
     "systems": {

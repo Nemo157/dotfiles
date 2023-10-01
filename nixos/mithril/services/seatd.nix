@@ -1,0 +1,3 @@
+{
+  services.seatd.enable = true;
+}
