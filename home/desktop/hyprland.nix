@@ -42,10 +42,6 @@ in {
         layout = dwindle
       }
 
-      misc {
-        no_direct_scanout = false
-      }
-
       animations {
         enabled = true
 
