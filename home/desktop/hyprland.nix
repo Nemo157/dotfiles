@@ -5,7 +5,7 @@ in {
   scripts.wl-screenshot = {
     runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard ];
     text = ''
-      grim -g "$(slurp)" - | wl-copy
+      grim -g "$(slurp)" - | wl-copy -t image/png
     '';
   };
 
