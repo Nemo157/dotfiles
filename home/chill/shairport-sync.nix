@@ -2,10 +2,12 @@
   nixpkgs.overlays = [
     (final: prev: {
       shairport-sync = prev.shairport-sync.overrideAttrs {
-        patches = [
-          # workaround for https://github.com/mikebrady/shairport-sync/issues/1736
-          ./shairport-sync-increase-pipewire-latency.patch
-        ];
+        src = pkgs.fetchFromGitHub {
+          owner = "mikebrady";
+          repo = "shairport-sync";
+          rev = "4447b25a05b648b28c002cd6c7d519e793f4434f";
+          sha256 = "sha256-5fuGdKHyG9YFTG7NEc5Rs7WNkFEcP+Pj/O+04zTgbxc=";
+        };
       };
     })
   ];
@@ -13,7 +15,6 @@
   systemd.user.services.shairport-sync = let
     config = builtins.toFile "shairport-sync.conf" ''
       general = {
-        drift_tolerance_in_seconds = 0.1;
         dbus_service_bus = "session";
         mpris_service_bus = "session";
       };
