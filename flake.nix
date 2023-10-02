@@ -56,7 +56,19 @@
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
   in rec {
 
-    overlays.default = import ./overlays { inherit pkgs-unstable; };
+    maintainers = {
+      nemo157 = {
+        email = "nix@nemo157.com";
+        name = "Nemo157";
+        github = "Nemo157";
+        githubId = 81079;
+        keys = [{
+          fingerprint = "E3D8 2B6B F270 2722 4925  CD19 A65D C69A 2364 9F86";
+        }];
+      };
+    };
+
+    overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
 
     packages."${system}" = import ./packages { inherit pkgs; };
 

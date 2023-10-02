@@ -1,4 +1,4 @@
-{ pkgs-unstable }: final: prev: let
+{ pkgs-unstable, maintainers }: final: prev: let
   args = {
     inherit pkgs-unstable;
     # nix flake check doesn't like me renaming the function arguments,
@@ -21,5 +21,7 @@ in {
   eww-wayland = callPackage ./eww-wayland.nix {};
 
   shairport-sync = callPackage ./shairport-sync.nix {};
+
+  maintainers = prev.maintainers // maintainers;
 
 } // import ../packages { pkgs = final; }

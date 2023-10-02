@@ -1,4 +1,4 @@
-{ lib, pkgs, fetchFromGitHub, buildGoModule, testers }:
+{ lib, pkgs, fetchFromGitHub, buildGoModule, testers, maintainers }:
 let
   gh-poi = buildGoModule rec {
     pname = "gh-poi";
@@ -32,8 +32,9 @@ let
     meta = {
       changelog = "https://github.com/${src.owner}/${src.repo}/releases/tag/${src.rev}";
       description = "Github Cli extension to safely clean up your local branches";
-      homepage = "https://github.com/${src.owner}/${src.repo}";
+      homepage = src.meta.homepage;
       license = lib.licenses.mit;
+      maintainers = [ maintainers.nemo157 ];
     };
   };
 in gh-poi

@@ -12,10 +12,13 @@
   ];
 
   home.packages = with pkgs; [
+    cargo
+    cargo-dl
     fd
     htop
     jq
     pstree
     ripgrep
+    rustc
   ];
 }
