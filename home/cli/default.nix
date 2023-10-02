@@ -2,6 +2,7 @@
   imports = [
     ./bat
     ./git
+    ./gh.nix
     ./gpg.nix
     ./lsd.nix
     ./starship.nix

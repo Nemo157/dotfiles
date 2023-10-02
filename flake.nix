@@ -54,9 +54,11 @@
     };
     pkgs-wayland = nixpkgs-wayland.packages.${system};
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
-  in {
+  in rec {
 
-    overlays.default = (import ./overlay.nix { inherit pkgs-unstable; });
+    overlays.default = import ./overlays { inherit pkgs-unstable; };
+
+    packages."${system}" = import ./packages { inherit pkgs; };
 
     nixosConfigurations = {
       mithril = nixpkgs.lib.nixosSystem {
