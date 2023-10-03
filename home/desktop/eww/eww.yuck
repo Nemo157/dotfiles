@@ -45,10 +45,12 @@
 (defwidget workspaces []
   (box :orientation "v" :class "workspaces" :space-evenly false
     (for workspace in workspaces
-      (eventbox :onclick "hyprctl dispatch workspace ${workspace.id}"
-        (box :orientation "v" :class "workspace ${workspace.active ? "active" : ""}" :space-evenly false
+      (box :orientation "v" :class "workspace ${workspace.active ? "active" : ""}" :space-evenly false
+        (eventbox :onclick "hyprctl dispatch workspace ${workspace.id}"
           (label :class "name" :text "${workspace.name}")
-          (for window in {workspace.windows}
+        )
+        (for window in {workspace.windows}
+          (eventbox :onclick "hyprctl dispatch focuswindow address:${window.address}"
             (v-box :class "window ${window.active ? "active" : ""}"
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}

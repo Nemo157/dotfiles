@@ -57,6 +57,7 @@
                   | {
                     class,
                     title,
+                    address,
                     active: (.address == env.AWI),
                   }
                 ]
