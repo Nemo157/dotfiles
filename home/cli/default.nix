@@ -20,5 +20,6 @@
     pstree
     ripgrep
     rustc
+    rustfmt
   ];
 }
