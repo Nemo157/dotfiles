@@ -5,6 +5,7 @@
     ./gh.nix
     ./gpg.nix
     ./lsd.nix
+    ./ssh.nix
     ./starship.nix
     ./tmux.nix
     ./vim
