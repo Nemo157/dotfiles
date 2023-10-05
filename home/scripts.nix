@@ -8,10 +8,15 @@ in {
       type = types.attrsOf(types.submodule {
         options = {
           text = mkOption {
-            type = types.lines;
+            type = types.nullOr types.lines;
+            default = null;
+          };
+          source = mkOption {
+            type = types.path;
           };
           runtimeInputs = mkOption {
             type = types.listOf types.package;
+            default = [];
           };
         };
       });
@@ -30,9 +35,10 @@ in {
     home.file = mapAttrs'
     (name: file:
       let
+        text = if file.text != null then file.text else lib.readFile file.source;
         source = getExe (writeShellApplication {
-          inherit name;
-          inherit (file) runtimeInputs text;
+          inherit name text;
+          inherit (file) runtimeInputs;
         });
       in nameValuePair "${config.binHome}/${name}" { inherit source; }
     )

@@ -1,7 +1,7 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
   imports = [
     ./config.nix
-    ./scripts.nix
+    ./scripts
     ./systemd.nix
   ];
 
