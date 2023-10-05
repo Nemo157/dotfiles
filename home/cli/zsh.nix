@@ -7,6 +7,8 @@
     enableVteIntegration = true;
     enableSyntaxHighlighting = true;
     cdpath = [
+      "${config.home.homeDirectory}"
+      "${config.home.homeDirectory}/sources"
     ];
     autocd = true;
     history = {
