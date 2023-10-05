@@ -12,10 +12,6 @@
       inputs.lib-aggregate.follows = "lib-aggregate";
     };
 
-    pr-251162 = {
-      url = "github:NixOS/nixpkgs/pull/251162/head";
-    };
-
     nixur.url = "github:nix-community/NUR";
 
     agenix = {
@@ -57,7 +53,6 @@
     nixpkgs-unstable,
     nixpkgs-wayland,
     nixur,
-    pr-251162,
     rust-overlay,
     ...
   }: let
@@ -95,8 +90,6 @@
       mithril = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         modules = [
-          # required service for hyprland
-          "${pr-251162}/nixos/modules/services/desktops/seatd.nix"
           ./nixos/mithril
         ];
       };
