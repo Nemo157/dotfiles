@@ -11,7 +11,7 @@
     Service = {
       Environment = "SSH_AUTH_SOCK=%t/ssh-agent.socket";
       ExecStart = "${pkgs.openssh}/bin/ssh-agent -D -a %t/ssh-agent-upstream.socket";
-      ExecStartPost = "${pkgs.sshagmux}/bin/sshagmux add-upstream %t/ssh-agent-upstream.socket";
+      ExecStartPost = "${pkgs.sshagmux}/bin/sshagmux add-upstream --forward-adds %t/ssh-agent-upstream.socket";
     };
     Install = {
       WantedBy = [ "default.target" ];
