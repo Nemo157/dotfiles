@@ -5,6 +5,7 @@
     ./gh.nix
     ./gpg.nix
     ./lsd.nix
+    ./rust
     ./ssh.nix
     ./ssh-agent.nix
     ./starship.nix
@@ -14,14 +15,12 @@
   ];
 
   home.packages = with pkgs; [
-    cargo-dl
     fd
     htop
     jq
     pstree
     ripgrep
-    rust-bin.nightly.latest.cargo
-    rust-bin.nightly.latest.rustc
-    rustfmt
+    gcc
+    systemfd
   ];
 }
