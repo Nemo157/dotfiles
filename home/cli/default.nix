@@ -12,14 +12,14 @@
   ];
 
   home.packages = with pkgs; [
-    cargo
     cargo-dl
     fd
     htop
     jq
     pstree
     ripgrep
-    rustc
+    rust-bin.nightly.latest.cargo
+    rust-bin.nightly.latest.rustc
     rustfmt
   ];
 }

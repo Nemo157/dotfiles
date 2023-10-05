@@ -9,6 +9,7 @@
     nixpkgs-wayland = {
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.lib-aggregate.follows = "lib-aggregate";
     };
 
     pr-251162 = {
@@ -32,6 +33,19 @@
       url = "github:hyprwm/Hyprland/v0.25.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
+    # transitive dependencies to allow following :ferrisPensive:
+    flake-utils.url = "github:numtide/flake-utils";
+    lib-aggregate = {
+      url = "github:nix-community/lib-aggregate";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
 
   outputs = {
@@ -44,13 +58,18 @@
     nixpkgs-wayland,
     nixur,
     pr-251162,
+    rust-overlay,
+    ...
   }: let
     system = "x86_64-linux";
     pkgs-unstable = import nixpkgs-unstable { inherit system; };
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      overlays = [ self.overlays.default ];
+      overlays = [
+        self.overlays.default
+        rust-overlay.overlays.default
+      ];
     };
     pkgs-wayland = nixpkgs-wayland.packages.${system};
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
