@@ -20,6 +20,7 @@ in {
           };
         };
       });
+      default = {};
     };
 
     binHome = mkOption {

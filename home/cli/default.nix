@@ -15,6 +15,7 @@
   ];
 
   home.packages = with pkgs; [
+    agenix
     fd
     htop
     jq

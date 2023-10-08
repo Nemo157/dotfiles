@@ -14,6 +14,8 @@
 
     nixur.url = "github:nix-community/NUR";
 
+    nixos-hardware.url = "github:nixos/nixos-hardware";
+
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,6 +51,7 @@
     agenix,
     home-manager,
     hyprland,
+    nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
     nixpkgs-wayland,
@@ -64,6 +67,7 @@
       overlays = [
         self.overlays.default
         rust-overlay.overlays.default
+        agenix.overlays.default
       ];
     };
     pkgs-wayland = nixpkgs-wayland.packages.${system};
@@ -93,6 +97,18 @@
           ./nixos/mithril
         ];
       };
+
+      zinc = nixpkgs.lib.nixosSystem {
+        inherit system pkgs;
+        modules = [
+          nixos-hardware.nixosModules.apple-t2
+          nixos-hardware.nixosModules.common-cpu-intel
+          nixos-hardware.nixosModules.common-pc-laptop
+          nixos-hardware.nixosModules.common-pc-ssd
+          agenix.nixosModules.default
+          ./nixos/zinc
+        ];
+      };
     };
 
     homeConfigurations = {
@@ -105,6 +121,20 @@
           ./home/scripts.nix
           ./home/nemo157.nix
           ./home/mithril.nix
+          hyprland.homeManagerModules.default
+          agenix.homeManagerModules.default
+        ];
+      };
+
+      "nemo157@zinc" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        extraSpecialArgs = {
+          inherit pkgs-unstable pkgs-wayland nur;
+        };
+        modules = [
+          ./home/scripts.nix
+          ./home/nemo157.nix
+          ./home/zinc.nix
           hyprland.homeManagerModules.default
           agenix.homeManagerModules.default
         ];

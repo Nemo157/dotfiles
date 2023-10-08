@@ -208,6 +208,21 @@
         "type": "github"
       }
     },
+    "nixos-hardware": {
+      "locked": {
+        "lastModified": 1696614066,
+        "narHash": "sha256-nAyYhO7TCr1tikacP37O9FnGr2USOsVBD3IgvndUYjM=",
+        "owner": "nixos",
+        "repo": "nixos-hardware",
+        "rev": "bb2db418b616fea536b1be7f6ee72fb45c11afe0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixos-hardware",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1695272228,
@@ -317,6 +332,7 @@
         "home-manager": "home-manager",
         "hyprland": "hyprland",
         "lib-aggregate": "lib-aggregate",
+        "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nixpkgs-wayland": "nixpkgs-wayland",
