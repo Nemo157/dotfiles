@@ -170,8 +170,8 @@
       :tooltip "${round(EWW_CPU.avg, 2)}"
     )
     (data-pie :class "disk" :icon "D"
-      :used {EWW_DISK["/home"].used}
-      :total {EWW_DISK["/home"].total}
+      :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
+      :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
     )
   )
 )
