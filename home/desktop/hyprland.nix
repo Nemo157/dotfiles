@@ -29,6 +29,7 @@ in {
       input {
         kb_layout = us
         kb_variant = dvp
+        kb_options = caps:escape,compose:ralt
         follow_mouse = 2
       }
 
