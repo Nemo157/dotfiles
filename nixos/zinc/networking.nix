@@ -7,7 +7,7 @@
     environmentFile = config.age.secrets.wlan-psk.path;
     networks = {
       NineEyes = {
-        psk = "@PSK_NINE_EYES";
+        psk = "@PSK_NINE_EYES@";
       };
     };
   };
