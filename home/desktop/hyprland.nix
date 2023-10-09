@@ -2,127 +2,115 @@
 let
   sol = builtins.mapAttrs (name: value: "rgb(${value})") (import ../sol.nix).nohash;
 in {
-  options = {
-    # Needs to be injected as an option as the config is order-dependent
-    wayland.windowManager.hyprland.modifier = lib.mkOption {
-      type = lib.types.str;
-      default = "ALT";
-    };
+  scripts.wl-screenshot = {
+    runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard ];
+    text = ''
+      grim -g "$(slurp)" - | wl-copy -t image/png
+    '';
   };
 
-  config = {
-    scripts.wl-screenshot = {
-      runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard ];
-      text = ''
-        grim -g "$(slurp)" - | wl-copy -t image/png
-      '';
-    };
+  wayland.windowManager.hyprland = {
+    enable = true;
+    systemdIntegration = true;
+    recommendedEnvironment = true;
 
-    wayland.windowManager.hyprland = {
-      enable = true;
-      systemdIntegration = true;
-      recommendedEnvironment = true;
+    extraConfig = ''
+      monitor = ,highres,auto,1
 
-      extraConfig = ''
-        $mod = ${config.wayland.windowManager.hyprland.modifier}
+      input {
+        kb_layout = us,us
+        # dvp is actually my primary layout, but some apps (mostly games) ignore
+        # changing the layout and don't support rebinding from qwerty
+        kb_variant = ,dvp
+        kb_options = caps:escape,compose:ralt,grp:win_space_toggle
+        follow_mouse = 2
+      }
 
-        monitor = ,highres,auto,1
+      general {
+        gaps_in = 0
+        gaps_out = 0
+        border_size = 1
+        resize_on_border = true
+        col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
+        col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
+        layout = dwindle
+        no_cursor_warps = true
+      }
 
-        input {
-          kb_layout = us
-          kb_variant = dvp
-          kb_options = caps:escape,compose:ralt
-          follow_mouse = 2
-        }
+      animations {
+        enabled = true
 
-        general {
-          gaps_in = 0
-          gaps_out = 0
-          border_size = 1
-          resize_on_border = true
-          col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
-          col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
-          layout = dwindle
-          no_cursor_warps = true
-        }
+        bezier = myBezier, 0.05, 0.9, 0.1, 1.05
 
-        animations {
-          enabled = true
+        animation = windows, 1, 7, myBezier
+        animation = windowsOut, 1, 7, default, popin 80%
+        animation = border, 1, 10, default
+        animation = borderangle, 1, 8, default
+        animation = fade, 1, 7, default
+        animation = workspaces, 1, 6, default
+      }
 
-          bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+      dwindle {
+        pseudotile = true
+        preserve_split = true
+      }
 
-          animation = windows, 1, 7, myBezier
-          animation = windowsOut, 1, 7, default, popin 80%
-          animation = border, 1, 10, default
-          animation = borderangle, 1, 8, default
-          animation = fade, 1, 7, default
-          animation = workspaces, 1, 6, default
-        }
+      # these keybindings look odd because they're the qwerty keys that are in
+      # the expected dvp positions, e.g. Y is fullscreen because that key is F
+      # in dvp
+      bind = $mod, SPACE, exec, rofi -show drun
+      bind = $mod, C, togglesplit,
+      bind = $mod, COMMA, killactive,
+      bind = $mod, Y, fullscreen, 1
+      bind = $mod CTRL, Y, togglefloating,
+      bind = $mod SHIFT, Y, fullscreen, 0
+      bind = $mod SHIFT CTRL, D, exit,
+      bind = $mod SHIFT, COLON, exec, wl-screenshot
 
-        dwindle {
-          pseudotile = true
-          preserve_split = true
-        }
+      bind = $mod, J, movefocus, l
+      bind = $mod, P, movefocus, r
+      bind = $mod, C, movefocus, d
+      bind = $mod, V, movefocus, u
 
-        bind = $mod, SPACE, exec, rofi -show drun
-        bind = $mod, P, pseudo,
-        bind = $mod, J, togglesplit,
-        bind = $mod, W, killactive,
-        bind = $mod, F, fullscreen, 1
-        bind = $mod CTRL, F, togglefloating,
-        bind = $mod SHIFT, F, fullscreen, 0
-        bind = $mod SHIFT CTRL, E, exit,
-        bind = $mod SHIFT, S, exec, wl-screenshot
+      bind = $mod SHIFT, J, movewindow, l
+      bind = $mod SHIFT, P, movewindow, r
+      bind = $mod SHIFT, C, movewindow, d
+      bind = $mod SHIFT, V, movewindow, u
 
-        bind = $mod, H, movefocus, l
-        bind = $mod, L, movefocus, r
-        bind = $mod, J, movefocus, d
-        bind = $mod, K, movefocus, u
+      bind = $mod, 1, workspace, 1
+      bind = $mod, 2, workspace, 2
+      bind = $mod, 3, workspace, 3
+      bind = $mod, 4, workspace, 4
 
-        bind = $mod SHIFT, H, movewindow, l
-        bind = $mod SHIFT, L, movewindow, r
-        bind = $mod SHIFT, J, movewindow, d
-        bind = $mod SHIFT, K, movewindow, u
+      bind = $mod SHIFT, 1, movetoworkspacesilent, 1
+      bind = $mod SHIFT, 2, movetoworkspacesilent, 2
+      bind = $mod SHIFT, 3, movetoworkspacesilent, 3
+      bind = $mod SHIFT, 4, movetoworkspacesilent, 4
 
-        bind = $mod, ampersand, workspace, 1
-        bind = $mod, bracketleft, workspace, 2
-        bind = $mod, braceleft, workspace, 3
-        bind = $mod, braceright, workspace, 4
+      bind = $mod, TAB, workspace, e+1
+      bind = $mod SHIFT, TAB, workspace, e-1
 
-        bind = $mod SHIFT, ampersand, movetoworkspacesilent, 1
-        bind = $mod SHIFT, bracketleft, movetoworkspacesilent, 2
-        bind = $mod SHIFT, braceleft, movetoworkspacesilent, 3
-        bind = $mod SHIFT, braceright, movetoworkspacesilent, 4
+      bindm = $mod, mouse:272, movewindow
 
-        bind = $mod, tab, workspace, e+1
-        bind = $mod SHIFT, tab, workspace, e-1
+      bind = , XF86MonBrightnessUp, exec, light -A 5
+      bind = , XF86MonBrightnessDown, exec, light -U 5
 
-        bindm = $mod, mouse:272, movewindow
+      bind = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
+      bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
+    '';
+  };
 
-        bind = , XF86MonBrightnessUp, exec, light -A 5
-        bind = , XF86MonBrightnessDown, exec, light -U 5
+  xdg.dataFile."light-mode.d/hyprland-light.sh" = {
+    source = pkgs.writeShellScript "hyprland-light.sh" ''
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg'
+    '';
+  };
 
-        bind = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
-        bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
-
-        windowrule = noborder, Conky
-        windowrule = float, Conky
-        windowrule = pin, Conky
-      '';
-    };
-
-    xdg.dataFile."light-mode.d/hyprland-light.sh" = {
-      source = pkgs.writeShellScript "hyprland-light.sh" ''
-        ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg'
-        ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg'
-      '';
-    };
-
-    xdg.dataFile."dark-mode.d/hyprland-dark.sh" = {
-      source = pkgs.writeShellScript "hyprland-dark.sh" ''
-        ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.magenta} ${sol.blue} ${sol.cyan} ${sol.green} 45deg'
-        ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base03} ${sol.base02} ${sol.base01} ${sol.base00} 45deg'
-      '';
-    };
+  xdg.dataFile."dark-mode.d/hyprland-dark.sh" = {
+    source = pkgs.writeShellScript "hyprland-dark.sh" ''
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.magenta} ${sol.blue} ${sol.cyan} ${sol.green} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base03} ${sol.base02} ${sol.base01} ${sol.base00} 45deg'
+    '';
   };
 }

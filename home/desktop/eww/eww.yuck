@@ -34,6 +34,7 @@
     (music)
     (tray)
     (pies)
+    (keymap)
     (time)
   )
 )
@@ -179,6 +180,21 @@
       :tooltip "${round(EWW_BATTERY.total_avg, 1)}%"
     )
   )
+)
+
+(defpoll keymap
+  :interval "1s"
+  :initial "unknown"
+  " \
+    hyprctl devices -j \
+    | jq -r '.keyboards[] | select(.main) | .active_keymap' \
+    | sed 's/English (programmer Dvorak)/dvp/' \
+    | sed 's/English (US)/qwerty/' \
+  "
+)
+
+(defwidget keymap []
+  (label :text {keymap})
 )
 
 (defwidget time []

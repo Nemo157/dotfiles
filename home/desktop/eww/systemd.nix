@@ -25,6 +25,8 @@
           # scripts and tools used in event handlers
           "${pkgs.playerctl}/bin"
           "${pkgs.hyprland}/bin"
+          "${pkgs.jq}/bin"
+          "${pkgs.gnused}/bin"
           config.binHome
         ];
         ExecStart = "eww daemon --no-daemonize";

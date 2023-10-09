@@ -26,8 +26,6 @@
     tray.enable = true;
   };
 
-  wayland.windowManager.hyprland.modifier = "SUPER";
-
   xdg.configFile."wluma/config.toml".text = ''
     [als.iio]
     path = "/sys/bus/iio/devices"
@@ -57,4 +55,7 @@
     };
   };
 
+  wayland.windowManager.hyprland.extraConfig = lib.mkBefore ''
+    $mod = SUPER
+  '';
 }

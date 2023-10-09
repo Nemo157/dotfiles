@@ -35,7 +35,9 @@
 
   wayland.windowManager.hyprland = {
     nvidiaPatches = true;
-    extraConfig = ''
+    extraConfig = lib.mkBefore ''
+      $mod = ALT
+
       env = LIBVA_DRIVER_NAME,nvidia
       env = XDG_SESSION_TYPE,wayland
       env = GBM_BACKEND,nvidia-drm
