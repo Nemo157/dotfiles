@@ -138,13 +138,14 @@
 
 (defvar GiB {1024 * 1024 * 1024})
 
-(defwidget pie [value class tooltip icon]
+(defwidget pie [value ?class tooltip icon ?clockwise]
   (circular-progress
       :tooltip {tooltip}
       :value {value}
-      :class "pie ${class}"
+      :class "pie v${round(value / 10, 0)}0 ${class}"
       :thickness 4
       :start-at 75
+      :clockwise {clockwise ? true}
     (overlay
       (label :class "pie-overlay" :text "")
       (label :text {icon})
@@ -152,7 +153,7 @@
   )
 )
 
-(defwidget data-pie [class used total icon]
+(defwidget data-pie [?class used total icon]
   (pie :class {class} :icon {icon}
     :value {used * 100 / total}
     :tooltip "${round(used / GiB, 1)} / ${round(total / GiB, 1)} GiB" 
@@ -161,17 +162,21 @@
 
 (defwidget pies []
   (h-box :class "pies" :halign "fill" :space-evenly true
-    (data-pie :class "mem" :icon "M"
+    (data-pie :icon "M"
       :used {EWW_RAM.used_mem}
       :total {EWW_RAM.total_mem}
     )
-    (pie :class "cpu" :icon "C"
+    (pie :icon "C"
       :value {EWW_CPU.avg}
       :tooltip "${round(EWW_CPU.avg, 2)}"
     )
-    (data-pie :class "disk" :icon "D"
+    (data-pie :icon "D"
       :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
       :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
+    )
+    (pie :icon "B" :clockwise false
+      :value {EWW_BATTERY.total_avg}
+      :tooltip "${round(EWW_BATTERY.total_avg, 1)}%"
     )
   )
 )
