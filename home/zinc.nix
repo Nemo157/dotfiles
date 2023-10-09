@@ -20,5 +20,10 @@
     "${config.xdg.dataHome}/flatpak/exports/share"
   ];
 
+  services.syncthing = {
+    enable = true;
+    tray.enable = true;
+  };
+
   wayland.windowManager.hyprland.modifier = "SUPER";
 }
