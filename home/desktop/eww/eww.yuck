@@ -145,7 +145,7 @@
       :class "pie v${round(value / 10, 0)}0 ${class}"
       :thickness 4
       :start-at 75
-      :clockwise {clockwise ? true}
+      :clockwise {clockwise ?: true}
     (overlay
       (label :class "pie-overlay" :text "")
       (label :text {icon})
@@ -174,7 +174,7 @@
       :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
       :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
     )
-    (pie :icon "B" :clockwise false
+    (pie :icon "B" :class "inverse" :clockwise false
       :value {EWW_BATTERY.total_avg}
       :tooltip "${round(EWW_BATTERY.total_avg, 1)}%"
     )
