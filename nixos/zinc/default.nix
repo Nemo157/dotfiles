@@ -34,7 +34,10 @@
 
   security.polkit.enable = true;
 
-  programs.zsh.enable = true;
+  programs = {
+    zsh.enable = true;
+    light.enable = true;
+  };
 
   age = {
     identityPaths = [ "/home/nemo157/.ssh/id_ed25519-agenix" ];

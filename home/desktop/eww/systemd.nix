@@ -5,6 +5,9 @@
         After = "graphical-session-pre.target";
         BindsTo = "graphical-session-pre.target";
       };
+      Install = {
+        WantedBy = [ "hyprland-session.target" ];
+      };
     };
   };
 

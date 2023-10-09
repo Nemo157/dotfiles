@@ -99,6 +99,12 @@ in {
 
         bindm = $mod, mouse:272, movewindow
 
+        bind = , XF86MonBrightnessUp, exec, light -A 5
+        bind = , XF86MonBrightnessDown, exec, light -U 5
+
+        bind = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
+        bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
+
         windowrule = noborder, Conky
         windowrule = float, Conky
         windowrule = pin, Conky
