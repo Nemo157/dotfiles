@@ -37,6 +37,10 @@ in {
         user = "nemo157";
         port = 59127;
       };
+
+      mithril = {
+        forwardAgent = true;
+      };
     };
   };
 
