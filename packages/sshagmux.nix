@@ -1,16 +1,16 @@
 { lib, fetchFromGitHub, rustPlatform }:
 rustPlatform.buildRustPackage rec {
   pname = "sshagmux";
-  version = "76f7989d0baa1de4f57284543a87b204908f8fb7";
+  version = "b8d4209878f1e3b9ed9c61756401e30263d97a6e";
 
   src = fetchFromGitHub {
     owner = "Nemo157";
     repo = pname;
     rev = version;
-    sha256 = "sha256-7jZPyg3xefpS85obnm5t077ji8oZCU//0sVgKtw+ISo=";
+    sha256 = "sha256-1ULjG3d3KzwgOB+WsL17MLVzmqNemMwqkkV9tth9L1I=";
   };
 
-  cargoHash = "sha256-sqIKbPvI90h/Zc/7DCcw3oizjmtkcakC7r0eUEe09eQ=";
+  cargoHash = "sha256-b0DsWrJe8XyJHkhVuGQdSuVu9QKrnZEysOwcYG42zQg=";
 
   postInstall = ''
     mkdir -p $out/share/systemd/user $out/ssh
