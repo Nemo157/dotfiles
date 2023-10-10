@@ -65,7 +65,7 @@ in {
       bind = $mod CTRL, Y, togglefloating,
       bind = $mod SHIFT, Y, fullscreen, 0
       bind = $mod SHIFT CTRL, D, exit,
-      bind = $mod SHIFT, COLON, exec, wl-screenshot
+      bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
 
       bind = $mod, J, movefocus, l
       bind = $mod, P, movefocus, r
