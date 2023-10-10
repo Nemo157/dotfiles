@@ -43,6 +43,10 @@
       env = GBM_BACKEND,nvidia-drm
       env = __GLX_VENDOR_LIBRARY_NAME,nvidia
       env = WLR_NO_HARDWARE_CURSORS,1
+
+      input {
+        kb_options = caps:escape,compose:ralt,grp:win_space_toggle
+      }
     '';
   };
 }
