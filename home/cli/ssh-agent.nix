@@ -21,7 +21,11 @@
     };
   };
 
-  home.sessionVariables = {
-    SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/ssh-agent.socket";
-  };
+  ## doing this overrides the forwarded socket in .ssh/rc somehow,
+  ## idk what nixos is doing to break that
+  # home.sessionVariables.SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/ssh-agent.socket";
+
+  programs.zsh.profileExtra = ''
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+  '';
 }
