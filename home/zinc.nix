@@ -54,12 +54,4 @@
       WantedBy = [ "hyprland.target" ];
     };
   };
-
-  wayland.windowManager.hyprland.extraConfig = lib.mkBefore ''
-    $mod = SUPER
-
-    input {
-      kb_options = caps:escape,compose:ralt,grp:alt_space_toggle
-    }
-  '';
 }

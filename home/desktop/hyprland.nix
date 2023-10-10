@@ -22,9 +22,7 @@ in {
         # dvp is actually my primary layout, but some apps (mostly games) ignore
         # changing the layout and don't support rebinding from qwerty
         kb_variant = ,dvp
-        # set in per-device configs because the grp:toggle is different on
-        # different ones
-        # kb_options = caps:escape,compose:ralt,grp:win_space_toggle
+        kb_options = caps:escape,compose:ralt,grp:win_space_toggle
         follow_mouse = 2
       }
 
@@ -56,6 +54,8 @@ in {
         pseudotile = true
         preserve_split = true
       }
+
+      $mod = ALT
 
       # these keybindings look odd because they're the qwerty keys that are in
       # the expected dvp positions, e.g. Y is fullscreen because that key is F

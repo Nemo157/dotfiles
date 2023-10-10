@@ -6,5 +6,8 @@
       ];
     };
     kernelModules = [ "kvm-intel" ];
+    extraModprobeConfig = ''
+      options hid_apple swap_opt_cmd=1
+    '';
   };
 }
