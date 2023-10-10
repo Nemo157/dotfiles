@@ -1,7 +1,6 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
   programs.rofi = {
     enable = true;
-    package = pkgs-unstable.rofi-wayland;
     extraConfig = {
       modi = "drun,window,run,emoji:rofimoji";
       show-icons = true;
