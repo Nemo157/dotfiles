@@ -16,12 +16,15 @@
 
   home.packages = with pkgs; [
     agenix
+    comma
     fd
+    gcc
     htop
     jq
+    moreutils
+    nix-index
     pstree
     ripgrep
-    gcc
     systemfd
   ];
 }
