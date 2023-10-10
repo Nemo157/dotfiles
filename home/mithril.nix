@@ -1,8 +1,9 @@
 { lib, config, pkgs, ... }: {
   imports = [
     ./cli
-    ./desktop
     ./chill
+    ./chill-server
+    ./desktop
   ];
 
   home.stateVersion = "23.05";
