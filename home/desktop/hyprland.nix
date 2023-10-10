@@ -24,6 +24,12 @@ in {
         kb_variant = ,dvp
         kb_options = caps:escape,compose:ralt,grp:win_space_toggle
         follow_mouse = 2
+
+        touchpad {
+          natural_scroll = true
+          clickfinger_behavior = true
+          tap-and-drag = true
+        }
       }
 
       general {
