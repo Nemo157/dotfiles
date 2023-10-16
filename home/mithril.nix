@@ -4,23 +4,16 @@
     ./chill
     ./chill-server
     ./desktop
+    ./xdg.nix
   ];
 
   home.stateVersion = "23.05";
 
   programs.home-manager.enable = true;
 
-  home.packages = [
-    pkgs.stc-cli
-    pkgs.flatpak
-  ];
-
-  xdg.userDirs = {
-    enable = true;
-    music = "${config.home.homeDirectory}/Music/Library";
-  };
-  xdg.systemDirs.data = [
-    "${config.xdg.dataHome}/flatpak/exports/share"
+  home.packages = with pkgs; [
+    stc-cli
+    flatpak
   ];
 
   services.syncthing = {

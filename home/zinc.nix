@@ -3,6 +3,7 @@
     ./cli
     ./chill
     ./desktop
+    ./xdg.nix
   ];
 
   home.stateVersion = "23.05";
@@ -12,14 +13,6 @@
   home.packages = with pkgs; [
     flatpak
     wluma
-  ];
-
-  xdg.userDirs = {
-    enable = true;
-    music = "${config.home.homeDirectory}/Music/Library";
-  };
-  xdg.systemDirs.data = [
-    "${config.xdg.dataHome}/flatpak/exports/share"
   ];
 
   services.syncthing = {
