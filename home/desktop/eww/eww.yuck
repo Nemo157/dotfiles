@@ -84,11 +84,11 @@
   :initial '{"artist":"","album":"","title":"","duration":1}'
   "eww-music-metadata")
 
-(defwidget dynamic-label [class text]
+(defwidget dynamic-label [class text ?visible]
   (label
     :class {class}
     :text {text}
-    :visible {text != "null"}
+    :visible {visible ?: text != "null"}
     :wrap true
     :limit-width 50
     :justify "center")
@@ -102,7 +102,7 @@
   (v-box
     (v-box :class 'music ${music-status.state}'
       (dynamic-label :class "album" :text {music-metadata.album})
-      (dynamic-label :class "artist" :text {music-metadata.artist})
+      (dynamic-label :class "albumartist" :text {music-metadata.albumartist})
       (eventbox :onclick "playerctl -p mpd play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
         (overlay
           (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
@@ -111,6 +111,7 @@
         )
       )
       (dynamic-label :class "title" :text {music-metadata.title})
+      (dynamic-label :class "artist" :text {music-metadata.artist} :visible {music-metadata.artist != music-metadata.albumartist})
       (v-box :visible {music-queue.position != 0}
         (label :class "queue" :text "${music-queue.position} of ${music-queue.length}")
         (progress :class "progress" :value {music-status.position / music-metadata.duration * 100})
