@@ -4,11 +4,13 @@
   networking.hostName = "zinc";
   networking.wireless = {
     enable = true;
+    userControlled = {
+      enable = true;
+    };
     environmentFile = config.age.secrets.wlan-psk.path;
     networks = {
-      NineEyes = {
-        psk = "@PSK_NINE_EYES@";
-      };
+      NineEyes.psk = "@PSK_NINE_EYES@";
+      StuffnesslyZwei.psk = "@PSK_STUFFNESSLY@";
     };
   };
 }
