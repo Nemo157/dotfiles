@@ -139,7 +139,7 @@
 
 (defvar GiB {1024 * 1024 * 1024})
 
-(defwidget pie [value ?class tooltip icon ?clockwise]
+(defwidget pie [value ?class tooltip icon ?clockwise ?visible]
   (circular-progress
       :tooltip {tooltip}
       :value {value}
@@ -147,6 +147,7 @@
       :thickness 4
       :start-at 75
       :clockwise {clockwise ?: true}
+      :visible {visible ?: true}
     (overlay
       (label :class "pie-overlay" :text "")
       (label :text {icon})
@@ -176,8 +177,9 @@
       :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
     )
     (pie :icon "B" :class "inverse" :clockwise false
-      :value {EWW_BATTERY.total_avg}
-      :tooltip "${round(EWW_BATTERY.total_avg, 1)}%"
+      :visible {EWW_BATTERY != ""}
+      :value {EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg}
+      :tooltip "${round(EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg, 1)}%"
     )
   )
 )
