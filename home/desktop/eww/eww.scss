@@ -102,23 +102,6 @@ tooltip {
 
   .pie {
     background-color: $base3;
-
-    &.v100, &.v90, &.v80, &.v70 { color: $red; }
-    &.v60 { color: $orange; }
-    &.v50 { color: $yellow; }
-    &.v40 { color: $green; }
-    &.v30 { color: $cyan; }
-    &.v20, &.v10, &.v00 { color: $blue; }
-
-    &.inverse {
-      &.v100, &.v90, &.v80 { color: $blue; }
-      &.v70 { color: $cyan; }
-      &.v60 { color: $green; }
-      &.v50 { color: $yellow; }
-      &.v40 { color: $orange; }
-      &.v30, &.v20, &.v10, &.v00 { color: $red; }
-    }
-
     .pie-overlay { color: $base3; }
   }
 
@@ -343,4 +326,20 @@ progress {
 
 .pie {
   .pie-overlay { font-size: 2.5rem; }
+
+  &.v100, &.v90, &.v80, &.v70 { color: $red; }
+  &.v60 { color: $orange; }
+  &.v50 { color: $yellow; }
+  &.v40 { color: $green; }
+  &.v30 { color: $cyan; }
+  &.v20, &.v10, &.v00 { color: $blue; }
+
+  &.inverse {
+    &.v100, &.v90, &.v80 { color: $blue; }
+    &.v70 { color: $cyan; }
+    &.v60 { color: $green; }
+    &.v50 { color: $yellow; }
+    &.v40 { color: $orange; }
+    &.v30, &.v20, &.v10, &.v00 { color: $red; }
+  }
 }
