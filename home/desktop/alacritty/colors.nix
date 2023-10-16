@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 let
   colors = let
-    sol = (import ../sol.nix);
+    sol = (import ../../sol.nix);
     common = ({ primary, normal, bright }: with sol; {
       inherit primary;
       cursor = {
@@ -52,49 +52,8 @@ let
   };
   alacritty = lib.getExe config.programs.alacritty.package;
 in {
-  programs.alacritty = {
-    enable = true;
+  programs.alacritty.settings.colors = colors.dark;
 
-    settings = {
-      window.padding = { x = 5; y = 0; };
-
-      scrolling.history = 0;
-
-      font = {
-        normal.family = "FiraCode Nerd Font";
-        size = 11.0;
-      };
-
-      bell.duration = 0;
-
-      draw_bold_text_with_bright_colors = false;
-
-      mouse = {
-        double_click.threshold = 300;
-        triple_click.threshold = 300;
-        hide_when_typing = true;
-      };
-
-      hints.url = {
-        launcher = "open";
-        modifiers = "Command";
-      };
-
-      selection.semantic_escape_chars = ",│`|:\"' ()[]{}<>";
-
-      shell = {
-        program = "zsh";
-        args = [
-          "--login"
-          "-c"
-          "tmux -u new-session -s master-$(hostname -s) -t master -A"
-        ];
-      };
-
-      colors = colors.dark;
-    };
-  };
-} // {
   xdg.dataFile = lib.attrsets.mapAttrs' (mode: colors: {
     name = "${mode}-mode.d/alacritty-${mode}.sh";
     value = {

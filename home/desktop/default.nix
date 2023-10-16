@@ -1,6 +1,6 @@
 { pkgs, ... }: {
   imports = [
-    ./alacritty.nix
+    ./alacritty
     ./cursor.nix
     ./darkman.nix
     ./eww
