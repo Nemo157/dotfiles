@@ -11,9 +11,10 @@
 
   nix = {
     package = pkgs.nixFlakes;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
+    settings = {
+      builders-use-substitutes = true;
+      experimental-features = "nix-command flakes";
+    };
     distributedBuilds = true;
     buildMachines = [
       {
