@@ -107,6 +107,8 @@ in {
 
       bind = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
       bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
+
+      windowrulev2 = float,class:RimPy,title:^(?!RimPy)
     '';
   };
 
