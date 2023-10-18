@@ -109,6 +109,11 @@ in {
       bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
+
+      windowrule = float,title:Picture in picture
+      windowrule = pin,title:Picture in picture
+      windowrule = size 576 324,title:Picture in picture
+      windowrule = move 100%-577 100%-325,title:Picture in picture
     '';
   };
 
