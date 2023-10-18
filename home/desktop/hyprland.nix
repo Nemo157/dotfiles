@@ -69,11 +69,13 @@ in {
       bind = $mod, SPACE, exec, rofi -show drun
       bind = $mod, C, togglesplit,
       bind = $mod, COMMA, killactive,
+      bind = $mod SHIFT CTRL, D, exit,
+      bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
+
       bind = $mod, Y, fullscreen, 1
       bind = $mod CTRL, Y, togglefloating,
       bind = $mod SHIFT, Y, fullscreen, 0
-      bind = $mod SHIFT CTRL, D, exit,
-      bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
+      bind = $mod CTRL SHIFT, Y, pin,
 
       bind = $mod, J, movefocus, l
       bind = $mod, P, movefocus, r
