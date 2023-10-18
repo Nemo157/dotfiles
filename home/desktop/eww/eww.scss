@@ -49,6 +49,13 @@ tooltip {
         background-color: $base2;
         border-color: $base01;
       }
+
+      :hover, &:hover {
+        background-color: $base1;
+        .name, .class {
+          color: $base02;
+        }
+      }
     }
   }
 
@@ -135,6 +142,13 @@ tooltip {
         color: $base1;
         background-color: $base02;
         border-color: $base1;
+      }
+
+      :hover, &:hover {
+        background-color: $base01;
+        .name, .class {
+          color: $base2;
+        }
       }
     }
   }
@@ -241,10 +255,14 @@ progress {
 
     .window {
       border-top: 1px solid;
-      padding: 0.4rem 0.2rem;
 
       .class {
+        padding: 0.4rem 0.2rem;
         font-weight: bold;
+      }
+
+      .icon {
+        padding: 0.4rem 0.2rem;
       }
     }
   }
