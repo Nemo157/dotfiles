@@ -56,6 +56,7 @@ spaces() {
               address,
               active: (.address == env.AWI),
             }
+            | select(if .class == "steam" then .title != "" else true end)
           ]
         }
       | select((.windows | any) or (.name | length > 0))
