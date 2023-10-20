@@ -59,6 +59,7 @@ in {
       dwindle {
         pseudotile = true
         preserve_split = true
+        no_gaps_when_only = 1
       }
 
       $mod = ALT
