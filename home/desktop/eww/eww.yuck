@@ -57,18 +57,16 @@
             :class "window ${window.active ? "active" : ""}"
             :cursor "pointer"
             :onclick "hyprctl dispatch focuswindow address:${window.address}"
-            (overlay
+            (v-box
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}
                 :path {window.icon ?: "/home/nemo157/.local/share/eww/no-album.png"}
                 :tooltip {window.title}
               )
-              (h-box
-                (label :class "class"
-                  :text "${window.class}"
-                  :visible {window.icon == "null"}
-                  :tooltip {window.title}
-                )
+              (label :class "class"
+                :text "${window.class}"
+                :visible {window.icon == "null"}
+                :tooltip {window.title}
               )
             )
           )
