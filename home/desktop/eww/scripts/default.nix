@@ -4,6 +4,11 @@
     source = ./eww-hypr-workspaces;
   };
 
+  scripts.eww-hypr-focus-window-for-realsiez = {
+    runtimeInputs = [ pkgs.hyprland pkgs.jq ];
+    source = ./eww-hypr-focus-window-for-realsiez;
+  };
+
   scripts.eww-color-scheme = {
     runtimeInputs = [ pkgs.jq pkgs.systemd ];
     source = ./eww-color-scheme;

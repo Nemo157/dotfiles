@@ -56,7 +56,7 @@
           (eventbox
             :class "window ${window.active ? "active" : ""}"
             :cursor "pointer"
-            :onclick "hyprctl dispatch focuswindow address:${window.address}"
+            :onclick "eww-hypr-focus-window-for-realsiez ${window.address}"
             (v-box
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}
