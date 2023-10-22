@@ -38,7 +38,7 @@
         _link_cargo_dir "${config.xdg.configHome}" config.toml
         _link_cargo_dir "${config.xdg.dataHome}" credentials.toml
         _link_cargo_dir "${config.xdg.stateHome}" git/db/ registry/index/ registry/cache/
-        _link_cargo_dir "${config.xdg.cacheHome}" git/checkouts/ registry/src/
+        _link_cargo_dir "${config.xdg.cacheHome}" git/checkouts/ registry/src/ target/
 
         chmod -R a-w $CARGO_HOME
       )
