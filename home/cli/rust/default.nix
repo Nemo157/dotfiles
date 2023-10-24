@@ -6,6 +6,7 @@
     cargo-expand
     cargo-fuzz
     cargo-hack
+    cargo-minimal-versions
     cargo-nextest
     cargo-supply-chain
     cargo-sweep
