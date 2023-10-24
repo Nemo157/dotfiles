@@ -20,7 +20,7 @@
   home.file.".local/bin/cargo-doc-like-docs.rs".source = ./cargo-doc-like-docs.rs;
 
   programs.zsh.profileExtra = ''
-    export CARGO_HOME="$XDG_RUNTIME_DIR/cargo"
+    export CARGO_HOME="$XDG_RUNTIME_DIR/cargo-home"
 
     if ! [ -e "$CARGO_HOME" ]
     then
@@ -37,10 +37,10 @@
 
         _link_cargo_dir "${config.xdg.configHome}" config.toml
         _link_cargo_dir "${config.xdg.dataHome}" credentials.toml
-        _link_cargo_dir "${config.xdg.stateHome}" git/db/ registry/index/ registry/cache/
-        _link_cargo_dir "${config.xdg.cacheHome}" git/checkouts/ registry/src/ target/
+        _link_cargo_dir "${config.xdg.cacheHome}" git/db/ registry/{index,cache}/ target/
+        _link_cargo_dir "$XDG_RUNTIME_DIR" git/checkouts/ registry/src/
 
-        chmod -R a-w $CARGO_HOME
+        chmod -R a-w,a+t $CARGO_HOME
       )
     fi
   '';
