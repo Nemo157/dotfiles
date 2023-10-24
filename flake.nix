@@ -32,6 +32,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    swayimg = {
+      url = "github:Nemo157/swayimg/layer";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -57,6 +63,7 @@
     nixpkgs-wayland,
     nixur,
     rust-overlay,
+    swayimg,
     ...
   }: let
     system = "x86_64-linux";
@@ -68,6 +75,7 @@
         self.overlays.default
         rust-overlay.overlays.default
         agenix.overlays.default
+        swayimg.overlays.default
       ];
     };
     pkgs-wayland = nixpkgs-wayland.packages.${system};

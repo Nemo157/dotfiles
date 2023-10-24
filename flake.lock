@@ -337,7 +337,8 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nixpkgs-wayland": "nixpkgs-wayland",
         "nixur": "nixur",
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": "rust-overlay",
+        "swayimg": "swayimg"
       }
     },
     "rust-overlay": {
@@ -360,6 +361,30 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "swayimg": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1698152260,
+        "narHash": "sha256-oJ9P1add77A9MdB0WXu4qvy4okLOL0BMXu3a/IhozAI=",
+        "owner": "Nemo157",
+        "repo": "swayimg",
+        "rev": "a384c8f42f580f76cdc56df7c0534165e2c46e43",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nemo157",
+        "ref": "layer",
+        "repo": "swayimg",
         "type": "github"
       }
     },
