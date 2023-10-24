@@ -16,9 +16,11 @@
     (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
   ];
 
-  home.file.".local/bin/cargo-rubber".source = ./cargo-rubber;
-  home.file.".local/bin/cargo-rustdoc-clippy".source = ./cargo-rustdoc-clippy;
-  home.file.".local/bin/cargo-doc-like-docs.rs".source = ./cargo-doc-like-docs.rs;
+  home.file = {
+    "${config.binHome}/cargo-rubber".source = ./cargo-rubber;
+    "${config.binHome}/cargo-rustdoc-clippy".source = ./cargo-rustdoc-clippy;
+    "${config.binHome}/cargo-doc-like-docs.rs".source = ./cargo-doc-like-docs.rs;
+  };
 
   programs.zsh.profileExtra = ''
     export CARGO_HOME="$XDG_RUNTIME_DIR/cargo-home"
