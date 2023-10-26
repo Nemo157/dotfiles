@@ -6,7 +6,7 @@ dirs=("${xdg_data_dirs[@]/%//icons}")
 add_icons() {
   while read -r line
   do
-    jq -Mc '.[]' <<<"$line" | while read -r workspace
+    workspaces=$(jq -Mc '.workspaces[]' <<<"$line" | while read -r workspace
     do
       windows=$(jq -Mc '.windows[]' <<<"$workspace" | while read -r window
       do
@@ -25,14 +25,12 @@ add_icons() {
         cat <<<"$window"
       done | jq -sMc '{ windows: . }')
       (cat <<<"$workspace"; cat <<<"$windows") | jq -sMc 'map(to_entries) | flatten | from_entries'
-    done | jq -sMc '.'
+    done | jq -sMc '{ workspaces: . }')
+    (cat <<<"$line"; cat <<<"$workspaces") | jq -sMc 'map(to_entries) | flatten | from_entries'
   done
 }
 
-spaces() {
-  AWS=$(hyprctl activeworkspace -j | jq '.id')
-  AWI=$(hyprctl activewindow -j | jq -r '.address')
-  export AWS AWI
+info() {
   {
     echo '[
       {"workspace":{"id":1,"name":"einz"}},
@@ -41,38 +39,45 @@ spaces() {
       {"workspace":{"id":4,"name":"vier"}}
     ]'
     hyprctl clients -j
-  } | jq -sMc '
-    [
-      flatten
-      | group_by(.workspace.id)
-      | .[]
-      | .[0].workspace + {
-          windows: [
-            .[]
-            | select(.address and (.class | length > 0))
-            | {
-              class,
-              title,
-              address,
-              active: (.address == env.AWI),
-            }
-            | select(if .class == "steam" then .title != "" else true end)
-          ]
-        }
-      | select((.windows | any) or (.name | length > 0))
-      | . + {
-          active: (.id | tostring == env.AWS),
-        }
-    ]
+  } | jq \
+      --argjson activewindow "$(hyprctl activewindow -j)" \
+      --argjson activeworkspace "$(hyprctl activeworkspace -j)" \
+      -sMc '
+    {
+      activewindow: $activewindow,
+      activeworkspace: $activeworkspace,
+      workspaces: [
+        flatten
+        | group_by(.workspace.id)
+        | .[]
+        | .[0].workspace + {
+            windows: [
+              .[]
+              | select(.address and (.class | length > 0))
+              | {
+                class,
+                title,
+                address,
+                active: (.address == $activewindow.address),
+              }
+              | select(if .class == "steam" then .title != "" else true end)
+            ]
+          }
+        | select((.windows | any) or (.name | length > 0))
+        | . + {
+            active: (.id | tostring == $activeworkspace.address),
+          }
+      ]
+    }
   ' | add_icons
 }
 
-spaces
+info
 SOCKET="UNIX-CONNECT:/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 socat -u "$SOCKET" - | while read -r; do
-  spaces
+  info
   # Some events like closing windows fire before everything is updated,
   # check again after a little while :ferrisPensive:
   sleep 0.1
-  spaces
+  info
 done

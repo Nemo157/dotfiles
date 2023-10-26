@@ -1,7 +1,7 @@
 { lib, config, pkgs, pkgs-unstable, ... }: {
-  scripts.eww-hypr-workspaces = {
+  scripts.eww-hypr-info = {
     runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq pkgs.coreutils ];
-    source = ./eww-hypr-workspaces;
+    source = ./eww-hypr-info;
   };
 
   scripts.eww-hypr-focus-window-for-realsiez = {

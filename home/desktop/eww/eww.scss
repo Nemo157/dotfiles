@@ -76,10 +76,10 @@ tooltip {
     }
   }
 
-  .new-album {
-    color: $base00;
-    background-color: $base2;
-    border-color: $base00;
+  .button {
+    color: $base0;
+    background-color: $base3;
+    border-color: $base0;
     &:hover {
       color: $base01;
       border-color: $base01;
@@ -167,6 +167,16 @@ tooltip {
     .play-button, .pause-button {
       color: $base3;
       background-color: $base03;
+    }
+  }
+
+  .button {
+    color: $base00;
+    background-color: $base03;
+    border-color: $base00;
+    &:hover {
+      color: $base1;
+      border-color: $base1;
     }
   }
 
@@ -268,6 +278,13 @@ progress {
   }
 }
 
+.hypr-buttons {
+  .button {
+    margin: 0.2rem;
+  }
+  font-size: 1.4rem;
+}
+
 .music {
   font-size: 0.8rem;
 
@@ -317,12 +334,11 @@ progress {
   }
 }
 
-.new-album {
-  font-size: 0.8rem;
-  border: 1px dotted;
+.button {
+  border: 1px solid;
   border-radius: 2px;
-  &:hover {
-    border-style: solid;
+  label {
+    padding: 0 0.5rem;
   }
 }
 

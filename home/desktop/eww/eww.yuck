@@ -1,24 +1,28 @@
-(defwidget v-box [?class ?halign ?space-evenly ?valign ?vexpand ?visible]
+(defwidget v-box [?class ?halign ?hexpand ?valign ?vexpand ?space-evenly ?spacing ?visible]
   (box
     :class {class}
-    :halign {halign ?: "fill"}
-    :valign {valign ?: "fill"}
     :orientation "v"
-    :space-evenly {space-evenly ?: false}
+    :halign {halign ?: "fill"}
+    :hexpand {hexpand ?: false}
+    :valign {valign ?: "fill"}
     :vexpand {vexpand ?: false}
+    :space-evenly {space-evenly ?: false}
+    :spacing {spacing ?: 0}
     :visible {visible ?: true}
     (children)
   )
 )
 
-(defwidget h-box [?class ?halign ?space-evenly ?valign ?vexpand ?visible]
+(defwidget h-box [?class ?halign ?hexpand ?valign ?vexpand ?space-evenly ?spacing ?visible]
   (box
     :class {class}
-    :halign {halign ?: "fill"}
-    :valign {valign ?: "fill"}
     :orientation "h"
-    :space-evenly {space-evenly ?: false}
+    :halign {halign ?: "fill"}
+    :hexpand {hexpand ?: false}
+    :valign {valign ?: "fill"}
     :vexpand {vexpand ?: false}
+    :space-evenly {space-evenly ?: false}
+    :spacing {spacing ?: 0}
     :visible {visible ?: true}
     (children)
   )
@@ -30,6 +34,7 @@
 (defwidget taskbar []
   (v-box :class "bar ${color-scheme}" :vexpand true
     (workspaces)
+    (hypr-buttons)
     (box :vexpand true)
     (music)
     (tray)
@@ -39,13 +44,13 @@
   )
 )
 
-(deflisten workspaces
-  :initial "[]"
-  "eww-hypr-workspaces")
+(deflisten hypr-info
+  :initial "{}"
+  "eww-hypr-info")
 
 (defwidget workspaces []
   (box :orientation "v" :class "workspaces" :space-evenly false
-    (for workspace in workspaces
+    (for workspace in {hypr-info?.workspaces ?: []}
       (box :orientation "v" :class "workspace ${workspace.active ? "active" : ""}" :space-evenly false
         (eventbox
           :cursor "pointer"
@@ -103,35 +108,55 @@
     (label :text "${prefix}${round(value / 60, 0)}:${strlength(round(value % 60, 0)) < 2 ? "0" : ""}${round(value % 60, 0)}")
 )
 
+(defwidget hypr-buttons []
+  (h-box :class "hypr-buttons"
+    (eventbox :class "button"
+      :onclick "hyprctl dispatch exec 'rofi -show drun'"
+      :cursor "pointer"
+      "󱓞"
+    )
+    (box :hexpand true)
+    (eventbox :class "button"
+      :onclick "hyprctl dispatch fullscreen 1"
+      :cursor "pointer"
+      {hypr-info?.activewindow?.fullscreen ?: false ? "󰊔" : "󰊓"}
+    )
+    (box :hexpand true)
+    (eventbox :class "button"
+      :onclick "hyprctl dispatch killactive"
+      :cursor "pointer"
+      ""
+    )
+  )
+)
+
 (defwidget music []
-  (v-box
-    (v-box :class 'music ${music-status.state}'
-      (dynamic-label :class "album" :text {music-metadata.album})
-      (dynamic-label :class "albumartist" :text {music-metadata.albumartist})
-      (eventbox :onclick "playerctl -p mpd play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
-        (overlay
-          (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
-          (label :class "play-button" :text "")
-          (label :class "pause-button" :text "")
-        )
+  (v-box :class 'music ${music-status.state}'
+    (dynamic-label :class "album" :text {music-metadata.album})
+    (dynamic-label :class "albumartist" :text {music-metadata.albumartist})
+    (eventbox :onclick "playerctl -p mpd play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
+      (overlay
+        (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
+        (label :class "play-button" :text "")
+        (label :class "pause-button" :text "")
       )
-      (dynamic-label :class "title" :text {music-metadata.title})
-      (dynamic-label :class "artist" :text {music-metadata.artist} :visible {music-metadata.artist != music-metadata.albumartist})
-      (v-box :visible {music-queue.position != 0}
-        (label :class "queue" :text "${music-queue.position} of ${music-queue.length}")
-        (progress :class "progress" :value {music-status.position / music-metadata.duration * 100})
-        (h-box :class "time"
-          (duration :value {music-status.position})
-          (box :hexpand true)
-          (duration :prefix "-" :value {music-metadata.duration - music-status.position})
-        )
+    )
+    (dynamic-label :class "title" :text {music-metadata.title})
+    (dynamic-label :class "artist" :text {music-metadata.artist} :visible {music-metadata.artist != music-metadata.albumartist})
+    (v-box :visible {music-queue.position != 0}
+      (label :class "queue" :text "${music-queue.position} of ${music-queue.length}")
+      (progress :class "progress" :value {music-status.position / music-metadata.duration * 100})
+      (h-box :class "time"
+        (duration :value {music-status.position})
+        (box :hexpand true)
+        (duration :prefix "-" :value {music-metadata.duration - music-status.position})
       )
-      (eventbox :class "new-album" :onclick "rand-album" :cursor "pointer"
-        (centerbox
-          (label :text "󰀥")
-          (label :text "󰒟")
-          (label :text "󰀥")
-        )
+    )
+    (eventbox :class "button" :onclick "rand-album" :cursor "pointer"
+      (centerbox
+        (label :text "󰀥")
+        (label :text "󰒟")
+        (label :text "󰀥")
       )
     )
   )
