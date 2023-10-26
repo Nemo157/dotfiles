@@ -30,7 +30,7 @@ add_icons() {
   done
 }
 
-info() {
+get-info() {
   {
     echo '[
       {"workspace":{"id":1,"name":"einz"}},
@@ -70,6 +70,16 @@ info() {
       ]
     }
   ' | add_icons
+}
+
+prev=
+info() {
+  new="$(get-info)"
+  if [ "$prev" != "$new" ]
+  then
+    prev="$new"
+    echo "$new"
+  fi
 }
 
 info
