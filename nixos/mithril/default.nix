@@ -47,4 +47,10 @@
     zsh.enable = true;
     dconf.enable = true;
   };
+
+  virtualisation.docker = {
+    enable = true;
+    autoPrune.enable = true;
+    storageDriver = "zfs";
+  };
 }

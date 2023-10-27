@@ -23,6 +23,7 @@
     "/" = { device = "rpool/nixos/root"; fsType = "zfs"; };
     "/home" = { device = "rpool/nixos/home"; fsType = "zfs"; };
     "/var/lib" = { device = "rpool/nixos/var/lib"; fsType = "zfs"; };
+    "/var/lib/docker" = { device = "rpool/nixos/var/lib/docker"; fsType = "zfs"; };
     "/var/log" = { device = "rpool/nixos/var/log"; fsType = "zfs"; };
     "/boot" = { device = "rpool/nixos/boot"; fsType = "zfs"; };
     "/boot/efis/nvme-CT2000P3PSSD8_2309E6B34606-part3" = {
