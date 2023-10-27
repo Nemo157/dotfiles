@@ -20,6 +20,8 @@ in {
 
   atuin = pkgs-unstable.atuin;
 
+  cargo-vet = pkgs-unstable.cargo-vet;
+
   darkman = callPackage ./darkman.nix {};
 
   eww-wayland = callPackage ./eww-wayland.nix {};
