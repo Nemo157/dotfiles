@@ -15,5 +15,6 @@
     ".env"
     "compile_commands.json"
     ".bacon-locations"
+    ".direnv/"
   ];
 }
