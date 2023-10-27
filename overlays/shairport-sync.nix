@@ -1,4 +1,4 @@
-{ pkgs-final, pkgs-prev }:
+{ pkgs-final, pkgs-prev, ... }:
 
 # contains a fixed pipewire output module
 pkgs-prev.shairport-sync.overrideAttrs {

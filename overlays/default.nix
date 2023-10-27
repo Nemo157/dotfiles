@@ -8,12 +8,10 @@
   };
   intersectAttrs = builtins.intersectAttrs;
   functionArgs = builtins.functionArgs;
-  callPackage = path: overrides:
-    let f = import path;
-    in f ((intersectAttrs (functionArgs f) args) // overrides);
+  callOverlay = path: (import path) args;
 in {
 
-  fetchFromCratesIo = callPackage ./fetchFromCratesIo.nix {};
+  fetchFromCratesIo = callOverlay ./fetchFromCratesIo.nix;
 
   # for mullvad exit-node support
   tailscale = pkgs-unstable.tailscale;
@@ -22,13 +20,13 @@ in {
 
   cargo-vet = pkgs-unstable.cargo-vet;
 
-  darkman = callPackage ./darkman.nix {};
+  darkman = callOverlay ./darkman.nix;
 
-  eww-wayland = callPackage ./eww-wayland.nix {};
+  eww-wayland = callOverlay ./eww-wayland.nix;
 
-  shairport-sync = callPackage ./shairport-sync.nix {};
+  shairport-sync = callOverlay ./shairport-sync.nix;
 
-  rofi-wayland-unwrapped = callPackage ./rofi-wayland.nix {};
+  rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;
   rofi-unwrapped = final.rofi-wayland-unwrapped;
 
   maintainers = prev.maintainers // maintainers;

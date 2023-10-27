@@ -1,4 +1,4 @@
-{ pkgs-final, pkgs-prev }:
+{ pkgs-final, pkgs-prev, ... }:
 
 # Requires unreleased change to avoid using `bash` for scripts
 pkgs-prev.darkman.overrideAttrs {

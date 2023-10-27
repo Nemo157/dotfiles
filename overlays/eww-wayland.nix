@@ -1,4 +1,4 @@
-{ pkgs-final, pkgs-unstable }:
+{ pkgs-final, pkgs-unstable, ... }:
 
 # Support for showing a system tray with dynamic icons
 pkgs-unstable.eww-wayland.overrideAttrs (eww-final: eww-prev: rec {

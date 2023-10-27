@@ -1,4 +1,4 @@
-{ pkgs-final, pkgs-unstable }:
+{ pkgs-final, pkgs-unstable, ... }:
 
 pkgs-unstable.rofi-wayland-unwrapped.overrideAttrs (final: prev: rec {
   version = "f7fcb4c5a08e40846bfd5298ecc0de264e1eedb8";
