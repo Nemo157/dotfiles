@@ -14,5 +14,10 @@
     source = ./rand-album;
   };
 
+  scripts.rofi-mpd = {
+    runtimeInputs = [ pkgs.rofi pkgs.mpc-cli pkgs.coreutils ];
+    source = ./rofi-mpd;
+  };
+
   services.playerctld.enable = true;
 }
