@@ -1,0 +1,26 @@
+export CARGO_HOME="$XDG_RUNTIME_DIR/cargo-home"
+
+if [ -e "$CARGO_HOME" ]
+then
+  echo "Found existing CARGO_HOME in $CARGO_HOME" >&2
+else
+  echo "Creating XDG compatible CARGO_HOME in $CARGO_HOME" >&2
+  (
+    _link_cargo_dir() {
+      base="$1"
+      shift
+      while [[ $# -gt 0 ]]; do
+        mkdir -p "$CARGO_HOME/$(dirname "$1")" "$base/cargo/$(dirname "$1-")"
+        ln -st "$CARGO_HOME/$(dirname "$1")" "$base/cargo/$1"
+        shift
+      done
+    }
+
+    _link_cargo_dir "${XDG_CONFIG_HOME:-$HOME/.config}" config.toml
+    _link_cargo_dir "${XDG_DATA_HOME:-$HOME/.local/share}" credentials.toml
+    _link_cargo_dir "${XDG_CACHE_HOME:-$HOME/.cache}" git/db/ registry/{index,cache}/ target/
+    _link_cargo_dir "$XDG_RUNTIME_DIR" git/checkouts/ registry/src/
+
+    chmod -R a-w,a+t "$CARGO_HOME"
+  )
+fi

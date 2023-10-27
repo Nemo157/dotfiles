@@ -6,7 +6,6 @@
     ./gh.nix
     ./gpg.nix
     ./lsd.nix
-    ./rust
     ./ssh.nix
     ./ssh-agent.nix
     ./starship.nix

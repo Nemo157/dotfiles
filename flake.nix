@@ -96,7 +96,9 @@
 
     overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
 
-    packages."${system}" = import ./packages { inherit pkgs; };
+    packages.${system} = import ./packages { inherit pkgs; };
+
+    devShells.${system} = import ./shells { inherit pkgs; };
 
     nixosConfigurations = {
       mithril = nixpkgs.lib.nixosSystem {
