@@ -1,18 +1,18 @@
 { lib, fetchFromCratesIo, rustPlatform }:
 
 rustPlatform.buildRustPackage rec {
-  pname = "cargo-dl";
-  version = "0.1.4";
+  pname = "cargo-minimal-versions";
+  version = "0.1.20";
 
   src = fetchFromCratesIo {
     inherit pname version;
-    sha256 = "sha256-txSRmOr3tYw72xI5Dqt/y1EboaqFWEMN+lASVXLNdgQ=";
+    sha256 = "sha256-6uJ/QXuDJ55baWGuzP8IIsezM1QSEeKOxN+0jm6Or50=";
   };
 
-  cargoHash = "sha256-mkRZtC6JjsJxQ4DTjS2qw2y1opFIMt39eEMR1DurgAM=";
+  cargoSha256 = "sha256-Zcr+xWNFPJhtfJF8pl+KUN/ZSVa25mSbdXHMqY6OMv0=";
 
   meta = with lib; {
-    description = "Cargo subcommand for downloading crate sources";
+    description = "Cargo subcommand for proper use of -Z minimal-versions";
     homepage = src.meta.homepage;
     license = with licenses; [ mit asl20 ];
     maintainers = [ maintainers.nemo157 ];

@@ -13,6 +13,8 @@
     in f ((intersectAttrs (functionArgs f) args) // overrides);
 in {
 
+  fetchFromCratesIo = callPackage ./fetchFromCratesIo.nix {};
+
   # for mullvad exit-node support
   tailscale = pkgs-unstable.tailscale;
 
