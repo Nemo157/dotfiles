@@ -28,9 +28,9 @@ in {
 
   shairport-sync = callPackage ./shairport-sync.nix {};
 
-  rofi-unwrapped = callPackage ./rofi-wayland.nix {};
+  rofi-wayland-unwrapped = callPackage ./rofi-wayland.nix {};
+  rofi-unwrapped = final.rofi-wayland-unwrapped;
 
   maintainers = prev.maintainers // maintainers;
-
 
 } // import ../packages { pkgs = final; }
