@@ -27,6 +27,7 @@
           "${pkgs.hyprland}/bin"
           "${pkgs.jq}/bin"
           "${pkgs.gnused}/bin"
+          "${pkgs.coreutils}/bin"
           config.binHome
         ];
         ExecStart = "eww daemon --no-daemonize";

@@ -108,25 +108,24 @@
     (label :text "${prefix}${round(value / 60, 0)}:${strlength(round(value % 60, 0)) < 2 ? "0" : ""}${round(value % 60, 0)}")
 )
 
+(defwidget btn [onclick icon]
+  (eventbox :class "button"
+    :onclick {onclick}
+    :cursor "pointer"
+    (label :text {icon})
+  )
+)
+
 (defwidget hypr-buttons []
   (h-box :class "hypr-buttons"
-    (eventbox :class "button"
-      :onclick "hyprctl dispatch exec 'rofi -show drun'"
-      :cursor "pointer"
-      "󱓞"
-    )
+    (btn :icon "󱓞" :onclick "hyprctl dispatch exec 'rofi -show drun'")
     (box :hexpand true)
-    (eventbox :class "button"
+    (btn
+      :icon {hypr-info?.activewindow?.fullscreen ?: false ? "󰊔" : "󰊓"}
       :onclick "hyprctl dispatch fullscreen 1"
-      :cursor "pointer"
-      {hypr-info?.activewindow?.fullscreen ?: false ? "󰊔" : "󰊓"}
     )
     (box :hexpand true)
-    (eventbox :class "button"
-      :onclick "hyprctl dispatch killactive"
-      :cursor "pointer"
-      ""
-    )
+    (btn :icon "" :onclick "hyprctl dispatch killactive")
   )
 )
 
@@ -152,12 +151,12 @@
         (duration :prefix "-" :value {music-metadata.duration - music-status.position})
       )
     )
-    (eventbox :class "button" :onclick "rand-album" :cursor "pointer"
-      (centerbox
-        (label :text "󰀥")
-        (label :text "󰒟")
-        (label :text "󰀥")
-      )
+    (h-box
+      (box :hexpand true)
+      (btn :icon "󰲸" :onclick "sleep 0.1 && hyprctl dispatch exec rofi-mpd")
+      (box :hexpand true)
+      (btn :icon "󰎈" :onclick "rand-album")
+      (box :hexpand true)
     )
   )
 )
