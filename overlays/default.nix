@@ -29,6 +29,8 @@ in {
   rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;
   rofi-unwrapped = final.rofi-wayland-unwrapped;
 
+  freetube = callOverlay ./freetube.nix;
+
   maintainers = prev.maintainers // maintainers;
 
 } // import ../packages { pkgs = final; }
