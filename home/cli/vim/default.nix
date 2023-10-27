@@ -16,7 +16,6 @@ in {
       editorconfig-vim
       ale
       vim-lengthmatters
-      vim-markdown-composer
       vim-dispatch
       vim-indent-guides
       fzf-vim
@@ -149,9 +148,6 @@ in {
       let g:indent_guides_guide_size = 1
       let g:indent_guides_enable_on_vim_startup = 0
       let g:indent_guides_start_level = 2
-
-      let g:markdown_composer_syntax_theme='solarized-dark'
-      let g:markdown_composer_custom_css=['http://thomasf.github.io/solarized-css/solarized-dark.min.css']
 
       let g:EasyMotion_keys = 'uhetonaspg.c,r'
 
