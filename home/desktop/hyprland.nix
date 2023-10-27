@@ -116,10 +116,13 @@ in {
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
 
-      windowrule = float,title:Picture in picture
-      windowrule = pin,title:Picture in picture
-      windowrule = size 576 324,title:Picture in picture
-      windowrule = move 100%-577 100%-325,title:Picture in picture
+      windowrulev2 = float,title:Picture in picture
+      windowrulev2 = pin,title:Picture in picture
+      windowrulev2 = size 576 324,title:Picture in picture
+      windowrulev2 = move 100%-577 100%-325,title:Picture in picture
+
+      windowrulev2 = tile,class:^RimWorldLinux
+      windowrulev2 = tile,class:^Minecraft
     '';
   };
 
