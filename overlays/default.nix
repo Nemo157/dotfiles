@@ -18,6 +18,8 @@ in {
   # for mullvad exit-node support
   tailscale = pkgs-unstable.tailscale;
 
+  atuin = pkgs-unstable.atuin;
+
   darkman = callPackage ./darkman.nix {};
 
   eww-wayland = callPackage ./eww-wayland.nix {};
