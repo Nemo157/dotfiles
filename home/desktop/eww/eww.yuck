@@ -69,7 +69,7 @@
                 :tooltip {window.title}
               )
               (label :class "class"
-                :text "${window.class}"
+                :text "${substring(window.class, 0, 9)}"
                 :visible {window.icon == "null"}
                 :tooltip {window.title}
               )
