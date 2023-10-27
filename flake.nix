@@ -67,7 +67,9 @@
     ...
   }: let
     system = "x86_64-linux";
+
     pkgs-unstable = import nixpkgs-unstable { inherit system; };
+
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
@@ -78,8 +80,32 @@
         swayimg.overlays.default
       ];
     };
+
     pkgs-wayland = nixpkgs-wayland.packages.${system};
+
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
+
+    # pin nixpkgs to system nixpkgs for determinism
+    pin-nixpkgs = {
+      nix = {
+        # For flake commands
+        registry = {
+          # In case I want to access stuff pre-overlay
+          nixpkgs.flake = nixpkgs;
+
+          # Uses the `legacyPackages` below to allow access to my overlays,
+          # along with my packages through `packages` like normal
+          pkgs.flake = self;
+        };
+
+        # For legacy commands
+        channel.enable = false;
+        nixPath = [ "nixpkgs=${nixpkgs.outPath}" ];
+
+        # Don't import all the registry entries, just explicit ones above
+        settings.flake-registry = "/etc/nixos/registry.json";
+      };
+    };
   in rec {
 
     maintainers = {
@@ -97,6 +123,7 @@
     overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
 
     packages.${system} = import ./packages { inherit pkgs; };
+    legacyPackages.${system} = pkgs;
 
     devShells.${system} = import ./shells { inherit pkgs; };
 
@@ -104,6 +131,7 @@
       mithril = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         modules = [
+          pin-nixpkgs
           ./nixos/mithril
         ];
       };
@@ -111,6 +139,7 @@
       zinc = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         modules = [
+          pin-nixpkgs
           nixos-hardware.nixosModules.apple-t2
           nixos-hardware.nixosModules.common-cpu-intel
           nixos-hardware.nixosModules.common-pc-laptop
