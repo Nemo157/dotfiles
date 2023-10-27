@@ -66,6 +66,7 @@ in {
 
     extraConfig = ''
       set viminfofile=${statedir}/viminfo
+      let g:netrw_home = "${statedir}"
 
       colorscheme eink2
 
