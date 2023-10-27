@@ -34,7 +34,10 @@
     keyMap = "dvorak-programmer";
   };
 
-  security.polkit.enable = true;
+  security = {
+    polkit.enable = true;
+    rtkit.enable = true;
+  };
 
   environment.systemPackages = with pkgs; [
     vim
