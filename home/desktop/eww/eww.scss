@@ -50,7 +50,7 @@ tooltip {
         border-color: $base01;
       }
 
-      :hover, &:hover {
+      &:not(.active):hover {
         background-color: $base1;
         .name, .class {
           color: $base02;
@@ -144,7 +144,7 @@ tooltip {
         border-color: $base1;
       }
 
-      :hover, &:hover {
+      &:not(.active):hover {
         background-color: $base01;
         .name, .class {
           color: $base2;
@@ -243,18 +243,11 @@ progress {
   > * {
     padding: 0.2rem 0.4rem;
   }
-  > *:first-child {
-    padding-top: 0.4rem;
-  }
-  > *:last-child {
-    padding-top: 0.4rem;
-  }
 }
 
 .workspaces {
   .workspace {
     border: 1px solid;
-    margin-bottom: 0.2rem;
 
     .name {
       padding: 0.4rem 0.2rem;
@@ -262,19 +255,27 @@ progress {
       font-variant: small-caps;
       font-size: 1.2rem;
     }
+  }
 
-    .window {
-      border-top: 1px solid;
+  .window {
+    border: 1px solid;
+    border-top: 0px;
 
-      .class {
-        padding: 0.4rem 0.2rem;
-        font-weight: bold;
-      }
-
-      .icon {
-        padding: 0.4rem 0.2rem;
-      }
+    .class {
+      padding: 0.4rem 0.2rem;
+      font-weight: bold;
     }
+
+    .icon {
+      padding: 0.4rem 0.2rem;
+    }
+  }
+
+  > * {
+    margin-bottom: 0.4rem;
+  }
+  > *:last-child {
+    margin-bottom: 0;
   }
 }
 

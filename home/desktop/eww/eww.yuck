@@ -51,17 +51,18 @@
 (defwidget workspaces []
   (box :orientation "v" :class "workspaces" :space-evenly false
     (for workspace in {hypr-info?.workspaces ?: []}
-      (box :orientation "v" :class "workspace ${workspace.active ? "active" : ""}" :space-evenly false
+      (box :orientation "v" :space-evenly false
         (eventbox
-          :cursor "pointer"
-          :onclick "hyprctl dispatch workspace ${workspace.id}"
+          :class "workspace ${workspace.active ? "active" : ""}"
+          :cursor {workspace.active ? "default" : "pointer"}
+          :onclick {workspace.active ? "true" : "hyprctl dispatch workspace ${workspace.id}"}
           (label :class "name" :text "${workspace.name}")
         )
         (for window in {workspace.windows}
           (eventbox
             :class "window ${window.active ? "active" : ""}"
-            :cursor "pointer"
-            :onclick "eww-hypr-focus-window-for-realsiez ${window.address}"
+            :cursor {window.active ? "default" : "pointer"}
+            :onclick {window.active ? "true" : "eww-hypr-focus-window-for-realsiez ${window.address}"}
             (v-box
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}
