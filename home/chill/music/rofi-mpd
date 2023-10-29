@@ -1,5 +1,5 @@
-artist="$(mpc list artist | rofi -dmenu -i -p "" -no-custom)"
-album="$(mpc list album artist "$artist" | rofi -dmenu -i -p "$artist" -no-custom)"
+artist="$(mpc list albumartist | rofi -dmenu -i -p "" -no-custom)"
+album="$(mpc list album albumartist "$artist" | rofi -dmenu -i -p "$artist" -no-custom)"
 mpc clear >/dev/null
-mpc findadd artist "$artist" album "$album"
+mpc findadd albumartist "$artist" album "$album"
 mpc play

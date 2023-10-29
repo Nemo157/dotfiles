@@ -1,5 +1,5 @@
-artist="$(mpc list artist | shuf -n1)"
-album="$(mpc list album artist "$artist" | shuf -n1)"
+artist="$(mpc list albumartist | shuf -n1)"
+album="$(mpc list album albumartist "$artist" | shuf -n1)"
 mpc clear >/dev/null
-mpc findadd artist "$artist" album "$album"
+mpc findadd albumartist "$artist" album "$album"
 mpc play
