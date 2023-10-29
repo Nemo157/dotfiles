@@ -65,7 +65,7 @@ get-info() {
           }
         | select((.windows | any) or (.name | length > 0))
         | . + {
-            active: (.id | tostring == $activeworkspace.address),
+            active: (.id == $activeworkspace.id),
           }
       ]
     }
