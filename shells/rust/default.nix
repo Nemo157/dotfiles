@@ -7,6 +7,10 @@ let
   };
 in pkgs.mkShell {
   buildInputs = with pkgs; [
+    # Rust itself
+    rust-wrapped
+
+    # Dev utilities
     bacon
     cargo-deny
     cargo-dl
@@ -22,7 +26,13 @@ in pkgs.mkShell {
     cargo-udeps
     cargo-vet
     cargo-watch
-    rust-wrapped
+
+    # Common C tools
+    cmake
+    pkg-config
+
+    # Common "system" dependencies
+    openssl
   ];
 
   shellHook = ''
