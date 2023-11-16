@@ -7,7 +7,7 @@
     Unit = {
       Description = "SSH authentication agent";
       After = "sshagmux.socket";
-      BindsTo = "sshagmux.service";
+      BindsTo = "sshagmux.socket";
     };
     Service = {
       Environment = "SSH_AUTH_SOCK=%t/ssh-agent.socket";
