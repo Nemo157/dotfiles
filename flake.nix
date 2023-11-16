@@ -28,8 +28,9 @@
     };
 
     hyprland = {
-      url = "github:hyprwm/Hyprland/v0.25.0";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.systems.follows = "systems";
     };
 
     swayimg = {
@@ -45,7 +46,11 @@
     };
 
     # transitive dependencies to allow following :ferrisPensive:
-    flake-utils.url = "github:numtide/flake-utils";
+    systems.url = "github:nix-systems/default-linux";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
     lib-aggregate = {
       url = "github:nix-community/lib-aggregate";
       inputs.flake-utils.follows = "flake-utils";

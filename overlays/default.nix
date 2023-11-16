@@ -18,6 +18,7 @@ in {
 
   atuin = pkgs-unstable.atuin;
 
+  alacritty = pkgs-unstable.alacritty;
   cargo-vet = pkgs-unstable.cargo-vet;
   sqlx-cli = pkgs-unstable.sqlx-cli;
 

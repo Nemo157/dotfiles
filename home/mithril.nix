@@ -28,7 +28,7 @@
   };
 
   wayland.windowManager.hyprland = {
-    nvidiaPatches = true;
+    enableNvidiaPatches = true;
     extraConfig = lib.mkBefore ''
       env = LIBVA_DRIVER_NAME,nvidia
       env = XDG_SESSION_TYPE,wayland

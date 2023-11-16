@@ -22,6 +22,8 @@ in {
     extraConfig = ''
       monitor = ,highres,auto,1
 
+      env = WLR_DRM_NO_ATOMIC,1
+
       input {
         kb_layout = us,us
         # dvp is actually my primary layout, but some apps (mostly games) ignore
@@ -46,6 +48,7 @@ in {
         col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
         layout = dwindle
         no_cursor_warps = true
+        allow_tearing = true
       }
 
       animations {
@@ -123,6 +126,8 @@ in {
 
       windowrulev2 = tile,class:^RimWorldLinux
       windowrulev2 = tile,class:^Minecraft
+
+      windowrulev2 = immediate,class:^FreeTube$
     '';
   };
 
