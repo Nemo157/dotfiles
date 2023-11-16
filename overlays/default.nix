@@ -19,6 +19,7 @@ in {
   atuin = pkgs-unstable.atuin;
 
   cargo-vet = pkgs-unstable.cargo-vet;
+  sqlx-cli = pkgs-unstable.sqlx-cli;
 
   darkman = callOverlay ./darkman.nix;
 
