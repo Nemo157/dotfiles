@@ -70,6 +70,8 @@
 
       setw -g clock-mode-colour green
 
+      set -g default-terminal tmux-256color
+
       bind-key u run-shell -C { capture-pane -S '#{?#{==:#{pane_mode},copy-mode},-#{scroll_position},0}' -E '#{?#{==:#{pane_mode},copy-mode},#{e|-:#{pane_height},#{scroll_position}},#{pane_height}}' }\; save-buffer /tmp/tmux-buffer \; new-window 'urlview /tmp/tmux-buffer'
     '';
   };
