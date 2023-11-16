@@ -8,7 +8,7 @@ in {
 
   rust = mkRustShell { };
 
-  docs.rs = mkRustShell {
+  docs-rs = mkRustShell {
     extraBuildInputs = [ pkgs.sqlx-cli ];
   };
 }
