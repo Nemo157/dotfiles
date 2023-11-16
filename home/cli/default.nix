@@ -2,6 +2,7 @@
   imports = [
     ./atuin.nix
     ./bat
+    ./cargo.nix
     ./git
     ./gh.nix
     ./gpg.nix

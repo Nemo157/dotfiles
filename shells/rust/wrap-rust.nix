@@ -1,12 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, ... }: rust-toolchain:
 let
-  rust = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
   rustc-wrapped = pkgs.writeShellApplication {
     name = "rustc";
     runtimeInputs = [ pkgs.gnused ];
     text = ''
       is_version() {
-        while [ $# -gt 1 ]
+        while [ $# -gt 0 ]
         do
           case "$1" in
             -V | --version)
@@ -15,20 +14,21 @@ let
           esac
           shift
         done
+        return 1
       }
 
       if is_version "$@"
       then
-        ${rust}/bin/rustc "$@" | sed 's/-nightly//g'
+        ${rust-toolchain}/bin/rustc "$@" | sed 's/-nightly//g'
       else
-        exec ${rust}/bin/rustc "$@"
+        exec ${rust-toolchain}/bin/rustc "$@"
       fi
     '';
   };
 in pkgs.symlinkJoin {
-  inherit (rust) name;
+  inherit (rust-toolchain) name;
   paths = [
     rustc-wrapped
-    rust
+    rust-toolchain
   ];
 }

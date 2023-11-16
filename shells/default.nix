@@ -1,5 +1,14 @@
-{ pkgs }: {
-  rofi-wayland = pkgs.mkShell { inputsFrom = [ pkgs.rofi-wayland-unwrapped ]; };
+{ pkgs }:
+let
+  mkRustShell = pkgs.callPackage ./rust { };
+in {
+  rofi-wayland = pkgs.mkShell {
+    inputsFrom = [ pkgs.rofi-wayland-unwrapped ];
+  };
 
-  rust = pkgs.callPackage ./rust { };
+  rust = mkRustShell { };
+
+  docs.rs = mkRustShell {
+    extraBuildInputs = [ pkgs.sqlx-cli ];
+  };
 }
