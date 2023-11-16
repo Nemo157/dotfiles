@@ -31,6 +31,11 @@
       dotnet.style = "blue";
       dotnet.symbol = " ";
 
+      env_var.SCRATCH = {
+        format = "SCRATCH=[$env_value]($style)";
+        style = "cyan";
+      };
+
       git_branch.style = "yellow";
       git_branch.symbol = " ";
 
