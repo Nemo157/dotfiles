@@ -12,6 +12,7 @@
     ./starship.nix
     ./tmux.nix
     ./vim
+    ./vifm.nix
     ./zsh.nix
   ];
 
