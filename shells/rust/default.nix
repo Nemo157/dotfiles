@@ -91,6 +91,11 @@ in {
     export CARGO_UNSTABLE_HOST_CONFIG=true
     export CARGO_UNSTABLE_TARGET_APPLIES_TO_HOST=true
     export CARGO_UNSTABLE_TRIM_PATHS=true
+    export CARGO_UNSTABLE_GITOXIDE_FETCH=true
+    export CARGO_UNSTABLE_GITOXIDE_SHALLOW_INDEX=true
+    export CARGO_UNSTABLE_GITOXIDE_SHALLOW_DEPS=true
+    export CARGO_UNSTABLE_GITOXIDE_CHECKOUT=true
+    export CARGO_UNSTABLE_GITOXIDE_INTERNAL_USE_GIT2=false
 
     # Some crates disable nightly feature detection when this is set
     export RUSTC_STAGE=1
