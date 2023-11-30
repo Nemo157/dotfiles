@@ -41,7 +41,7 @@
     '';
 
     "scratch".text = ''
-      cd "$(mktemp -d)"
+      cd "$(mktemp --tmpdir -d "scratch.''${1+$1.}$(date +%Y-%m-%dT%H-%M).XXXXXX")"
       export SCRATCH=$PWD
       if [[ $# -gt 0 ]]
       then
