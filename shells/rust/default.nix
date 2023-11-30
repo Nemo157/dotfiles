@@ -33,6 +33,7 @@ in {
     cargo-minimal-versions
     cargo-nextest
     cargo-rubber
+    cargo-semver-checks
     cargo-supply-chain
     cargo-sweep
     cargo-udeps
