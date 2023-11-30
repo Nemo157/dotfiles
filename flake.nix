@@ -128,7 +128,7 @@
     overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
 
     packages.${system} = import ./packages { inherit pkgs; };
-    legacyPackages.${system} = pkgs;
+    legacyPackages.${system} = pkgs // { unstable = pkgs-unstable; };
 
     devShells.${system} = import ./shells { inherit pkgs; };
 
