@@ -111,7 +111,9 @@ in {
 
       userChrome = builtins.concatStringsSep "\n" (builtins.map builtins.readFile [
         "${csshacks}/chrome/hide_tabs_toolbar.css"
-        "${csshacks}/chrome/navbar_below_content.css"
+        # Preferable, but there's too many bugs with menu dropdowns not dropping
+        # up when they're at the bottom of the screen
+        # "${csshacks}/chrome/navbar_below_content.css"
       ]);
 
       extensions = with nur.repos.rycee.firefox-addons; [
