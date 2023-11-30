@@ -19,7 +19,7 @@ else
     _link_cargo_dir "${XDG_CONFIG_HOME:-$HOME/.config}" config.toml
     _link_cargo_dir "${XDG_DATA_HOME:-$HOME/.local/share}" credentials.toml
     _link_cargo_dir "${XDG_CACHE_HOME:-$HOME/.cache}" git/db/ registry/{index,cache}/ target/
-    _link_cargo_dir "$XDG_RUNTIME_DIR" git/checkouts/ registry/src/
+    _link_cargo_dir "$XDG_RUNTIME_DIR" git/checkouts/ registry/src/ .package-cache
 
     # smh cargo-audit, get your own dirs, stop borrowing cargo's
     ln -s "${XDG_CONFIG_HOME:-$HOME/.config}/cargo-audit/config.toml" "$CARGO_HOME/audit.toml"
