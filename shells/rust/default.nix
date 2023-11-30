@@ -82,14 +82,14 @@ in {
     export CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
     export CARGO_HOST_RUSTFLAGS="''${rustflags[*]}"
     export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="''${rustflags[*]}"
+    export CARGO_TARGET_APPLIES_TO_HOST=false
 
     export CARGO_PROFILE_DEV_CODEGEN_BACKEND=cranelift
 
+    export CARGO_UNSTABLE_BUILD_STD=std
     export CARGO_UNSTABLE_CODEGEN_BACKEND=true
     export CARGO_UNSTABLE_HOST_CONFIG=true
     export CARGO_UNSTABLE_TARGET_APPLIES_TO_HOST=true
-    export CARGO_TARGET_APPLIES_TO_HOST=false
-    export CARGO_UNSTABLE_BUILD_STD=std
     export CARGO_UNSTABLE_TRIM_PATHS=true
 
     # Some crates disable nightly feature detection when this is set
