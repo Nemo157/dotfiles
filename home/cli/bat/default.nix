@@ -6,7 +6,9 @@
       theme = "eink2";
     };
     themes = {
-      eink2 = builtins.readFile ./eink2.tmTheme;
+      eink2 = {
+        src = ./eink2.tmTheme;
+      };
     };
   };
 }

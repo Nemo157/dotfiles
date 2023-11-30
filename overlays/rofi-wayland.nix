@@ -1,6 +1,6 @@
-{ pkgs-final, pkgs-unstable, ... }:
+{ pkgs-final, pkgs-prev, ... }:
 
-pkgs-unstable.rofi-wayland-unwrapped.overrideAttrs (final: prev: rec {
+pkgs-prev.rofi-wayland-unwrapped.overrideAttrs (final: prev: rec {
   version = "54464992eb11eda1f19829d04e492e3360b77d66";
   src = pkgs-final.fetchFromGitHub {
     owner = "Nemo157";

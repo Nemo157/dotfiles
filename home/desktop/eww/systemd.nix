@@ -1,4 +1,4 @@
-{ lib, config, pkgs, pkgs-unstable, ... }: {
+{ lib, config, pkgs, ... }: {
   systemd.user.targets = {
     tray = {
       Unit = {

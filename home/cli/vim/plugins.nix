@@ -1,6 +1,6 @@
 { config, pkgs, vimUtils, fetchFromGitHub, ... }:
 {
-  vim-lengthmatters = vimUtils.buildVimPluginFrom2Nix {
+  vim-lengthmatters = vimUtils.buildVimPlugin {
     pname = "vim-lengthmatters";
     version = "2022-05-17";
     src = fetchFromGitHub {
@@ -11,7 +11,7 @@
     };
   };
 
-  Nemo157-airline-themes = vimUtils.buildVimPluginFrom2Nix {
+  Nemo157-airline-themes = vimUtils.buildVimPlugin {
     pname = "Nemo157-airline-themes";
     version = "2020-03-17";
     src = fetchFromGitHub {
@@ -22,13 +22,13 @@
     };
   };
 
-  Nemo157-ale-cargo-rubber = vimUtils.buildVimPluginFrom2Nix {
+  Nemo157-ale-cargo-rubber = vimUtils.buildVimPlugin {
     pname = "ale-cargo-rubber";
     version = "HEAD";
     src = ./plugins/ale-cargo-rubber;
   };
 
-  Nemo157-eink = vimUtils.buildVimPluginFrom2Nix {
+  Nemo157-eink = vimUtils.buildVimPlugin {
     pname = "eink";
     version = "HEAD";
     src = ./plugins/eink;

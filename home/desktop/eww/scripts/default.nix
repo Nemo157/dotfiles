@@ -1,4 +1,4 @@
-{ lib, config, pkgs, pkgs-unstable, ... }: {
+{ lib, config, pkgs, ... }: {
   scripts.eww-hypr-info = {
     runtimeInputs = [ pkgs.hyprland pkgs.socat pkgs.jq pkgs.coreutils ];
     source = ./eww-hypr-info;

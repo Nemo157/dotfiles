@@ -29,4 +29,10 @@ in {
     [Service]
     Environment=XDG_DESKTOP_PORTAL_DIR="${portals}/share/xdg-desktop-portal/portals"
   '';
+
+  xdg.configFile."xdg-desktop-portal/portals.conf".text = ''
+    [preferred]
+    default=hyprland
+    org.freedesktop.impl.portal.Settings=darkman
+  '';
 }

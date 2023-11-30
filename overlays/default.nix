@@ -13,17 +13,6 @@ in {
 
   fetchFromCratesIo = callOverlay ./fetchFromCratesIo.nix;
 
-  # for mullvad exit-node support
-  tailscale = pkgs-unstable.tailscale;
-
-  atuin = pkgs-unstable.atuin;
-
-  alacritty = pkgs-unstable.alacritty;
-  cargo-vet = pkgs-unstable.cargo-vet;
-  cargo-audit = pkgs-unstable.cargo-audit;
-  cargo-semver-checks = pkgs-unstable.cargo-semver-checks;
-  sqlx-cli = pkgs-unstable.sqlx-cli;
-
   darkman = callOverlay ./darkman.nix;
 
   eww-wayland = callOverlay ./eww-wayland.nix;
@@ -31,7 +20,7 @@ in {
   shairport-sync = callOverlay ./shairport-sync.nix;
 
   rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;
-  rofi-unwrapped = final.rofi-wayland-unwrapped;
+  rofi = final.rofi-wayland;
 
   freetube = callOverlay ./freetube.nix;
 

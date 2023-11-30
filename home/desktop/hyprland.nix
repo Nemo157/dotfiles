@@ -16,8 +16,7 @@ in {
 
   wayland.windowManager.hyprland = {
     enable = true;
-    systemdIntegration = true;
-    recommendedEnvironment = true;
+    systemd.enable = true;
 
     extraConfig = ''
       monitor = ,highres,auto,1

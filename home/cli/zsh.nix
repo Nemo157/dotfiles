@@ -5,7 +5,7 @@
     defaultKeymap = "viins";
     enableAutosuggestions = true;
     enableVteIntegration = true;
-    enableSyntaxHighlighting = true;
+    syntaxHighlighting.enable = true;
     cdpath = [
       "${config.home.homeDirectory}"
       "${config.home.homeDirectory}/sources"

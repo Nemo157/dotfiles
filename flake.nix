@@ -2,15 +2,9 @@
   description = "Home Manager configuration of nemo157";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs";
-
-    nixpkgs-wayland = {
-      url = "github:nix-community/nixpkgs-wayland";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.lib-aggregate.follows = "lib-aggregate";
-    };
 
     nixur.url = "github:nix-community/NUR";
 
@@ -23,20 +17,8 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.05";
+      url = "github:nix-community/home-manager/release-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.systems.follows = "systems";
-    };
-
-    swayimg = {
-      url = "github:Nemo157/swayimg/layer";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.flake-utils.follows = "flake-utils";
     };
 
     rust-overlay = {
@@ -51,24 +33,17 @@
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
-    lib-aggregate = {
-      url = "github:nix-community/lib-aggregate";
-      inputs.flake-utils.follows = "flake-utils";
-    };
   };
 
   outputs = {
     self,
     agenix,
     home-manager,
-    hyprland,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
-    nixpkgs-wayland,
     nixur,
     rust-overlay,
-    swayimg,
     ...
   }: let
     system = "x86_64-linux";
@@ -82,11 +57,8 @@
         self.overlays.default
         rust-overlay.overlays.default
         agenix.overlays.default
-        swayimg.overlays.default
       ];
     };
-
-    pkgs-wayland = nixpkgs-wayland.packages.${system};
 
     nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
 
@@ -159,13 +131,12 @@
       "nemo157@mithril" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = {
-          inherit pkgs-unstable pkgs-wayland nur;
+          inherit pkgs-unstable nur;
         };
         modules = [
           ./home/scripts.nix
           ./home/nemo157.nix
           ./home/mithril.nix
-          hyprland.homeManagerModules.default
           agenix.homeManagerModules.default
         ];
       };
@@ -173,13 +144,12 @@
       "nemo157@zinc" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = {
-          inherit pkgs-unstable pkgs-wayland nur;
+          inherit pkgs-unstable nur;
         };
         modules = [
           ./home/scripts.nix
           ./home/nemo157.nix
           ./home/zinc.nix
-          hyprland.homeManagerModules.default
           agenix.homeManagerModules.default
         ];
       };

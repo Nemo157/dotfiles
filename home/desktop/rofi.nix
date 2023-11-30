@@ -1,4 +1,4 @@
-{ lib, config, pkgs, pkgs-unstable, ... }: {
+{ lib, config, pkgs, ... }: {
   programs.rofi = {
     enable = true;
     extraConfig = {

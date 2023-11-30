@@ -1,7 +1,7 @@
-{ pkgs-final, pkgs-unstable, ... }:
+{ pkgs-prev, pkgs-final, ... }:
 
 # Support for showing a system tray with dynamic icons
-pkgs-unstable.eww-wayland.overrideAttrs (eww-final: eww-prev: rec {
+pkgs-prev.eww-wayland.overrideAttrs (eww-final: eww-prev: rec {
   version = "tray-3-dynamic-icons";
   src = pkgs-final.fetchFromGitHub {
     owner = "ralismark";
