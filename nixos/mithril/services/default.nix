@@ -5,5 +5,6 @@
     ./pipewire.nix
     ./tailscale.nix
     ./atuin.nix
+    ./samba.nix
   ];
 }
