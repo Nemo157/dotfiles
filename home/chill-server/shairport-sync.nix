@@ -1,5 +1,16 @@
 { lib, pkgs, ... }: {
   systemd.user.services.shairport-sync = let
+    shairport-sync = pkgs.shairport-sync.override {
+      enableAirplay2 = false;
+      enableAlsa = false;
+      enablePulse = false;
+      enablePipe = false;
+      enableJack = false;
+      enableMpris = false;
+      enableDbus = false;
+      enableMetadata = false;
+      enableLibdaemon = false;
+    };
     config = builtins.toFile "shairport-sync.conf" ''
       general = {
         ignore_volume_control = "yes";
@@ -18,8 +29,11 @@
       Description = pkgs.shairport-sync.meta.description;
     };
     Service = {
-      ExecStart = "${lib.getExe pkgs.shairport-sync} -c ${config} -v -o pw";
+      ExecStart = "${lib.getExe shairport-sync} -c ${config} -v -o pw";
       RuntimeDirectory = "shairport-sync";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 }
