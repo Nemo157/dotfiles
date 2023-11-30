@@ -2,10 +2,40 @@
 let
   getExe = pkgs.lib.getExe;
 in {
-  home.packages = [ pkgs.vifm ];
+  home.packages = with pkgs; [
+    vifm
+
+    archivemount
+    bat
+    binutils
+    coreutils
+    curlftpfs
+    delta
+    du-dust
+    fd
+    ffmpeg
+    fuse-7z-ng
+    fuseiso
+    gnupg
+    gnutar
+    imagemagick
+    links2
+    lsd
+    lynx
+    mp3info
+    p7zip
+    poppler_utils
+    ripgrep
+    sox
+    sshfs
+    unrar
+    unzip
+    xz
+    zip
+  ];
 
   xdg.configFile = {
-    "vifm/vifmrc".text = with pkgs; ''
+    "vifm/vifmrc".text = ''
       set vicmd=vim
       set syscalls
       set trash
@@ -32,103 +62,105 @@ in {
 
       colorscheme eink
 
-      fileviewer *.pdf ${poppler_utils}/bin/pdftotext -nopgbrk %c -
+      fileviewer *.pdf pdftotext -nopgbrk %c -
 
-      fileviewer *.mp3 ${getExe mp3info}
-      fileviewer *.flac ${sox}/bin/soxi
+      fileviewer *.mp3 mp3info
+      fileviewer *.flac soxi
 
       fileviewer *.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
                 \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
                 \*.as[fx]
-               \ ${ffmpeg}/bin/ffprobe -pretty %c 2>&1
+               \ ffprobe -pretty %c 2>&1
 
-      filetype *.html,*.htm ${getExe links2}, ${getExe lynx}
+      filetype *.html,*.htm links2, lynx
 
-      filetype *.o ${binutils}/bin/nm %f | less
+      filetype *.o nm %f | less
 
       filetype *.[1-8] man ./%c
       fileviewer *.[1-8] man ./%c | col -b
 
       fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
-               \ ${imagemagick}/bin/identify %f
+               \ identify %f
 
       " MD5
       filetype *.md5
              \ {Check MD5 hash sum}
-             \ ${coreutils}/bin/md5sum -c %f %S,
+             \ md5sum -c %f %S,
 
       " SHA1
       filetype *.sha1
              \ {Check SHA1 hash sum}
-             \ ${coreutils}/bin/sha1sum -c %f %S,
+             \ sha1sum -c %f %S,
 
       " SHA256
       filetype *.sha256
              \ {Check SHA256 hash sum}
-             \ ${coreutils}/bin/sha256sum -c %f %S,
+             \ sha256sum -c %f %S,
 
       " SHA512
       filetype *.sha512
              \ {Check SHA512 hash sum}
-             \ ${coreutils}/bin/sha512sum -c %f %S,
+             \ sha512sum -c %f %S,
 
       " GPG signature
       filetype *.asc
              \ {Check signature}
-             \ !!${getExe gnupg} --verify %c,
+             \ !!gnupg --verify %c,
 
       " FuseZipMount
       filetype *.zip,*.jar,*.war,*.ear,*.oxt,*.apkg
              \ {Mount with archivemount}
-             \ FUSE_MOUNT|${getExe archivemount} %SOURCE_FILE %DESTINATION_DIR,
-             \ {View contents}
-             \ ${getExe unzip} -l %c | less,
+             \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
              \ {Extract here}
-             \ ${getExe unzip} %c,
-      fileviewer *.zip,*.jar,*.war,*.ear,*.oxt ${getExe zip} -sf %c
+             \ unzip %c,
+      fileviewer *.zip,*.jar,*.war,*.ear,*.oxt zip -sf %c
 
       " ArchiveMount
       filetype *.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz
              \ {Mount with archivemount}
-             \ FUSE_MOUNT|${getExe archivemount} %SOURCE_FILE %DESTINATION_DIR,
-      fileviewer *.tgz,*.tar.gz ${getExe gnutar} -tzf %c
-      fileviewer *.tar.bz2,*.tbz2 ${getExe gnutar} -tjf %c
-      fileviewer *.tar.txz,*.txz ${getExe xz} --list %c
-      fileviewer *.tar ${getExe gnutar} -tf %c
+             \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
+      fileviewer *.tgz,*.tar.gz tar -tzf %c
+      fileviewer *.tar.bz2,*.tbz2 tar -tjf %c
+      fileviewer *.tar.txz,*.txz xz --list %c
+      fileviewer *.tar tar -tf %c
 
       " Fuse7z and 7z archives
       filetype *.7z
              \ {Mount with fuse-7z-ng}
-             \ FUSE_MOUNT|${getExe fuse-7z-ng} %SOURCE_FILE %DESTINATION_DIR,
-      fileviewer *.7z ${getExe p7zip} l %c
+             \ FUSE_MOUNT|fuse-7z-ng %SOURCE_FILE %DESTINATION_DIR,
+             \ {Extract here}
+             \ 7z x %c,
+      fileviewer *.7z 7z l %c
 
       " Rar2FsMount and rar archives
       filetype *.rar
-             \ {Mount with fuse-7z-ng}
-             \ FUSE_MOUNT|${getExe fuse-7z-ng} %SOURCE_FILE %DESTINATION_DIR,
-      fileviewer *.rar ${getExe unrar} v %c
+             \ {Mount with archivemount}
+             \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
+             \ {Extract here}
+             \ unrar x %c,
+      fileviewer *.rar unrar v %c
 
       " IsoMount
       filetype *.iso
              \ {Mount with fuseiso}
-             \ FUSE_MOUNT|${getExe fuseiso} %SOURCE_FILE %DESTINATION_DIR,
+             \ FUSE_MOUNT|fuseiso %SOURCE_FILE %DESTINATION_DIR,
 
       " SshMount
       filetype *.ssh
              \ {Mount with sshfs}
-             \ FUSE_MOUNT2|${getExe sshfs} %PARAM %DESTINATION_DIR %FOREGROUND,
+             \ FUSE_MOUNT2|sshfs %PARAM %DESTINATION_DIR %FOREGROUND,
 
       " FtpMount
       filetype *.ftp
              \ {Mount with curlftpfs}
-             \ FUSE_MOUNT2|${getExe curlftpfs} -o ftp_port=-,,disable_eprt %PARAM %DESTINATION_DIR %FOREGROUND,
+             \ FUSE_MOUNT2|curlftpfs -o ftp_port=-,,disable_eprt %PARAM %DESTINATION_DIR %FOREGROUND,
 
-      fileviewer *.patch ${getExe delta} --paging=never <%f
-      fileviewer *.diff ${getExe delta} --paging=never <%f
-      fileviewer *[^/] ${getExe bat} --color=always -pp %f
+      fileviewer *.patch delta --paging=never <%f
+      fileviewer *.diff delta --paging=never <%f
+      fileviewer *[^/] bat --color=always -pp %f
 
-      fileviewer */ ${getExe lsd} --tree --long --color=always %f
-      filetype */ ${getExe du-dust} -n %ph %f | less -R
+      fileviewer */ lsd --tree --long --color=always %f
+      filetype */ dust -n %ph %f | less -R
 
       set viewcolumns=-{name}..,9{ext},7{}.
     '';
