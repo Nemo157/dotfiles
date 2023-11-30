@@ -20,6 +20,8 @@ in {
 
   alacritty = pkgs-unstable.alacritty;
   cargo-vet = pkgs-unstable.cargo-vet;
+  cargo-audit = pkgs-unstable.cargo-audit;
+  cargo-semver-checks = pkgs-unstable.cargo-semver-checks;
   sqlx-cli = pkgs-unstable.sqlx-cli;
 
   darkman = callOverlay ./darkman.nix;
