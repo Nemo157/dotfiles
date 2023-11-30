@@ -15,10 +15,11 @@ in {
       ];
     }
   )),
+  custom ? true,
 }: pkgs.mkShell {
   buildInputs = with pkgs; [
     # Rust itself
-    (wrap-rust rust-toolchain)
+    (if custom then (wrap-rust rust-toolchain) else rust-toolchain)
 
     # Dev utilities
     bacon
@@ -50,9 +51,8 @@ in {
 
     ${lib.getExe setup-xdg-cargo-home}
 
-    export CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
     export CARGO_BUILD_TARGET_DIR="$CARGO_HOME/target/shared"
-
+    '' + (if custom then ''
     rustflags=(
       "--cap-lints=warn"
       # "-Clink-self-contained=+linker"
@@ -77,6 +77,7 @@ in {
       rustflags+=("--remap-path-prefix=$path=$e[36;1m''${remap[$path]}$e[0m")
     done
 
+    export CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
     export CARGO_HOST_RUSTFLAGS="''${rustflags[*]}"
     export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="''${rustflags[*]}"
 
@@ -91,5 +92,5 @@ in {
 
     # Some crates disable nightly feature detection when this is set
     export RUSTC_STAGE=1
-  '';
+  '' else "");
 }

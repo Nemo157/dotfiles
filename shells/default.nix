@@ -7,6 +7,7 @@ in {
   };
 
   rust = mkRustShell { };
+  rust-unwrapped = mkRustShell { custom = false; };
 
   docs-rs = mkRustShell {
     extraBuildInputs = [ pkgs.sqlx-cli ];
