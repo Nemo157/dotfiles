@@ -9,7 +9,10 @@ in {
   extraBuildInputs ? [],
   rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
     toolchain.default.override {
-      extensions = ["rust-src"];
+      extensions = [
+        "rust-src"
+        "rustc-codegen-cranelift-preview"
+      ];
     }
   )),
 }: pkgs.mkShell {
@@ -77,6 +80,9 @@ in {
     export CARGO_HOST_RUSTFLAGS="''${rustflags[*]}"
     export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="''${rustflags[*]}"
 
+    export CARGO_PROFILE_DEV_CODEGEN_BACKEND=cranelift
+
+    export CARGO_UNSTABLE_CODEGEN_BACKEND=true
     export CARGO_UNSTABLE_HOST_CONFIG=true
     export CARGO_UNSTABLE_TARGET_APPLIES_TO_HOST=true
     export CARGO_TARGET_APPLIES_TO_HOST=false
