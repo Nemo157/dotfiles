@@ -11,7 +11,7 @@
 
       set -g display-time 3000
 
-      set -g update-environment "DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_AUTH_SOCK"
+      set -g update-environment "DISPLAY WAYLAND_DISPLAY SWAYSOCK SSH_AUTH_SOCK HYPRLAND_INSTANCE_SIGNATURE"
 
       # Based on https://evertpot.com/osx-tmux-vim-copy-paste-clipboard/
 
