@@ -51,7 +51,7 @@ in {
   shellHook = ''
     export RUST_BACKTRACE=1
 
-    ${lib.getExe setup-xdg-cargo-home}
+    source ${lib.getExe setup-xdg-cargo-home}
 
     export CARGO_BUILD_TARGET_DIR="$CARGO_HOME/target/shared"
     '' + (if custom then ''
