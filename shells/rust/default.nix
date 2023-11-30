@@ -23,6 +23,7 @@ in {
 
     # Dev utilities
     bacon
+    cargo-audit
     cargo-deny
     cargo-dl
     cargo-doc-like-docs-rs

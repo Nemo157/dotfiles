@@ -21,6 +21,10 @@ else
     _link_cargo_dir "${XDG_CACHE_HOME:-$HOME/.cache}" git/db/ registry/{index,cache}/ target/
     _link_cargo_dir "$XDG_RUNTIME_DIR" git/checkouts/ registry/src/
 
+    # smh cargo-audit, get your own dirs, stop borrowing cargo's
+    ln -s "${XDG_CONFIG_HOME:-$HOME/.config}/cargo-audit/config.toml" "$CARGO_HOME/audit.toml"
+    ln -st "$CARGO_HOME" "$XDG_RUNTIME_DIR/cargo-audit/advisory-db.rustsec.lock"
+
     chmod -R a-w,a+t "$CARGO_HOME"
   )
 fi
