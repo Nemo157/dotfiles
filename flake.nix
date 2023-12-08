@@ -16,6 +16,12 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    hyprland = {
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/release-23.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -39,6 +45,7 @@
     self,
     agenix,
     home-manager,
+    hyprland,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
@@ -54,9 +61,10 @@
       inherit system;
       config.allowUnfree = true;
       overlays = [
-        self.overlays.default
         rust-overlay.overlays.default
         agenix.overlays.default
+        hyprland.overlays.default
+        self.overlays.default
       ];
     };
 
