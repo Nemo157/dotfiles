@@ -132,6 +132,10 @@ in {
 
       windowrulev2 = tile,class:^RimWorldLinux
       windowrulev2 = tile,class:^Minecraft
+      windowrulev2 = tile,class:^Melvor
+
+      windowrulev2 = tile,title:^Vintage Story
+      windowrulev2 = opaque,title:^Vintage Story
     '';
   };
 
