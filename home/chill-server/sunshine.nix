@@ -1,4 +1,7 @@
 { config, pkgs, lib, ... }: {
+  # Needed for tray icons
+  xdg.systemDirs.data = [ "${pkgs.sunshine}/share" ];
+
   systemd.user.services = {
     sunshine = {
       Unit.Description = pkgs.sunshine.meta.description;
