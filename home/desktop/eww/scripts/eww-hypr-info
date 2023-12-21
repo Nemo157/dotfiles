@@ -36,7 +36,8 @@ get-info() {
       {"workspace":{"id":1,"name":"einz"}},
       {"workspace":{"id":2,"name":"zwei"}},
       {"workspace":{"id":3,"name":"drei"}},
-      {"workspace":{"id":4,"name":"vier"}}
+      {"workspace":{"id":4,"name":"vier"}},
+      {"workspace":{"id":5,"name":"funf"}}
     ]'
     hyprctl clients -j
   } | jq \

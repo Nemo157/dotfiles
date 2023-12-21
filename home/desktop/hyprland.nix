@@ -104,11 +104,13 @@ in {
       bind = $mod, 2, workspace, 2
       bind = $mod, 3, workspace, 3
       bind = $mod, 4, workspace, 4
+      bind = $mod, 5, workspace, 5
 
       bind = $mod SHIFT, 1, movetoworkspacesilent, 1
       bind = $mod SHIFT, 2, movetoworkspacesilent, 2
       bind = $mod SHIFT, 3, movetoworkspacesilent, 3
       bind = $mod SHIFT, 4, movetoworkspacesilent, 4
+      bind = $mod SHIFT, 5, movetoworkspacesilent, 5
 
       bind = $mod, TAB, workspace, e+1
       bind = $mod SHIFT, TAB, workspace, e-1
