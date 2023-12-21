@@ -10,6 +10,7 @@
     ./mpv.nix
     ./portal.nix
     ./rofi.nix
+    ./wallpaper
   ];
 
   home.packages = with pkgs; [
