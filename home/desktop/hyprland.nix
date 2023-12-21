@@ -37,14 +37,19 @@ in {
       }
 
       general {
-        gaps_in = 0
-        gaps_out = 0
-        border_size = 1
+        gaps_in = 10
+        gaps_out = 20
+        border_size = 0
         resize_on_border = true
         col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
         col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
         layout = dwindle
         no_cursor_warps = true
+      }
+
+      decoration {
+        active_opacity = 0.95
+        inactive_opacity = 0.8
       }
 
       debug {
@@ -54,14 +59,12 @@ in {
       animations {
         enabled = true
 
-        bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+        bezier = sine, 0.37, 0.0, 0.63, 1
+        bezier = cubic, 0.65, 0.0, 0.35, 1
+        bezier = circ, 0.85, 0.0, 0.15, 1
 
-        animation = windows, 1, 7, myBezier
-        animation = windowsOut, 1, 7, default, popin 80%
-        animation = border, 1, 10, default
-        animation = borderangle, 1, 8, default
-        animation = fade, 1, 7, default
-        animation = workspaces, 1, 6, default
+        animation = global, 1, 5, cubic
+        animation = workspaces, 1, 7, cubic, slidefade 200%
       }
 
       dwindle {
@@ -85,6 +88,7 @@ in {
       bind = $mod CTRL, Y, togglefloating,
       bind = $mod SHIFT, Y, fullscreen, 0
       bind = $mod CTRL SHIFT, Y, pin,
+      bind = $mod, S, toggleopaque,
 
       bind = $mod, J, movefocus, l
       bind = $mod, P, movefocus, r
