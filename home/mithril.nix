@@ -5,6 +5,7 @@
     ./chill-server
     ./desktop
     ./xdg.nix
+    ./age.nix
   ];
 
   home.stateVersion = "23.05";
@@ -21,12 +22,6 @@
   services.syncthing = {
     enable = true;
     tray.enable = true;
-  };
-
-  age = {
-    identityPaths = [ "${config.home.homeDirectory}/.ssh/id_ed25519-agenix" ];
-    # Needs to have $XDG_RUNTIME_DIR pre-resolved
-    secretsDir = "/run/user/1000/agenix";
   };
 
   wayland.windowManager.hyprland = {
