@@ -36,6 +36,12 @@ in {
         }
       }
 
+      gestures {
+        workspace_swipe = true
+        workspace_swipe_fingers = 4
+        workspace_swipe_cancel_ratio = 0.3
+      }
+
       general {
         gaps_in = 10
         gaps_out = 20
