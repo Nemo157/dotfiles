@@ -38,14 +38,14 @@
   systemd.user.services.wluma = {
     Unit = {
       Description = pkgs.wluma.meta.description;
-      After = "graphical-session-pre.target";
+      After = "graphical-session.target";
     };
     Service = {
       Environment = "RUST_LOG=debug";
       ExecStart = "${pkgs.wluma}/bin/wluma";
     };
     Install = {
-      WantedBy = [ "hyprland.target" ];
+      WantedBy = [ "graphical-session.target" ];
     };
   };
 }
