@@ -21,7 +21,7 @@ in {
         };
         Timer = {
           OnActiveSec = 0;
-          OnUnitActiveSec = 30;
+          OnUnitActiveSec = 600;
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };
