@@ -6,5 +6,6 @@
     ./tailscale.nix
     ./atuin.nix
     ./samba.nix
+    ./nixseparatedebuginfod.nix
   ];
 }

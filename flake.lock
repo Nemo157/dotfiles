@@ -184,6 +184,29 @@
         "type": "github"
       }
     },
+    "nixseparatedebuginfod": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1701000000,
+        "narHash": "sha256-YclZV0n36KnkEZNcHxWqmuhdBa6eB8Wdmwcf5EMYEp4=",
+        "owner": "symphorien",
+        "repo": "nixseparatedebuginfod",
+        "rev": "c8e79d5b228b71686172ff6626394bed2ad7b7a3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "symphorien",
+        "repo": "nixseparatedebuginfod",
+        "type": "github"
+      }
+    },
     "nixur": {
       "locked": {
         "lastModified": 1701359478,
@@ -208,6 +231,7 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "nixseparatedebuginfod": "nixseparatedebuginfod",
         "nixur": "nixur",
         "rust-overlay": "rust-overlay",
         "systems": "systems"

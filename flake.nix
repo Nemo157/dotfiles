@@ -33,6 +33,12 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    nixseparatedebuginfod = {
+      url = "github:symphorien/nixseparatedebuginfod";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     # transitive dependencies to allow following :ferrisPensive:
     systems.url = "github:nix-systems/default-linux";
     flake-utils = {
@@ -50,6 +56,7 @@
     nixpkgs,
     nixpkgs-unstable,
     nixur,
+    nixseparatedebuginfod,
     rust-overlay,
     ...
   }: let
@@ -64,6 +71,7 @@
         rust-overlay.overlays.default
         agenix.overlays.default
         hyprland.overlays.default
+        nixseparatedebuginfod.overlays.default
         self.overlays.default
       ];
     };
@@ -117,6 +125,7 @@
         inherit system pkgs;
         modules = [
           pin-nixpkgs
+          nixseparatedebuginfod.nixosModules.default
           ./nixos/mithril
         ];
       };
