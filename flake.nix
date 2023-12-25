@@ -84,7 +84,7 @@
         };
 
         # For legacy commands
-        channel.enable = false;
+        channel.enable = true;
         nixPath = [ "nixpkgs=${nixpkgs.outPath}" ];
 
         # Don't import all the registry entries, just explicit ones above
