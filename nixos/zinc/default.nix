@@ -25,6 +25,13 @@
         maxJobs = 20;
       }
     ];
+    substituters = [
+      "http://mithril:5000"
+      "https://cache.nixos.org/"
+    ];
+    trusted-public-keys = [
+      "mithril-1:3qkcEGevkLvRmGmNMqXJUQ/mXvs9MPudk5ugxUf7orM="
+    ];
   };
 
   system.stateVersion = "23.05";

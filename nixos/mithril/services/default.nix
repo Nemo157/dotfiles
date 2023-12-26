@@ -7,5 +7,6 @@
     ./atuin.nix
     ./samba.nix
     ./nixseparatedebuginfod.nix
+    ./nix-serve.nix
   ];
 }
