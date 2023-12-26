@@ -26,7 +26,7 @@
       }
     ];
     substituters = [
-      "http://mithril:5000"
+      "http://mithril:5069"
       "https://cache.nixos.org/"
     ];
     trusted-public-keys = [
