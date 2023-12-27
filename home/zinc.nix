@@ -22,4 +22,19 @@
     tray.enable = true;
   };
 
+  systemd.user = {
+    services = {
+      swww-change-wallpaper = {
+        # Don't apply rescaling or blur, too expensive on battery
+        Service.Environment = "WALLPAPER_DUMB=1";
+      };
+    };
+
+    timers = {
+      swww-change-wallpaper = {
+        # Change wallpaper less often
+        Timer.OnUnitActiveSec = lib.mkOverride 0 3000;
+      };
+    };
+  };
 }

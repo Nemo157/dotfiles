@@ -37,6 +37,12 @@ show() {
   run swww img "${args[@]}" "$1"
 }
 
+if [ "$WALLPAPER_DUMB" -eq 1 ]
+then
+  show "$wallpaper"
+  exit
+fi
+
 blur-rules() {
     echo \( +clone -channel RGBA -blur 0x0 \)
     echo \( +clone -channel RGBA -blur 0x1 \)
