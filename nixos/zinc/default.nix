@@ -14,6 +14,13 @@
     settings = {
       builders-use-substitutes = true;
       experimental-features = "nix-command flakes";
+      substituters = [
+        "http://mithril:5069"
+        "https://cache.nixos.org/"
+      ];
+      trusted-public-keys = [
+        "mithril-1:3qkcEGevkLvRmGmNMqXJUQ/mXvs9MPudk5ugxUf7orM="
+      ];
     };
     distributedBuilds = true;
     buildMachines = [
@@ -24,13 +31,6 @@
         protocol = "ssh-ng";
         maxJobs = 20;
       }
-    ];
-    substituters = [
-      "http://mithril:5069"
-      "https://cache.nixos.org/"
-    ];
-    trusted-public-keys = [
-      "mithril-1:3qkcEGevkLvRmGmNMqXJUQ/mXvs9MPudk5ugxUf7orM="
     ];
   };
 
