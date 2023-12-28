@@ -10,7 +10,7 @@ op="$([ "$scheme" = 1 ] && echo -le || echo -ge)"
 echo "color-scheme $scheme => op $op" >&2
 
 wallpaper() {
-  fd -tf . ~/Wallpapers | shuf | while read -r img
+  fd -tf . ~/Wallpapers | shuf -n10 | while read -r img
   do
     echo "$img" >&2
     median="$(magick "$img"'[0]' -format '%[fx:trunc(median * 100)]' info:)"
