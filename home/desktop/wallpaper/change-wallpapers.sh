@@ -5,7 +5,7 @@ export ns=org.freedesktop.appearance
 export key=color-scheme
 
 scheme="$(busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '.data[0].data.data')"
-op="$([ "$scheme" = 1 ] && echo -lt || echo -gt)"
+op="$([ "$scheme" = 1 ] && echo -le || echo -ge)"
 
 echo "color-scheme $scheme => op $op" >&2
 
