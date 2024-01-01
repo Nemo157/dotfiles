@@ -29,6 +29,7 @@
           "${pkgs.gnused}/bin"
           "${pkgs.coreutils}/bin"
           config.binHome
+          "${pkgs.systemd}/bin"
         ];
         ExecStart = "eww daemon --no-daemonize";
         ExecReload = "eww reload";

@@ -35,7 +35,7 @@
   (v-box :class "bar ${color-scheme}" :vexpand true
     (workspaces)
     (hypr-buttons)
-    (box :vexpand true)
+    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper")
     (music)
     (tray)
     (pies)
