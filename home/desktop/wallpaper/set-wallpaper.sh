@@ -117,10 +117,17 @@ then
         if [ "$(( monwidth - scaledwidth * 2 - 64 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
         then
           border=$(( monwidth - scaledwidth * 2 ))
-          args+=( \( +clone -resize "$size" -flop \) -reverse -background none )
+          args+=( \( +clone -resize "$size" -flop \) -background none )
           if [ $RANDOM -gt 16384 ]
           then
+            args+=(-reverse)
+          fi
+          if [ $RANDOM -gt 10922 ]
+          then
             args+=( +smush 0 )
+          elif [ $RANDOM -gt 16384 ]
+          then
+            args+=( +smush "$(( border / 3 ))" )
           else
             args+=( +smush "$border" )
           fi
