@@ -44,10 +44,9 @@ then
 fi
 
 blur-rules() {
-    echo \( +clone -channel RGBA -blur 0x0 \)
-    echo \( +clone -channel RGBA -blur 0x1 \)
-    echo \( +clone -channel RGBA -blur 0x2 \)
-    echo \( +clone -channel RGBA -blur 0x4 \)
+    if [ "$1" -gt 3 ]; then echo \( +clone -channel RGBA -blur 0x1 \); fi
+    if [ "$1" -gt 6 ]; then echo \( +clone -channel RGBA -blur 0x2 \); fi
+    if [ "$1" -gt 12 ]; then echo \( +clone -channel RGBA -blur 0x4 \); fi
     if [ "$1" -gt 24 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
     if [ "$1" -gt 48 ]; then echo \( +clone -channel RGBA -blur 0x16 \); fi
     if [ "$1" -gt 96 ]; then echo \( +clone -channel RGBA -blur 0x32 \); fi
@@ -100,6 +99,7 @@ then
     if [ "$e" -lt 200 ]
     then
       # close enough, zoom to cover, cutting off a little of the border
+      border=0
       args+=(-resize "$size^")
     else
       # zoom to fit, adding a blurred border
@@ -107,95 +107,50 @@ then
       read -r scaledwidth scaledheight < <(run magick "$wallpaper" -resize "$size" -format '%w %h\n' info:-)
       echo "scaled: $scaledwidth x $scaledheight"
 
+      args+=(-resize "$size")
+
       if [ "$imgratio" -gt "$monratio" ]
       then
         border=$(( (monheight - scaledheight + 16) / 2 ))
-        # shellcheck disable=SC2207
-        args+=(
-          -resize "$size"
-          \(
-            +clone
-            -gravity north -extent "${monwidth}x8"
-            -alpha on
-            -background none
-            -gravity south -extent "${monwidth}x$border"
-            $(blur-rules "$border")
-            -reverse -flatten
-            -alpha off
-            -gravity north -extent "$size"
-          \)
-          \(
-            -clone 0
-            -gravity south -extent "${monwidth}x8"
-            -alpha on
-            -background none
-            -gravity north -extent "${monwidth}x$border"
-            $(blur-rules "$border")
-            -reverse -flatten
-            -alpha off
-            -gravity south -extent "$size"
-          \)
-          \( -clone 0 -background transparent -gravity center -extent "$size" \)
-          -delete 0
-          -flatten
-        )
       else
         border=$(( (monwidth - scaledwidth + 16) / 2 ))
-        # shellcheck disable=SC2207
-        args+=(
-          -resize "$size"
-          \(
-            +clone
-            -gravity west -extent "8x$monheight"
-            -alpha on
-            -background none
-            -gravity east -extent "${border}x$monheight"
-            $(blur-rules "$border")
-            -reverse -flatten
-            -alpha off
-            -gravity west -extent "$size"
-          \)
-          \(
-            -clone 0
-            -gravity east -extent "8x$monheight"
-            -alpha on
-            -background none
-            -gravity west -extent "${border}x$monheight"
-            $(blur-rules "$border")
-            -reverse -flatten
-            -alpha off
-            -gravity east -extent "$size"
-          \)
-          \( -clone 0 -background transparent -gravity center -extent "$size" \)
-          -delete 0
-          -flatten
-        )
+        if [ "$(( monwidth - scaledwidth * 2 - 64 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
+        then
+          border=$(( monwidth - scaledwidth * 2 ))
+          args+=( \( +clone -resize "$size" -flop \) -reverse -background none )
+          if [ $RANDOM -gt 16384 ]
+          then
+            args+=( +smush 0 )
+          else
+            args+=( +smush "$border" )
+          fi
+        fi
       fi
+
+      args+=(
+        -background none
+        -gravity center -compose Over -extent "$size"
+        -channel A -blur 0x8 -level '50%,100%' +channel
+      )
     fi
   else
     border=$(( (monheight - imgheight) > (monwidth - imgwidth) ? (monheight - imgheight) : (monwidth - imgwidth) ))
-    # shellcheck disable=SC2207
     args+=(
-      \(
-        +clone
-        \(
-          +clone
-          \( +level-colors white \)
-          \( +clone -shave 8x8 +level-colors black \)
-          -gravity center -compose Over -composite
-        \)
-        -gravity center -compose CopyOpacity -composite
-      \)
+      -virtual-pixel transparent
+      -channel A -blur 0x32 -level '50%,100%' +channel
       -background none
       -gravity center -compose Over -extent "$size"
-      $(blur-rules "$border")
-      -reverse -flatten
-      -alpha off
     )
   fi
 
   # shellcheck disable=SC2207
-  args+=($(reserved-rules))
+  args+=(
+    $(blur-rules "$border")
+    -reverse
+    -flatten
+    -alpha off
+    $(reserved-rules)
+  )
 
   run convert "${args[@]}" - | show -
 
