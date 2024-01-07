@@ -123,10 +123,15 @@ then
         border=$(( (monheight - scaledheight + 16) / 2 ))
       else
         border=$(( (monwidth - scaledwidth + 16) / 2 ))
-        if [ "$(( monwidth - scaledwidth * 2 - 64 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
+        if [ "$(( monwidth - scaledwidth * 2 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
         then
           border=$(( monwidth - scaledwidth * 2 ))
-          args+=( \( +clone -resize "$size" -flop \) )
+          args+=( \( +clone -resize "$size" )
+          if [ $RANDOM -gt 16384 ]
+          then
+            args+=(-flop)
+          fi
+          args+=( \) )
           if [ $RANDOM -gt 16384 ]
           then
             args+=(-reverse)
@@ -141,6 +146,18 @@ then
             args+=( +smush "$border" )
           fi
         fi
+      fi
+
+      if [ "$RANDOM" -gt 16384 ]
+      then
+        args+=(-gravity center)
+      elif [ "$RANDOM" -gt 16384 ]
+      then
+        border=$(( border * 2 ))
+        args+=(-gravity west)
+      else
+        border=$(( border * 2 ))
+        args+=(-gravity east)
       fi
 
       args+=(
