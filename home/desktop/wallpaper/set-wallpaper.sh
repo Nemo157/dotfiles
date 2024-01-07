@@ -44,15 +44,24 @@ then
 fi
 
 blur-rules() {
-    if [ "$1" -gt 3 ]; then echo \( +clone -channel RGBA -blur 0x1 \); fi
-    if [ "$1" -gt 6 ]; then echo \( +clone -channel RGBA -blur 0x2 \); fi
-    if [ "$1" -gt 12 ]; then echo \( +clone -channel RGBA -blur 0x4 \); fi
-    if [ "$1" -gt 24 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
-    if [ "$1" -gt 48 ]; then echo \( +clone -channel RGBA -blur 0x16 \); fi
-    if [ "$1" -gt 96 ]; then echo \( +clone -channel RGBA -blur 0x32 \); fi
-    if [ "$1" -gt 192 ]; then echo \( +clone -channel RGBA -blur 0x64 \); fi
-    if [ "$1" -gt 384 ]; then echo \( +clone -channel RGBA -blur 0x128 \); fi
-    if [ "$1" -gt 768 ]; then echo \( +clone -channel RGBA -blur 0x256 \); fi
+    if [ "$1" -eq 0 ]; then return; fi
+
+    echo \( +clone -channel RGBA -blur 0x1 \)
+    if [ "$1" -gt 4 ]; then echo \( +clone -channel RGBA -blur 0x2 \); fi
+    if [ "$1" -gt 8 ]; then echo \( +clone -channel RGBA -blur 0x4 \); fi
+    if [ "$1" -gt 16 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
+    if [ "$1" -gt 32 ]; then echo \( +clone -resize 25%; fi
+    if [ "$1" -gt 32 ]; then echo \( +clone -channel RGBA -blur 0x4 \); fi
+    if [ "$1" -gt 64 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
+    if [ "$1" -gt 128 ]; then echo \( +clone -channel RGBA -blur 0x16 \); fi
+    if [ "$1" -gt 256 ]; then echo \( +clone -channel RGBA -blur 0x32 \); fi
+    if [ "$1" -gt 512 ]; then echo \( +clone -resize 25%; fi
+    if [ "$1" -gt 512 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
+    if [ "$1" -gt 1024 ]; then echo \( +clone -channel RGBA -blur 0x16 \); fi
+    if [ "$1" -gt 512 ]; then echo -delete 0 -reverse -flatten -resize 400% \); fi
+    if [ "$1" -gt 32 ]; then echo -delete 0 -reverse -flatten -resize 400%  -blur 0x1 \); fi
+
+    echo -reverse -flatten -alpha off
 }
 
 reserved-rules() {
@@ -90,7 +99,7 @@ echo "aspect ratio error: $e/1000"
 
 size="${monwidth}x$monheight"
 
-args=("$wallpaper")
+args=("$wallpaper" -background none)
 
 if [ "$frames" -eq 1 ]
 then
@@ -117,7 +126,7 @@ then
         if [ "$(( monwidth - scaledwidth * 2 - 64 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
         then
           border=$(( monwidth - scaledwidth * 2 ))
-          args+=( \( +clone -resize "$size" -flop \) -background none )
+          args+=( \( +clone -resize "$size" -flop \) )
           if [ $RANDOM -gt 16384 ]
           then
             args+=(-reverse)
@@ -135,8 +144,7 @@ then
       fi
 
       args+=(
-        -background none
-        -gravity center -compose Over -extent "$size"
+        -compose Over -extent "$size"
         -channel A -blur 0x8 -level '50%,100%' +channel
       )
     fi
@@ -145,7 +153,6 @@ then
     args+=(
       -virtual-pixel transparent
       -channel A -blur 0x32 -level '50%,100%' +channel
-      -background none
       -gravity center -compose Over -extent "$size"
     )
   fi
@@ -153,9 +160,6 @@ then
   # shellcheck disable=SC2207
   args+=(
     $(blur-rules "$border")
-    -reverse
-    -flatten
-    -alpha off
     $(reserved-rules)
   )
 
@@ -192,29 +196,23 @@ then
               +clone
               -gravity north -extent "${monwidth}x8"
               -alpha on
-              -background none
               -gravity south -extent "${monwidth}x$border"
               $(blur-rules "$border")
-              -reverse -flatten
-              -alpha off
               -gravity north -extent "$size"
             \)
             \(
               +clone
               -gravity south -extent "${monwidth}x8"
               -alpha on
-              -background none
               -gravity north -extent "${monwidth}x$border"
               $(blur-rules "$border")
-              -reverse -flatten
-              -alpha off
               -gravity south -extent "$size"
             \)
           \)
           -insert 0
           null:
           -insert 1
-          -background transparent -gravity center
+          -gravity center
           -layers composite
         )
       else
@@ -228,22 +226,16 @@ then
               -clone 0
               -gravity west -extent "8x$monheight"
               -alpha on
-              -background none
               -gravity east -extent "${border}x$monheight"
               $(blur-rules "$border")
-              -reverse -flatten
-              -alpha off
               -gravity west -extent "$size"
             \)
             \(
               -clone 0
               -gravity east -extent "8x$monheight"
               -alpha on
-              -background none
               -gravity west -extent "${border}x$monheight"
               $(blur-rules "$border")
-              -reverse -flatten
-              -alpha off
               -gravity east -extent "$size"
             \)
             -delete 0
@@ -252,7 +244,7 @@ then
           -insert 0
           null:
           -insert 1
-          -background transparent -gravity center
+          -gravity center
           -layers composite
         )
       fi
@@ -274,16 +266,13 @@ then
           \)
           -gravity center -compose CopyOpacity -composite
         \)
-        -background none
         -gravity center -compose Over -extent "$size"
         $(blur-rules "$border")
-        -reverse -flatten
-        -alpha off
       \)
       -insert 0
       null:
       -insert 1
-      -background none -gravity center -extent "$size"
+      -gravity center -extent "$size"
       -layers composite
     )
   fi
