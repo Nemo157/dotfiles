@@ -59,7 +59,7 @@ blur-rules() {
     if [ "$1" -gt 512 ]; then echo \( +clone -channel RGBA -blur 0x8 \); fi
     if [ "$1" -gt 1024 ]; then echo \( +clone -channel RGBA -blur 0x16 \); fi
     if [ "$1" -gt 512 ]; then echo -delete 0 -reverse -flatten -resize 400% \); fi
-    if [ "$1" -gt 32 ]; then echo -delete 0 -reverse -flatten -resize 400%  -blur 0x1 \); fi
+    if [ "$1" -gt 32 ]; then echo -delete 0 -reverse -flatten -resize 400% -blur 0x1 \); fi
 
     echo -reverse -flatten -alpha off
 }
@@ -103,6 +103,11 @@ args=("$wallpaper" -background none)
 
 if [ "$frames" -eq 1 ]
 then
+  if [ $RANDOM -gt 16384 ]
+  then
+    args+=(-flop)
+  fi
+
   if [ "$imgheight" -ge "$monheight" ] || [ "$imgwidth" -ge "$monwidth" ]
   then
     if [ "$e" -lt 200 ]
@@ -121,43 +126,64 @@ then
       if [ "$imgratio" -gt "$monratio" ]
       then
         border=$(( (monheight - scaledheight + 16) / 2 ))
-      else
-        border=$(( (monwidth - scaledwidth + 16) / 2 ))
-        if [ "$(( monwidth - scaledwidth * 2 ))" -gt 0 ] && [ "$RANDOM" -gt 16384 ]
-        then
-          border=$(( monwidth - scaledwidth * 2 ))
-          args+=( \( +clone -resize "$size" )
-          if [ $RANDOM -gt 16384 ]
-          then
-            args+=(-flop)
-          fi
-          args+=( \) )
-          if [ $RANDOM -gt 16384 ]
-          then
-            args+=(-reverse)
-          fi
-          if [ $RANDOM -gt 10922 ]
-          then
-            args+=( +smush 0 )
-          elif [ $RANDOM -gt 16384 ]
-          then
-            args+=( +smush "$(( border / 3 ))" )
-          else
-            args+=( +smush "$border" )
-          fi
-        fi
-      fi
-
-      if [ "$RANDOM" -gt 16384 ]
-      then
         args+=(-gravity center)
-      elif [ "$RANDOM" -gt 16384 ]
-      then
-        border=$(( border * 2 ))
-        args+=(-gravity west)
       else
-        border=$(( border * 2 ))
-        args+=(-gravity east)
+        options=(single-center)
+
+        if [ "$(( monwidth - scaledwidth * 4 - 40 ))" -gt 0 ]
+        then
+          options+=(quad-llrr-split quad-lrlr-split quad-llrr-edges quad-lrlr-edges)
+        fi
+
+        if [ "$(( monwidth - scaledwidth * 3 - 30 ))" -gt 0 ]
+        then
+          options+=(triple-lll-split triple-lrl-split triple-lll-edges triple-lrl-edges)
+        fi
+
+        if [ "$(( monwidth - scaledwidth * 2 - 30 ))" -gt 0 ]
+        then
+          options+=(double-lr-split double-ll-split double-lr-edges double-ll-edges)
+          options+=(single-west single-east)
+        fi
+
+        option="$(printf '%s\n' "${options[@]}" | shuf -n1)"
+        echo "chose $option from" "${options[@]}"
+
+        case $option
+        in
+          quad-*) border=$(( monwidth - scaledwidth * 4 )) ;;
+          triple-*) border=$(( monwidth - scaledwidth * 3 )) ;;
+          double-*) border=$(( monwidth - scaledwidth * 2 )) ;;
+          single-*) border=$(( monwidth - scaledwidth )) ;;
+        esac
+
+        case $option
+        in
+          quad-llll-*) args+=( \( +clone \) \( +clone \) \( +clone \) ) ;;
+          quad-llrr-*) args+=( \( +clone \) \( +clone -flop \) \( +clone \) ) ;;
+          quad-lrlr-*) args+=( \( +clone -flop \) \( +clone -flop \) \( +clone -flop \) ) ;;
+          triple-lll-*) args+=( \( +clone \) \( +clone \) ) ;;
+          triple-lrl-*) args+=( \( +clone -flop \) \( +clone -flop \) ) ;;
+          double-ll-*) args+=( \( +clone \) ) ;;
+          double-lr-*) args+=( \( +clone -flop \) ) ;;
+        esac
+
+        case $option
+        in
+          quad-*-split) args+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
+          quad-*-edges) args+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
+          triple-*-split) args+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
+          triple-*-edges) args+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
+          double-*-split) args+=( +smush "$(( border / 3 ))" ) ;;
+          double-*-edges) args+=( +smush "$(( border ))" ) ;;
+        esac
+
+        case $option
+        in
+          single-west) args+=( -gravity west ) ;;
+          single-east) args+=( -gravity east ) ;;
+          *) args+=(-gravity center) ;;
+        esac
       fi
 
       args+=(
