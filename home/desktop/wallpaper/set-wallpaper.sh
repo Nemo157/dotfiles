@@ -73,93 +73,94 @@ if [ "$imgheight" -ge "$monheight" ] || [ "$imgwidth" -ge "$monwidth" ]
 then
   if [ "$e" -lt 200 ]
   then
-    # close enough, zoom to cover, cutting off a little of the image
-    border=0
+    # close enough, shrink to cover, cutting off a little of the image
     args+=(-resize "$size^")
   else
-    # zoom to fit, adding a blurred border
-
+    # shrink to fit
     read -r imgwidth imgheight < <(run magick "$wallpaper" -resize "$size" -format '%w %h\n' info:-)
     echo "scaled: $imgwidth x $imgheight"
-
     args+=(-resize "$size")
-
-    if [ "$imgratio" -gt "$monratio" ]
-    then
-      border=$(( (monheight - imgheight + 16) / 2 ))
-      args+=(-gravity center)
-    else
-      options=(single-center)
-
-      if [ "$(( monwidth - imgwidth * 4 - 40 ))" -gt 0 ]
-      then
-        options+=(quad-llrr-split quad-lrlr-split quad-llrr-edges quad-lrlr-edges)
-      fi
-
-      if [ "$(( monwidth - imgwidth * 3 - 30 ))" -gt 0 ]
-      then
-        options+=(triple-lll-split triple-lrl-split triple-lll-edges triple-lrl-edges)
-      fi
-
-      if [ "$(( monwidth - imgwidth * 2 - 30 ))" -gt 0 ]
-      then
-        options+=(double-lr-split double-ll-split double-lr-edges double-ll-edges)
-        options+=(single-west single-east)
-      fi
-
-      option="$(printf '%s\n' "${options[@]}" | shuf -n1)"
-      echo "chose $option from" "${options[@]}"
-
-      case $option
-      in
-        quad-*) border=$(( monwidth - imgwidth * 4 )) ;;
-        triple-*) border=$(( monwidth - imgwidth * 3 )) ;;
-        double-*) border=$(( monwidth - imgwidth * 2 )) ;;
-        single-*) border=$(( monwidth - imgwidth )) ;;
-      esac
-
-      case $option
-      in
-        quad-llll-*) args+=( \( +clone \) \( +clone \) \( +clone \) ) ;;
-        quad-llrr-*) args+=( \( +clone \) \( +clone -flop \) \( +clone \) ) ;;
-        quad-lrlr-*) args+=( \( +clone -flop \) \( +clone -flop \) \( +clone -flop \) ) ;;
-        triple-lll-*) args+=( \( +clone \) \( +clone \) ) ;;
-        triple-lrl-*) args+=( \( +clone -flop \) \( +clone -flop \) ) ;;
-        double-ll-*) args+=( \( +clone \) ) ;;
-        double-lr-*) args+=( \( +clone -flop \) ) ;;
-      esac
-
-      case $option
-      in
-        quad-*-split) args+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
-        quad-*-edges) args+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
-        triple-*-split) args+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
-        triple-*-edges) args+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
-        double-*-split) args+=( +smush "$(( border / 3 ))" ) ;;
-        double-*-edges) args+=( +smush "$(( border ))" ) ;;
-      esac
-
-      case $option
-      in
-        single-west) args+=( -gravity west ) ;;
-        single-east) args+=( -gravity east ) ;;
-        *) args+=(-gravity center) ;;
-      esac
-    fi
-
-    args+=(
-      -compose Over -extent "$size"
-      -channel A -blur 0x8 -level '50%,100%' +channel
-    )
   fi
-else
-  border=$(( (monheight - imgheight) > (monwidth - imgwidth) ? (monheight - imgheight) : (monwidth - imgwidth) ))
-  args+=(
-    -virtual-pixel transparent
-    -channel A -blur 0x32 -level '50%,100%' +channel
-    -gravity center -compose Over -extent "$size"
-  )
 fi
+
+# round the edges and corners of smaller images by using a blurred alpha channel
+args+=(
+  -gravity center
+  -compose Over -extent "$size"
+  -channel A -blur 0x32 -level '50%,100%' +channel
+  -extent "${imgwidth}x$imgheight"
+)
+
+border=$(( (monwidth - imgwidth) > (monheight - imgheight) ? (monwidth - imgwidth) : (monheight - imgheight) ))
+
+if [ "$imgratio" -gt 1000 ]
+then
+  # wide images, just center them
+  args+=(-gravity center)
+else
+  # skinny images, maybe show multiple
+
+  options=(single-center)
+
+  if [ "$(( monwidth - imgwidth * 4 - 40 ))" -gt 0 ]
+  then
+    options+=(quad-llrr-split quad-lrlr-split quad-llrr-edges quad-lrlr-edges)
+  fi
+
+  if [ "$(( monwidth - imgwidth * 3 - 30 ))" -gt 0 ]
+  then
+    options+=(triple-lll-split triple-lrl-split triple-lll-edges triple-lrl-edges)
+  fi
+
+  if [ "$(( monwidth - imgwidth * 2 - 30 ))" -gt 0 ]
+  then
+    options+=(double-lr-split double-ll-split double-lr-edges double-ll-edges)
+    options+=(single-west single-east)
+  fi
+
+  option="$(printf '%s\n' "${options[@]}" | shuf -n1)"
+  echo "chose $option from" "${options[@]}"
+
+  case $option
+  in
+    quad-*) border=$(( monwidth - imgwidth * 4 )) ;;
+    triple-*) border=$(( monwidth - imgwidth * 3 )) ;;
+    double-*) border=$(( monwidth - imgwidth * 2 )) ;;
+    single-*) border=$(( monwidth - imgwidth )) ;;
+  esac
+
+  case $option
+  in
+    quad-llll-*) args+=( \( +clone \) \( +clone \) \( +clone \) ) ;;
+    quad-llrr-*) args+=( \( +clone \) \( +clone -flop \) \( +clone \) ) ;;
+    quad-lrlr-*) args+=( \( +clone -flop \) \( +clone -flop \) \( +clone -flop \) ) ;;
+    triple-lll-*) args+=( \( +clone \) \( +clone \) ) ;;
+    triple-lrl-*) args+=( \( +clone -flop \) \( +clone -flop \) ) ;;
+    double-ll-*) args+=( \( +clone \) ) ;;
+    double-lr-*) args+=( \( +clone -flop \) ) ;;
+  esac
+
+  case $option
+  in
+    quad-*-split) args+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
+    quad-*-edges) args+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
+    triple-*-split) args+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
+    triple-*-edges) args+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
+    double-*-split) args+=( +smush "$(( border / 3 ))" ) ;;
+    double-*-edges) args+=( +smush "$(( border ))" ) ;;
+  esac
+
+  case $option
+  in
+    single-west) args+=( -gravity west ) ;;
+    single-east) args+=( -gravity east ) ;;
+    *) args+=(-gravity center) ;;
+  esac
+fi
+
+args+=(
+  -compose Over -extent "$size"
+)
 
 # If we need to add a border to fit the monitor less reserved region,
 # generate a blurred background to fill it
