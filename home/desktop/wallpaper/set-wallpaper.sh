@@ -75,6 +75,8 @@ then
   then
     # close enough, shrink to cover, cutting off a little of the image
     args+=(-resize "$size^")
+    imgheight="$monheight"
+    imgwidth="$monwidth"
   else
     # shrink to fit
     read -r imgwidth imgheight < <(run magick "$wallpaper" -resize "$size" -format '%w %h\n' info:-)
@@ -83,12 +85,47 @@ then
   fi
 fi
 
-# round the edges and corners of smaller images by using a blurred alpha channel
+# create a masked copy of the border of the image in index 0
 args+=(
-  -gravity center
-  -compose Over -extent "$size"
-  -channel A -blur 0x32 -level '50%,100%' +channel
-  -extent "${imgwidth}x$imgheight"
+  \(
+    +clone
+    \(
+      +clone
+      +level-colors white
+)
+if [ "$imgheight" -eq "$monheight" ]
+then
+  args+=( \( +clone -shave 32x0 +level-colors black \) )
+elif [ "$imgwidth" -ge "$monwidth" ]
+then
+  args+=( \( +clone -shave 0x32 +level-colors black \) )
+else
+  args+=( \( +clone -shave 32x32 +level-colors black \) )
+fi
+args+=(
+      -background black
+      -gravity center -compose Over -composite
+      -extent "$size"
+      -channel rgb -blur 0x16 -level '50%,100%' +channel
+      -extent "${imgwidth}x$imgheight"
+    \)
+    -background transparent
+    -gravity center -compose CopyOpacity -composite
+  \)
+  +swap
+)
+
+# round the edges and corners of smaller images by using a blurred alpha channel
+# (but not the masked border)
+args+=(
+  \(
+    +clone
+    -gravity center
+    -compose Over -extent "$size"
+    -channel A -blur 0x32 -level '50%,100%' +channel
+    -extent "${imgwidth}x$imgheight"
+  \)
+  +swap +delete
 )
 
 border=$(( (monwidth - imgwidth) > (monheight - imgheight) ? (monwidth - imgwidth) : (monheight - imgheight) ))
@@ -96,7 +133,7 @@ border=$(( (monwidth - imgwidth) > (monheight - imgheight) ? (monwidth - imgwidt
 if [ "$imgratio" -gt 1000 ]
 then
   # wide images, just center them
-  args+=(-gravity center)
+  args+=( -gravity center -compose Over -extent "$size" )
 else
   # skinny images, maybe show multiple
 
@@ -129,44 +166,55 @@ else
     single-*) border=$(( monwidth - imgwidth )) ;;
   esac
 
+  tmp=()
   case $option
   in
-    quad-llll-*) args+=( \( +clone \) \( +clone \) \( +clone \) ) ;;
-    quad-llrr-*) args+=( \( +clone \) \( +clone -flop \) \( +clone \) ) ;;
-    quad-lrlr-*) args+=( \( +clone -flop \) \( +clone -flop \) \( +clone -flop \) ) ;;
-    triple-lll-*) args+=( \( +clone \) \( +clone \) ) ;;
-    triple-lrl-*) args+=( \( +clone -flop \) \( +clone -flop \) ) ;;
-    double-ll-*) args+=( \( +clone \) ) ;;
-    double-lr-*) args+=( \( +clone -flop \) ) ;;
+    quad-llll-*) tmp+=( \( +clone \) \( +clone \) \( +clone \) ) ;;
+    quad-llrr-*) tmp+=( \( +clone \) \( +clone -flop \) \( +clone \) ) ;;
+    quad-lrlr-*) tmp+=( \( +clone -flop \) \( +clone -flop \) \( +clone -flop \) ) ;;
+    triple-lll-*) tmp+=( \( +clone \) \( +clone \) ) ;;
+    triple-lrl-*) tmp+=( \( +clone -flop \) \( +clone -flop \) ) ;;
+    double-ll-*) tmp+=( \( +clone \) ) ;;
+    double-lr-*) tmp+=( \( +clone -flop \) ) ;;
   esac
 
   case $option
   in
-    quad-*-split) args+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
-    quad-*-edges) args+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
-    triple-*-split) args+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
-    triple-*-edges) args+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
-    double-*-split) args+=( +smush "$(( border / 3 ))" ) ;;
-    double-*-edges) args+=( +smush "$(( border ))" ) ;;
+    quad-*-split) tmp+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
+    quad-*-edges) tmp+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
+    triple-*-split) tmp+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
+    triple-*-edges) tmp+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
+    double-*-split) tmp+=( +smush "$(( border / 3 ))" ) ;;
+    double-*-edges) tmp+=( +smush "$(( border ))" ) ;;
   esac
 
   case $option
   in
-    single-west) args+=( -gravity west ) ;;
-    single-east) args+=( -gravity east ) ;;
-    *) args+=(-gravity center) ;;
+    single-west) tmp+=( -gravity west ) ;;
+    single-east) tmp+=( -gravity east ) ;;
+    *) tmp+=( -gravity center ) ;;
   esac
+
+  tmp+=( -compose Over -extent "$size" )
+
+  # Because of the cloning and smushing, we have to apply the same series of
+  # operations to the masked border and real image in parallel
+  args+=(
+    \( -clone 0 "${tmp[@]}" \)
+    \( -clone 1 "${tmp[@]}" \)
+    -delete 0-1
+  )
 fi
 
-args+=(
-  -compose Over -extent "$size"
-)
-
 # If we need to add a border to fit the monitor less reserved region,
-# generate a blurred background to fill it
-
+# generate a blurred background to fill it, using the masked border image
 if [ "$border" -gt 0 ]
 then
+  args+=(
+    \(
+      -clone 0
+  )
+
   args+=( \( +clone -channel RGBA -blur 0x1 \) )
 
   if [ "$border" -gt 4 ]; then args+=( \( +clone -channel RGBA -blur 0x2 \) ); fi
@@ -183,13 +231,18 @@ then
   if [ "$border" -gt 512 ]; then args+=( -delete 0 -reverse -flatten -resize 400% \) ); fi
   if [ "$border" -gt 32 ]; then args+=( -delete 0 -reverse -flatten -resize 400% -blur 0x1 \) ); fi
 
-  args+=( -reverse -flatten -alpha off )
+  args+=(
+      -reverse -flatten -alpha off
+    \)
+    -delete 0
+    +swap
+  )
 fi
 
 
 # Add black edges to fill any reserved region
 
-args+=( -background black )
+args+=( -background black -flatten )
 
 if [ "$monleft" -gt 0 ]
 then
