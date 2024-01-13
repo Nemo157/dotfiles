@@ -4,6 +4,7 @@
     ./chill
     ./chill-server
     ./desktop
+    ./games
     ./xdg.nix
     ./age.nix
   ];
@@ -34,52 +35,54 @@
     '';
   };
 
-  xdg.configFile."wireplumber/main.lua.d/51-alsa-config.lua".text = ''
-    table.insert(alsa_monitor.rules, {
-      matches = {
-        {
-          { "device.nick", "is-present" },
-          { "device.nick", "not-equals", "Samson Go Mic" },
+  xdg.configFile = {
+    "wireplumber/main.lua.d/51-alsa-config.lua".text = ''
+      table.insert(alsa_monitor.rules, {
+        matches = {
+          {
+            { "device.nick", "is-present" },
+            { "device.nick", "not-equals", "Samson Go Mic" },
+          },
         },
-      },
-      apply_properties = {
-        -- disable all alsa devices except mic
-        ["device.disabled"] = true,
-      },
-    })
-
-    table.insert(alsa_monitor.rules, {
-      matches = {
-        {
-          { "node.nick", "equals", "Samson Go Mic" },
-          { "media.class", "equals", "Audio/Sink" },
+        apply_properties = {
+          -- disable all alsa devices except mic
+          ["device.disabled"] = true,
         },
-      },
-      apply_properties = {
-        -- disable output on mic
-        ["node.disabled"] = true,
-      },
-    })
-  '';
+      })
 
-  xdg.configFile."wireplumber/bluetooth.lua.d/51-bluez-config.lua".text = ''
-    table.insert(bluez_monitor.rules, {
-      matches = {
-        { { "device.description", "equals", "WH-1000XM3" } },
-      },
-      apply_properties = {
-        -- only use as an output
-        ["bluez5.auto-connect"] = "[ a2dp_sink ]",
-      },
-    })
-    table.insert(bluez_monitor.rules, {
-      matches = {
-        { { "node.description", "equals", "WH-1000XM3" } },
-      },
-      apply_properties = {
-        -- ensure bluetooth headset is picked as default
-        ["priority.session"] = 1200,
-      },
-    })
-  '';
+      table.insert(alsa_monitor.rules, {
+        matches = {
+          {
+            { "node.nick", "equals", "Samson Go Mic" },
+            { "media.class", "equals", "Audio/Sink" },
+          },
+        },
+        apply_properties = {
+          -- disable output on mic
+          ["node.disabled"] = true,
+        },
+      })
+    '';
+
+    "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text = ''
+      table.insert(bluez_monitor.rules, {
+        matches = {
+          { { "device.description", "equals", "WH-1000XM3" } },
+        },
+        apply_properties = {
+          -- only use as an output
+          ["bluez5.auto-connect"] = "[ a2dp_sink ]",
+        },
+      })
+      table.insert(bluez_monitor.rules, {
+        matches = {
+          { { "node.description", "equals", "WH-1000XM3" } },
+        },
+        apply_properties = {
+          -- ensure bluetooth headset is picked as default
+          ["priority.session"] = 1200,
+        },
+      })
+    '';
+  };
 }
