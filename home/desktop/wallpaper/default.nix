@@ -35,6 +35,7 @@ in {
         Service = {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
+          Nice = 5;
         };
       };
 
