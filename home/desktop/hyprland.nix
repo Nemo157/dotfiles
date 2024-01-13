@@ -164,4 +164,11 @@ in {
       ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base03} ${sol.base02} ${sol.base01} ${sol.base00} 45deg'
     '';
   };
+
+  programs.zsh.profileExtra = ''
+    if [[ -z "$WAYLAND_DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]]
+    then
+      exec Hyprland
+    fi
+  '';
 }
