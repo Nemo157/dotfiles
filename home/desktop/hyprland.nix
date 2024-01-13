@@ -145,6 +145,9 @@ in {
       windowrulev2 = opaque,title:^Vintage Story
 
       windowrulev2 = maximize,class:calibre-gui
+
+      windowrulev2 = tile,class:steam_app_1284210
+      windowrulev2 = opaque,class:steam_app_1284210
     '';
   };
 
