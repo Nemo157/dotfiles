@@ -12,6 +12,7 @@ in {
       extensions = [
         "rust-src"
         "rustc-codegen-cranelift-preview"
+        "miri"
       ];
     }
   )),
