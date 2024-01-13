@@ -131,6 +131,7 @@ in {
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
 
+      windowrulev2 = opaque,title:Picture in picture
       windowrulev2 = float,title:Picture in picture
       windowrulev2 = pin,title:Picture in picture
       windowrulev2 = size 576 324,title:Picture in picture
