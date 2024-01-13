@@ -143,6 +143,8 @@ in {
 
       windowrulev2 = tile,title:^Vintage Story
       windowrulev2 = opaque,title:^Vintage Story
+
+      windowrulev2 = maximize,class:calibre-gui
     '';
   };
 
