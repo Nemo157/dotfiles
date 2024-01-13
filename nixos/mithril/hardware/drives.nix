@@ -5,6 +5,7 @@
     initrd = {
       supportedFilesystems = [ "zfs" ];
       availableKernelModules = [ "zfs" "nvme" ];
+      kernelModules = [ "usb_storage" ];
 
       luks.devices = {
         root = {
@@ -12,6 +13,9 @@
           preLVM = true;
           bypassWorkqueues = true;
           allowDiscards = true;
+          keyFileSize = 4096;
+          keyFile = "/dev/disk/by-id/usb-Intenso_Micro_Line_E405AC7369FC94-0:0";
+          fallbackToPassword = true;
         };
       };
     };
