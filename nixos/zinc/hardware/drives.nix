@@ -1,7 +1,15 @@
 {
-  boot.initrd.luks.devices = {
-    "luks-83e617bd-c53f-488b-84e4-6dde7e94c0a8" = {
-      device = "/dev/disk/by-uuid/83e617bd-c53f-488b-84e4-6dde7e94c0a8";
+  boot.initrd = {
+    kernelModules = [ "usb_storage" ];
+
+    luks.devices = {
+      "luks-83e617bd-c53f-488b-84e4-6dde7e94c0a8" = {
+        device = "/dev/disk/by-uuid/83e617bd-c53f-488b-84e4-6dde7e94c0a8";
+        allowDiscards = true;
+        keyFileSize = 4096;
+        keyFile = "/dev/disk/by-id/usb-Intenso_Micro_Line_E405AC7369FC94-0:0";
+        fallbackToPassword = true;
+      };
     };
   };
 
