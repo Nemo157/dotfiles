@@ -9,4 +9,6 @@
     ./nixseparatedebuginfod.nix
     ./nix-serve.nix
   ];
+
+  services.upower.enable = true;
 }
