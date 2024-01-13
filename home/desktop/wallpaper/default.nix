@@ -11,6 +11,9 @@ let
     runtimeInputs = with pkgs; [ coreutils fd hyprland jq set-wallpaper systemd imagemagick ];
     text = lib.readFile ./change-wallpapers.sh;
   };
+  trigger-swww-change-wallpapers = pkgs.writeShellScript "trigger-swww-change-wallpapers.sh" ''
+    ${pkgs.systemd}/bin/systemctl --user start --no-block swww-change-wallpaper.service
+  '';
 in {
   systemd.user = {
     timers = {
@@ -43,5 +46,10 @@ in {
         Install.WantedBy = [ "graphical-session.target" ];
       };
     };
+  };
+
+  xdg.dataFile = {
+    "light-mode.d/trigger-swww-change-wallpapers".source = trigger-swww-change-wallpapers;
+    "dark-mode.d/trigger-swww-change-wallpapers".source = trigger-swww-change-wallpapers;
   };
 }
