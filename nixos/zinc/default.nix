@@ -7,6 +7,7 @@
     ./boot-loader.nix
     ./networking.nix
     ./services
+    ../autologin.nix
   ];
 
   nix = {

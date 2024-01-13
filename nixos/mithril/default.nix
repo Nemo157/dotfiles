@@ -5,6 +5,7 @@
     ./networking.nix
     ./services
     ./users.nix
+    ../autologin.nix
   ];
 
   nix = {
