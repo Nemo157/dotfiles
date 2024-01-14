@@ -37,7 +37,7 @@ show() {
   run swww img "${args[@]}" "$1"
 }
 
-if [ "$WALLPAPER_DUMB" -eq 1 ]
+if [ "${WALLPAPER_DUMB:-0}" -eq 1 ]
 then
   show "$wallpaper"
   exit
