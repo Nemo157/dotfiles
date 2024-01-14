@@ -4,7 +4,6 @@
     ./chill
     ./chill-server
     ./desktop
-    ./games
     ./xdg.nix
     ./age.nix
   ];
