@@ -15,7 +15,6 @@
 
   home.packages = with pkgs; [
     wl-clipboard
-    urlview
   ];
 
   home.keyboard = {
@@ -23,9 +22,4 @@
       variant = "dvp";
       options = [ "caps:escape" "compose:ralt" ];
   };
-
-  home.file.".urlview".text = ''
-    COMMAND firefox
-    WRAP yes
-  '';
 }

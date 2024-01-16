@@ -1,4 +1,16 @@
-{ lib, config, pkgs, ... }: {
+{ lib, config, pkgs, ... }:
+let
+  tmux-urlview-popup = pkgs.writeShellApplication {
+    name = "tmux-urlview-popup";
+    runtimeInputs = with pkgs; [ tmux xdg-utils ];
+    text = lib.readFile ./tmux/urlview-popup.sh;
+  };
+  tmux-urlview = pkgs.writeShellApplication {
+    name = "tmux-urlview";
+    runtimeInputs = with pkgs; [ tmux ripgrep tmux-urlview-popup ];
+    text = lib.readFile ./tmux/urlview.sh;
+  };
+in {
   programs.tmux = {
     enable = true;
     escapeTime = 0;
@@ -74,7 +86,7 @@
 
       set -g default-terminal tmux-256color
 
-      bind-key u run-shell -C { capture-pane -S '#{?#{==:#{pane_mode},copy-mode},-#{scroll_position},0}' -E '#{?#{==:#{pane_mode},copy-mode},#{e|-:#{pane_height},#{scroll_position}},#{pane_height}}' }\; save-buffer /tmp/tmux-buffer \; display-popup -E -T 'Open url' 'urlview /tmp/tmux-buffer'
+      bind-key u run-shell "${lib.getExe tmux-urlview}"
     '';
   };
 }
