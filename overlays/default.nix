@@ -29,4 +29,6 @@ in {
   maintainers = prev.maintainers // maintainers;
 
   swww = callOverlay ./swww.nix;
+
+  atuin = callOverlay ./atuin.nix;
 } // import ../packages { pkgs = final; }

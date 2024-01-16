@@ -17,19 +17,19 @@
       inline_height = 20;
       show_preview = true;
       search_mode = "prefix";
+      vim = true;
     };
   };
 
-  # TODO: get vim keybindings into atuin itself then actually bind it to display
-  # programs.zsh.initExtra = ''
-  #   if [[ $options[zle] = on ]]; then
-  #     bindkey -a / _atuin_search_widget
-  #     bindkey -a k _atuin_up_search_widget
-  #   fi
-  # '';
+  programs.zsh.initExtra = ''
+    if [[ $options[zle] = on ]]; then
+      bindkey -a / _atuin_search_viins_widget
+      bindkey -a k _atuin_up_search_vicmd_widget
+    fi
+  '';
 
   programs.zsh.profileExtra = ''
-    # Workaround sqlite/zsh bugs by storing sqlite databases on a tmpfs
+    # Workaround sqlite/zfs bugs by storing sqlite databases on a tmpfs
     # https://github.com/atuinsh/atuin/issues/952
     if ! [ -e "$XDG_RUNTIME_DIR/atuin" ]
     then
