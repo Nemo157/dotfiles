@@ -1,10 +1,11 @@
-echo
-
 trap exit SIGINT
+trap "echo -e '\e[?25h'" EXIT
 
 options=("$@")
 count=${#options[@]}
 selected=0
+
+echo -e '\e[?25l'
 
 while true
 do
@@ -12,20 +13,13 @@ do
     do
         if [ "$i" = "$selected" ]
         then
-          echo "  >  ${options[$i]}"
+          echo -e "\e[40m  \e[95m»\e[39m  ${options[$i]}\e[K\e[0m"
         else
-          echo "     ${options[$i]}"
+          echo -e "     ${options[$i]}\e[K"
         fi
     done
 
-    # leave the cursor sitting on the > marker
-    echo -ne "\e[$((count - selected))A\e[2C"
-
     read -r -s -n1 key
-
-    # finish resetting the cursor ready to overwrite the list
-    [ "$selected" -gt 0 ] && echo -ne "\e[${selected}A"
-    echo -ne "\e[2D" >&2
 
     case "$key" in
       "k" )
@@ -42,4 +36,6 @@ do
         exit
         ;;
     esac
+
+    echo -ne "\e[${count}A"
 done
