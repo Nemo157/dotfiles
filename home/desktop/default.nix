@@ -23,4 +23,9 @@
       variant = "dvp";
       options = [ "caps:escape" "compose:ralt" ];
   };
+
+  home.file.".urlview".text = ''
+    COMMAND firefox
+    WRAP yes
+  '';
 }
