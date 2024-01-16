@@ -17,32 +17,6 @@ read -r monwidth monheight monleft montop monright monbottom < <(
 read -r frames imgfmt imgwidth imgheight < <(run magick "$wallpaper" -format '%n %m %w %h\n' info:-)
 echo "$wallpaper: $imgfmt $frames frames"
 
-show() {
-  local args=(
-    --outputs "$monitor"
-    --transition-duration 2
-    --transition-step 4
-    --transition-angle "$(shuf -i0-359 -n1)"
-    --transition-pos "0.$(shuf -i0-99 -n1),0.$(shuf -i0-99 -n1)"
-    --no-resize
-  )
-
-  args+=(--transition-type)
-  if [ "$frames" -eq 1 ]
-  then
-    args+=("$(printf 'simple\nwipe\nwave\ngrow\nouter\n' | shuf -n1)")
-  else
-    args+=(none)
-  fi
-  run swww img "${args[@]}" "$1"
-}
-
-if [ "${WALLPAPER_DUMB:-0}" -eq 1 ]
-then
-  show "$wallpaper"
-  exit
-fi
-
 monwidth=$(( monwidth - monleft - monright ))
 monheight=$(( monheight - montop - monbottom ))
 monratio=$(( monwidth * 1000 / monheight ))
@@ -55,14 +29,34 @@ e=$(( 2 * (imgratio < monratio ? (monratio - imgratio) : (imgratio - monratio)) 
 
 echo "aspect ratio error: $e/1000"
 
+show() {
+  local args=(
+    --outputs "$monitor"
+    --transition-duration 2
+    --transition-step 4
+    --transition-angle "$(shuf -i0-359 -n1)"
+    --transition-pos "0.$(shuf -i0-99 -n1),0.$(shuf -i0-99 -n1)"
+  )
+
+  args+=(--transition-type)
+  if [ "$frames" -eq 1 ]
+  then
+    args+=("$(printf 'simple\nwipe\nwave\ngrow\nouter\n' | shuf -n1)" --resize=crop)
+  else
+    args+=(none --resize=fit)
+  fi
+  run swww img "${args[@]}" "$1"
+}
+
+if [ "${WALLPAPER_DUMB:-0}" -eq 1 ] || [ "$frames" -gt 1 ]
+then
+  show "$wallpaper"
+  exit
+fi
+
 size="${monwidth}x$monheight"
 
 args=("$wallpaper" -background none)
-
-if [ "$frames" -gt 1 ]
-then
-  show "$wallpaper"
-fi
 
 if [ $RANDOM -gt 16384 ]
 then
