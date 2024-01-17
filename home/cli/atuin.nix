@@ -17,7 +17,7 @@
       inline_height = 20;
       show_preview = true;
       search_mode = "prefix";
-      vim = true;
+      keymap_mode = "auto";
     };
   };
 
