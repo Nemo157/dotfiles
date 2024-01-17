@@ -84,4 +84,16 @@
       })
     '';
   };
+
+  scripts."switch-to-virtual-monitor" = {
+    runtimeInputs = with pkgs; [ hyprland eww systemd ];
+    text = ''
+        hyprctl keyword monitor HDMI-A-1,disable
+        hyprctl output create headless
+        hyprctl keyword monitor HEADLESS-2,2560x1600@60,auto,1
+        systemctl --user restart sunshine
+        eww close-all
+        eww open taskbar
+    '';
+  };
 }
