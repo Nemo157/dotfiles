@@ -19,6 +19,7 @@ in {
     gnupg
     gnutar
     imagemagick
+    jd-cli
     links2
     lsd
     lynx
@@ -81,6 +82,8 @@ in {
 
       fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
                \ identify %f
+
+      fileviewer *.class jd-cli --logLevel OFF --outputConsole
 
       " MD5
       filetype *.md5
