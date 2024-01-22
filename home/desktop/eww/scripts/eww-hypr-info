@@ -75,8 +75,7 @@ get-info() {
 
 prev=
 info() {
-  new="$(get-info)"
-  if [ "$prev" != "$new" ]
+  if new="$(get-info)" && [ "$prev" != "$new" ]
   then
     prev="$new"
     echo "$new"
