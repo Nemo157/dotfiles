@@ -1,6 +1,6 @@
 { pkgs-prev, pkgs-final, ... }:
 
-pkgs-prev.sunshine.overrideAttrs(final: prev: rec {
+(pkgs-prev.sunshine.overrideAttrs(final: prev: rec {
   version = "336062d467d5f48ba56d05a523c212f791421108";
   src = pkgs-final.fetchFromGitHub {
     owner = "LizardByte";
@@ -19,4 +19,8 @@ pkgs-prev.sunshine.overrideAttrs(final: prev: rec {
     "-DSUNSHINE_ENABLE_X11=OFF"
     "-DSUNSHINE_ENABLE_DRM=OFF"
   ];
-})
+})).override {
+  cudaSupport = true;
+  # https://github.com/NixOS/nixpkgs/pull/235655
+  stdenv = pkgs-final.cudaPackages.backendStdenv;
+}
