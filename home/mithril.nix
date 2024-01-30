@@ -82,6 +82,14 @@
         },
       })
     '';
+    "pipewire/pipewire.conf.d/92-low-latency.conf".text = ''
+      context.properties = {
+        default.clock.rate = 48000
+        default.clock.quantum = 256
+        default.clock.min-quantum = 256
+        default.clock.max-quantum = 256
+      }
+    '';
   };
 
   scripts."switch-to-virtual-monitor" = {
