@@ -19,6 +19,9 @@ in {
     systemd.enable = true;
 
     extraConfig = ''
+      env = XDG_SESSION_TYPE,wayland
+      env = NIXOS_OZONE_WL,1
+
       monitor = ,highres,auto,1
 
       input {
