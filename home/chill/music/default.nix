@@ -15,7 +15,7 @@
   };
 
   scripts.rofi-mpd = {
-    runtimeInputs = [ pkgs.rofi pkgs.mpc-cli pkgs.coreutils ];
+    runtimeInputs = [ pkgs.rofi pkgs.mpc-cli pkgs.beets pkgs.coreutils ];
     source = ./rofi-mpd;
   };
 

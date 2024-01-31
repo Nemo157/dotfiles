@@ -6,7 +6,15 @@
       directory = config.xdg.userDirs.music;
       library = "${config.xdg.userDirs.music}/.beets.db";
 
-      plugins = [ "random" "bpd" "replaygain" "fetchart" ];
+      plugins = [
+        "fetchart"
+        "info"
+        "mbsync"
+        "missing"
+        "mpdupdate"
+        "random"
+        "replaygain"
+      ];
 
       import = {
         move = true;
