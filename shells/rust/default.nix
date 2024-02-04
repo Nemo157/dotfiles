@@ -5,6 +5,13 @@ let
     name = "setup-xdg-cargo-home";
     text = lib.readFile ./setup-xdg-cargo-home;
   };
+  cargo-upgrade = pkgs.writeShellApplication {
+    name = "cargo-upgrade";
+    text = ''
+      echo cargo-edit does not support the sparse registry
+      exit 1
+    '';
+  };
 in {
   extraBuildInputs ? [],
   rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
@@ -33,11 +40,13 @@ in {
     cargo-hack
     cargo-minimal-versions
     cargo-nextest
+    cargo-outdated
     cargo-rubber
     cargo-semver-checks
     cargo-supply-chain
     cargo-sweep
     cargo-udeps
+    cargo-upgrade
     cargo-vet
     cargo-watch
 
