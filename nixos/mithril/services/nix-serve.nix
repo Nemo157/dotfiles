@@ -1,8 +1,8 @@
-{ config, ... }: {
+{ config, ts, ... }: {
   services.nix-serve = {
     enable = true;
     port = 5069;
-    bindAddress = "100.120.211.104";
+    bindAddress = ts.self.ip;
     secretKeyFile = "/var/lib/nix-serve/cache-priv-key.pem";
   };
 

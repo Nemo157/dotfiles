@@ -100,6 +100,17 @@
         settings.flake-registry = "/etc/nixos/registry.json";
       };
     };
+
+    ts = {
+      mithril = {
+        ip = "100.120.211.104";
+        host = "mithril.emerald-koi.ts.net";
+      };
+      zinc = {
+        ip = "100.71.97.27";
+        host = "zinc.emerald-koi.ts.net";
+      };
+    };
   in rec {
 
     maintainers = {
@@ -124,6 +135,9 @@
     nixosConfigurations = {
       mithril = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
+        specialArgs = {
+          ts = ts // { self = ts.mithril; };
+        };
         modules = [
           pin-nixpkgs
           nixseparatedebuginfod.nixosModules.default
@@ -133,6 +147,9 @@
 
       zinc = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
+        specialArgs = {
+          ts = ts // { self = ts.zinc; };
+        };
         modules = [
           pin-nixpkgs
           nixos-hardware.nixosModules.apple-t2
@@ -150,6 +167,7 @@
         inherit pkgs;
         extraSpecialArgs = {
           inherit pkgs-unstable nur;
+          ts = ts // { self = ts.mithril; };
         };
         modules = [
           ./home/scripts.nix
@@ -163,6 +181,7 @@
         inherit pkgs;
         extraSpecialArgs = {
           inherit pkgs-unstable nur;
+          ts = ts // { self = ts.zinc; };
         };
         modules = [
           ./home/scripts.nix

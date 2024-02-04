@@ -1,4 +1,4 @@
-{ config, ... }: {
+{ lib, config, ts, ... }: {
   programs.atuin = {
     enable = true;
     flags = [
@@ -7,7 +7,7 @@
     ];
     settings = {
       sync_frequency = 0;
-      sync_address = "http://mithril:8888";
+      sync_address = "http://${ts.mithril.host}:8888";
       history_filter = [
         "^ "
       ];
