@@ -14,7 +14,7 @@ elif [ "$ROFI_RETV" = 0 ]
 then
   # shellcheck disable=SC2016
   run beet ls -a -f '$albumartists' | run sed $'s/\\\\\xe2\x90\x80/\\n/g' | sort -u
-elif ! [[ -v ROFI_DATA ]]
+elif ! [[ -v ROFI_INFO ]]
 then
   albumartist="$1"
   albums=("$(run beet ls -a -f $'$albumartist\x1c$album\x1c$artpath' "albumartists:$albumartist")")
@@ -28,11 +28,9 @@ then
     fi
   done <<<"${albums[*]}"
 
-  echo -e '\0markup-rows\x1ftrue'
-
   while IFS=$'\x1c' read -r albumartist album artpath
   do
-    run printf '<span alpha="50%%">%-*s</span>  ¦  %s\0icon\x1f%s\x1finfo\x1f%s\x1c%s\n' "$len" "$albumartist" "$album" "$artpath" "$albumartist" "$album"
+    run printf '%-*s  ¦  %s\0icon\x1f%s\x1finfo\x1f%s\x1c%s\n' "$len" "$albumartist" "$album" "$artpath" "$albumartist" "$album"
   done <<<"${albums[*]}"
 else
   IFS=$'\x1c' read -r albumartist album <<<"$ROFI_INFO"
