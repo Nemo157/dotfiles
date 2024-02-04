@@ -1,6 +1,8 @@
 { pkgs }: {
   gh-poi = pkgs.callPackage ./gh-poi.nix { };
 
+  rust-shim = pkgs.callPackage ./rust-shim.nix { };
+
   cargo-dl = pkgs.callPackage ./cargo-dl.nix { };
 
   cargo-doc-like-docs-rs = pkgs.writeShellApplication {
