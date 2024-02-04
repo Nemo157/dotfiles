@@ -9,6 +9,7 @@
       library = "${config.xdg.userDirs.music}/.beets.db";
 
       plugins = [
+        "embedart"
         "fetchart"
         "info"
         "mbsync"
@@ -23,6 +24,10 @@
 
       replaygain = {
         backend = "ffmpeg";
+      };
+
+      embedart = {
+        auto = false; # Actually using it for the cli command to extract
       };
 
       fetchart = {
