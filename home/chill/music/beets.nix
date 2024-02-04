@@ -2,6 +2,8 @@
   programs.beets = {
     enable = true;
 
+    mpdIntegration.enableUpdate = true;
+
     settings = {
       directory = config.xdg.userDirs.music;
       library = "${config.xdg.userDirs.music}/.beets.db";
@@ -11,7 +13,6 @@
         "info"
         "mbsync"
         "missing"
-        "mpdupdate"
         "random"
         "replaygain"
       ];
