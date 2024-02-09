@@ -8,7 +8,7 @@ let
         while [ $# -gt 0 ]
         do
           case "$1" in
-            -V | --version)
+            -V | -vV | -Vv | --version)
               return 0
               ;;
           esac
