@@ -60,5 +60,10 @@
     storageDriver = "zfs";
   };
 
+  systemd.coredump.extraConfig = ''
+    ProcessSizeMax = 1G
+    ExternalSizeMax = 1G
+  '';
+
   documentation.dev.enable = true;
 }
