@@ -16,6 +16,9 @@
 
     settings.trusted-users = [ "root" "nix-ssh" ];
 
+    daemonIOSchedClass = "idle";
+    daemonCPUSchedPolicy = "idle";
+
     sshServe = {
       enable = true;
       protocol = "ssh-ng";
