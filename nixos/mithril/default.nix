@@ -45,6 +45,8 @@
 
   environment.systemPackages = with pkgs; [
     vim
+    man-pages
+    man-pages-posix
   ];
 
   programs = {
@@ -57,4 +59,6 @@
     autoPrune.enable = true;
     storageDriver = "zfs";
   };
+
+  documentation.dev.enable = true;
 }
