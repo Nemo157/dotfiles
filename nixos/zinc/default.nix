@@ -31,6 +31,11 @@
         sshUser = "nix-ssh";
         protocol = "ssh-ng";
         maxJobs = 20;
+        supportedFeatures = [
+          "kvm"
+          "nixos-test"
+          "big-parallel"
+        ];
       }
     ];
   };
