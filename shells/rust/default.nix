@@ -98,6 +98,7 @@ in {
     export CARGO_PROFILE_DEV_PANIC=abort
 
     export CARGO_UNSTABLE_BUILD_STD=std,panic_abort
+    export CARGO_UNSTABLE_CHECK_CFG=true
     export CARGO_UNSTABLE_CODEGEN_BACKEND=true
     export CARGO_UNSTABLE_GITOXIDE_CHECKOUT=true
     export CARGO_UNSTABLE_GITOXIDE_FETCH=true
