@@ -52,6 +52,7 @@
   programs = {
     zsh.enable = true;
     dconf.enable = true;
+    wireshark.enable = true;
   };
 
   virtualisation.docker = {
