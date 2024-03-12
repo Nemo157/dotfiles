@@ -36,4 +36,6 @@ in {
   beets = prev.beets-unstable;
 
   jujutsu = callOverlay ./jujutsu.nix;
+
+  tmux = pkgs-unstable.tmux;
 } // import ../packages { pkgs = final; }
