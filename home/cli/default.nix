@@ -4,6 +4,7 @@
     ./bat
     ./cargo.nix
     ./git
+    ./jujutsu.nix
     ./gh.nix
     ./gpg.nix
     ./lsd.nix

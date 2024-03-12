@@ -34,4 +34,6 @@ in {
 
   # No release in over 2 years, with many many commits since :ferrisPensive:
   beets = prev.beets-unstable;
+
+  jujutsu = callOverlay ./jujutsu.nix;
 } // import ../packages { pkgs = final; }
