@@ -19,7 +19,7 @@
       Name=${name}
       Icon=${name}
       TryExec=alacritty
-      Exec=alacritty --class ${name} --command ssh ${host} -t tmux -u new-session -s master-$(hostname -s) -t master -A
+      Exec=alacritty --class ${name} --command ssh ${host} -t tmux -u new-session -s primary-$(hostname -s) -t primary -A
       StartupWMClass=${name}
       SingleMainWindow=true
     '';

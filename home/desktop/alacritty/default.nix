@@ -39,7 +39,7 @@
         args = [
           "--login"
           "-c"
-          "tmux -u new-session -s master-$(hostname -s) -t master -A"
+          "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
         ];
       };
     };
