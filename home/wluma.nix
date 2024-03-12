@@ -2,14 +2,7 @@
   xdg.configFile."wluma/config.toml".text = ''
     [als.iio]
     path = "/sys/bus/iio/devices"
-
-    [als.iio.thresholds]
-    0 = "night"
-    2 = "dark"
-    8 = "dim"
-    15 = "normal"
-    50 = "bright"
-    100 = "outdoors"
+    thresholds = { 0 = "night", 2 = "dark", 8 = "dim", 15 = "normal", 50 = "bright", 100 = "outdoors" }
 
     [[output.backlight]]
     name = "integrated-screen"
