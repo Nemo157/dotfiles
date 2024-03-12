@@ -39,7 +39,7 @@
         matches = {
           {
             { "device.nick", "is-present" },
-            { "device.nick", "not-equals", "Samson Go Mic" },
+            { "device.nick", "not-equals", "Samson GoMic" },
           },
         },
         apply_properties = {
@@ -48,18 +48,18 @@
         },
       })
 
-      table.insert(alsa_monitor.rules, {
-        matches = {
-          {
-            { "node.nick", "equals", "Samson Go Mic" },
-            { "media.class", "equals", "Audio/Sink" },
-          },
-        },
-        apply_properties = {
-          -- disable output on mic
-          ["node.disabled"] = true,
-        },
-      })
+      -- table.insert(alsa_monitor.rules, {
+      --   matches = {
+      --     {
+      --       { "node.nick", "equals", "Samson GoMic" },
+      --       { "media.class", "equals", "Audio/Sink" },
+      --     },
+      --   },
+      --   apply_properties = {
+      --     -- disable output on mic
+      --     ["node.disabled"] = true,
+      --   },
+      -- })
     '';
 
     "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text = ''
