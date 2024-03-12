@@ -30,6 +30,7 @@
   };
 
   system.stateVersion = "23.05";
+  system.nixos.distroName = "i use arch, btw";
 
   time.timeZone = "Europe/Berlin";
 
