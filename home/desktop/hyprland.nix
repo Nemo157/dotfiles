@@ -172,7 +172,7 @@ in {
   };
 
   programs.zsh.profileExtra = lib.mkAfter ''
-    if [[ -z "$WAYLAND_DISPLAY" ]] && [[ "$XDG_VTNR" -eq 1 ]]
+    if [[ ! -v WAYLAND_DISPLAY ]] && [[ ! -v TMUX ]] && [[ "$XDG_VTNR" -eq 1 ]]
     then
       exec Hyprland
     fi
