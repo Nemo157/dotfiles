@@ -105,8 +105,10 @@
     :justify "center")
 )
 
+
+
 (defwidget duration [?prefix value]
-    (label :text "${prefix}${round(value / 60, 0)}:${strlength(round(value % 60, 0)) < 2 ? "0" : ""}${round(value % 60, 0)}")
+    (label :text "${prefix}${jq(value, '. / 60 | floor')}:${jq(value, '(. | floor) % 60 | if . < 10 then 0 else empty end')}${jq(value, '(. | floor) % 60')}")
 )
 
 (defwidget btn [onclick icon]
