@@ -21,7 +21,6 @@
     agenix
     comma
     fd
-    gcc
     htop
     jq
     moreutils
