@@ -52,7 +52,7 @@ let
   };
   alacritty = lib.getExe config.programs.alacritty.package;
 in {
-  programs.alacritty.settings.colors = colors.dark;
+  programs.alacritty.settings.colors = colors.light;
 
   xdg.dataFile = lib.attrsets.mapAttrs' (mode: colors: {
     name = "${mode}-mode.d/alacritty-${mode}.sh";
