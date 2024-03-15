@@ -141,6 +141,7 @@
         modules = [
           pin-nixpkgs
           nixseparatedebuginfod.nixosModules.default
+          agenix.nixosModules.default
           ./nixos/mithril
         ];
       };

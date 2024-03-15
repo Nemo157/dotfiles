@@ -4,4 +4,5 @@ let
 in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ mithril zinc ];
   "nixos/wlan-psk.age".publicKeys = [ zinc ];
+  "nixos/mithril/services/grafana-admin-password.age".publicKeys = [ mithril ];
 }

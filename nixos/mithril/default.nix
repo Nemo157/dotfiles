@@ -68,4 +68,8 @@
   '';
 
   documentation.dev.enable = true;
+
+  age = {
+    identityPaths = [ "/home/nemo157/.ssh/id_ed25519-agenix" ];
+  };
 }
