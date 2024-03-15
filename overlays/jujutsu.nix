@@ -18,7 +18,8 @@
   buildInputs = with pkgs-final; [
     openssl
     zstd
-    libgit2
+    # nixpkgs libgit2 doesn't have openssh support built in
+    # libgit2
     zlib
   ];
   nativeBuildInputs = jujutsu-prev.nativeBuildInputs ++ [pkgs-final.openssh];
