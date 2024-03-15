@@ -1,13 +1,15 @@
 {
   imports = [
+    ./atuin.nix
     ./avahi.nix
+    ./influxdb.nix
+    ./nix-serve.nix
+    ./nixseparatedebuginfod.nix
     ./openssh.nix
     ./pipewire.nix
-    ./tailscale.nix
-    ./atuin.nix
     ./samba.nix
-    ./nixseparatedebuginfod.nix
-    ./nix-serve.nix
+    ./tailscale.nix
+    ./telegraf.nix
   ];
 
   services.upower.enable = true;
