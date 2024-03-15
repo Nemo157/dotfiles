@@ -8,7 +8,7 @@
       };
       ui = {
         pager = [(lib.getExe pkgs.bat) "-p"];
-        diff.tool = [(lib.getExe pkgs.delta) "$left" "$right"];
+        diff.tool = ["bash" "-c" ''${lib.getExe pkgs.delta} "$@" || true'' "--" "$left" "$right"];
       };
       colors = {
         rest = "bright cyan";
@@ -55,7 +55,8 @@
         "interesting_heads" = "visible_heads() ~ remote_branches() | branches()";
       };
       aliases = {
-        lo = ["log" "-r" "current()"];
+        lo = ["log" "-r" "current"];
+        f = ["git" "fetch" "--all-remotes"];
       };
       signing = {
         sign-all = true;
