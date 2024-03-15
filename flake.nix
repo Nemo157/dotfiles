@@ -142,6 +142,7 @@
           pin-nixpkgs
           nixseparatedebuginfod.nixosModules.default
           agenix.nixosModules.default
+          ./nixos/common
           ./nixos/mithril
         ];
       };
@@ -158,6 +159,7 @@
           nixos-hardware.nixosModules.common-pc-laptop
           nixos-hardware.nixosModules.common-pc-ssd
           agenix.nixosModules.default
+          ./nixos/common
           ./nixos/zinc
         ];
       };
