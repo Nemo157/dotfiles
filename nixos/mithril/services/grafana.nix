@@ -29,6 +29,7 @@
           url = "http://${ts.self.host}:8086";
           jsonData = {
             dbName = "telegraf";
+            timeInterval = "10s";
           };
         }
       ];
