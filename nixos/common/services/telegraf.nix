@@ -4,6 +4,8 @@
     extraConfig = {
       inputs = {
         cpu = {};
+        disk = {};
+        diskio = {};
         linux_cpu = {};
         mem = {};
         net = {
