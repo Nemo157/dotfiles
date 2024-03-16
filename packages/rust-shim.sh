@@ -20,8 +20,15 @@ expr='
         rust-overlay.overlays.default
       ];
     };
+    toolchain = pkgs.rust-bin.fromRustupToolchain { inherit channel; };
   in
-    pkgs.rust-bin.fromRustupToolchain { inherit channel; }
+    toolchain.override {
+      extensions = [
+        "rust-src"
+        "rustc-codegen-cranelift-preview"
+        "miri"
+      ];
+    }
 '
 
 exec nix shell \
