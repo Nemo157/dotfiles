@@ -5,7 +5,10 @@
       inputs = {
         cgroup = {
           paths = [
+            "/sys/fs/cgroup"
+            "/sys/fs/cgroup/system.slice"
             "/sys/fs/cgroup/system.slice/*.service"
+            "/sys/fs/cgroup/user.slice"
             "/sys/fs/cgroup/user.slice/user-1000.slice"
             "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-*.scope"
             "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/*.service"
