@@ -42,6 +42,7 @@
 
       export GPG_TTY=$(tty)
       export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=14'
+      export KEYTIMEOUT=1
       bindkey '^n' autosuggest-accept
     '';
   };
