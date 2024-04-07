@@ -50,7 +50,7 @@
         "log" = "@ | ancestors(immutable_heads()..interesting_heads, 2) | trunk()";
       };
       revset-aliases = {
-        "current" = "ancestors(trunk()..@, 2) | trunk()";
+        "current" = "ancestors(trunk()..@, 2) | trunk() | @-::";
         "pulls" = "remote_branches(pulls/)";
         "interesting_heads" = "visible_heads() ~ remote_branches() | branches()";
       };
