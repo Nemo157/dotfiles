@@ -15,7 +15,7 @@ wallpaper() {
     echo "$img" >&2
     median="$(magick "$img"'[0]' -format '%[fx:trunc(median * 100)]' info:)"
     echo "median $median/100" >&2
-    if test "$median" "$op" 50
+    if test "$median" "$op" 40
     then
       echo "$img"
       break
