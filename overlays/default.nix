@@ -38,4 +38,5 @@ in {
   jujutsu = callOverlay ./jujutsu.nix;
 
   tmux = pkgs-unstable.tmux;
+  cargo-deny = pkgs-unstable.cargo-deny;
 } // import ../packages { pkgs = final; }
