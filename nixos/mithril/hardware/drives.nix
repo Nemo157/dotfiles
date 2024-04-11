@@ -21,6 +21,10 @@
     };
 
     supportedFilesystems = [ "zfs" ];
+
+    extraModprobeConfig = ''
+      options zfs zfs_arc_max=17179869184
+    '';
   };
 
   fileSystems = {
