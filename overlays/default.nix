@@ -10,6 +10,7 @@
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
 in {
+  inherit (pkgs-unstable) tmux cargo-deny;
 
   fetchFromCratesIo = callOverlay ./fetchFromCratesIo.nix;
 
@@ -36,7 +37,4 @@ in {
   beets = prev.beets-unstable;
 
   jujutsu = callOverlay ./jujutsu.nix;
-
-  tmux = pkgs-unstable.tmux;
-  cargo-deny = pkgs-unstable.cargo-deny;
 } // import ../packages { pkgs = final; }
