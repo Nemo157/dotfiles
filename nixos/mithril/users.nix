@@ -6,5 +6,6 @@
     ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = import ../ssh-keys.nix;
+    homeMode = "710";
   };
 }
