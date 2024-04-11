@@ -7,7 +7,7 @@
         email = "git@nemo157.com";
       };
       ui = {
-        pager = [(lib.getExe pkgs.bat) "-p"];
+        pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
         diff.tool = ["bash" "-c" ''${lib.getExe pkgs.delta} "$@" || true'' "--" "$left" "$right"];
       };
       colors = {
