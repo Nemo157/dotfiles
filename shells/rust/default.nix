@@ -12,6 +12,22 @@ let
       exit 1
     '';
   };
+  rustup = pkgs.writeShellApplication {
+    name = "rustup";
+    text = ''
+      if [ "$1" = "run" ]
+      then
+        # rustup run <toolchain> <args...>
+        shift 2
+        exec "$@"
+      else
+        printf 'unsupported rustup shim:\n    rustup'
+        printf ' %q' "$@"
+        printf '\n'
+        exit 1
+      fi
+    '';
+  };
 in {
   extraBuildInputs ? [],
   rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
@@ -49,6 +65,7 @@ in {
     cargo-upgrade
     cargo-vet
     cargo-watch
+    rustup
 
     # Common C tools
     cmake
