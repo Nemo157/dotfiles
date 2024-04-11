@@ -27,7 +27,10 @@ expr='
         rust-overlay.overlays.default
       ];
     };
-    toolchain = pkgs.rust-bin.fromRustupToolchain { inherit channel; };
+    toolchain = pkgs.rust-bin.fromRustupToolchain {
+      inherit channel;
+      profile = "minimal";
+    };
   in
     toolchain.override {
       extensions = '"$extensions"';
