@@ -8,6 +8,13 @@ fi
 
 command="$(basename "$0")"
 
+if [[ "$channel" == nightly* ]]
+then
+  extensions='["rust-src" "rustc-codegen-cranelift-preview" "miri"]'
+else
+  extensions='[]'
+fi
+
 expr='
   { channel }:
   let
@@ -23,11 +30,7 @@ expr='
     toolchain = pkgs.rust-bin.fromRustupToolchain { inherit channel; };
   in
     toolchain.override {
-      extensions = [
-        "rust-src"
-        "rustc-codegen-cranelift-preview"
-        "miri"
-      ];
+      extensions = '"$extensions"';
     }
 '
 
