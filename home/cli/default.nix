@@ -3,6 +3,7 @@
     ./atuin.nix
     ./bat
     ./cargo.nix
+    ./dircolors.nix
     ./git
     ./jujutsu.nix
     ./gh.nix

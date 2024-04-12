@@ -18,28 +18,16 @@
 
       color = {
         when = "auto";
-        theme = "colors.yaml";
       };
 
       date = "relative";
       dereference = false;
       indicators = true;
       total-size = true;
+
     };
-  };
 
-  programs.zsh.shellAliases = {
-    ls = "${pkgs.lsd}/bin/lsd";
-    ll = "${pkgs.lsd}/bin/lsd -l";
-    la = "${pkgs.lsd}/bin/lsd -A";
-    lt = "${pkgs.lsd}/bin/lsd --tree";
-    lla = "${pkgs.lsd}/bin/lsd -lA";
-    llt = "${pkgs.lsd}/bin/lsd -l --tree";
-  };
-
-  # TODO: use https://github.com/nix-community/home-manager/commit/835465e8ba2459034e4ab192b1c6db35d1c0d638
-  xdg.configFile."lsd/themes/colors.yaml" = {
-    source = (pkgs.formats.yaml {}).generate "lsd-colors" {
+    colors = {
       user = 10;
       group = 10;
       permission = {
@@ -72,18 +60,27 @@
         invalid = "dark_magenta";
       };
       tree-edge = 10;
-      # git-status = {
-      #   default = 10;
-      #   unmodified = 10;
-      #   ignored = "white";
-      #   new-in-index = "dark_green";
-      #   new-in-workdir = "dark_green";
-      #   typechange = "dark_yellow";
-      #   deleted = "dark_red";
-      #   renamed = "dark_green";
-      #   modified = "dark_yellow";
-      #   conflicted = "dark_red";
-      # };
+      git-status = {
+        default = 10;
+        unmodified = 10;
+        ignored = "white";
+        new-in-index = "dark_green";
+        new-in-workdir = "dark_green";
+        typechange = "dark_yellow";
+        deleted = "dark_red";
+        renamed = "dark_green";
+        modified = "dark_yellow";
+        conflicted = "dark_red";
+      };
     };
+  };
+
+  programs.zsh.shellAliases = {
+    ls = "${pkgs.lsd}/bin/lsd";
+    ll = "${pkgs.lsd}/bin/lsd -l";
+    la = "${pkgs.lsd}/bin/lsd -A";
+    lt = "${pkgs.lsd}/bin/lsd --tree";
+    lla = "${pkgs.lsd}/bin/lsd -lA";
+    llt = "${pkgs.lsd}/bin/lsd -l --tree";
   };
 }
