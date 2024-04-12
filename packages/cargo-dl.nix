@@ -1,10 +1,10 @@
-{ lib, fetchFromCratesIo, rustPlatform }:
+{ lib, fetchCrate, rustPlatform }:
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-dl";
   version = "0.1.4";
 
-  src = fetchFromCratesIo {
+  src = fetchCrate {
     inherit pname version;
     sha256 = "sha256-txSRmOr3tYw72xI5Dqt/y1EboaqFWEMN+lASVXLNdgQ=";
   };

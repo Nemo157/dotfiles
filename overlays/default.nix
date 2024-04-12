@@ -12,8 +12,6 @@
 in {
   inherit (pkgs-unstable) tmux cargo-deny;
 
-  fetchFromCratesIo = callOverlay ./fetchFromCratesIo.nix;
-
   darkman = callOverlay ./darkman.nix;
 
   eww-wayland = callOverlay ./eww-wayland.nix;
