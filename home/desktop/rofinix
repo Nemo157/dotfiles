@@ -1,0 +1,49 @@
+run() {
+  local cmd="$1"
+  shift
+  printf '\e[34m$ %q' "$cmd" >&2
+  printf ' %q' "$@" >&2
+  printf '\e[0m\n' >&2
+  "$cmd" "$@"
+}
+
+cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/rofinix.cache"
+
+if [ "$ROFI_RETV" = 0 ]
+then
+  if [ -f "$cache_file" ]
+  then
+    while read -r count app
+    do
+      echo "$app"
+    done <"$cache_file"
+  fi
+else
+  # shellcheck disable=SC2206
+  cmd=($1)
+
+  declare -A cache=()
+
+  if [ -f "$cache_file" ]
+  then
+    while read -r count app
+    do
+      cache["$app"]=$count
+    done <"$cache_file"
+  fi
+
+  (( cache["$1"] += 1 ))
+
+  for app in "${!cache[@]}"
+  do
+    echo "${cache[$app]} $app"
+  done | sort -nr >"$cache_file"
+
+  pkg="${cmd[0]}"
+  unset "cmd[0]"
+
+  app="$(systemd-escape "$pkg")"
+  unit="app-rofinix-$app-$RANDOM"
+
+  run exec systemd-run --scope --user --slice-inherit --slice="$app" --unit="$unit" systemd-cat -t "$app" nix run "pkgs#$pkg" -- "${cmd[@]}"
+fi

@@ -25,10 +25,15 @@ in {
     '';
   };
 
+  scripts.rofinix = {
+    runtimeInputs = [ pkgs.rofi pkgs.nix pkgs.coreutils pkgs.systemd ];
+    source = ./rofinix;
+  };
+
   programs.rofi = {
     enable = true;
     extraConfig = {
-      modi = "drun,window,run,emoji:rofimoji";
+      modi = "drun,window,nix:rofinix,run,emoji:rofimoji";
       show-icons = true;
       kb-element-next = "";
       kb-element-prev = "";
