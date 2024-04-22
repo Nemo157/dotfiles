@@ -87,7 +87,7 @@ in {
       # these keybindings look odd because they're the qwerty keys that are in
       # the expected dvp positions, e.g. Y is fullscreen because that key is F
       # in dvp
-      bind = $mod, SPACE, exec, rofi -show drun
+      bind = $mod, SPACE, exec, rofi-systemd
       bind = $mod, C, togglesplit,
       bind = $mod, COMMA, killactive,
       bind = $mod SHIFT CTRL, D, exit,

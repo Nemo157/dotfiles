@@ -121,7 +121,7 @@
 
 (defwidget hypr-buttons []
   (h-box :class "hypr-buttons"
-    (btn :icon "󱓞" :onclick "hyprctl dispatch exec 'rofi -show drun'")
+    (btn :icon "󱓞" :onclick "hyprctl dispatch exec rofi-systemd")
     (box :hexpand true)
     (btn
       :icon {hypr-info?.activewindow?.fullscreen ?: false ? "󰊔" : "󰊓"}
