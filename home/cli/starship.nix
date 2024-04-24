@@ -31,6 +31,11 @@
       dotnet.style = "blue";
       dotnet.symbol = " ";
 
+      env_var.SHLVL = {
+        format = "SHLVL=[$env_value]($style)";
+        style = "cyan";
+      };
+
       env_var.SCRATCH = {
         format = "SCRATCH=[$env_value]($style)";
         style = "cyan";
