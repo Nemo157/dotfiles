@@ -9,11 +9,7 @@
 
     ./postgres-upgrade.nix
 
-    ./services/ipfs.nix
-    ./services/matrix.nix
-    ./services/sshd.nix
-    ./services/syncthing.nix
-    ./services/tailscale.nix
+    ./services
   ];
 
   boot.loader.grub.enable = true;
