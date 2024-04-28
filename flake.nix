@@ -179,6 +179,7 @@
           ts = ts // { self = ts.hosts.contabo; };
         };
         modules = [
+          ./nixos/common
           ./nixos/contabo
         ];
       };

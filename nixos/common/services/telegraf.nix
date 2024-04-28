@@ -1,4 +1,4 @@
-{ pkgs, ts, ... }: {
+{ lib, config, pkgs, ts, ... }: {
   services.telegraf = {
     enable = true;
     extraConfig = {
@@ -31,14 +31,12 @@
         cpu = {};
         disk = {};
         diskio = {};
-        linux_cpu = {};
         mem = {};
         net = {
           ignore_protocol_stats = true;
         };
         netstat = {};
         processes = {};
-        sensors = {};
         swap = {};
         temp = {};
       };
@@ -50,5 +48,7 @@
     };
   };
 
-  systemd.services.telegraf.path = [ pkgs.lm_sensors ];
+  systemd.services.telegraf.path = lib.mkIf
+    (config.services.telegraf.extraConfig.inputs ? sensors)
+    [ pkgs.lm_sensors ];
 }
