@@ -54,6 +54,7 @@
     zsh.enable = true;
     dconf.enable = true;
     wireshark.enable = true;
+    yubikey-touch-detector.enable = true;
   };
 
   virtualisation.docker = {

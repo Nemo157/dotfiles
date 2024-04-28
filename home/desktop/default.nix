@@ -7,6 +7,7 @@
     ./firefox.nix
     ./fonts.nix
     ./hyprland.nix
+    ./mako.nix
     ./mpv.nix
     ./portal.nix
     ./rofi.nix

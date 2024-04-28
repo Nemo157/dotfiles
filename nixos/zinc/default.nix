@@ -51,6 +51,7 @@
   programs = {
     zsh.enable = true;
     light.enable = true;
+    yubikey-touch-detector.enable = true;
   };
 
   age = {
