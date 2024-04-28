@@ -20,12 +20,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.systems.follows = "systems";
-    };
-
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
@@ -59,7 +53,6 @@
     agenix,
     deploy-rs,
     home-manager,
-    hyprland,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
@@ -78,7 +71,6 @@
       overlays = [
         agenix.overlays.default
         deploy-rs.overlays.default
-        hyprland.overlays.default
         nixseparatedebuginfod.overlays.default
         rust-overlay.overlays.default
         self.overlays.default

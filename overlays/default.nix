@@ -10,7 +10,8 @@
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
 in {
-  inherit (pkgs-unstable) tmux cargo-deny;
+  inherit (pkgs-unstable)
+    tmux cargo-deny hyprland xdg-desktop-portal-hyprland;
 
   darkman = callOverlay ./darkman.nix;
 
