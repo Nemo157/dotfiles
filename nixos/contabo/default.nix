@@ -16,8 +16,6 @@
     ./services/tailscale.nix
   ];
 
-  services.openssh.settings.PermitRootLogin = "yes";
-
   boot.loader.grub.enable = true;
 
   networking.hostName = "contabo";
