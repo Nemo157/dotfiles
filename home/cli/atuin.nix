@@ -7,7 +7,7 @@
     ];
     settings = {
       sync_frequency = 0;
-      sync_address = "http://${ts.mithril.host}:8888";
+      sync_address = "http://${ts.hosts.mithril.host}:8888";
       history_filter = [
         "^ "
       ];

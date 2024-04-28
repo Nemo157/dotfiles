@@ -16,7 +16,7 @@
       builders-use-substitutes = true;
       experimental-features = "nix-command flakes";
       substituters = [
-        "http://${ts.mithril.host}:5069"
+        "http://${ts.hosts.mithril.host}:5069"
         "https://cache.nixos.org/"
       ];
       trusted-public-keys = [
@@ -26,7 +26,7 @@
     distributedBuilds = true;
     buildMachines = [
       {
-        hostName = "${ts.mithril.host}";
+        hostName = "${ts.hosts.mithril.host}";
         system = "x86_64-linux";
         sshUser = "nix-ssh";
         protocol = "ssh-ng";

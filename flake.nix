@@ -2,19 +2,22 @@
   description = "Home Manager configuration of nemo157";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
-
-    nixpkgs-unstable.url = "github:nixos/nixpkgs";
-
-    nixur.url = "github:nix-community/NUR";
-
-    nixos-hardware.url = "github:nixos/nixos-hardware";
-
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
       inputs.home-manager.follows = "home-manager";
+    };
+
+    deploy-rs = {
+      url = "github:serokell/deploy-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.utils.follows = "flake-utils";
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager/release-23.11";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     hyprland = {
@@ -23,19 +26,22 @@
       inputs.systems.follows = "systems";
     };
 
-    home-manager = {
-      url = "github:nix-community/home-manager/release-23.11";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+
+    nixpkgs-unstable.url = "github:nixos/nixpkgs";
+
+    nixur.url = "github:nix-community/NUR";
+
+    nixseparatedebuginfod = {
+      url = "github:symphorien/nixseparatedebuginfod";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
 
-    nixseparatedebuginfod = {
-      url = "github:symphorien/nixseparatedebuginfod";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -51,6 +57,7 @@
   outputs = {
     self,
     agenix,
+    deploy-rs,
     home-manager,
     hyprland,
     nixos-hardware,
@@ -69,10 +76,11 @@
       inherit system;
       config.allowUnfree = true;
       overlays = [
-        rust-overlay.overlays.default
         agenix.overlays.default
+        deploy-rs.overlays.default
         hyprland.overlays.default
         nixseparatedebuginfod.overlays.default
+        rust-overlay.overlays.default
         self.overlays.default
       ];
     };
@@ -101,14 +109,15 @@
       };
     };
 
-    ts = {
-      mithril = {
-        ip = "100.120.211.104";
-        host = "mithril.emerald-koi.ts.net";
-      };
-      zinc = {
-        ip = "100.71.97.27";
-        host = "zinc.emerald-koi.ts.net";
+    ts = rec {
+      domain = "emerald-koi.ts.net";
+      hosts = pkgs.lib.mapAttrs (host: ip: {
+        inherit ip;
+        host = "${host}.${domain}";
+      }) {
+        contabo = "100.93.46.63";
+        mithril = "100.120.211.104";
+        zinc = "100.71.97.27";
       };
     };
   in rec {
@@ -136,7 +145,7 @@
       mithril = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         specialArgs = {
-          ts = ts // { self = ts.mithril; };
+          ts = ts // { self = ts.hosts.mithril; };
         };
         modules = [
           pin-nixpkgs
@@ -150,7 +159,7 @@
       zinc = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         specialArgs = {
-          ts = ts // { self = ts.zinc; };
+          ts = ts // { self = ts.hosts.zinc; };
         };
         modules = [
           pin-nixpkgs
@@ -163,6 +172,16 @@
           ./nixos/zinc
         ];
       };
+
+      contabo = nixpkgs.lib.nixosSystem {
+        inherit system pkgs;
+        specialArgs = {
+          ts = ts // { self = ts.hosts.contabo; };
+        };
+        modules = [
+          ./nixos/contabo
+        ];
+      };
     };
 
     homeConfigurations = {
@@ -170,7 +189,7 @@
         inherit pkgs;
         extraSpecialArgs = {
           inherit pkgs-unstable nur;
-          ts = ts // { self = ts.mithril; };
+          ts = ts // { self = ts.hosts.mithril; };
         };
         modules = [
           ./home/scripts.nix
@@ -184,7 +203,7 @@
         inherit pkgs;
         extraSpecialArgs = {
           inherit pkgs-unstable nur;
-          ts = ts // { self = ts.zinc; };
+          ts = ts // { self = ts.hosts.zinc; };
         };
         modules = [
           ./home/scripts.nix
@@ -195,5 +214,20 @@
       };
     };
 
+    deploy.nodes.contabo = {
+      sshUser = "root";
+      hostname = "contabo";
+      profiles.system = {
+        user = "root";
+        path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.contabo;
+      };
+    };
+
+    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+
+    apps.${system}.deploy-rs = {
+      type = "app";
+      program = "${deploy-rs.packages.${system}.deploy-rs}/bin/deploy";
+    };
   };
 }

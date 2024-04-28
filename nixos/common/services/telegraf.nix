@@ -44,7 +44,7 @@
       };
       outputs = {
         influxdb = {
-          urls = [ "http://${ts.mithril.host}:8086" ];
+          urls = [ "http://${ts.hosts.mithril.host}:8086" ];
         };
       };
     };

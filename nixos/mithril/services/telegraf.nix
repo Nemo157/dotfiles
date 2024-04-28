@@ -1,4 +1,4 @@
-{ lib, pkgs, ts, config, ... }: {
+{ lib, pkgs, config, ... }: {
   services.telegraf.extraConfig.inputs = {
     docker = {};
     nvidia_smi = {
