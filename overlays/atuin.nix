@@ -1,4 +1,3 @@
-
 { pkgs-final, pkgs-prev, ... }:
 
 pkgs-prev.atuin.overrideAttrs (atuin-final: atuin-prev: rec {
