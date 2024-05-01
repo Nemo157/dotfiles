@@ -42,6 +42,7 @@
   security = {
     polkit.enable = true;
     rtkit.enable = true;
+    pam.u2f.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
