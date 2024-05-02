@@ -36,4 +36,6 @@ in {
   beets = prev.beets-unstable;
 
   jujutsu = callOverlay ./jujutsu.nix;
+
+  starship = callOverlay ./starship.nix;
 } // import ../packages { pkgs = final; }
