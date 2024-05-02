@@ -1,6 +1,5 @@
 { pkgs, lib, ... }:
 let
-  wrap-rust = pkgs.callPackage ./wrap-rust.nix {};
   setup-xdg-cargo-home = pkgs.writeShellApplication {
     name = "setup-xdg-cargo-home";
     text = lib.readFile ./setup-xdg-cargo-home;
@@ -40,10 +39,12 @@ in {
     }
   )),
   custom ? true,
-}: pkgs.mkShell {
+}: let
+  version = lib.lists.head (lib.strings.split "-" rust-toolchain.version);
+in pkgs.mkShell {
   buildInputs = with pkgs; [
     # Rust itself
-    (if custom then (wrap-rust rust-toolchain) else rust-toolchain)
+    rust-toolchain
 
     # Dev utilities
     bacon
@@ -130,5 +131,6 @@ in {
 
     # Some crates disable nightly feature detection when this is set
     export RUSTC_STAGE=1
+    export RUSTC_FORCE_RUSTC_VERSION=${version}
   '' else "");
 }
