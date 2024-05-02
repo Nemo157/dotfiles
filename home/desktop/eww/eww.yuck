@@ -36,6 +36,7 @@
     (workspaces)
     (hypr-buttons)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper")
+    (security-key)
     (music)
     (tray)
     (pies)
@@ -129,6 +130,17 @@
     )
     (box :hexpand true)
     (btn :icon "" :onclick "hyprctl dispatch killactive")
+  )
+)
+
+(deflisten yubikey-touch-detector
+  :initial "{}"
+  "eww-yubikey-touch-detector")
+
+(defwidget security-key []
+  (label :class 'security-key'
+    :visible {yubikey-touch-detector.requested ?: false}
+    :text "  "
   )
 )
 

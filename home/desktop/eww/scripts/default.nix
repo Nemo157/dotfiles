@@ -28,4 +28,9 @@
     runtimeInputs = [ pkgs.jq pkgs.playerctl ];
     source = ./eww-music-metadata;
   };
+
+  scripts.eww-yubikey-touch-detector = {
+    runtimeInputs = [ pkgs.socat ];
+    source = ./eww-yubikey-touch-detector;
+  };
 }
