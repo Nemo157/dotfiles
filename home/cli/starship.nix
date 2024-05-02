@@ -61,10 +61,10 @@
 
       jj_status = {
         symbol = " ";
-        format = "\\[$symbol[$change_id_prefix]($change_id_prefix_style)[$change_id_suffix]($change_id_suffix_style) [$commit_id_prefix]($commit_id_prefix_style)[$commit_id_suffix]($commit_id_suffix_style)$no_description_symbol$divergent_symbol\\]";
-        change_id_prefix_style = "bold purple";
-        change_id_suffix_style = "bold bright-cyan";
-        commit_id_prefix_style = "blue";
+        format = "\\[$symbol[$change_id_prefix]($change_id_prefix_style)[$change_id_suffix]($change_id_suffix_style) [$commit_id_prefix]($commit_id_prefix_style)[$commit_id_suffix]($commit_id_suffix_style)$no_description_symbol$divergent_symbol\\] ";
+        change_id_prefix_style = "bold bright-purple";
+        change_id_suffix_style = "bright-cyan";
+        commit_id_prefix_style = "bold bright-blue";
         commit_id_suffix_style = "bright-cyan";
         no_description_symbol = " 󰎞";
         divergent_symbol = " 󰚑";
