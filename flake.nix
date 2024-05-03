@@ -167,6 +167,26 @@
         };
       };
 
+      zinc = {
+        imports = [
+          nixos-hardware.nixosModules.apple-t2
+          nixos-hardware.nixosModules.common-cpu-intel
+          nixos-hardware.nixosModules.common-pc-laptop
+          nixos-hardware.nixosModules.common-pc-ssd
+          ./nixos/zinc
+        ];
+        home-manager = {
+          extraSpecialArgs = {
+            ts = ts // { self = ts.hosts.zinc; };
+          };
+          users.nemo157 = {
+            imports = [
+              ./home/nemo157.nix
+              ./home/zinc.nix
+            ];
+          };
+        };
+      };
     };
 
     colmena-hive = colmena.lib.makeHive colmena-config;
@@ -195,39 +215,7 @@
     colmena = colmena-config;
 
     nixosConfigurations = {
-      inherit (colmena-hive.nodes) contabo mithril;
-
-      zinc = nixpkgs.lib.nixosSystem {
-        inherit system pkgs;
-        specialArgs = {
-          ts = ts // { self = ts.hosts.zinc; };
-        };
-        modules = [
-          pin-nixpkgs
-          nixos-hardware.nixosModules.apple-t2
-          nixos-hardware.nixosModules.common-cpu-intel
-          nixos-hardware.nixosModules.common-pc-laptop
-          nixos-hardware.nixosModules.common-pc-ssd
-          agenix.nixosModules.default
-          ./nixos/common
-          ./nixos/zinc
-        ];
-      };
-    };
-
-    homeConfigurations = {
-      "nemo157@zinc" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          ts = ts // { self = ts.hosts.zinc; };
-        };
-        modules = [
-          ./home/scripts.nix
-          ./home/nemo157.nix
-          ./home/zinc.nix
-          agenix.homeManagerModules.default
-        ];
-      };
+      inherit (colmena-hive.nodes) contabo mithril zinc;
     };
   };
 }
