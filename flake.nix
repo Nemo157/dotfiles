@@ -175,6 +175,9 @@
           nixos-hardware.nixosModules.common-pc-ssd
           ./nixos/zinc
         ];
+        deployment = {
+          allowLocalDeployment = true;
+        };
         home-manager = {
           extraSpecialArgs = {
             ts = ts // { self = ts.hosts.zinc; };
