@@ -1,4 +1,4 @@
-{ config, pkgs, nur, ... }:
+{ config, pkgs, ... }:
 let
   csshacks = pkgs.fetchFromGitHub {
     owner = "MrOtherGuy";
@@ -116,7 +116,7 @@ in {
         # "${csshacks}/chrome/navbar_below_content.css"
       ]);
 
-      extensions = with nur.repos.rycee.firefox-addons; [
+      extensions = with pkgs.nur.repos.rycee.firefox-addons; [
         augmented-steam
         bitwarden
         firefox-translations

@@ -72,12 +72,11 @@
       overlays = [
         agenix.overlays.default
         nixseparatedebuginfod.overlays.default
+        nixur.overlay
         rust-overlay.overlays.default
         self.overlays.default
       ];
     };
-
-    nur = import nixur { inherit pkgs; nurpkgs = pkgs; };
 
     # pin nixpkgs to system nixpkgs for determinism
     pin-nixpkgs = {
@@ -124,11 +123,21 @@
 
       defaults = {
         imports = [
-          pin-nixpkgs
-          nixseparatedebuginfod.nixosModules.default
           agenix.nixosModules.default
+          home-manager.nixosModules.home-manager
+          nixseparatedebuginfod.nixosModules.default
+          pin-nixpkgs
           ./nixos/common
         ];
+
+        home-manager = {
+          useGlobalPkgs = true;
+          useUserPackages = true;
+          sharedModules = [
+            agenix.homeManagerModules.default
+            ./home/scripts.nix
+          ];
+        };
       };
 
       contabo = {
@@ -144,6 +153,17 @@
         deployment = {
           allowLocalDeployment = true;
           buildOnTarget = true;
+        };
+        home-manager = {
+          extraSpecialArgs = {
+            ts = ts // { self = ts.hosts.mithril; };
+          };
+          users.nemo157 = {
+            imports = [
+              ./home/nemo157.nix
+              ./home/mithril.nix
+            ];
+          };
         };
       };
 
@@ -168,7 +188,7 @@
     overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
 
     packages.${system} = import ./packages { inherit pkgs; };
-    legacyPackages.${system} = pkgs // { unstable = pkgs-unstable; };
+    legacyPackages.${system} = pkgs;
 
     devShells.${system} = import ./shells { inherit pkgs; };
 
@@ -196,24 +216,9 @@
     };
 
     homeConfigurations = {
-      "nemo157@mithril" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          inherit pkgs-unstable nur;
-          ts = ts // { self = ts.hosts.mithril; };
-        };
-        modules = [
-          ./home/scripts.nix
-          ./home/nemo157.nix
-          ./home/mithril.nix
-          agenix.homeManagerModules.default
-        ];
-      };
-
       "nemo157@zinc" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = {
-          inherit pkgs-unstable nur;
           ts = ts // { self = ts.hosts.zinc; };
         };
         modules = [

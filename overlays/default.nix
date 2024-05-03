@@ -38,4 +38,6 @@ in {
   jujutsu = callOverlay ./jujutsu.nix;
 
   starship = callOverlay ./starship.nix;
+
+  unstable = pkgs-unstable;
 } // import ../packages { pkgs = final; }
