@@ -121,12 +121,31 @@
           inherit ts;
         };
       };
+
+      defaults = {
+        imports = [
+          pin-nixpkgs
+          nixseparatedebuginfod.nixosModules.default
+          agenix.nixosModules.default
+          ./nixos/common
+        ];
+      };
+
       contabo = {
         imports = [
-          ./nixos/common
           ./nixos/contabo
         ];
       };
+
+      mithril = {
+        imports = [
+          ./nixos/mithril
+        ];
+        deployment = {
+          allowLocalDeployment = true;
+        };
+      };
+
     };
 
     colmena-hive = colmena.lib.makeHive colmena-config;
@@ -155,21 +174,7 @@
     colmena = colmena-config;
 
     nixosConfigurations = {
-      inherit (colmena-hive.nodes) contabo;
-
-      mithril = nixpkgs.lib.nixosSystem {
-        inherit system pkgs;
-        specialArgs = {
-          ts = ts // { self = ts.hosts.mithril; };
-        };
-        modules = [
-          pin-nixpkgs
-          nixseparatedebuginfod.nixosModules.default
-          agenix.nixosModules.default
-          ./nixos/common
-          ./nixos/mithril
-        ];
-      };
+      inherit (colmena-hive.nodes) contabo mithril;
 
       zinc = nixpkgs.lib.nixosSystem {
         inherit system pkgs;

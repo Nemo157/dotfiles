@@ -11,10 +11,8 @@
   ];
 
   nix = {
-    package = pkgs.nixFlakes;
     settings = {
       builders-use-substitutes = true;
-      experimental-features = "nix-command flakes";
       substituters = [
         "http://${ts.hosts.mithril.host}:5069"
         "https://cache.nixos.org/"

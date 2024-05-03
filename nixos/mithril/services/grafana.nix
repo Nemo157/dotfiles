@@ -1,4 +1,4 @@
-{ config, ts, ... }: {
+{ name, config, ts, ... }: {
   age.secrets.grafana-admin-password = {
     file = ./grafana-admin-password.age;
     owner = "grafana";
@@ -9,7 +9,7 @@
     enable = true;
     settings = {
       server = {
-        http_addr = ts.self.ip;
+        http_addr = ts.ips.${name};
         http_port = 3001;
       };
       analytics = {
@@ -26,7 +26,7 @@
         {
           name = "telegraf";
           type = "influxdb";
-          url = "http://${ts.self.host}:8086";
+          url = "http://${name}.${ts.domain}:8086";
           jsonData = {
             dbName = "telegraf";
             timeInterval = "10s";
