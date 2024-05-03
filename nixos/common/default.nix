@@ -1,6 +1,7 @@
 { pkgs, ... }: {
   imports = [
     ./services
+    ./users.nix
   ];
 
   nix = {

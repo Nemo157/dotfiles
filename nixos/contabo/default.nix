@@ -5,8 +5,6 @@
     ./hardware-configuration.nix
     ./nixos-in-place.nix
 
-    ./users.nix
-
     ./postgres-upgrade.nix
 
     ./services
@@ -80,4 +78,6 @@
     "/bin/sh -c 'sleep 5'" # workaround time taken to bind IP addresses
     ''${config.services.caddy.package}/bin/caddy validate --config ${config.services.caddy.configFile}''
   ];
+
+  users.mutableUsers = false;
 }

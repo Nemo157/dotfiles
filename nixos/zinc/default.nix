@@ -3,7 +3,6 @@
 {
   imports = [
     ./hardware
-    ./users.nix
     ./boot-loader.nix
     ./networking.nix
     ./services

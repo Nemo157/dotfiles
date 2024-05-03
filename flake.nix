@@ -143,6 +143,7 @@
         ];
         deployment = {
           allowLocalDeployment = true;
+          buildOnTarget = true;
         };
       };
 

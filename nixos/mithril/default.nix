@@ -4,7 +4,6 @@
     ./hardware
     ./networking.nix
     ./services
-    ./users.nix
     ../autologin.nix
   ];
 
@@ -47,7 +46,6 @@
   ];
 
   programs = {
-    zsh.enable = true;
     dconf.enable = true;
     wireshark.enable = true;
     yubikey-touch-detector.enable = true;
