@@ -8,6 +8,7 @@ Now based around `home-manager` with flakes.
 Remote deployment:
 
 ```
-nix run .#deploy-rs -- --dry-activate
-nix run .#deploy-rs
+nix run pkgs#colmena -- build
+nix run pkgs#colmena -- apply test
+nix run pkgs#colmena -- apply
 ```

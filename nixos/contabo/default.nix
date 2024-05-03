@@ -1,4 +1,4 @@
-{ ts, config, pkgs, lib, ... }: {
+{ name, ts, config, pkgs, lib, ... }: {
 
   imports = [
     ./fsBefore-override.nix
@@ -57,9 +57,9 @@
         reverse_proxy /_matrix/* localhost:8010
       }
 
-      ${ts.self.host} {
+      ${name}.${ts.domain} {
         log
-        bind ${ts.self.ip}
+        bind ${ts.ips.${name}}
         tls internal
 
         handle /synapse-admin/* {

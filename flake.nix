@@ -9,10 +9,11 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    deploy-rs = {
-      url = "github:serokell/deploy-rs";
+    colmena = {
+      url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.utils.follows = "flake-utils";
+      inputs.stable.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
 
     home-manager = {
@@ -51,7 +52,7 @@
   outputs = {
     self,
     agenix,
-    deploy-rs,
+    colmena,
     home-manager,
     nixos-hardware,
     nixpkgs,
@@ -70,7 +71,6 @@
       config.allowUnfree = true;
       overlays = [
         agenix.overlays.default
-        deploy-rs.overlays.default
         nixseparatedebuginfod.overlays.default
         rust-overlay.overlays.default
         self.overlays.default
@@ -103,15 +103,34 @@
 
     ts = rec {
       domain = "emerald-koi.ts.net";
-      hosts = pkgs.lib.mapAttrs (host: ip: {
-        inherit ip;
-        host = "${host}.${domain}";
-      }) {
+      ips = {
         contabo = "100.93.46.63";
         mithril = "100.120.211.104";
         zinc = "100.71.97.27";
       };
+      hosts = pkgs.lib.mapAttrs (host: ip: {
+        inherit ip;
+        host = "${host}.${domain}";
+      }) ips;
     };
+
+    colmena-config = {
+      meta = {
+        nixpkgs = pkgs;
+        specialArgs = {
+          inherit ts;
+        };
+      };
+      contabo = {
+        imports = [
+          ./nixos/common
+          ./nixos/contabo
+        ];
+      };
+    };
+
+    colmena-hive = colmena.lib.makeHive colmena-config;
+
   in rec {
 
     maintainers = {
@@ -133,7 +152,11 @@
 
     devShells.${system} = import ./shells { inherit pkgs; };
 
+    colmena = colmena-config;
+
     nixosConfigurations = {
+      inherit (colmena-hive.nodes) contabo;
+
       mithril = nixpkgs.lib.nixosSystem {
         inherit system pkgs;
         specialArgs = {
@@ -162,17 +185,6 @@
           agenix.nixosModules.default
           ./nixos/common
           ./nixos/zinc
-        ];
-      };
-
-      contabo = nixpkgs.lib.nixosSystem {
-        inherit system pkgs;
-        specialArgs = {
-          ts = ts // { self = ts.hosts.contabo; };
-        };
-        modules = [
-          ./nixos/common
-          ./nixos/contabo
         ];
       };
     };
@@ -205,22 +217,6 @@
           agenix.homeManagerModules.default
         ];
       };
-    };
-
-    deploy.nodes.contabo = {
-      sshUser = "root";
-      hostname = "contabo";
-      profiles.system = {
-        user = "root";
-        path = deploy-rs.lib.${system}.activate.nixos self.nixosConfigurations.contabo;
-      };
-    };
-
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-
-    apps.${system}.deploy-rs = {
-      type = "app";
-      program = "${deploy-rs.packages.${system}.deploy-rs}/bin/deploy";
     };
   };
 }
