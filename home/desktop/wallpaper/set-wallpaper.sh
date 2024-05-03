@@ -63,6 +63,11 @@ then
   args+=(-flop)
 fi
 
+if [ $RANDOM -gt 28672 ]
+then
+  args+=(-type grayscale)
+fi
+
 if [ "$imgheight" -ge "$monheight" ] || [ "$imgwidth" -ge "$monwidth" ]
 then
   if [ "$e" -lt 200 ]
@@ -233,6 +238,42 @@ then
   )
 fi
 
+if [ $RANDOM -gt 28672 ]
+then
+  if [ $RANDOM -gt 16384 ]
+  then
+    filters=(
+      "-paint 6"
+      "-spread 10 -noise 3"
+      "-spread 15 -noise 3"
+      "-spread 20 -noise 3"
+    )
+    # shellcheck disable=SC2206
+    args+=(${filters[$RANDOM % ${#filters[@]}]})
+  else
+   dithers=(
+     checks
+     o2x2
+     o3x3
+     o4x4
+     o8x8
+     h4x4a
+     h6x6a
+     h8x8a
+     h4x4o
+     h6x6o
+     h8x8o
+     h16x16o
+     c5x5b
+     c5x5w
+     c6x6b
+     c6x6w
+     c7x7b
+     c7x7w
+   )
+   args+=(-ordered-dither "${dithers[$RANDOM % ${#dithers[@]}]}")
+  fi
+fi
 
 # Add black edges to fill any reserved region
 
