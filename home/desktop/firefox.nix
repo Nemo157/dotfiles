@@ -55,7 +55,7 @@ in {
 
           Noogle = {
             urls = [{
-              template = "https://noogle.dev/";
+              template = "https://noogle.dev/q";
               params = [
                 { name = "term"; value = "\"{searchTerms}\""; }
               ];
@@ -77,7 +77,7 @@ in {
 
           "HomeManager Options" = {
             urls = [{
-              template = "https://mipmip.github.io/home-manager-option-search/";
+              template = "https://home-manager-options.extranix.com/";
               params = [
                 { name = "query"; value = "{searchTerms}"; }
               ];
