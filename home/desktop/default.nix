@@ -23,4 +23,6 @@
       variant = "dvp";
       options = [ "caps:escape" "compose:ralt" ];
   };
+
+  services.u2f-touch-detector.enable = true;
 }

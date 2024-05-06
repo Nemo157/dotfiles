@@ -39,5 +39,9 @@ in {
 
   starship = callOverlay ./starship.nix;
 
+  u2f-touch-detector = prev.u2f-touch-detector.override {
+    rustPlatform = pkgs-unstable.rustPlatform;
+  };
+
   unstable = pkgs-unstable;
 } // import ../packages { pkgs = final; }

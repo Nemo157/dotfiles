@@ -229,7 +229,8 @@
         "nixseparatedebuginfod": "nixseparatedebuginfod",
         "nixur": "nixur",
         "rust-overlay": "rust-overlay",
-        "systems": "systems"
+        "systems": "systems",
+        "u2f-touch-detector": "u2f-touch-detector"
       }
     },
     "rust-overlay": {
@@ -267,6 +268,32 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default-linux",
+        "type": "github"
+      }
+    },
+    "u2f-touch-detector": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1715002777,
+        "narHash": "sha256-c/vKJVkjiXq0I5IuefMCGlyS2RVu3joxpn2eyfD0pFU=",
+        "owner": "Nemo157",
+        "repo": "u2f-touch-detector",
+        "rev": "53b10a1cd507918f7034b5720bbcd4dbcdb61bbb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nemo157",
+        "repo": "u2f-touch-detector",
         "type": "github"
       }
     }

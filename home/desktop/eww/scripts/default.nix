@@ -29,8 +29,8 @@
     source = ./eww-music-metadata;
   };
 
-  scripts.eww-yubikey-touch-detector = {
+  scripts.eww-u2f-touch-detector = {
     runtimeInputs = [ pkgs.socat ];
-    source = ./eww-yubikey-touch-detector;
+    source = ./eww-u2f-touch-detector;
   };
 }

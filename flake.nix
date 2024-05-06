@@ -41,6 +41,13 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    u2f-touch-detector = {
+      url = "github:Nemo157/u2f-touch-detector";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     # transitive dependencies to allow following :ferrisPensive:
     systems.url = "github:nix-systems/default-linux";
     flake-utils = {
@@ -60,6 +67,7 @@
     nixur,
     nixseparatedebuginfod,
     rust-overlay,
+    u2f-touch-detector,
     ...
   }: let
     system = "x86_64-linux";
@@ -74,6 +82,7 @@
         nixseparatedebuginfod.overlays.default
         nixur.overlay
         rust-overlay.overlays.default
+        u2f-touch-detector.overlays.default
         self.overlays.default
       ];
     };
@@ -135,6 +144,7 @@
           useUserPackages = true;
           sharedModules = [
             agenix.homeManagerModules.default
+            u2f-touch-detector.homeManagerModules.default
             ./home/scripts.nix
           ];
         };
