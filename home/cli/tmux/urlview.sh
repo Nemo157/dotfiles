@@ -1,7 +1,7 @@
 capture() {
   start="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},-#{scroll_position},0}')"
   end="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},#{e|-:#{pane_height},#{scroll_position}},#{pane_height}}')"
-  tmux capture-pane -Jp -S "$start" -E "$end"
+  tmux capture-pane -Jpe -S "$start" -E "$end"
 }
 
 filter() {
