@@ -284,11 +284,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1715002777,
-        "narHash": "sha256-c/vKJVkjiXq0I5IuefMCGlyS2RVu3joxpn2eyfD0pFU=",
+        "lastModified": 1715033292,
+        "narHash": "sha256-FioGtbXhY2HFHvfLuzf+hEDEqrB01kRT0m336ub4Jpo=",
         "owner": "Nemo157",
         "repo": "u2f-touch-detector",
-        "rev": "53b10a1cd507918f7034b5720bbcd4dbcdb61bbb",
+        "rev": "e12096fe3571ac3b7c501dca9f9d452b2b9f0e4c",
         "type": "github"
       },
       "original": {
