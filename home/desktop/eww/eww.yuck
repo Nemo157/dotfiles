@@ -35,8 +35,9 @@
   (v-box :class "bar ${color-scheme}" :vexpand true
     (workspaces)
     (hypr-buttons)
-    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper")
-    (security-key)
+    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
+      (security-key)
+    )
     (music)
     (tray)
     (pies)
@@ -141,6 +142,7 @@
   (label :class 'security-key'
     :visible {u2f-touch-detector.requested ?: false}
     :text "  "
+    :vexpand true
   )
 )
 

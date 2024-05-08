@@ -59,6 +59,10 @@ tooltip {
     }
   }
 
+  .security-key {
+    color: $base3;
+  }
+
   .music {
     &.paused {
       color: $base1;
@@ -151,6 +155,10 @@ tooltip {
         }
       }
     }
+  }
+
+  .security-key {
+    color: $base03;
   }
 
   .music {
@@ -287,15 +295,15 @@ progress {
 }
 
 @keyframes pulse {
-  0% { color: $yellow; border-color: $yellow; }
-  12.5% { color: $orange; border-color: $orange; }
-  25% { color: $red; border-color: $red; }
-  37.5% { color: $magenta; border-color: $magenta; }
-  50% { color: $violet; border-color: $violet; }
-  62.5% { color: $blue; border-color: $blue; }
-  75% { color: $cyan; border-color: $cyan; }
-  87.5% { color: $green; border-color: $green; }
-  100% { color: $yellow; border-color: $yellow; }
+  0% { background-color: $yellow; }
+  12.5% { background-color: $orange; }
+  25% { background-color: $red; }
+  37.5% { background-color: $magenta; }
+  50% { background-color: $violet; }
+  62.5% { background-color: $blue; }
+  75% { background-color: $cyan; }
+  87.5% { background-color: $green; }
+  100% { background-color: $yellow; }
 }
 
 .security-key {
@@ -303,10 +311,8 @@ progress {
   animation-duration: 2s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
-  font-size: 2rem;
-  border-radius: 2rem;
-  border: 2px solid $yellow;
-  margin: 5px 5px;
+  font-size: 3rem;
+  margin: 5px 0;
 }
 
 .music {
