@@ -1,13 +1,16 @@
-{ config, pkgs, ts, ... }:
-
-{
+{ config, pkgs, ts, ... }: {
   imports = [
+    ../client
+    ../laptop
+    ../personal
+
     ./hardware
     ./boot-loader.nix
     ./networking.nix
     ./services
-    ../autologin.nix
   ];
+
+  system.stateVersion = "23.05";
 
   nix = {
     settings = {
@@ -20,7 +23,9 @@
         "mithril-1:3qkcEGevkLvRmGmNMqXJUQ/mXvs9MPudk5ugxUf7orM="
       ];
     };
+
     distributedBuilds = true;
+
     buildMachines = [
       {
         hostName = "${ts.hosts.mithril.host}";
@@ -36,23 +41,4 @@
       }
     ];
   };
-
-  system.stateVersion = "23.05";
-
-  time.timeZone = "Europe/Berlin";
-
-  console.keyMap = "dvorak-programmer";
-
-  security.polkit.enable = true;
-
-  programs = {
-    zsh.enable = true;
-    light.enable = true;
-  };
-
-  age = {
-    identityPaths = [ "/home/nemo157/.ssh/id_ed25519-agenix" ];
-  };
-
-  boot.tmp.cleanOnBoot = true;
 }

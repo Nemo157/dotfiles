@@ -1,6 +1,8 @@
 { name, ts, config, pkgs, lib, ... }: {
 
   imports = [
+    ../personal
+
     ./fsBefore-override.nix
     ./hardware-configuration.nix
     ./nixos-in-place.nix

@@ -1,5 +1,5 @@
 {
   imports = [
-    ./telegraf.nix
+    ./tailscale.nix
   ];
 }
