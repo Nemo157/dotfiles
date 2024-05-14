@@ -43,7 +43,7 @@ show() {
   then
     args+=("$(printf 'simple\nwipe\nwave\ngrow\nouter\n' | shuf -n1)" --resize=crop)
   else
-    args+=(none --resize=fit)
+    args+=(none --resize=no)
   fi
   run swww img "${args[@]}" "$1"
 }
