@@ -127,7 +127,8 @@ args+=(
   +swap +delete
 )
 
-border=$(( (monwidth - imgwidth) > (monheight - imgheight) ? (monwidth - imgwidth) : (monheight - imgheight) ))
+vertborder=$(( monheight - imgheight ))
+horizborder=$(( monwidth - imgwidth ))
 
 if [ "$imgratio" -gt 1000 ]
 then
@@ -159,10 +160,10 @@ else
 
   case $option
   in
-    quad-*) border=$(( monwidth - imgwidth * 4 )) ;;
-    triple-*) border=$(( monwidth - imgwidth * 3 )) ;;
-    double-*) border=$(( monwidth - imgwidth * 2 )) ;;
-    single-*) border=$(( monwidth - imgwidth )) ;;
+    quad-*) horizborder=$(( monwidth - imgwidth * 4 )) ;;
+    triple-*) horizborder=$(( monwidth - imgwidth * 3 )) ;;
+    double-*) horizborder=$(( monwidth - imgwidth * 2 )) ;;
+    single-*) horizborder=$(( monwidth - imgwidth )) ;;
   esac
 
   tmp=()
@@ -179,12 +180,12 @@ else
 
   case $option
   in
-    quad-*-split) tmp+=( +smush "$(( border / 5 ))" +smush "$(( border / 5 ))" +smush "$(( border / 5 ))") ;;
-    quad-*-edges) tmp+=( +smush "$(( border / 3 ))" +smush "$(( border / 3 ))" +smush "$(( border / 3 ))") ;;
-    triple-*-split) tmp+=( +smush "$(( border / 4 ))" +smush "$(( border / 4 ))" ) ;;
-    triple-*-edges) tmp+=( +smush "$(( border / 2 ))" +smush "$(( border / 2 ))" ) ;;
-    double-*-split) tmp+=( +smush "$(( border / 3 ))" ) ;;
-    double-*-edges) tmp+=( +smush "$(( border ))" ) ;;
+    quad-*-split) tmp+=( +smush "$(( horizborder / 5 ))" +smush "$(( horizborder / 5 ))" +smush "$(( horizborder / 5 ))") ;;
+    quad-*-edges) tmp+=( +smush "$(( horizborder / 3 ))" +smush "$(( horizborder / 3 ))" +smush "$(( horizborder / 3 ))") ;;
+    triple-*-split) tmp+=( +smush "$(( horizborder / 4 ))" +smush "$(( horizborder / 4 ))" ) ;;
+    triple-*-edges) tmp+=( +smush "$(( horizborder / 2 ))" +smush "$(( horizborder / 2 ))" ) ;;
+    double-*-split) tmp+=( +smush "$(( horizborder / 3 ))" ) ;;
+    double-*-edges) tmp+=( +smush "$(( horizborder ))" ) ;;
   esac
 
   case $option
@@ -204,6 +205,9 @@ else
     -delete 0-1
   )
 fi
+
+border=$(( vertborder > horizborder ? vertborder : horizborder ))
+echo "border ${horizborder}x$vertborder: $border"
 
 # If we need to add a border to fit the monitor less reserved region,
 # generate a blurred background to fill it, using the masked border image
