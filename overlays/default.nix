@@ -11,7 +11,7 @@
   callOverlay = path: (import path) args;
 in {
   inherit (pkgs-unstable)
-    tmux cargo-deny hyprland xdg-desktop-portal-hyprland;
+    tmux cargo-deny hyprland xdg-desktop-portal-hyprland swww;
 
   darkman = callOverlay ./darkman.nix;
 
@@ -27,8 +27,6 @@ in {
   freetube = callOverlay ./freetube.nix;
 
   maintainers = prev.maintainers // maintainers;
-
-  swww = callOverlay ./swww.nix;
 
   atuin = callOverlay ./atuin.nix;
 
