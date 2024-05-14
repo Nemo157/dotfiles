@@ -1,4 +1,4 @@
-{ pkgs-final, pkgs-prev, ... }:
+{ pkgs-unstable, pkgs-final, pkgs-prev, ... }:
 
 (pkgs-prev.jujutsu.overrideAttrs (jujutsu-final: jujutsu-prev: rec {
   # version using openssh instead of libssh2 for working ed25519-sk support
@@ -25,8 +25,5 @@
   nativeBuildInputs = jujutsu-prev.nativeBuildInputs ++ [pkgs-final.openssh];
   cargoBuildFlags = jujutsu-prev.cargoBuildFlags ++ ["-vv"];
 })).override {
-  rustPlatform = pkgs-final.makeRustPlatform {
-    rustc = pkgs-final.rust-bin.stable.latest.minimal;
-    cargo = pkgs-final.rust-bin.stable.latest.minimal;
-  };
+  rustPlatform = pkgs-unstable.rustPlatform;
 }
