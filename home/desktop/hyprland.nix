@@ -154,6 +154,13 @@ in {
 
       windowrulev2 = tile,class:steam_app_1284210
       windowrulev2 = opaque,class:steam_app_1284210
+
+      # the title: clause avoids applying to menus, only popup windows
+      # (annoyingly they appear unfocused and afaict there is no way to force initial focus)
+      windowrulev2 = size 1200 800,class:Geeqie,title:Geeqie,floating:1
+      windowrulev2 = center,class:Geeqie,title:Geeqie,floating:1
+      windowrulev2 = stayfocused,class:Geeqie,title:Geeqie,floating:1
+      windowrulev2 = dimaround,class:Geeqie,title:Geeqie,floating:1
     '';
   };
 
