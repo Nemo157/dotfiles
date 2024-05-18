@@ -1,15 +1,6 @@
 { pkgs-prev, pkgs-final, ... }:
 
 (pkgs-prev.sunshine.overrideAttrs(final: prev: rec {
-  version = "336062d467d5f48ba56d05a523c212f791421108";
-  src = pkgs-final.fetchFromGitHub {
-    owner = "LizardByte";
-    repo = "Sunshine";
-    rev = version;
-    fetchSubmodules = true;
-    hash = "sha256-p2GZNL92QhQMprq/vpAwU0BW0eZGfRK2MwZ9LkBA0xM=";
-  };
-  separateDebugInfo = true;
   runtimeDependencies = prev.runtimeDependencies ++ [
     pkgs-final.libglvnd
   ];
