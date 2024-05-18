@@ -1,8 +1,13 @@
-{ config, pkgs, ts, ... }: {
+{ nixos-hardware, config, pkgs, ts, ... }: {
   imports = [
     ../client
     ../laptop
     ../personal
+
+    nixos-hardware.apple-t2
+    nixos-hardware.common-cpu-intel
+    nixos-hardware.common-pc-laptop
+    nixos-hardware.common-pc-ssd
 
     ./hardware
     ./boot-loader.nix

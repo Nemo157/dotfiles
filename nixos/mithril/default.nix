@@ -1,7 +1,11 @@
-{ pkgs, ... }: {
+{ nixos-hardware, pkgs, ... }: {
   imports = [
     ../client
     ../personal
+
+    nixos-hardware.common-cpu-amd
+    nixos-hardware.common-gpu-nvidia-nonprime
+    nixos-hardware.common-pc-ssd
 
     ./boot-loader.nix
     ./hardware

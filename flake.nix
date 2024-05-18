@@ -130,6 +130,7 @@
         nixpkgs = pkgs;
         specialArgs = {
           inherit ts;
+          nixos-hardware = nixos-hardware.nixosModules;
         };
       };
 
@@ -182,10 +183,6 @@
 
       zinc = {
         imports = [
-          nixos-hardware.nixosModules.apple-t2
-          nixos-hardware.nixosModules.common-cpu-intel
-          nixos-hardware.nixosModules.common-pc-laptop
-          nixos-hardware.nixosModules.common-pc-ssd
           ./nixos/zinc
         ];
         deployment = {
