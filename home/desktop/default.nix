@@ -16,6 +16,7 @@
 
   home.packages = with pkgs; [
     wl-clipboard
+    obsidian
   ];
 
   home.keyboard = {
