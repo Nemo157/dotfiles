@@ -26,7 +26,7 @@ in {
           OnActiveSec = 0;
           OnUnitActiveSec = 600;
         };
-        Install.WantedBy = [ "graphical-session.target" ];
+        Install.WantedBy = [ "graphical-session.target" "swww.service" ];
       };
     };
 
