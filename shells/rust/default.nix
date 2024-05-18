@@ -84,8 +84,7 @@ in {
     '' + (if custom then ''
     rustflags=(
       "--cap-lints=warn"
-      # "-Clink-self-contained=+linker"
-      # "-Clinker-flavor=gnu-lld-cc"
+      "-Clink-arg=-fuse-ld=${lib.getExe pkgs.mold-wrapped}"
       "-Zunstable-options"
       "-Ctarget-cpu=native"
       "-Zrandomize-layout"
@@ -108,8 +107,10 @@ in {
 
     export CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
     export CARGO_HOST_RUSTFLAGS="''${rustflags[*]}"
+    export CARGO_HOST_LINKER="${lib.getExe pkgs.clang}"
     export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="''${rustflags[*]}"
     export CARGO_TARGET_APPLIES_TO_HOST=false
+    export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="${lib.getExe pkgs.clang}"
 
     export CARGO_PROFILE_DEV_CODEGEN_BACKEND=cranelift
     export CARGO_PROFILE_DEV_PANIC=abort
