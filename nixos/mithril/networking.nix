@@ -20,8 +20,6 @@
           47984 47989 48010
           # docs.rs
           3000
-          # mpd
-          6600 6680
         ];
         allowedUDPPorts = [
           # sunshine

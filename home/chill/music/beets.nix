@@ -14,7 +14,6 @@ in {
 
     mpdIntegration = {
       enableUpdate = true;
-      host = config.home.sessionVariables.MPD_HOST;
     };
 
     settings = {
