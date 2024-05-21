@@ -17,6 +17,16 @@ let
       run exec systemd-run --scope --user --slice-inherit --slice="$app" --unit="$unit" systemd-cat -t "$app" "$@"
     '';
   };
+  rofimoji-modes = [
+    "emojis"
+    "math"
+    "letterlike_symbols"
+    "control_pictures"
+    "nerd_font"
+  ];
+  rofimoji-modi = lib.concatStringsSep "," (
+    lib.lists.map (mode: "${mode}:rofimoji -f ${mode}") rofimoji-modes
+  );
 in {
   scripts.rofi-systemd = {
     runtimeInputs = with pkgs; [ systemd ];
@@ -30,10 +40,18 @@ in {
     source = ./rofinix;
   };
 
+  scripts.rofi-characters = {
+    runtimeInputs = with pkgs; [ rofi rofimoji coreutils wtype wl-clipboard ];
+    text = ''
+      rofi -show emojis -modi '${rofimoji-modi}'
+      wl-paste -n | wtype -
+    '';
+  };
+
   programs.rofi = {
     enable = true;
     extraConfig = {
-      modi = "drun,window,nix:rofinix,run,emoji:rofimoji";
+      modi = "drun,window,nix:rofinix,run";
       show-icons = true;
       kb-element-next = "";
       kb-element-prev = "";
@@ -43,5 +61,11 @@ in {
       kb-row-tab = "";
     };
   };
-  home.packages = [ pkgs.rofimoji ];
+
+  xdg.configFile = {
+    "rofimoji.rc".text = ''
+      action = copy
+      max-recent = 0
+    '';
+  };
 }

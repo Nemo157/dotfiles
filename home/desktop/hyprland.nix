@@ -88,6 +88,7 @@ in {
       # the expected dvp positions, e.g. Y is fullscreen because that key is F
       # in dvp
       bind = $mod, SPACE, exec, rofi-systemd
+      bind = $mod SHIFT, SPACE, exec, rofi-characters
       bind = $mod, C, togglesplit,
       bind = $mod, COMMA, killactive,
       bind = $mod SHIFT CTRL, D, exit,
