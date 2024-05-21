@@ -19,6 +19,11 @@
     text = pkgs.lib.readFile ./cargo-rubber;
   };
 
+  zebra = pkgs.writeShellApplication {
+    name = "zebra";
+    text = pkgs.lib.readFile ./zebra;
+  };
+
   # TODO: needs zsh
   # cargo-rustdoc-clippy = pkgs.writeShellApplication {
   #   name = "cargo-rustdoc-clippy";

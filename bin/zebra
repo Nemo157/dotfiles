@@ -1,7 +1,0 @@
-#!/bin/sh
-
-while IFS='' read -r line
-do
-  echo "$line"
-  IFS='' read -r line && echo "[40m$line[K[0m"
-done
