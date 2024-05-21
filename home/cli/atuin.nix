@@ -1,4 +1,4 @@
-{ lib, config, ts, ... }: {
+{ lib, pkgs, config, ts, ... }: {
   programs.atuin = {
     enable = true;
     flags = [
@@ -6,7 +6,6 @@
       "--disable-ctrl-r"
     ];
     settings = {
-      sync_frequency = 0;
       sync_address = "http://${ts.hosts.mithril.host}:8888";
       history_filter = [
         "^ "
@@ -18,6 +17,10 @@
       show_preview = true;
       search_mode = "prefix";
       keymap_mode = "auto";
+      daemon = {
+        enabled = true;
+        sync_frequency = 30;
+      };
     };
   };
 
@@ -39,16 +42,16 @@
     ZSH_AUTOSUGGEST_STRATEGY=(atuin_auto atuin_global)
   '';
 
-  programs.zsh.profileExtra = ''
-    # Workaround sqlite/zfs bugs by storing sqlite databases on a tmpfs
-    # https://github.com/atuinsh/atuin/issues/952
-    if ! [ -e "$XDG_RUNTIME_DIR/atuin" ]
-    then
-      mkdir -p "${config.xdg.dataHome}/atuin-permanent"
-      mkdir -p "$XDG_RUNTIME_DIR/atuin"
-      ln -s "${config.xdg.dataHome}"/atuin-permanent/{host-id,key,session} "$XDG_RUNTIME_DIR/atuin/"
-      ln -s "$XDG_RUNTIME_DIR/atuin" ~/.local/share/atuin
-      atuin sync --force
-    fi
-  '';
+  systemd.user.services.atuin-daemon = {
+    Unit = {
+      Description = "atuin shell history daemon";
+    };
+    Service = {
+      ExecStart = "${lib.getExe pkgs.atuin} daemon";
+      Environment = [ "ATUIN_LOG=info" ];
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
 }

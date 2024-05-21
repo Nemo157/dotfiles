@@ -14,6 +14,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.stable.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
+      inputs.flake-compat.follows = "flake-compat";
     };
 
     home-manager = {
@@ -35,6 +36,13 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    atuin = {
+      url = "github:atuinsh/atuin";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.flake-compat.follows = "flake-compat";
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -54,11 +62,16 @@
       url = "github:numtide/flake-utils";
       inputs.systems.follows = "systems";
     };
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
 
   outputs = {
     self,
     agenix,
+    atuin,
     colmena,
     home-manager,
     nixos-hardware,
@@ -82,6 +95,7 @@
       config.allowUnfree = true;
       overlays = [
         agenix.overlays.default
+        atuin.overlays.default
         nixseparatedebuginfod.overlays.default
         nixur.overlay
         rust-overlay.overlays.default

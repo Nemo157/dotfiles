@@ -28,8 +28,6 @@ in {
 
   maintainers = prev.maintainers // maintainers;
 
-  atuin = callOverlay ./atuin.nix;
-
   # No release in over 2 years, with many many commits since :ferrisPensive:
   beets = prev.beets-unstable;
 
