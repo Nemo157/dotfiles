@@ -3,7 +3,7 @@ then
   shift
 fi
 
-args=("$@" --frozen --offline)
+args=(--frozen --offline "$@")
 
 manifest=()
 case "${1:-}" in
