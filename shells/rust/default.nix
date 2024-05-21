@@ -31,7 +31,7 @@ let
 in {
   extraBuildInputs ? [],
   rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
-    toolchain.default.override {
+    toolchain.minimal.override {
       extensions = [
         "rust-src"
         "rustc-codegen-cranelift-preview"
