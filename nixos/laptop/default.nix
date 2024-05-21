@@ -1,4 +1,8 @@
 {
+  imports = [
+    ./battery-events.nix
+  ];
+
   programs.light.enable = true;
 
   services = {

@@ -1,6 +1,7 @@
 { nixos-hardware, pkgs, ... }: {
   imports = [
     ../client
+    ../desktop
     ../personal
 
     nixos-hardware.common-cpu-amd
