@@ -15,6 +15,7 @@
     ./tmux.nix
     ./vim
     ./vifm.nix
+    ./yamllint.nix
     ./zsh.nix
   ];
 
