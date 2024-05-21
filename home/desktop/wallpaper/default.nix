@@ -22,10 +22,6 @@ in {
           After = "swww.service";
           BindsTo = "swww.service";
         };
-        Timer = {
-          OnActiveSec = 0;
-          OnUnitActiveSec = 600;
-        };
       };
     };
 
@@ -54,21 +50,24 @@ in {
 
     "systemd/user/swww-change-wallpaper@ac.timer.d/overrides.conf".text = ''
       [Unit]
-      PartOf = ac.target
+      PartOf=ac.target
+      [Timer]
+      OnActiveSec=0
+      OnUnitActiveSec=600
     '';
 
     "systemd/user/swww-change-wallpaper@battery.timer.d/overrides.conf".text = ''
       [Unit]
-      PartOf = battery.target
+      PartOf=battery.target
       [Timer]
-      OnActiveSec = 3600
-      OnUnitActiveSec = 3600
+      OnActiveSec=3600
+      OnUnitActiveSec=3600
     '';
 
     "systemd/user/swww-change-wallpaper@battery.service.d/overrides.conf".text = ''
       # Don't apply rescaling or blur, too expensive on battery
       [Service]
-      Environment = "WALLPAPER_DUMB=1"
+      Environment=WALLPAPER_DUMB=1
     '';
   };
 
