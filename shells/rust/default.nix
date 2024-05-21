@@ -36,6 +36,8 @@ in {
         "rust-src"
         "rustc-codegen-cranelift-preview"
         "miri"
+        "clippy"
+        "rustfmt"
       ];
     }
   )),
