@@ -1,6 +1,7 @@
 { lib, config, pkgs, ... }: {
   imports = [
     ./cli
+    ./dev
     ./chill
     ./chill-server
     ./desktop

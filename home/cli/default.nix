@@ -3,19 +3,14 @@
     ./atuin.nix
     ./bat
     ./dircolors.nix
-    ./git
-    ./jujutsu.nix
-    ./gh.nix
     ./gpg.nix
     ./lsd.nix
-    ./rust
     ./ssh.nix
     ./ssh-agent.nix
     ./starship.nix
     ./tmux.nix
     ./vim
     ./vifm.nix
-    ./yamllint.nix
     ./zsh.nix
   ];
 
