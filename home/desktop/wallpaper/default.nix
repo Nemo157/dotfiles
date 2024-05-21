@@ -17,7 +17,7 @@ let
 in {
   systemd.user = {
     timers = {
-      swww-change-wallpaper = {
+      "swww-change-wallpaper@" = {
         Unit = {
           After = "swww.service";
           BindsTo = "swww.service";
@@ -26,12 +26,11 @@ in {
           OnActiveSec = 0;
           OnUnitActiveSec = 600;
         };
-        Install.WantedBy = [ "graphical-session.target" "swww.service" ];
       };
     };
 
     services = {
-      swww-change-wallpaper = {
+      "swww-change-wallpaper@" = {
         Service = {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
@@ -47,6 +46,30 @@ in {
         Install.WantedBy = [ "graphical-session.target" ];
       };
     };
+  };
+
+  xdg.configFile = {
+    "systemd/user/ac.target.wants/swww-change-wallpaper@ac.timer".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}systemd/user/swww-change-wallpaper@.timer";
+    "systemd/user/battery.target.wants/swww-change-wallpaper@battery.timer".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/systemd/user/swww-change-wallpaper@.timer";
+
+    "systemd/user/swww-change-wallpaper@ac.timer.d/overrides.conf".text = ''
+      [Unit]
+      PartOf = ac.target
+    '';
+
+    "systemd/user/swww-change-wallpaper@battery.timer.d/overrides.conf".text = ''
+      [Unit]
+      PartOf = battery.target
+      [Timer]
+      OnActiveSec = 3600
+      OnUnitActiveSec = 3600
+    '';
+
+    "systemd/user/swww-change-wallpaper@battery.service.d/overrides.conf".text = ''
+      # Don't apply rescaling or blur, too expensive on battery
+      [Service]
+      Environment = "WALLPAPER_DUMB=1"
+    '';
   };
 
   xdg.dataFile = {
