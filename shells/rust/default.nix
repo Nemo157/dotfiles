@@ -46,7 +46,6 @@ in {
     (if custom then (wrap-rust rust-toolchain) else rust-toolchain)
 
     # Dev utilities
-    bacon
     cargo-audit
     cargo-deny
     cargo-dl

@@ -2,13 +2,13 @@
   imports = [
     ./atuin.nix
     ./bat
-    ./cargo.nix
     ./dircolors.nix
     ./git
     ./jujutsu.nix
     ./gh.nix
     ./gpg.nix
     ./lsd.nix
+    ./rust
     ./ssh.nix
     ./ssh-agent.nix
     ./starship.nix
