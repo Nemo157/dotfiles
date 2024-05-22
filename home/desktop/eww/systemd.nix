@@ -43,8 +43,14 @@
       };
       Service = {
         Type = "oneshot";
-        ExecSearchPath = "${pkgs.eww-wayland}/bin";
-        ExecStartPre = "eww ping";
+        ExecSearchPath = [
+          "${pkgs.eww-wayland}/bin"
+          "${pkgs.bash}/bin"
+          "${pkgs.coreutils}/bin"
+        ];
+        # eww has quite a startup delay before opening the socket, and doesn't
+        # support systemd socket activation, give it a couple tries to be active
+        ExecStartPre = "bash -c 'eww ping || (sleep 1 && eww ping)'";
         ExecStart = "eww open taskbar";
         RemainAfterExit = true;
       };
