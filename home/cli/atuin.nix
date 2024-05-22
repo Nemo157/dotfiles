@@ -26,8 +26,8 @@
 
   programs.zsh.initExtra = lib.mkAfter ''
     if [[ $options[zle] = on ]]; then
-      bindkey -a / _atuin_search_viins_widget
-      bindkey -a k _atuin_up_search_vicmd_widget
+      bindkey -a / atuin-search-viins
+      bindkey -a k atuin-up-search-vicmd
     fi
 
     # Add --cwd flag to have auto-workspace-detection active
