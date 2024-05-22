@@ -38,6 +38,11 @@ tooltip {
     border-color: $base00;
   }
 
+  .hostname {
+    color: $blue;
+    background-color: $base2;
+  }
+
   .workspaces {
     .workspace, .window {
       color: $base1;
@@ -134,6 +139,11 @@ tooltip {
   progressbar {
     background-color: $base02;
     border-color: $base0;
+  }
+
+  .hostname {
+    color: $blue;
+    background-color: $base02;
   }
 
   .workspaces {
@@ -251,6 +261,11 @@ progress {
   > * {
     padding: 0.2rem 0.4rem;
   }
+}
+
+.hostname {
+  padding: 0;
+  margin-bottom: 0.2rem;
 }
 
 .workspaces {

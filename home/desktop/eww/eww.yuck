@@ -33,6 +33,7 @@
 
 (defwidget taskbar []
   (v-box :class "bar ${color-scheme}" :vexpand true
+    (hostname)
     (workspaces)
     (hypr-buttons)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
@@ -44,6 +45,13 @@
     (keymap)
     (time)
   )
+)
+
+
+(defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
+
+(defwidget hostname []
+  (label :class "hostname" :text hostname)
 )
 
 (deflisten hypr-info
