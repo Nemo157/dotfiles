@@ -37,7 +37,7 @@
     };
 
     atuin = {
-      url = "github:atuinsh/atuin";
+      url = "github:Nemo157/atuin/systemd-daemon-socket";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.flake-utils.follows = "flake-utils";
       inputs.flake-compat.follows = "flake-compat";

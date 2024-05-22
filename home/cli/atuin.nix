@@ -20,6 +20,8 @@
       daemon = {
         enabled = true;
         sync_frequency = 30;
+        socket_path = "/run/user/1000/atuin.socket";
+        systemd = true;
       };
     };
   };
@@ -45,13 +47,31 @@
   systemd.user.services.atuin-daemon = {
     Unit = {
       Description = "atuin shell history daemon";
+      Requires = [ "atuin-daemon.socket" ];
     };
     Service = {
       ExecStart = "${lib.getExe pkgs.atuin} daemon";
       Environment = [ "ATUIN_LOG=info" ];
     };
     Install = {
+      Also = [ "atuin-daemon.socket" ];
       WantedBy = [ "default.target" ];
+    };
+  };
+
+  systemd.user.sockets.atuin-daemon = {
+    Unit = {
+      Description = "Unix socket activation for atuin shell history daemon";
+    };
+
+    Socket = {
+      ListenStream = "%t/atuin.socket";
+      SocketMode = "0600";
+      RemoveOnStop = true;
+    };
+
+    Install = {
+      WantedBy = [ "sockets.target" ];
     };
   };
 }
