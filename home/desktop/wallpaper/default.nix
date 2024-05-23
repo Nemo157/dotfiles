@@ -1,6 +1,5 @@
 { config, lib, pkgs, ... }:
 let
-  swww = pkgs.swww;
   set-wallpaper = pkgs.writeShellApplication {
     name = "set-wallpaper";
     runtimeInputs = with pkgs; [ coreutils swww hyprland jq imagemagick ];
@@ -11,86 +10,84 @@ let
     runtimeInputs = with pkgs; [ coreutils fd hyprland jq set-wallpaper systemd imagemagick ];
     text = lib.readFile ./change-wallpapers.sh;
   };
-  trigger-swww-change-wallpapers = pkgs.writeShellScript "trigger-swww-change-wallpapers.sh" ''
-    ${pkgs.systemd}/bin/systemctl --user start --no-block swww-change-wallpaper.target
-  '';
 in {
   systemd.user = {
     timers = {
-      "swww-change-wallpaper@" = {
+      swww-change-wallpaper = {
         Unit = {
           After = "swww.service";
           BindsTo = "swww.service";
         };
-      };
-    };
-
-    services = {
-      "swww-change-wallpaper@" = {
-        Service = {
-          Type = "oneshot";
-          ExecStart = lib.getExe change-wallpapers;
-          Nice = 5;
-        };
-      };
-
-      swww = {
-        Service = {
-          ExecStart = lib.getExe' swww "swww-daemon";
-          Restart = "on-failure";
+        Timer = {
+          OnStartupSec = 0;
+          OnUnitActiveSec = 3600;
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };
     };
 
-    targets = {
-      "swww-change-wallpaper" = {
-        Unit = {
-          DefaultDependencies = false;
+    services = {
+      swww-change-wallpaper = {
+        Service = {
+          Type = "oneshot";
+          ExecStart = lib.getExe change-wallpapers;
+          Nice = 5;
+          Environment = "WALLPAPER_DUMB=1";
         };
+      };
+
+      swww-change-wallpaper-ac = {
+        Unit.PartOf = "ac.target";
+        Service = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = lib.getExe (pkgs.writeShellApplication {
+            name = "sww-change-wallpapers-ac-on";
+            runtimeInputs = with pkgs; [ coreutils systemd ];
+            text = ''
+              mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.{timer,service}.d
+              echo $'[Timer]\nOnUnitActiveSec=600' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
+              echo $'[Service]\nEnvironment=WALLPAPER_DUMB=0' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.service.d/ac-override.conf
+              systemctl --user daemon-reload
+            '';
+          });
+          ExecStop = lib.getExe (pkgs.writeShellApplication {
+            name = "sww-change-wallpapers-ac-off";
+            runtimeInputs = with pkgs; [ coreutils systemd ];
+            text = ''
+              rm "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
+              rm "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.service.d/ac-override.conf
+              systemctl --user daemon-reload
+            '';
+          });
+        };
+        Install.WantedBy = [ "ac.target" ];
+      };
+
+      swww = {
+        Unit = {
+          After = "graphical-session.target";
+          BindsTo = "graphical-session.target";
+        };
+        Service = {
+          ExecStart = lib.getExe' pkgs.swww "swww-daemon";
+          Restart = "on-failure";
+        };
+        Install.WantedBy = [ "graphical-session.target" ];
       };
     };
   };
 
-  xdg.configFile = {
-    "systemd/user/ac.target.wants/swww-change-wallpaper@ac.timer".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}systemd/user/swww-change-wallpaper@.timer";
-    "systemd/user/battery.target.wants/swww-change-wallpaper@battery.timer".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}/systemd/user/swww-change-wallpaper@.timer";
-
-    "systemd/user/swww-change-wallpaper.target.wants/swww-change-wallpaper@ac.service".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}systemd/user/swww-change-wallpaper@.service";
-    "systemd/user/swww-change-wallpaper.target.wants/swww-change-wallpaper@battery.service".source = config.lib.file.mkOutOfStoreSymlink "${config.xdg.configHome}systemd/user/swww-change-wallpaper@.service";
-
-    "systemd/user/swww-change-wallpaper@ac.timer.d/overrides.conf".text = ''
-      [Unit]
-      PartOf=ac.target
-      [Timer]
-      OnActiveSec=0
-      OnUnitActiveSec=600
-    '';
-
-    "systemd/user/swww-change-wallpaper@battery.timer.d/overrides.conf".text = ''
-      [Unit]
-      PartOf=battery.target
-      [Timer]
-      OnActiveSec=3600
-      OnUnitActiveSec=3600
-    '';
-
-    "systemd/user/swww-change-wallpaper@ac.service.d/overrides.conf".text = ''
-      [Unit]
-      Requisite=ac.target
-    '';
-
-    "systemd/user/swww-change-wallpaper@battery.service.d/overrides.conf".text = ''
-      [Unit]
-      Requisite=battery.target
-      # Don't apply rescaling or blur, too expensive on battery
-      [Service]
-      Environment=WALLPAPER_DUMB=1
-    '';
-  };
-
-  xdg.dataFile = {
-    "light-mode.d/trigger-swww-change-wallpapers".source = trigger-swww-change-wallpapers;
-    "dark-mode.d/trigger-swww-change-wallpapers".source = trigger-swww-change-wallpapers;
+  xdg.dataFile = let
+    trigger-swww-change-wallpapers = pkgs.writeShellApplication {
+      name = "trigger-swww-change-wallpapers";
+      runtimeInputs = with pkgs; [ systemd ];
+      text = ''
+        systemctl --user start --no-block swww-change-wallpaper.service
+      '';
+    };
+  in {
+    "light-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpapers;
+    "dark-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpapers;
   };
 }
