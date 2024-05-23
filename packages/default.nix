@@ -19,6 +19,8 @@
     text = pkgs.lib.readFile ./cargo-rubber;
   };
 
+  cbor-diag-rs = pkgs.callPackage ./cbor-diag-rs.nix { };
+
   zebra = pkgs.writeShellApplication {
     name = "zebra";
     text = pkgs.lib.readFile ./zebra;
