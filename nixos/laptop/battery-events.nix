@@ -4,71 +4,31 @@ in {
   systemd.targets = {
     ac = {
       description = "On AC power";
-      conflicts = [ "battery.target" ];
       unitConfig = {
         DefaultDependencies = false;
+        BindsTo = [ "ac.device" ];
+        After = [ "multi-user.target" ];
       };
-    };
-
-    battery = {
-      description = "On battery power";
-      conflicts = [ "ac.target" ];
-      unitConfig = {
-        DefaultDependencies = false;
-      };
-    };
-  };
-
-  systemd.services = {
-    "ac@" = {
-      description = "On AC power (notify %I)";
-      partOf = [ "ac.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${systemctl} --user --machine=%i@ start --wait ac.target";
-      };
-    };
-    "ac@nemo157" = {
-      overrideStrategy = "asDropin";
-      wantedBy = [ "ac.target" ];
-    };
-    "battery@" = {
-      description = "On battery power (notify %I)";
-      partOf = [ "battery.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${systemctl} --user --machine=%i@ start --wait battery.target";
-      };
-      wantedBy = [ "battery.target" ];
-    };
-    "battery@nemo157" = {
-      overrideStrategy = "asDropin";
-      wantedBy = [ "battery.target" ];
+      wantedBy = [ "ac.device" ];
     };
   };
 
   systemd.user.targets = {
     ac = {
       description = "On AC power";
-      conflicts = [ "battery.target" ];
       unitConfig = {
         DefaultDependencies = false;
+        BindsTo = [ "ac.device" ];
+        After = [ "default.target" ];
       };
-    };
-
-    battery = {
-      description = "On battery power";
-      conflicts = [ "ac.target" ];
-      unitConfig = {
-        DefaultDependencies = false;
-      };
+      wantedBy = [ "ac.device" ];
     };
   };
 
   services.udev.extraRules = ''
-    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${systemctl} start battery.target"
-    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${systemctl} start ac.target"
+    SUBSYSTEM=="power_supply", TAG+="systemd"
+    SUBSYSTEM=="power_supply", ENV{SYSTEMD_ALIAS}="/ac"
+    SUBSYSTEM=="power_supply", ATTR{online}=="0", ENV{SYSTEMD_READY}="0"
+    SUBSYSTEM=="power_supply", ATTR{online}=="1", ENV{SYSTEMD_READY}="1"
   '';
 }
