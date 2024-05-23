@@ -27,9 +27,6 @@ in {
 
     services = {
       "swww-change-wallpaper@" = {
-         Unit = {
-          PartOf = "swww-change-wallpaper.target";
-        };
         Service = {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
@@ -65,7 +62,6 @@ in {
     "systemd/user/swww-change-wallpaper@ac.timer.d/overrides.conf".text = ''
       [Unit]
       PartOf=ac.target
-      Requisite=ac.target
       [Timer]
       OnActiveSec=0
       OnUnitActiveSec=600
@@ -74,13 +70,19 @@ in {
     "systemd/user/swww-change-wallpaper@battery.timer.d/overrides.conf".text = ''
       [Unit]
       PartOf=battery.target
-      Requisite=battery.target
       [Timer]
       OnActiveSec=3600
       OnUnitActiveSec=3600
     '';
 
+    "systemd/user/swww-change-wallpaper@ac.service.d/overrides.conf".text = ''
+      [Unit]
+      Requisite=ac.target
+    '';
+
     "systemd/user/swww-change-wallpaper@battery.service.d/overrides.conf".text = ''
+      [Unit]
+      Requisite=battery.target
       # Don't apply rescaling or blur, too expensive on battery
       [Service]
       Environment=WALLPAPER_DUMB=1
