@@ -6,7 +6,6 @@
       "--disable-ctrl-r"
     ];
     settings = {
-      sync_address = "http://${ts.hosts.mithril.host}:8888";
       history_filter = [
         "^ "
       ];
@@ -19,7 +18,6 @@
       keymap_mode = "auto";
       daemon = {
         enabled = true;
-        sync_frequency = 30;
         socket_path = "/run/user/1000/atuin.socket";
         systemd_socket = true;
       };

@@ -2,10 +2,6 @@
   programs.jujutsu = {
     enable = true;
     settings = {
-      user = {
-        name = "Wim Looman";
-        email = "git@nemo157.com";
-      };
       ui = {
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
         diff.tool = [
@@ -66,11 +62,6 @@
       aliases = {
         lo = ["log" "-r" "current"];
         f = ["git" "fetch" "--all-remotes"];
-      };
-      signing = {
-        sign-all = true;
-        backend = "gpg";
-        key = "A65DC69A23649F86";
       };
       git = {
         fetch = ["origin" "upstream"];

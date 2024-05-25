@@ -7,6 +7,7 @@
     ./desktop
     ./xdg.nix
     ./age.nix
+    ./personal
   ];
 
   home.stateVersion = "23.05";

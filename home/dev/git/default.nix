@@ -7,16 +7,9 @@
 
   programs.git = {
     enable = true;
-    signing = {
-      key = null;
-      signByDefault = true;
-    };
-    userEmail = "git@nemo157.com";
-    userName = "Wim Looman";
     extraConfig = {
       advice.detachedHead = false;
       init.defaultBranch = "main";
-      github.user = "Nemo157";
       core.safecrlf = true;
       blame.ignoreRevsFile = ".git-blame-ignore-revs";
       push = {

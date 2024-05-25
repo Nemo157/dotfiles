@@ -1,7 +1,6 @@
 { lib, config, pkgs, ... }: {
   imports = [
     ./colors.nix
-    ./cross-machine.nix
   ];
 
   programs.alacritty = {

@@ -7,6 +7,7 @@
     ./xdg.nix
     ./age.nix
     ./wluma.nix
+    ./personal
   ];
 
   home.stateVersion = "23.05";
