@@ -83,7 +83,7 @@ info() {
 }
 
 info
-SOCKET="UNIX-CONNECT:/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+SOCKET="UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 socat -u "$SOCKET",forever - | while read -r; do
   info
   # Some events like closing windows fire before everything is updated,
