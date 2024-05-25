@@ -15,8 +15,8 @@ in {
     timers = {
       swww-change-wallpaper = {
         Unit = {
-          After = "swww.service";
-          BindsTo = "swww.service";
+          After = "swww-daemon.service";
+          BindsTo = "swww-daemon.service";
         };
         Timer = {
           OnStartupSec = 0;
@@ -64,13 +64,13 @@ in {
         Install.WantedBy = [ "ac.target" ];
       };
 
-      swww = {
+      swww-daemon = {
         Unit = {
           After = "graphical-session.target";
           BindsTo = "graphical-session.target";
         };
         Service = {
-          ExecStart = lib.getExe' pkgs.swww "swww-daemon";
+          ExecStart = "${lib.getExe' pkgs.swww "swww-daemon"} --no-cache";
           Restart = "on-failure";
         };
         Install.WantedBy = [ "graphical-session.target" ];
