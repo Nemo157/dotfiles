@@ -21,7 +21,7 @@
         enabled = true;
         sync_frequency = 30;
         socket_path = "/run/user/1000/atuin.socket";
-        systemd = true;
+        systemd_socket = true;
       };
     };
   };

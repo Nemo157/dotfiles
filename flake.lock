@@ -40,16 +40,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1716379856,
-        "narHash": "sha256-ZhmLNRyYsKhlm153p5vM9WupmZGB3nlEi7Il8GuF1Uc=",
-        "owner": "Nemo157",
+        "lastModified": 1716638635,
+        "narHash": "sha256-exRwSztMwH4IZ//3+Xq9hnyONVOnQ2Yo41gJRJWA78E=",
+        "owner": "atuinsh",
         "repo": "atuin",
-        "rev": "4bacafb999739b72e3964fe44bd051f290aa2833",
+        "rev": "2e88321aecfd1c4a7fa69a1794ecdf34a401c358",
         "type": "github"
       },
       "original": {
-        "owner": "Nemo157",
-        "ref": "systemd-daemon-socket",
+        "owner": "atuinsh",
         "repo": "atuin",
         "type": "github"
       }
