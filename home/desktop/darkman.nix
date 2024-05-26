@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ lib, pkgs, ... }: {
   home.packages = [
     pkgs.darkman
   ];
@@ -10,4 +10,23 @@
     dbusserver: true
     portal: true
   '';
+
+  systemd.user = {
+    timers = {
+      # 2100 is a bit late to be in dark mode even if sunset hasn't arrived yet
+      darkman-force-early-darkmode = {
+        Timer.OnCalendar = "20:00";
+        Install.WantedBy = [ "graphical-session.target" ];
+      };
+    };
+    services = {
+      darkman-force-early-darkmode = {
+        Unit.Requisite = "darkman.service";
+        Service = {
+          Type = "oneshot";
+          ExecStart = "${lib.getExe pkgs.darkman} set dark";
+        };
+      };
+    };
+  };
 }
