@@ -1,5 +1,6 @@
 {
   imports = [
+    ./chrony.nix
     ./ipfs.nix
     ./matrix.nix
     ./openssh.nix
