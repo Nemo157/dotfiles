@@ -9,4 +9,6 @@ in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
   "nixos/wlan-psk.age".publicKeys = [ zinc ];
   "nixos/mithril/services/grafana-admin-password.age".publicKeys = [ mithril ];
+  "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
+  "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
 }
