@@ -31,6 +31,7 @@ in {
         "video"
         "wheel"
         "wireshark"
+        "kvm"
       ];
 
       shell = pkgs.zsh;
