@@ -46,4 +46,6 @@
       }
     ];
   };
+
+  hardware.bluetooth.enable = true;
 }
