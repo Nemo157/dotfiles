@@ -1,6 +1,18 @@
 { lib, config, pkgs, ... }:
 let
-  sol = builtins.mapAttrs (name: value: "rgb(${value})") (import ../sol.nix).nohash;
+  sol-base = import ../sol.nix;
+  sol = sol-base // {
+    rgb = builtins.mapAttrs (name: value: "rgb(${value})") sol-base.nohash;
+  };
+  hyprlock-date-time = pkgs.writeShellScript "hyprlock-date-time" ''
+    date +'%Y<span color="${sol.hash.base02}">-</span>%m<span color="${sol.hash.base02}">-</span>%d'
+    if (( $(date +'%S') % 2 ))
+    then
+      date +'%H<span color="${sol.hash.base02}">:</span>%M<span color="${sol.hash.base02}">%z</span>'
+    else
+      date +'%H %M<span color="${sol.hash.base02}">%z</span>'
+    fi | tr -d $'\n'
+  '';
 in {
   scripts.wl-screenshot = {
     runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard pkgs.swayimg ];
@@ -13,6 +25,8 @@ in {
       grim -t png -g "$(slurp)" - | wl-copy -t image/png
     '';
   };
+
+  home.packages = [ pkgs.hyprlock ];
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -50,8 +64,8 @@ in {
         gaps_out = 20
         border_size = 0
         resize_on_border = true
-        col.active_border = ${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg
-        col.inactive_border = ${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg
+        col.active_border = ${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg
+        col.inactive_border = ${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg
         layout = dwindle
         no_cursor_warps = true
       }
@@ -93,6 +107,7 @@ in {
       bind = $mod, COMMA, killactive,
       bind = $mod SHIFT CTRL, D, exit,
       bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
+      bind = $mod, BACKSLASH, exec, ${lib.getExe pkgs.hyprlock}
 
       bind = $mod, Y, fullscreen, 1
       bind = $mod CTRL, Y, togglefloating,
@@ -165,17 +180,79 @@ in {
     '';
   };
 
+  xdg.configFile."hypr/hyprlock.conf".text = ''
+    general {
+      ignore_empty_input = true
+    }
+
+    background {
+      monitor =
+      color = ${sol.rgb.base03}
+    }
+
+    input-field {
+      monitor =
+      size = 1600, 80
+      outline_thickness = 0
+      dots_size = 1.0
+      dots_spacing = 0.0
+      dots_center = true
+      dots_rounding = 0
+      inner_color = ${sol.rgb.base02}
+      font_color = ${sol.rgb.base01}
+      fade_on_empty = false
+      placeholder_text =
+      hide_input = false
+      rounding = 0
+      check_color = ${sol.rgb.base03}
+      fail_color = ${sol.rgb.red}
+      fail_text = ☠️
+      fail_transition = 300
+      swap_font_color = true
+
+      halign = center
+      valign = center
+    }
+
+    label {
+      monitor =
+      text = cmd[update:1000] ${hyprlock-date-time}
+      text_align = left
+      color = ${sol.rgb.base01}
+      font_family = FiraCode Nerd Font
+      font_size = 25
+
+      halign = left
+      valign = bottom
+    }
+
+    label {
+      monitor =
+      text = $LAYOUT
+      text_align = right
+      color = ${sol.rgb.base02}
+      font_family = FiraCode Nerd Font
+      font_size = 25
+
+      halign = center
+      valign = bottom
+    }
+
+  '';
+
   xdg.dataFile."light-mode.d/hyprland-light.sh" = {
     source = pkgs.writeShellScript "hyprland-light.sh" ''
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.yellow} ${sol.orange} ${sol.red} ${sol.violet} 45deg'
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base0} ${sol.base1} ${sol.base2} ${sol.base3} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border
+      '${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border
+      '${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg'
     '';
   };
 
   xdg.dataFile."dark-mode.d/hyprland-dark.sh" = {
     source = pkgs.writeShellScript "hyprland-dark.sh" ''
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.magenta} ${sol.blue} ${sol.cyan} ${sol.green} 45deg'
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.base03} ${sol.base02} ${sol.base01} ${sol.base00} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.rgb.magenta} ${sol.rgb.blue} ${sol.rgb.cyan} ${sol.rgb.green} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.rgb.base03} ${sol.rgb.base02} ${sol.rgb.base01} ${sol.rgb.base00} 45deg'
     '';
   };
 

@@ -14,7 +14,14 @@
   security = {
     polkit.enable = true;
     rtkit.enable = true;
-    pam.u2f.enable = true;
+    pam = {
+      u2f.enable = true;
+      services.hyprlock = {
+        # hyprlock has issues with parallel u2f and password,
+        # disable u2f for now
+        u2fAuth = false;
+      };
+    };
   };
 
   programs = {
