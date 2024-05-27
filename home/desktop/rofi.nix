@@ -43,6 +43,7 @@ in {
   scripts.rofi-characters = {
     runtimeInputs = with pkgs; [ rofi rofimoji coreutils wtype wl-clipboard ];
     text = ''
+      wl-copy -c
       rofi -show emojis -modi '${rofimoji-modi}'
       wl-paste -n | wtype -
     '';
