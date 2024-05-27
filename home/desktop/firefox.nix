@@ -107,6 +107,8 @@ in {
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        # https://superuser.com/questions/363827/how-can-i-disable-add-application-for-mailto-links-bar-in-firefox
+        "network.protocol-handler.external.mailto" = false;
       };
 
       userChrome = builtins.concatStringsSep "\n" (builtins.map builtins.readFile [
