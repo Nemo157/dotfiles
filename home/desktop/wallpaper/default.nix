@@ -20,7 +20,7 @@ in {
         };
         Timer = {
           OnStartupSec = 0;
-          OnUnitActiveSec = 3600;
+          OnCalendar = "*:00";
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };
@@ -46,7 +46,7 @@ in {
             runtimeInputs = with pkgs; [ coreutils systemd ];
             text = ''
               mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.{timer,service}.d
-              echo $'[Timer]\nOnUnitActiveSec=600' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
+              echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
               echo $'[Service]\nEnvironment=WALLPAPER_DUMB=0' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.service.d/ac-override.conf
               systemctl --user daemon-reload
             '';
