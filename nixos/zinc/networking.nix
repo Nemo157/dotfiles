@@ -11,6 +11,7 @@
     networks = {
       NineEyes.psk = "@PSK_NINE_EYES@";
       StuffnesslyZwei.psk = "@PSK_STUFFNESSLY@";
+      Drivery.psk = "@PSK_DRIVERY@";
     };
   };
 }
