@@ -7,7 +7,7 @@ let
   contabo = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBap8/dDxDUVLcVn4U/bIGT44kw4Amm54kaRUwxdYEdZ";
 in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
-  "nixos/wlan-psk.age".publicKeys = [ zinc ];
+  "nixos/wlan-psk.age".publicKeys = [ nemo157-zinc zinc ];
   "nixos/mithril/services/grafana-admin-password.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
