@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }: {
   options = {
     main-user = lib.mkOption {
-      type = lib.types.string;
+      type = lib.types.str;
       default = "nemo157";
     };
   };
