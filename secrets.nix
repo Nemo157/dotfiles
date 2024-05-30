@@ -9,9 +9,9 @@ let
   oak = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0KsxqQllBb1Hy76Lrj52uZaLjqRNRyt60Qdecw8sER";
 in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
-  "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc ];
-  "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc ];
-  "nixos/wlan-psk.age".publicKeys = [ nemo157-zinc zinc ];
+  "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc wim-oak ];
+  "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc wim-oak ];
+  "nixos/wlan-psk.age".publicKeys = [ nemo157-zinc zinc oak ];
   "nixos/mithril/services/grafana-admin-password.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
