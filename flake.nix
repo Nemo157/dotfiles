@@ -205,6 +205,23 @@
           };
         };
       };
+
+      oak = {
+        imports = [
+          ./nixos/oak
+        ];
+        deployment = {
+          allowLocalDeployment = true;
+        };
+        home-manager = {
+          users.wim = {
+            imports = [
+              ./home/oak.nix
+            ];
+            home = { username = "wim"; homeDirectory = "/home/wim"; };
+          };
+        };
+      };
     };
 
     colmena-hive = colmena.lib.makeHive colmena-config;
@@ -233,7 +250,7 @@
     colmena = colmena-config;
 
     nixosConfigurations = {
-      inherit (colmena-hive.nodes) contabo mithril zinc;
+      inherit (colmena-hive.nodes) contabo mithril zinc oak;
     };
   };
 }
