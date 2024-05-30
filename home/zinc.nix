@@ -8,7 +8,6 @@
     ./age.nix
     ./wluma.nix
     ./personal
-    ./veecle
   ];
 
   home.stateVersion = "23.05";
