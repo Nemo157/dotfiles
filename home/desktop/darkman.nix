@@ -29,4 +29,8 @@
       };
     };
   };
+
+  xdg.configFile."systemd/user/default.target.wants/darkman.service" = {
+    source = "${pkgs.darkman}/share/systemd/user/darkman.service";
+  };
 }

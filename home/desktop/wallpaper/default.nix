@@ -22,7 +22,7 @@ in {
           OnStartupSec = 0;
           OnCalendar = "*:00";
         };
-        Install.WantedBy = [ "graphical-session.target" ];
+        Install.WantedBy = [ "swww-daemon.service" ];
       };
     };
 

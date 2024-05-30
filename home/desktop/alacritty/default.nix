@@ -18,17 +18,10 @@
 
       bell.duration = 0;
 
-      draw_bold_text_with_bright_colors = false;
+      colors.draw_bold_text_with_bright_colors = false;
 
       mouse = {
-        double_click.threshold = 300;
-        triple_click.threshold = 300;
         hide_when_typing = true;
-      };
-
-      hints.url = {
-        launcher = "open";
-        modifiers = "Command";
       };
 
       selection.semantic_escape_chars = ",│`|:\"' ()[]{}<>";

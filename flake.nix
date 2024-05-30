@@ -18,23 +18,17 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.11";
+      url = "github:nix-community/home-manager/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs";
 
     nixur.url = "github:nix-community/NUR";
-
-    nixseparatedebuginfod = {
-      url = "github:symphorien/nixseparatedebuginfod";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
 
     atuin = {
       url = "github:atuinsh/atuin";
@@ -78,7 +72,6 @@
     nixpkgs,
     nixpkgs-unstable,
     nixur,
-    nixseparatedebuginfod,
     rust-overlay,
     u2f-touch-detector,
     ...
@@ -96,7 +89,6 @@
       overlays = [
         agenix.overlays.default
         atuin.overlays.default
-        nixseparatedebuginfod.overlays.default
         nixur.overlay
         rust-overlay.overlays.default
         u2f-touch-detector.overlays.default
@@ -152,7 +144,6 @@
         imports = [
           agenix.nixosModules.default
           home-manager.nixosModules.home-manager
-          nixseparatedebuginfod.nixosModules.default
           pin-nixpkgs
           ./nixos/common
         ];

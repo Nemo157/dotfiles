@@ -19,7 +19,7 @@
       };
       Service = {
         ExecSearchPath = [
-          "${pkgs.eww-wayland}/bin"
+          "${pkgs.eww}/bin"
           # eww tries to invoke things via sh
           "${pkgs.bash}/bin"
           # scripts and tools used in event handlers
@@ -44,7 +44,7 @@
       Service = {
         Type = "oneshot";
         ExecSearchPath = [
-          "${pkgs.eww-wayland}/bin"
+          "${pkgs.eww}/bin"
           "${pkgs.bash}/bin"
           "${pkgs.coreutils}/bin"
         ];

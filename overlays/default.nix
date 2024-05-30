@@ -15,8 +15,6 @@ in {
 
   darkman = callOverlay ./darkman.nix;
 
-  eww-wayland = callOverlay ./eww-wayland.nix;
-
   shairport-sync = callOverlay ./shairport-sync.nix;
 
   rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;

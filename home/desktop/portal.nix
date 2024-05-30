@@ -1,5 +1,10 @@
 { config, pkgs, lib, ... }:
 let
+  portals-conf = pkgs.writeTextDir "share/xdg-desktop-portal/portals/portals.conf" ''
+    [preferred]
+    default=hyprland
+    org.freedesktop.impl.portal.Settings=darkman
+  '';
   packages = [
     pkgs.xdg-desktop-portal
     pkgs.xdg-desktop-portal-hyprland
@@ -7,7 +12,7 @@ let
   ];
   portals = pkgs.symlinkJoin {
     name = "xdg-portals";
-    paths = packages;
+    paths = [ portals-conf ] ++ packages;
     pathsToLink = [
       "/share/xdg-desktop-portal/portals"
       "/share/applications"
@@ -28,11 +33,5 @@ in {
   xdg.configFile."systemd/user/xdg-desktop-portal.service.d/portals.conf".text = ''
     [Service]
     Environment=XDG_DESKTOP_PORTAL_DIR="${portals}/share/xdg-desktop-portal/portals"
-  '';
-
-  xdg.configFile."xdg-desktop-portal/portals.conf".text = ''
-    [preferred]
-    default=hyprland
-    org.freedesktop.impl.portal.Settings=darkman
   '';
 }

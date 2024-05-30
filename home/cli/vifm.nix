@@ -19,7 +19,8 @@ in {
     gnupg
     gnutar
     imagemagick
-    jd-cli
+    # broken build on 24.05
+    # jd-cli
     links2
     lsd
     lynx

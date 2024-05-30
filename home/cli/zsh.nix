@@ -3,7 +3,7 @@
     enable = true;
     dotDir = ".config/zsh";
     defaultKeymap = "viins";
-    enableAutosuggestions = true;
+    autosuggestion.enable = true;
     enableVteIntegration = true;
     syntaxHighlighting.enable = true;
     cdpath = [
