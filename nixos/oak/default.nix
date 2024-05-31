@@ -44,4 +44,6 @@
       driSupport32Bit = true;
     };
   };
+
+  boot.kernelParams = [ "i915.force_probe=7d55" ];
 }
