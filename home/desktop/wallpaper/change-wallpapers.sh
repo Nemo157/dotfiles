@@ -5,7 +5,7 @@ export ns=org.freedesktop.appearance
 export key=color-scheme
 
 scheme="$(
-  for i in {0..5}
+  for _ in {0..5}
   do
     (busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '.data[0].data.data') && break
     sleep 1
