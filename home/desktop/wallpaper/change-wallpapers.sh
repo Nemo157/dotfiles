@@ -4,7 +4,13 @@ export int=org.freedesktop.portal.Settings
 export ns=org.freedesktop.appearance
 export key=color-scheme
 
-scheme="$(busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '.data[0].data.data')"
+scheme="$(
+  for i in {0..5}
+  do
+    (busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '.data[0].data.data') && break
+    sleep 1
+  done
+)"
 op="$([ "$scheme" = 1 ] && echo -le || echo -ge)"
 
 echo "color-scheme $scheme => op $op" >&2
