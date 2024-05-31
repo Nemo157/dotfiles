@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ts, ... }: {
+{ lib, config, pkgs, ... }: {
   services.telegraf = {
     enable = true;
     extraConfig = {
@@ -39,11 +39,6 @@
         processes = {};
         swap = {};
         temp = {};
-      };
-      outputs = {
-        influxdb = {
-          urls = [ "http://${ts.hosts.mithril.host}:8086" ];
-        };
       };
     };
   };
