@@ -1,4 +1,4 @@
-{ nixos-hardware, pkgs, ... }: {
+{ config, nixos-hardware, pkgs, ... }: {
   imports = [
     ../client
     ../laptop
@@ -11,6 +11,7 @@
     ./hardware-configuration.nix
     ./boot-loader.nix
     ./networking.nix
+    ./telegraf-grafana.nix
   ];
 
   system.stateVersion = "24.05";
