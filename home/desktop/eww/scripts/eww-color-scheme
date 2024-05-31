@@ -19,9 +19,13 @@ toname() {
   done
 }
 
-busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '
-  .data[0].data.data
-' | toname
+for i in {0..5}
+do
+  (busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '
+    .data[0].data.data
+  ' | toname) && break
+  sleep 1
+done
 
 busctl -j --user monitor $svc | jq --unbuffered -Mc '
   select(
