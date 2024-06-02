@@ -140,7 +140,7 @@ in {
       bind = $mod, TAB, workspace, e+1
       bind = $mod SHIFT, TAB, workspace, e-1
 
-      bindm = $mod, mouse:272, movewindow
+      bindm = SUPER, mouse:272, movewindow
 
       bind = , XF86MonBrightnessUp, exec, light -A 5
       bind = , XF86MonBrightnessDown, exec, light -U 5
