@@ -26,4 +26,13 @@
   };
 
   services.u2f-touch-detector.enable = true;
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "x-scheme-handler/http" = [ "firefox.desktop" ];
+      "x-scheme-handler/https" = [ "firefox.desktop" ];
+      "x-scheme-handler/file" = [ "firefox.desktop" ];
+    };
+  };
 }
