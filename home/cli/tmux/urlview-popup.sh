@@ -4,6 +4,13 @@ trap "echo -ne '\e[?1049l\e[?25h'" EXIT
 options=("$@")
 count=${#options[@]}
 selected=0
+max_url_width="$(
+for option in "${options[@]}"
+do
+  IFS=$'\x1f' read -r url name <<< "$option"
+  echo "${#url}"
+done | sort -rn | head -n1
+)"
 
 echo -ne '\e[?25l\e[?1049h'
 
@@ -38,7 +45,15 @@ do
     else
       echo -ne "   "
     fi
-    echo -ne "  ${options[$index]}\e[K\e[0m"
+
+    IFS=$'\x1f' read -r url name <<< "${options[$index]}"
+    if (( index == selected ))
+    then
+      printf ' %-*s  │  \e[95m%s\e[K\e[0m' "$max_url_width" "$url" "$name"
+    else
+      printf ' %-*s  │  %s\e[K\e[0m' "$max_url_width" "$url" "$name"
+    fi
+
     if (( i != height - 1 ))
     then
       echo
@@ -55,8 +70,14 @@ do
       selected=$(( selected == count - 1 ? selected : selected + 1 ))
       ;;
     "" )
-      xdg-open "${options[$selected]}"
-      tmux display-message "Opened ${options[$selected]}"
+      IFS=$'\x1f' read -r url name <<< "${options[$selected]}"
+      xdg-open "$url"
+      if [ -n "$name" ]
+      then
+        tmux display-message "Opened $url ($name)"
+      else
+        tmux display-message "Opened $url"
+      fi
       ;&
     "q" | $'\e' )
       exit
