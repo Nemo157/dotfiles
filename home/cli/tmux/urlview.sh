@@ -9,7 +9,7 @@ filter_bare() {
 }
 
 filter_osc8() {
-  rg --only-matching $'\x1b\\]8;[^;]*;([^\x1b]+)\x1b\\\\.*?\x1b\\]8;;\x1b\\\\' --replace '$1'
+  rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\.*?\x1b\]8;;\x1b\\' --replace '$1'
 }
 
 filter() {
