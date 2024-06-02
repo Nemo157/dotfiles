@@ -4,11 +4,23 @@ capture() {
   tmux capture-pane -Jpe -S "$start" -E "$end"
 }
 
-filter() {
+filter_bare() {
   rg --only-matching 'https?://[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 }
 
+filter_osc8() {
+  rg --only-matching $'\x1b\\]8;[^;]*;([^\x1b]+)\x1b\\\\.*?\x1b\\]8;;\x1b\\\\' --replace '$1'
+}
+
+filter() {
+  text="$(cat)"
+  filter_bare <<<"$text"
+  filter_osc8 <<<"$text"
+}
+
 readarray -t urls < <(capture | filter | sort -u)
+
+echo "${urls[*]}" >&2
 
 if [[ -v urls ]]
 then
