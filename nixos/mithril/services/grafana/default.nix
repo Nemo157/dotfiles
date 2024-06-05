@@ -1,6 +1,6 @@
 { name, config, ts, ... }: {
   age.secrets.grafana-admin-password = {
-    file = ./grafana-admin-password.age;
+    file = ./admin-password.age;
     owner = "grafana";
     group = "grafana";
   };
@@ -22,6 +22,17 @@
     };
     provision = {
       enable = true;
+      dashboards.settings.providers = [
+        {
+          disableDeletion = true;
+          updateIntervalSeconds = 31536000;
+          allowUiUpdates = false;
+          options = {
+            path = ./dashboards;
+            foldersFromFilesStructure = true;
+          };
+        }
+      ];
       datasources.settings.datasources = [
         {
           name = "telegraf";

@@ -1,7 +1,7 @@
 {
   imports = [
     ./atuin.nix
-    ./grafana.nix
+    ./grafana
     ./influxdb.nix
     ./nix-serve.nix
     ./nixseparatedebuginfod.nix

@@ -12,7 +12,7 @@ in {
   "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc wim-oak ];
   "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc wim-oak ];
   "nixos/wlan-psk.age".publicKeys = [ nemo157-zinc zinc oak ];
-  "nixos/mithril/services/grafana-admin-password.age".publicKeys = [ mithril ];
+  "nixos/mithril/services/grafana/admin-password.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
   "nixos/oak/grafana-admin-password.age".publicKeys = [ wim-oak oak ];
