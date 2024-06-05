@@ -131,11 +131,20 @@
       }) ips;
     };
 
+    syncthing = {
+      Slabish = "OSSG4UZ-FX5FJIW-K4FXLTD-IA5HWNI-TJXV6RT-64JTYCU-IUXET5R-TWZZLAS";
+      StuffnesslyTri = "AURMWFA-RXS5I5F-KP5QKUB-ZVGDZEY-BTOZEYN-FNOTVDB-LK7PDAE-PVAW6QH";
+      StuffnesslyZwei = "XCINWZR-MPBT3KM-M5VKVBD-BAN56G2-VZNYE6N-OJJYUKK-2H3WWMP-55LMYQY";
+      contabo = "FPWUA22-RTUZ7KO-K23E642-EFXWH6P-VSBGMKF-XWLVOO2-LVEHO7M-3VIGKQZ";
+      mithril = "UAFMSLM-HVNJUCK-JBSKBXZ-TMCCCYR-GUMDNID-IXBXETE-C2SUN6W-KDI4HQN";
+      zinc = "4OZ4P7V-7PTKETZ-NG4DVX7-5VABDM7-BY2XMW3-2PFOQV7-FRZCABK-VXA4PAT";
+    };
+
     colmena-config = {
       meta = {
         nixpkgs = pkgs;
         specialArgs = {
-          inherit ts;
+          inherit ts syncthing;
           nixos-hardware = nixos-hardware.nixosModules;
         };
       };
