@@ -51,6 +51,7 @@ let
     };
   };
   alacritty = lib.getExe config.programs.alacritty.package;
+  toml = pkgs.formats.toml {};
 in {
   programs.alacritty.settings.colors = colors.light;
 
@@ -59,7 +60,7 @@ in {
     value = {
       # onChange = "${pkgs.systemd}/bin/systemctl --user restart darkman";
       source = pkgs.writeShellScript "alacritty-${mode}.sh" ''
-        ${alacritty} msg config colors=${lib.escapeShellArg (builtins.toJSON colors)}
+        ${alacritty} msg config -w -1 ${lib.escapeShellArg (builtins.readFile (toml.generate "alacritty-${mode}.toml" { inherit colors; }))}
       '';
     };
   }) colors;
