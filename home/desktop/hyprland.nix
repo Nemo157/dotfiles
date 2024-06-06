@@ -36,6 +36,8 @@ in {
       env = XDG_SESSION_TYPE,wayland
       env = NIXOS_OZONE_WL,1
 
+      exec-once = systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE
+
       monitor = ,highres,auto,1
 
       input {
