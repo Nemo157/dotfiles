@@ -97,10 +97,10 @@
   scripts."switch-to-virtual-monitor" = {
     runtimeInputs = with pkgs; [ hyprland eww systemd ];
     text = ''
-        hyprctl keyword monitor HDMI-A-1,disable
         hyprctl output create headless
-        hyprctl keyword monitor HEADLESS-2,2560x1600@60,auto,1
-        systemctl --user restart sunshine
+        hyprctl keyword monitor HEADLESS-2,2560x1600@60,0x0,1
+        hyprctl keyword monitor Unknown-1,disable
+        hyprctl keyword monitor HDMI-A-1,disable
         eww close-all
         eww open taskbar
     '';
