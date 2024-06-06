@@ -244,10 +244,8 @@ in {
 
   xdg.dataFile."light-mode.d/hyprland-light.sh" = {
     source = pkgs.writeShellScript "hyprland-light.sh" ''
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border
-      '${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg'
-      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border
-      '${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.active_border '${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg'
+      ${pkgs.hyprland}/bin/hyprctl keyword general:col.inactive_border '${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg'
     '';
   };
 
