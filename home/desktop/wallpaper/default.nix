@@ -28,6 +28,10 @@ in {
 
     services = {
       swww-change-wallpaper = {
+        Unit = {
+          After = [ "swww-daemon.service" "xdg-desktop-portal.service" ];
+          Requires = [ "swww-daemon.service" "xdg-desktop-portal.service" ];
+        };
         Service = {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
@@ -66,8 +70,7 @@ in {
 
       swww-daemon = {
         Unit = {
-          After = "graphical-session.target";
-          BindsTo = "graphical-session.target";
+          PartOf = "graphical-session.target";
         };
         Service = {
           ExecStart = "${lib.getExe' pkgs.swww "swww-daemon"} --no-cache";
