@@ -4,16 +4,19 @@
     settings = {
       ui = {
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
-        diff.tool = [
-          (lib.getExe (pkgs.writeShellApplication {
+        diff.tool = "delta";
+      };
+      merge-tools = {
+        delta = {
+          program = lib.getExe (pkgs.writeShellApplication {
             name = "delta";
             runtimeInputs = [pkgs.delta];
             text = ''
               cd "$(dirname "$1")"
               delta "$(basename "$1")" "$(basename "$2")" || true
             '';
-          }))
-        ];
+          });
+        };
       };
       colors = {
         rest = "bright cyan";
