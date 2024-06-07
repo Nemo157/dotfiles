@@ -49,6 +49,11 @@ tooltip {
       background-color: $base3;
       border-color: $base1;
 
+      &.virtual {
+        color: $base2;
+        border-color: $base2;
+      }
+
       &.active {
         color: $base01;
         background-color: $base2;
@@ -151,6 +156,11 @@ tooltip {
       color: $base01;
       background-color: $base03;
       border-color: $base01;
+
+      &.virtual {
+        color: $base02;
+        border-color: $base02;
+      }
 
       &.active {
         color: $base1;

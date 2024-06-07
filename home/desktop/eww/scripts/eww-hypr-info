@@ -39,33 +39,55 @@ get-info() {
       --argjson workspaces "$(hyprctl workspaces -j)" \
       --argjson names '["einz", "zwei", "drei", "vier", "funf"]' \
       -sMc '
-    {
-      activewindow: $activewindow,
-      activeworkspace: $activeworkspace,
-      workspaces: $workspaces
+    (
+      [
+        $names
+        | keys.[]
+        | {
+            key: (. + 1) | tostring,
+            value: {
+              id: (. + 1),
+              name: $names[.],
+              active: false,
+              virtual: true,
+            },
+          }
+      ]
+      | from_entries
+    ) as $virtual_workspaces
+    | (
+        $workspaces
         | sort_by(.id)
         | map(
-          . as $workspace
-          | $workspace + {
-              name: (if .name == (.id | tostring) then $names[.id - 1] else .name end),
-              monitor: $monitors.[] | select(.id == $workspace.monitorID),
-              windows: [
-                $clients.[]
-                | select(.workspace.id == $workspace.id)
-                | select(.address and (.class | length > 0))
-                | {
-                  class,
-                  title,
-                  address,
-                  active: (.address == $activewindow.address),
-                }
-                | select(if .class == "steam" then .title != "" else true end)
-              ]
-            }
-          | . + {
-              active: (.id == $activeworkspace.id),
-            }
-        )
+            . as $workspace
+            | {
+                key: .id | tostring,
+                value: ($workspace + {
+                  name: (if .name == (.id | tostring) then $names[.id - 1] else .name end),
+                  monitor: $monitors.[] | select(.id == $workspace.monitorID) | .model,
+                  virtual: false,
+                  windows: [
+                    $clients.[]
+                    | select(.workspace.id == $workspace.id)
+                    | select(.address and (.class | length > 0))
+                    | {
+                      class,
+                      title,
+                      address,
+                      active: (.address == $activewindow.address),
+                    }
+                    | select(if .class == "steam" then .title != "" else true end)
+                  ],
+                  active: (.id == $activeworkspace.id),
+                })
+              }
+        ) | from_entries
+      ) as $real_workspaces
+      | [($virtual_workspaces + $real_workspaces).[]] as $workspaces
+    | {
+      activewindow: $activewindow,
+      activeworkspace: $activeworkspace,
+      workspaces: $workspaces,
     }
   ' | add_icons
 }
