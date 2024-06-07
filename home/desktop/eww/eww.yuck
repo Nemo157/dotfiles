@@ -31,10 +31,12 @@
 (deflisten color-scheme
   "eww-color-scheme")
 
-(defwidget taskbar []
+(defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
+
+(defwidget taskbar [screen]
   (v-box :class "bar ${color-scheme}" :vexpand true
-    (hostname)
-    (workspaces)
+    (label :class "hostname" :text hostname)
+    (workspaces :screen screen)
     (hypr-buttons)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper.target"
       (security-key)
@@ -48,19 +50,13 @@
 )
 
 
-(defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
-
-(defwidget hostname []
-  (label :class "hostname" :text hostname)
-)
-
 (deflisten hypr-info
   :initial "{}"
   "eww-hypr-info")
 
-(defwidget workspaces []
+(defwidget workspaces [screen]
   (box :orientation "v" :class "workspaces" :space-evenly false
-    (for workspace in {hypr-info?.workspaces ?: []}
+    (for workspace in {jq(hypr-info?.workspaces ?: [], '[.[] | select(.monitor.model == "${screen}")]')}
       (box :orientation "v" :space-evenly false
         (eventbox
           :class "workspace ${workspace.active ? "active" : ""}"
@@ -273,8 +269,7 @@
   )
 )
 
-(defwindow taskbar
-  :monitor 0
+(defwindow taskbar [screen]
   :exclusive true 
   :geometry (geometry :height "100%" :anchor "center left")
-  (taskbar))
+  (taskbar :screen screen))

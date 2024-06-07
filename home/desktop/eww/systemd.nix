@@ -36,23 +36,13 @@
       };
     };
 
-    eww-taskbar = {
+    eww-auto-open-taskbars = {
       Unit = {
         After = "eww-daemon.service";
         BindsTo = "eww-daemon.service";
       };
       Service = {
-        Type = "oneshot";
-        ExecSearchPath = [
-          "${pkgs.eww}/bin"
-          "${pkgs.bash}/bin"
-          "${pkgs.coreutils}/bin"
-        ];
-        # eww has quite a startup delay before opening the socket, and doesn't
-        # support systemd socket activation, give it a couple tries to be active
-        ExecStartPre = "bash -c 'eww ping || (sleep 1 && eww ping)'";
-        ExecStart = "eww open taskbar";
-        RemainAfterExit = true;
+        ExecStart = "${config.binHome}/eww-auto-open-taskbars";
       };
       Install = {
         RequiredBy = [ "tray.target" ];

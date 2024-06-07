@@ -33,4 +33,9 @@
     runtimeInputs = [ pkgs.socat ];
     source = ./eww-u2f-touch-detector;
   };
+
+  scripts.eww-auto-open-taskbars = {
+    runtimeInputs = [ pkgs.eww pkgs.hyprland pkgs.socat pkgs.jq ];
+    source = ./eww-auto-open-taskbars;
+  };
 }
