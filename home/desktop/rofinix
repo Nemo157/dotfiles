@@ -45,5 +45,43 @@ else
   app="$(systemd-escape "$pkg")"
   unit="app-rofinix-$app-$RANDOM"
 
-  run exec systemd-run --scope --user --slice-inherit --slice="$app" --unit="$unit" systemd-cat -t "$app" nix run "pkgs#$pkg" -- "${cmd[@]}"
+  # shellcheck disable=SC2016
+  systemd_run=(
+    systemd-run
+      --scope
+      --user
+      --slice-inherit
+      --slice="$app"
+      --unit="$unit"
+      --expand-environment=false
+      systemd-cat
+        --identifier="$app"
+        bash -c '
+          set -euo pipefail
+          pkg="$1"
+          shift
+
+          # show download status if we dont have it
+          args=(
+              --class rofinix-build
+              --title "nix build pkgs#$pkg"
+              --option "window.dimensions.columns = 200"
+              --option "window.dimensions.lines = 40"
+              --command
+                bash -c '"'"'
+                  nix build --no-link --verbose "pkgs#$1" || sleep 60
+                '"'"' -- "$pkg"
+          )
+          alacritty "${args[@]}"
+
+          # alacritty doesnt return an exit code based on command completion,
+          # instead check whether the package now exists in the store (this is
+          # fast unless the `nix build` was canceled _very_ early).
+          if nix path-info "pkgs#$pkg"
+          then
+            exec nix run "pkgs#$pkg" -- "$@"
+          fi
+        ' -- "$pkg" "${cmd[@]}"
+  )
+  run exec "${systemd_run[@]}"
 fi

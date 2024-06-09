@@ -183,6 +183,11 @@ in {
       # Android Emulator, no more specific title available
       windowrulev2 = float,title:^Emulator$
       windowrulev2 = move 100%-w-30 30,title:^Emulator$
+
+      windowrulev2 = float,class:rofinix-build
+      windowrulev2 = center,class:rofinix-build
+      windowrulev2 = stayfocused,class:rofinix-build
+      windowrulev2 = dimaround,class:rofinix-build
     '';
   };
 
