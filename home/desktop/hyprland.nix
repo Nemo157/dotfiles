@@ -145,14 +145,14 @@ in {
 
       bindm = SUPER, mouse:272, movewindow
 
-      bind = , XF86MonBrightnessUp, exec, light -A 5
-      bind = , XF86MonBrightnessDown, exec, light -U 5
+      bindl = , XF86MonBrightnessUp, exec, light -A 5
+      bindl = , XF86MonBrightnessDown, exec, light -U 5
 
-      bind = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
-      bind = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
+      bindl = , XF86KbdBrightnessUp, exec, light -s sysfs/leds/apple::kbd_backlight -A 5
+      bindl = , XF86KbdBrightnessDown, exec, light -s sysfs/leds/apple::kbd_backlight -U 5
 
-      bind = , XF86AudioPlay, exec, playerctl -p mpd play-pause
-      bind = , XF86AudioPause, exec, playerctl -p mpd play-pause
+      bindl = , XF86AudioPlay, exec, playerctl -p mpd play-pause
+      bindl = , XF86AudioPause, exec, playerctl -p mpd play-pause
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
 
