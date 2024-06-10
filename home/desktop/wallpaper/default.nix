@@ -82,15 +82,15 @@ in {
   };
 
   xdg.dataFile = let
-    trigger-swww-change-wallpapers = pkgs.writeShellApplication {
+    trigger-swww-change-wallpaper = pkgs.writeShellApplication {
       name = "trigger-swww-change-wallpapers";
       runtimeInputs = with pkgs; [ systemd ];
       text = ''
-        systemctl --user start --no-block swww-change-wallpaper.service
+        systemctl --user start --no-block swww-change-wallpaper
       '';
     };
   in {
-    "light-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpapers;
-    "dark-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpapers;
+    "light-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpaper;
+    "dark-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpaper;
   };
 }
