@@ -38,8 +38,8 @@ in {
 
       exec-once = systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE
 
-      monitor = ,highres,auto,1
-      monitor = desc:Samsung Electric Company U32J59x H4LRC00573,highres,auto-up,1
+      monitor = , highres, auto, 1
+      monitor = desc:Samsung Electric Company U32J59x H4LRC00573, highres, auto-up, 1
 
       input {
         kb_layout = us,us
@@ -153,6 +153,9 @@ in {
 
       bindl = , XF86AudioPlay, exec, playerctl -p mpd play-pause
       bindl = , XF86AudioPause, exec, playerctl -p mpd play-pause
+
+      bindl = , switch:on:Lid Switch, exec, hyprctl keyword monitor "eDP-1, disable"
+      bindl = , switch:off:Lid Switch, exec, hyprctl keyword monitor "eDP-1, highres, 0x0, 1"
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
 
