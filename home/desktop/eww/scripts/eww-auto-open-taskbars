@@ -16,5 +16,6 @@ do
     echo "monitor added event detected" >&2
     eww close-all
     open-taskbars
+    systemctl --user start --no-block swww-change-wallpaper
   fi
 done
