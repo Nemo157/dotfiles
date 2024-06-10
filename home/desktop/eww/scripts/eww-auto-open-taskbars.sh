@@ -1,7 +1,9 @@
 open-taskbars() {
-  hyprctl monitors -j | jq -r '.[].model' | while read -r model
+  local model
+  hyprctl monitors -j | jq -r '.[].model | if . == "" then "Unknown" else . end' | while read -r model
   do
-    echo "opening taskbar for $model" >&2
+    # I hope there's never more than one unknown model
+    echo "opening taskbar for '$model'" >&2
     eww open taskbar --id "$model" --screen "$model"
   done
 }

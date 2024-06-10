@@ -65,7 +65,7 @@ get-info() {
                 key: .id | tostring,
                 value: ($workspace + {
                   name: (if .name == (.id | tostring) then $names[.id - 1] else .name end),
-                  monitor: $monitors.[] | select(.id == $workspace.monitorID) | .model,
+                  monitor: $monitors.[] | select(.id == $workspace.monitorID) | .model | (if . == "" then "Unknown" else . end),
                   virtual: false,
                   windows: [
                     $clients.[]
