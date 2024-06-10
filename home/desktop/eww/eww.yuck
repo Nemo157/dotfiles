@@ -38,7 +38,7 @@
     (label :class "hostname" :text hostname)
     (workspaces :screen screen)
     (hypr-buttons)
-    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper.target"
+    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
       (security-key)
     )
     (music)
