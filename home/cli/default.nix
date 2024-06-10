@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ lib, pkgs, ... }: {
   imports = [
     ./atuin.nix
     ./bat
@@ -48,6 +48,17 @@
       else
         exec zsh
       fi
+    '';
+
+    "nix-show-build".text = ''
+      readarray -t dirs < <(nix build --print-build-logs  --no-link --print-out-paths "$@")
+      for dir in "''${dirs[@]}"
+      do
+        echo
+        echo "$dir"
+        echo
+        ${lib.getExe pkgs.lsd} --tree "$dir"
+      done
     '';
   };
 }
