@@ -17,6 +17,7 @@
   home.packages = with pkgs; [
     agenix
     cbor-diag-rs
+    colmena
     comma
     fd
     htop
