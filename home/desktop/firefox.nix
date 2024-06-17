@@ -124,6 +124,7 @@ in {
         firefox-translations
         libredirect
         multi-account-containers
+        refined-github
         sidebery
         stylus
         tampermonkey
