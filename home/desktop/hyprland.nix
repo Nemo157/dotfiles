@@ -111,6 +111,7 @@ in {
       bind = $mod SHIFT CTRL, D, exit,
       bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
       bind = $mod, BACKSLASH, exec, ${lib.getExe pkgs.hyprlock}
+      bind = SUPER, L, exec, ${lib.getExe pkgs.hyprlock}
 
       bind = $mod, Y, fullscreen, 1
       bind = $mod CTRL, Y, togglefloating,
