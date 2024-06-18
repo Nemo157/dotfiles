@@ -47,4 +47,10 @@
   };
 
   boot.kernelParams = [ "i915.force_probe=7d55" ];
+
+  virtualisation.docker = {
+    enable = true;
+    autoPrune.enable = true;
+    storageDriver = "overlay2";
+  };
 }
