@@ -2,6 +2,7 @@
   services.telegraf = {
     extraConfig = {
       inputs = {
+        docker = {};
         linux_cpu = {};
         sensors = {};
       };
@@ -12,6 +13,8 @@
       };
     };
   };
+
+  users.users.telegraf.extraGroups = [ "docker" ];
 
   services.influxdb = {
     enable = true;
