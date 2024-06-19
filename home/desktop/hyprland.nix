@@ -26,7 +26,7 @@ in {
     '';
   };
 
-  home.packages = [ pkgs.hyprlock ];
+  home.packages = with pkgs; [ hyprlock xwayland ];
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -70,7 +70,10 @@ in {
         col.active_border = ${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg
         col.inactive_border = ${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg
         layout = dwindle
-        no_cursor_warps = true
+      }
+
+      cursor {
+        no_warps = true
       }
 
       decoration {

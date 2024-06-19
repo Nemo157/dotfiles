@@ -30,17 +30,9 @@
 
     nixur.url = "github:nix-community/NUR";
 
-    atuin = {
-      url = "github:atuinsh/atuin";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-      inputs.flake-utils.follows = "flake-utils";
-      inputs.flake-compat.follows = "flake-compat";
-    };
-
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
 
     u2f-touch-detector = {
@@ -65,7 +57,6 @@
   outputs = {
     self,
     agenix,
-    atuin,
     colmena,
     home-manager,
     nixos-hardware,
@@ -88,7 +79,6 @@
       config.allowUnfree = true;
       overlays = [
         agenix.overlays.default
-        atuin.overlays.default
         nixur.overlay
         rust-overlay.overlays.default
         u2f-touch-detector.overlays.default

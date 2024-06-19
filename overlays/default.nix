@@ -11,7 +11,8 @@
   callOverlay = path: (import path) args;
 in {
   inherit (pkgs-unstable)
-    tmux cargo-deny hyprland xdg-desktop-portal-hyprland swww obsidian hyprlock;
+    tmux cargo-deny hyprland xdg-desktop-portal-hyprland swww obsidian hyprlock
+    atuin;
 
   darkman = callOverlay ./darkman.nix;
 
