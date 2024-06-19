@@ -24,4 +24,8 @@
     man-pages
     man-pages-posix
   ];
+
+  fonts.packages = with pkgs; [
+    liberation_ttf
+  ];
 }
