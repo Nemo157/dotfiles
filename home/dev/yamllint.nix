@@ -12,6 +12,9 @@
           spaces: 2
           indent-sequences: consistent
         document-start: disable
+        truthy:
+          allowed-values: ['true', 'false']
+          check-keys: false
     '';
   };
 }
