@@ -36,7 +36,6 @@ in {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
           Nice = 5;
-          Environment = "WALLPAPER_DUMB=1";
         };
       };
 
@@ -51,7 +50,6 @@ in {
             text = ''
               mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.{timer,service}.d
               echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
-              echo $'[Service]\nEnvironment=WALLPAPER_DUMB=0' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.service.d/ac-override.conf
               systemctl --user daemon-reload
             '';
           });
