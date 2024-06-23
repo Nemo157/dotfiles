@@ -50,6 +50,7 @@ get-info() {
               name: $names[.],
               active: false,
               virtual: true,
+              windows: [],
             },
           }
       ]
