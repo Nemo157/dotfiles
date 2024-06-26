@@ -1,3 +1,5 @@
+(defvar no-album-png "${get_env('HOME')}/.local/share/eww/no-album.png")
+
 (defwidget v-box [?class ?halign ?hexpand ?valign ?vexpand ?space-evenly ?spacing ?visible]
   (box
     :class {class}
@@ -72,7 +74,7 @@
             (v-box
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}
-                :path {window.icon ?: "/home/nemo157/.local/share/eww/no-album.png"}
+                :path {window.icon ?: no-album-png}
                 :tooltip {window.title}
               )
               (label :class "class"
@@ -156,7 +158,7 @@
     (dynamic-label :class "albumartist" :text {music-metadata.albumartist})
     (eventbox :onclick "playerctl -p mpd play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
       (overlay
-        (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: "/home/nemo157/.local/share/eww/no-album.png"})
+        (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: no-album-png})
         (label :class "play-button" :text "")
         (label :class "pause-button" :text "")
       )
