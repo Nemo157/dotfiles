@@ -24,7 +24,7 @@
   # workaround above issue by manually specifying location
   environment.etc = {
     "geolocation".text = ''
-      41.4
+      -41.4
       173.0
       0
       160000
