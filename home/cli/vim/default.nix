@@ -15,7 +15,6 @@ in {
       vim-easymotion
       editorconfig-vim
       ale
-      vim-lengthmatters
       vim-dispatch
       vim-indent-guides
       fzf-vim
@@ -151,7 +150,7 @@ in {
 
       let g:EasyMotion_keys = 'uhetonaspg.c,r'
 
-      call lengthmatters#highlight_link_to('ColorColumn')
+      let g:EditorConfig_max_line_indicator = "fill"
 
       au FileType mkd\|markdown\|rst\|tex\|plaintex setlocal textwidth=80
       au FileType java\|glsl\|xml\|ps1\|vhdl\|mason setlocal tabstop=4 shiftwidth=4 noexpandtab
