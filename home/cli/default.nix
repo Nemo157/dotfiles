@@ -43,6 +43,7 @@
     "scratch".text = ''
       cd "$(mktemp --tmpdir -d "scratch.''${1+$1.}$(date +%Y-%m-%dT%H-%M).XXXXXX")"
       export SCRATCH=$PWD
+      ln -s ~/.editorconfig .
       if [[ $# -gt 0 ]]
       then
         exec dev "$1"
