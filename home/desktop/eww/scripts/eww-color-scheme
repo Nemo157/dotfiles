@@ -19,23 +19,35 @@ toname() {
   done
 }
 
-for _ in {0..5}
-do
-  (busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '
+query() {
+  busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '
     .data[0].data.data
-  ' | toname) && break
-  sleep 1
-done
+  ' | toname
+}
 
-busctl -j --user monitor $svc | jq --unbuffered -Mc '
-  select(
-    .type == "signal"
-    and .path == env.obj
-    and .interface == env.int
-    and .member == "SettingChanged"
-    and .payload.type == "ssv"
-    and .payload.data[0] == env.ns
-    and .payload.data[1] == env.key
-  )
-  | .payload.data[2].data
-' | toname
+watch() {
+  busctl -j --user monitor $svc | jq --unbuffered -Mc '
+    select(
+      .type == "signal"
+      and .path == env.obj
+      and .interface == env.int
+      and .member == "SettingChanged"
+      and .payload.type == "ssv"
+      and .payload.data[0] == env.ns
+      and .payload.data[1] == env.key
+    )
+    | .payload.data[2].data
+  ' | toname
+}
+
+while true
+do
+    if query
+    then
+        watch
+    else
+        echo light
+    fi
+
+    sleep 1
+done
