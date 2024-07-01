@@ -3,8 +3,7 @@
     ../client
     ../laptop
 
-    nixos-hardware.common-gpu-intel
-    nixos-hardware.common-gpu-intel
+    nixos-hardware.common-cpu-intel
     nixos-hardware.common-pc-laptop
     nixos-hardware.common-pc-ssd
 
