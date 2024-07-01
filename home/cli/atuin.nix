@@ -26,7 +26,13 @@
 
   programs.zsh.initExtra = lib.mkAfter ''
     if [[ $options[zle] = on ]]; then
-      bindkey -a / atuin-search-viins
+      _atuin_search_viins_clear() {
+        BUFFER= _atuin_search_viins
+      }
+
+      zle -N atuin-search-viins-clear _atuin_search_viins_clear
+
+      bindkey -a / atuin-search-viins-clear
       bindkey -a k atuin-up-search-vicmd
     fi
 
