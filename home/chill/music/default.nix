@@ -11,12 +11,12 @@
 
   scripts.rand-album = {
     runtimeInputs = [ pkgs.mpc-cli pkgs.coreutils ];
-    source = ./rand-album;
+    source = ./rand-album.sh;
   };
 
   scripts.rofi-mpd = {
     runtimeInputs = [ pkgs.rofi pkgs.mpc-cli pkgs.beets pkgs.coreutils ];
-    source = ./rofi-mpd;
+    source = ./rofi-mpd.sh;
   };
 
   services.playerctld.enable = true;

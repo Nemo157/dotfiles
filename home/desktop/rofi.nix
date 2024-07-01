@@ -37,7 +37,7 @@ in {
 
   scripts.rofinix = {
     runtimeInputs = [ pkgs.rofi pkgs.nix pkgs.coreutils pkgs.systemd ];
-    source = ./rofinix;
+    source = ./rofinix.sh;
   };
 
   scripts.rofi-characters = {

@@ -3,7 +3,7 @@ let
   wrap-rust = pkgs.callPackage ./wrap-rust.nix {};
   setup-xdg-cargo-home = pkgs.writeShellApplication {
     name = "setup-xdg-cargo-home";
-    text = lib.readFile ./setup-xdg-cargo-home;
+    text = lib.readFile ./setup-xdg-cargo-home.sh;
   };
   cargo-upgrade = pkgs.writeShellApplication {
     name = "cargo-upgrade";

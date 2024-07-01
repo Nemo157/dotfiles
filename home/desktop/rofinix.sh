@@ -65,8 +65,6 @@ else
           args=(
               --class rofinix-build
               --title "nix build pkgs#$pkg"
-              --option "window.dimensions.columns = 200"
-              --option "window.dimensions.lines = 40"
               --command
                 bash -c '"'"'
                   nix build --no-link --verbose "pkgs#$1" || sleep 60

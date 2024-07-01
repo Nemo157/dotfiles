@@ -42,12 +42,12 @@ watch() {
 
 while true
 do
-    if query
-    then
-        watch
-    else
-        echo light
-    fi
+  if query
+  then
+    watch
+  else
+    echo light
+  fi
 
-    sleep 1
+  sleep 1
 done
