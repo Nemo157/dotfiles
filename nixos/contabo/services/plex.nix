@@ -4,4 +4,6 @@
   services.plex = {
     enable = true;
   };
+
+  users.users.plex.extraGroups = [ "syncthing" ];
 }
