@@ -82,7 +82,7 @@ in {
       fileviewer *.[1-8] man ./%c | col -b
 
       fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
-               \ identify %f
+               \ convert %c -scale "$((%pw*8))x$((%ph*14))>" six:- %pd
 
       fileviewer *.class jd-cli --logLevel OFF --outputConsole
 
