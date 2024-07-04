@@ -69,10 +69,10 @@ in {
       fileviewer *.mp3 mp3info
       fileviewer *.flac soxi
 
-      fileviewer *.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
-                \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4v,*.r[am],*.qt,*.divx,
-                \*.as[fx]
-               \ ffprobe -pretty %c 2>&1
+      fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac
+                \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4[av],*.r[am],*.qt,*.divx,
+                \*.as[fx],*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
+               \ ffprobe -hide_banner -pretty %c 2>&1
 
       filetype *.html,*.htm links2, lynx
 
