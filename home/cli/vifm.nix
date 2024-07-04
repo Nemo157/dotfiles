@@ -167,6 +167,10 @@ in {
       filetype */ dust -n %ph %f | less -R
 
       set viewcolumns=-{name}..,9{ext},7{}.
+
+      " allow c-p/c-n in normal mode to cycle the view pane through different file viewers
+      nnoremap <silent> <c-p> <c-w><c-w>A<c-w><c-w>
+      nnoremap <silent> <c-n> <c-w><c-w>a<c-w><c-w>
     '';
 
     "vifm/colors/eink.vifm".text = ''
