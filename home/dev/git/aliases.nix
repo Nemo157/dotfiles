@@ -26,5 +26,6 @@
     flo = "!git forest --all --reverse --pretty=format:\"%C(yellow)%h %C(blue)(%ar) %C(reset)%s\" --color --style=2";
     s = "show --show-signature";
     pushf = "push --force-with-lease --force-if-includes";
+    jj = ''!bash -c 'git --git-dir="$(jj root)/.jj/repo/store/git/" "$@"' -'';
   };
 }
