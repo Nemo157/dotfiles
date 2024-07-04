@@ -69,6 +69,15 @@ do
     "j" )
       selected=$(( selected == count - 1 ? selected : selected + 1 ))
       ;;
+    "e" )
+      echo -ne '\e[?1049l\e[?25h'
+      IFS=$'\x1f' read -r url name <<< "${options[$selected]}"
+      if url="$(vipe 2>/dev/null <<< "$url")"
+      then
+        options["$selected"]="$(printf '%s\x1f%s\n' "$url" "$name")"
+      fi
+      echo -ne '\e[?25l\e[?1049h'
+      ;;
     "" )
       IFS=$'\x1f' read -r url name <<< "${options[$selected]}"
       xdg-open "$url"
