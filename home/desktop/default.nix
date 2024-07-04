@@ -12,6 +12,7 @@
     ./portal.nix
     ./rofi.nix
     ./wallpaper
+    ./wezterm.nix
   ];
 
   home.packages = with pkgs; [
