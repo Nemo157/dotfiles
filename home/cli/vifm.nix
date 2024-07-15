@@ -1,6 +1,24 @@
 { pkgs, ... }:
 let
   getExe = pkgs.lib.getExe;
+  vifm-sixel-viewer = pkgs.writeShellApplication {
+    name = "vifm-sixel-viewer";
+    runtimeInputs = with pkgs; [ imagemagick ];
+    text = ''
+        file="$1"
+        cols="$2"
+        rows="$3"
+
+        # IFS=';' read -rs -d t -p $'\e[16t' _ h w
+        # (( height = h * rows ))
+        # (( width = w * cols ))
+
+        (( height = 19 * rows ))
+        (( width = 9 * cols ))
+
+        exec convert "$file" -scale "''${width}x$height>" six:-
+    '';
+  };
 in {
   home.packages = with pkgs; [
     vifm
@@ -34,6 +52,7 @@ in {
     unzip
     xz
     zip
+    vifm-sixel-viewer
   ];
 
   xdg.configFile = {
@@ -69,6 +88,9 @@ in {
       fileviewer *.mp3 mp3info
       fileviewer *.flac soxi
 
+      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
+               \ vifm-sixel-viewer %c %pw %ph %pd
+
       fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac
                 \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4[av],*.r[am],*.qt,*.divx,
                 \*.as[fx],*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
@@ -80,9 +102,6 @@ in {
 
       filetype *.[1-8] man ./%c
       fileviewer *.[1-8] man ./%c | col -b
-
-      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
-               \ convert %c -scale "$((%pw*8))x$((%ph*14))>" six:- %pd
 
       fileviewer *.class jd-cli --logLevel OFF --outputConsole
 
