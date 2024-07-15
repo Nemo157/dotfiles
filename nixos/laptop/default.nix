@@ -1,4 +1,4 @@
-{
+{ lib, config, ... }: {
   imports = [
     ./battery-events.nix
   ];
@@ -33,5 +33,13 @@
       [static-source]
       enable = true
     '';
+  };
+
+  age.secrets."wpa_supplicant.conf" = lib.mkIf config.networking.wireless.enable {
+    file = ./wpa_supplicant.conf.age;
+    path = "/etc/wpa_supplicant.conf";
+    mode = "0400";
+    owner = "root";
+    group = "root";
   };
 }

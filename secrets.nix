@@ -11,7 +11,7 @@ in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
   "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc wim-oak ];
   "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc wim-oak ];
-  "nixos/wlan-psk.age".publicKeys = [ nemo157-zinc zinc oak ];
+  "nixos/laptop/wpa_supplicant.conf.age".publicKeys = [ nemo157-zinc wim-oak zinc oak ];
   "nixos/common/services/grafana/admin-password.age".publicKeys = [ wim-oak nemo157-mithril oak mithril ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
