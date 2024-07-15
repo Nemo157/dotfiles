@@ -15,8 +15,8 @@
           blue magenta cyan base2
         ];
         brights = [
-          base03 red green yellow
-          blue magenta cyan base3
+          base03 orange base1 base0
+          base00 violet base01 base3
         ];
 
         cursor_bg = foreground;
@@ -81,8 +81,8 @@
       }
 
       config.window_padding = {
-          left = 0,
-          right = 0,
+          left = 2,
+          right = 2,
           bottom = 0,
           top = 0,
       }
