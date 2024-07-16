@@ -28,7 +28,7 @@ in {
       # Based on https://evertpot.com/osx-tmux-vim-copy-paste-clipboard/
 
       unbind-key -T copy-mode-vi Enter
-      bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'wl-copy -t text'
+      bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'wl-copy'
       bind-key -T copy-mode-vi v send-keys -X begin-selection
 
       bind-key ] run 'wl-paste -t text | tmux load-buffer - && tmux paste-buffer'
