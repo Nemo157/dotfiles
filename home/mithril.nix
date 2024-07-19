@@ -69,6 +69,8 @@
     text = ''
         hyprctl output create headless
         hyprctl keyword monitor HEADLESS-2,2560x1600@60,0x0,1
+        hyprctl keyword monitor Unknown-1,1024x768,0x0,1
+        hyprctl keyword monitor HDMI-A-1,1920x1080,0x0,1
         hyprctl keyword monitor Unknown-1,disable
         hyprctl keyword monitor HDMI-A-1,disable
         eww close-all
