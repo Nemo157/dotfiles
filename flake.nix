@@ -22,7 +22,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-hardware.url = "github:nixos/nixos-hardware";
+    nixos-hardware.url = "github:nixos/nixos-hardware/e1c4bac14beb8c409d0534382cf967171706b9d9";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
 

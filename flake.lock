@@ -147,6 +147,7 @@
       "original": {
         "owner": "nixos",
         "repo": "nixos-hardware",
+        "rev": "e1c4bac14beb8c409d0534382cf967171706b9d9",
         "type": "github"
       }
     },
