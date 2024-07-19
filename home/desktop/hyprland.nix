@@ -70,10 +70,7 @@ in {
         col.active_border = ${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg
         col.inactive_border = ${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg
         layout = dwindle
-      }
-
-      cursor {
-        no_warps = true
+        no_cursor_warps = true
       }
 
       decoration {

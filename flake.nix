@@ -28,6 +28,8 @@
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs";
 
+    nixpkgs-hyprland.url = "github:nixos/nixpkgs/3e2aca0b97ed1c88fa784a368270b4cd223efe1d";
+
     nixur.url = "github:nix-community/NUR";
 
     rust-overlay = {
@@ -62,6 +64,7 @@
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
+    nixpkgs-hyprland,
     nixur,
     rust-overlay,
     u2f-touch-detector,
@@ -70,6 +73,11 @@
     system = "x86_64-linux";
 
     pkgs-unstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    pkgs-hyprland = import nixpkgs-hyprland {
       inherit system;
       config.allowUnfree = true;
     };
@@ -239,7 +247,7 @@
       };
     };
 
-    overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
+    overlays.default = import ./overlays { inherit pkgs-unstable pkgs-hyprland maintainers; };
 
     packages.${system} = import ./packages { inherit pkgs; };
     legacyPackages.${system} = pkgs;

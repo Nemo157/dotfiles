@@ -1,4 +1,4 @@
-{ pkgs-unstable, maintainers }: final: prev: let
+{ pkgs-unstable, pkgs-hyprland, maintainers }: final: prev: let
   args = {
     inherit pkgs-unstable;
     # nix flake check doesn't like me renaming the function arguments,
@@ -11,8 +11,9 @@
   callOverlay = path: (import path) args;
 in {
   inherit (pkgs-unstable)
-    tmux cargo-deny hyprland xdg-desktop-portal-hyprland swww obsidian hyprlock
+    tmux cargo-deny swww obsidian
     atuin;
+  inherit (pkgs-hyprland) hyprland;
 
   darkman = callOverlay ./darkman.nix;
 
