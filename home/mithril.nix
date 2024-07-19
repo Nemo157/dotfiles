@@ -36,54 +36,24 @@
   };
 
   xdg.configFile = {
-    "wireplumber/main.lua.d/51-alsa-config.lua".text = ''
-      table.insert(alsa_monitor.rules, {
-        matches = {
-          {
-            { "device.nick", "is-present" },
-            { "device.nick", "not-equals", "Samson GoMic" },
-          },
-        },
-        apply_properties = {
-          -- disable all alsa devices except mic
-          ["device.disabled"] = true,
-        },
-      })
+    "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
+      wireplumber.settings = {
+        bluetooth.autoswitch-to-headset-profile = false
+      }
 
-      -- table.insert(alsa_monitor.rules, {
-      --   matches = {
-      --     {
-      --       { "node.nick", "equals", "Samson GoMic" },
-      --       { "media.class", "equals", "Audio/Sink" },
-      --     },
-      --   },
-      --   apply_properties = {
-      --     -- disable output on mic
-      --     ["node.disabled"] = true,
-      --   },
-      -- })
+      monitor.alsa.rules = [
+        # disable all alsa devices except mic
+        # disable output on mic
+        {
+          matches = [
+            { device.nick = "!Samson GoMic" }
+            { node.nick = "Samson GoMic", media.class = "Audio/Sink" }
+          ]
+          actions = { update-props = { device.disabled = true } }
+        }
+      ]
     '';
 
-    "wireplumber/bluetooth.lua.d/51-bluez-config.lua".text = ''
-      table.insert(bluez_monitor.rules, {
-        matches = {
-          { { "device.description", "equals", "WH-1000XM3" } },
-        },
-        apply_properties = {
-          -- only use as an output
-          ["bluez5.auto-connect"] = "[ a2dp_sink ]",
-        },
-      })
-      table.insert(bluez_monitor.rules, {
-        matches = {
-          { { "node.description", "equals", "WH-1000XM3" } },
-        },
-        apply_properties = {
-          -- ensure bluetooth headset is picked as default
-          ["priority.session"] = 1200,
-        },
-      })
-    '';
     "pipewire/pipewire.conf.d/92-low-latency.conf".text = ''
       context.properties = {
         default.clock.rate = 48000
