@@ -57,6 +57,13 @@
         reverse_proxy /_matrix/* localhost:8010
       }
 
+      music.nemo157.com {
+        log
+        bind 173.249.29.28
+        encode gzip zstd
+        reverse_proxy localhost:4533
+      }
+
       ${name}.${ts.domain} {
         log
         bind ${ts.ips.${name}}
@@ -71,6 +78,13 @@
         reverse_proxy /_matrix/* localhost:8008
         reverse_proxy /_synapse/client/* localhost:8008
         reverse_proxy /_synapse/admin/* localhost:8008
+      }
+
+      http://${name}.${ts.domain}:4533 {
+        log
+        bind ${ts.ips.${name}}
+        encode gzip zstd
+        reverse_proxy localhost:4533
       }
     '';
     email = "0.contabo.letsencrypt@nemo157.com";
