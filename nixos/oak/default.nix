@@ -43,6 +43,7 @@
       driSupport = true;
       driSupport32Bit = true;
     };
+    bluetooth.enable = true;
   };
 
   boot.kernelParams = [ "i915.force_probe=7d55" ];
