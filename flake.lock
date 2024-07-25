@@ -278,15 +278,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1721392129,
-        "narHash": "sha256-opoHAarz5caeKQUh0EC7kJUgvttPYad1jfsoxMWu5rU=",
+        "lastModified": 1721395038,
+        "narHash": "sha256-XLTjglWxukGgvH2O5x5Mu7E+024E91K484hiETZB8m4=",
         "owner": "Nemo157",
         "repo": "u2f-touch-detector",
-        "rev": "6ba7fee550f2f9259fdaf3aeb468ec8adf30caf7",
+        "rev": "aaeaac0a6de53cb3e8aa443a8496efe8dfc6f74c",
         "type": "github"
       },
       "original": {
         "owner": "Nemo157",
+        "ref": "monitor",
         "repo": "u2f-touch-detector",
         "type": "github"
       }

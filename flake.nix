@@ -38,7 +38,7 @@
     };
 
     u2f-touch-detector = {
-      url = "github:Nemo157/u2f-touch-detector";
+      url = "github:Nemo157/u2f-touch-detector/monitor";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
       inputs.home-manager.follows = "home-manager";
