@@ -76,7 +76,8 @@ in {
       set fillchars=vert:¦,diff:⸳
       set incsearch
       set laststatus=2
-      set list listchars=precedes:<,extends:>,tab:»\ ,trail:\ 
+      set list
+      set listchars=tab:»\ ,trail:·,precedes:<,extends:>
       set modelines=10
       set nofixendofline
       set nofoldenable
@@ -150,7 +151,7 @@ in {
 
       let g:EasyMotion_keys = 'uhetonaspg.c,r'
 
-      let g:EditorConfig_max_line_indicator = "fill"
+      let g:EditorConfig_max_line_indicator = "line"
 
       au FileType mkd\|markdown\|rst\|tex\|plaintex setlocal textwidth=80
       au FileType java\|glsl\|xml\|ps1\|vhdl\|mason setlocal tabstop=4 shiftwidth=4 noexpandtab
