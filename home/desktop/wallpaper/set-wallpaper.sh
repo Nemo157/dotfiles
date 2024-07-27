@@ -255,6 +255,7 @@ then
   if [ "$border" -gt 512 ]; then args+=( \( +clone -resize 25% ); fi
   if [ "$border" -gt 512 ]; then args+=( \( +clone -channel RGBA -blur 0x8 \) ); fi
   if [ "$border" -gt 1024 ]; then args+=( \( +clone -channel RGBA -blur 0x16 \) ); fi
+  if [ "$border" -gt 2048 ]; then args+=( \( +clone -channel RGBA -blur 0x32 \) ); fi
   if [ "$border" -gt 512 ]; then args+=( -delete 0 -reverse -flatten -resize 400% \) ); fi
   if [ "$border" -gt 32 ]; then args+=( -delete 0 -reverse -flatten -resize 400% -blur 0x1 \) ); fi
 
