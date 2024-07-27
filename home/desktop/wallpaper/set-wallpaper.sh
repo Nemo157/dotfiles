@@ -184,10 +184,14 @@ else
 
   case $option
   in
-    quad-*) horizborder=$(( monwidth - imgwidth * 4 )) ;;
-    triple-*) horizborder=$(( monwidth - imgwidth * 3 )) ;;
-    double-*) horizborder=$(( monwidth - imgwidth * 2 )) ;;
-    single-*) horizborder=$(( monwidth - imgwidth )) ;;
+    quad-*-split) horizborder=$(( (monwidth - imgwidth * 4) / 5 )) ;;
+    quad-*-edges) horizborder=$(( (monwidth - imgwidth * 4) / 3 )) ;;
+    triple-*-split) horizborder=$(( (monwidth - imgwidth * 3) / 4 )) ;;
+    triple-*-edges) horizborder=$(( (monwidth - imgwidth * 3) / 2 )) ;;
+    double-*-split) horizborder=$(( (monwidth - imgwidth * 2) / 3 )) ;;
+    double-*-edges) horizborder=$(( monwidth - imgwidth * 2 )) ;;
+    single-west|single-east) horizborder=$(( monwidth - imgwidth )) ;;
+    single-center) horizborder=$(( (monwidth - imgwidth) / 2 )) ;;
   esac
 
   tmp=()
@@ -204,11 +208,11 @@ else
 
   case $option
   in
-    quad-*-split) tmp+=( +smush "$(( horizborder / 5 ))" +smush "$(( horizborder / 5 ))" +smush "$(( horizborder / 5 ))") ;;
-    quad-*-edges) tmp+=( +smush "$(( horizborder / 3 ))" +smush "$(( horizborder / 3 ))" +smush "$(( horizborder / 3 ))") ;;
-    triple-*-split) tmp+=( +smush "$(( horizborder / 4 ))" +smush "$(( horizborder / 4 ))" ) ;;
-    triple-*-edges) tmp+=( +smush "$(( horizborder / 2 ))" +smush "$(( horizborder / 2 ))" ) ;;
-    double-*-split) tmp+=( +smush "$(( horizborder / 3 ))" ) ;;
+    quad-*-split) tmp+=( +smush "$(( horizborder ))" +smush "$(( horizborder ))" +smush "$(( horizborder ))") ;;
+    quad-*-edges) tmp+=( +smush "$(( horizborder ))" +smush "$(( horizborder ))" +smush "$(( horizborder ))") ;;
+    triple-*-split) tmp+=( +smush "$(( horizborder ))" +smush "$(( horizborder ))" ) ;;
+    triple-*-edges) tmp+=( +smush "$(( horizborder ))" +smush "$(( horizborder ))" ) ;;
+    double-*-split) tmp+=( +smush "$(( horizborder ))" ) ;;
     double-*-edges) tmp+=( +smush "$(( horizborder ))" ) ;;
   esac
 
