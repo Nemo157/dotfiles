@@ -5,6 +5,7 @@
       http = {
         bind-address = "${ts.ips.${name}}:8086";
       };
+      reporting-disabled = true;
     };
   };
 
