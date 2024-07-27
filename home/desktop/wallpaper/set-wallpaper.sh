@@ -10,6 +10,24 @@ run() {
 monitor="$1"
 wallpaper="$2"
 
+# Percentage chances to activate features
+declare -A chances
+chances=(
+  [flop]=${FLOP_CHANCE:-50}
+  [grayscale]=${GRAYSCALE_CHANCE:-25}
+  [filter]=${FILTER_CHANCE:-25}
+  [paint]=${PAINT_CHANCE:-50}
+)
+
+chance() {
+  [ $(( RANDOM % 100 )) -lt "${chances[$1]}" ]
+}
+
+choose() {
+  args=("$@")
+  echo "${args[$RANDOM % ${#args[@]}]}"
+}
+
 read -r monwidth monheight monleft montop monright monbottom < <(
   hyprctl monitors -j | jq --arg monitor "$monitor" -r '.[] | select(.name == $monitor) | [.width, .height, .reserved[]] | join(" ")'
 )
@@ -58,12 +76,12 @@ size="${monwidth}x$monheight"
 
 args=("$wallpaper" -background none)
 
-if [ $RANDOM -gt 16384 ]
+if chance flop
 then
   args+=(-flop)
 fi
 
-if [ $RANDOM -gt 28672 ]
+if chance grayscale
 then
   args+=(-type grayscale)
 fi
@@ -242,9 +260,9 @@ then
   )
 fi
 
-if [ $RANDOM -gt 28672 ]
+if chance filter
 then
-  if [ $RANDOM -gt 16384 ]
+  if chance paint
   then
     filters=(
       "-paint 6"
@@ -253,7 +271,7 @@ then
       "-spread 20 -noise 3"
     )
     # shellcheck disable=SC2206
-    args+=(${filters[$RANDOM % ${#filters[@]}]})
+    args+=(choose "${filters[@]}")
   else
    dithers=(
      checks
@@ -275,7 +293,7 @@ then
      c7x7b
      c7x7w
    )
-   args+=(-ordered-dither "${dithers[$RANDOM % ${#dithers[@]}]}")
+   args+=(-ordered-dither "$(choose "${dithers[@]}")")
   fi
 fi
 
@@ -303,4 +321,4 @@ fi
 
 # Run the pipeline and send it to swww
 
-run convert "${args[@]}" - | show -
+run magick "${args[@]}" - | show -
