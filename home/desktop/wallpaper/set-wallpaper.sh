@@ -86,11 +86,17 @@ then
   args+=(-type grayscale)
 fi
 
-if [ "$imgheight" -ge "$monheight" ] || [ "$imgwidth" -ge "$monwidth" ]
+# Permille monitor size of image to upscale instead of surrounding by a border
+min_upscale=${MIN_UPSCALE:-800}
+
+minheight=$(( monheight * min_upscale / 1000 ))
+minwidth=$(( monwidth * min_upscale / 1000 ))
+if [ "$imgheight" -ge "$minheight" ] || [ "$imgwidth" -ge "$minwidth" ]
 then
   if [ "$e" -lt 200 ]
   then
-    # close enough, shrink to cover, cutting off a little of the image
+    # close enough, size to cover, cutting off a little of the image
+    echo "cut to fit"
     args+=(-resize "$size^")
     imgheight="$monheight"
     imgwidth="$monwidth"
