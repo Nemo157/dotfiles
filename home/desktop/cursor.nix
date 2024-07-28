@@ -1,7 +1,7 @@
 { config, pkgs, ... }: {
   home.pointerCursor = {
     package = pkgs.catppuccin-cursors.latteRosewater;
-    name = "Catppuccin-Latte-Rosewater-Cursors";
+    name = "catppuccin-latte-rosewater-cursors";
     gtk.enable = true;
     x11.enable = true;
   };
