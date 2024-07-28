@@ -163,8 +163,8 @@ in {
       windowrulev2 = opaque,title:Picture in picture
       windowrulev2 = float,title:Picture in picture
       windowrulev2 = pin,title:Picture in picture
-      windowrulev2 = size 576 324,title:Picture in picture
-      windowrulev2 = move 100%-577 100%-325,title:Picture in picture
+      windowrulev2 = size 30% 30%,title:Picture in picture
+      windowrulev2 = move 70% 70%,title:Picture in picture
 
       windowrulev2 = tile,class:^RimWorldLinux
       windowrulev2 = tile,class:^Minecraft
