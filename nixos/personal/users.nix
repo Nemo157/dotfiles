@@ -32,6 +32,7 @@ in {
         "wheel"
         "wireshark"
         "kvm"
+        "i2c"
       ];
 
       shell = pkgs.zsh;

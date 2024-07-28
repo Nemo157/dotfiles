@@ -1,6 +1,7 @@
 {
   imports = [
     ./autologin.nix
+    ./monitors.nix
     ./services
   ];
 
