@@ -32,6 +32,9 @@
       env = GBM_BACKEND,nvidia-drm
       env = __GLX_VENDOR_LIBRARY_NAME,nvidia
       env = WLR_NO_HARDWARE_CURSORS,1
+
+      # No idea why this monitor appears, but disable it :shrug:
+      monitor = Unknown-1, disable
     '';
   };
 
@@ -69,9 +72,7 @@
     text = ''
         hyprctl output create headless
         hyprctl keyword monitor HEADLESS-2,2560x1600@60,0x0,1
-        hyprctl keyword monitor Unknown-1,1024x768,0x0,1
         hyprctl keyword monitor HDMI-A-1,1920x1080,0x0,1
-        hyprctl keyword monitor Unknown-1,disable
         hyprctl keyword monitor HDMI-A-1,disable
         eww close-all
         eww open taskbar
