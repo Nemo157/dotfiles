@@ -35,7 +35,7 @@
   };
 
   scripts.eww-auto-open-taskbars = {
-    runtimeInputs = with pkgs; [ eww hyprland socat jq ];
+    runtimeInputs = with pkgs; [ eww hyprland socat jq ripgrep ];
     source = ./eww-auto-open-taskbars.sh;
   };
 }
