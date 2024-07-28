@@ -186,7 +186,7 @@
 
 (defwidget tray []
   (v-box :class "tray"
-    (systray :pack-direction "ltr" :halign "center")
+    (systray :halign "center")
   )
 )
 
@@ -211,7 +211,7 @@
 (defwidget data-pie [?class used total icon]
   (pie :class {class} :icon {icon}
     :value {used * 100 / total}
-    :tooltip "${round(used / GiB, 1)} / ${round(total / GiB, 1)} GiB" 
+    :tooltip "${round(used / GiB, 1)} / ${round(total / GiB, 1)} GiB"
   )
 )
 
@@ -272,6 +272,6 @@
 )
 
 (defwindow taskbar [screen]
-  :exclusive true 
+  :exclusive true
   :geometry (geometry :height "100%" :anchor "center left")
   (taskbar :screen screen))
