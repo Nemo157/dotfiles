@@ -16,7 +16,7 @@ let
         (( height = 19 * rows ))
         (( width = 9 * cols ))
 
-        exec convert "$file" -scale "''${width}x$height>" six:-
+        exec magick "$file" -scale "''${width}x$height>" six:-
     '';
   };
 in {
@@ -88,7 +88,7 @@ in {
       fileviewer *.mp3 mp3info
       fileviewer *.flac soxi
 
-      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
+      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg
                \ vifm-sixel-viewer %c %pw %ph %pd
 
       fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac
@@ -131,12 +131,12 @@ in {
              \ !!gnupg --verify %c,
 
       " FuseZipMount
-      filetype *.zip,*.jar,*.war,*.ear,*.oxt,*.apkg
+      filetype *.zip,*.jar,*.war,*.ear,*.oxt,*.apkg,*.hlc
              \ {Mount with archivemount}
              \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
              \ {Extract here}
              \ unzip %c,
-      fileviewer *.zip,*.jar,*.war,*.ear,*.oxt zip -sf %c
+      fileviewer *.zip,*.jar,*.war,*.ear,*.oxt,*.apkg,*.hlc zip -sf %c
 
       " ArchiveMount
       filetype *.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz
