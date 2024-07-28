@@ -13,7 +13,7 @@ in {
   inherit (pkgs-unstable)
     tmux cargo-deny swww obsidian
     atuin;
-  inherit (pkgs-hyprland) hyprland;
+  inherit (pkgs-hyprland) hyprland hyprcursor hyprlock;
 
   darkman = callOverlay ./darkman.nix;
 
