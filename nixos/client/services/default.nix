@@ -4,4 +4,8 @@
     ./devmon.nix
     ./pipewire.nix
   ];
+
+  services = {
+    ddccontrol.enable = true;
+  };
 }
