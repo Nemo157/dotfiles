@@ -73,6 +73,11 @@ in {
         no_cursor_warps = true
       }
 
+      misc {
+        mouse_move_enables_dpms = true
+        key_press_enables_dpms = true
+      }
+
       decoration {
         active_opacity = 0.95
         inactive_opacity = 0.8
@@ -110,8 +115,14 @@ in {
       bind = $mod, COMMA, killactive,
       bind = $mod SHIFT CTRL, D, exit,
       bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
-      bind = $mod, BACKSLASH, exec, ${lib.getExe pkgs.hyprlock}
-      bind = SUPER, L, exec, ${lib.getExe pkgs.hyprlock}
+
+      bind = SUPER, L, exec, hyprlock
+      bind = SUPER, L, exec, sleep 1 && hyprctl dispatch dpms off
+      bind = $mod, BACKSLASH, exec, hyprlock
+      bind = $mod SHIFT, BACKSLASH, exec, hyprlock
+      bind = $mod SHIFT, BACKSLASH, exec, sleep 1 && hyprctl dispatch dpms off
+      bind = $mod CTRL, BACKSLASH, exec, hyprlock
+      bind = $mod CTRL, BACKSLASH, exec, systemctl suspend
 
       bind = $mod, Y, fullscreen, 1
       bind = $mod CTRL, Y, togglefloating,
