@@ -1,9 +1,3 @@
-capture() {
-  start="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},-#{scroll_position},0}')"
-  end="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},#{e|-:#{pane_height},#{scroll_position}},#{pane_height}}')"
-  tmux capture-pane -Jpe -S "$start" -E "$end"
-}
-
 filter_bare() {
   rg --only-matching 'https?://[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
 }
@@ -13,13 +7,16 @@ filter_osc8() {
   rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\(.*?)\x1b\]8;;\x1b\\' --replace $'$1\x1f$2'
 }
 
-filter() {
-  text="$(cat)"
-  filter_bare <<<"$text"
-  filter_osc8 <<<"$text"
+capture_urls() {
+  start="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},-#{scroll_position},0}')"
+  end="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},#{e|-:#{pane_height},#{scroll_position}},#{pane_height}}')"
+  (
+    tmux capture-pane -Jp -S "$start" -E "$end" | filter_bare
+    tmux capture-pane -Jpe -S "$start" -E "$end" | filter_osc8
+  ) | sort -u
 }
 
-readarray -t urls < <(capture | filter | sort -u)
+readarray -t urls < <(capture_urls)
 
 if ! [[ -v urls ]]
 then
