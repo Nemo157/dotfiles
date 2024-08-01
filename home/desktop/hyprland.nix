@@ -26,7 +26,7 @@ in {
     '';
   };
 
-  home.packages = with pkgs; [ hyprlock xwayland ];
+  home.packages = with pkgs; [ hyprlock hypridle xwayland libnotify ];
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -37,6 +37,7 @@ in {
       env = NIXOS_OZONE_WL,1
 
       exec-once = systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE
+      exec-once = hypridle
 
       monitor = , highres, auto, 1
       monitor = desc:Samsung Electric Company U32J59x H4LRC00573, highres, auto-up, 1
@@ -116,12 +117,11 @@ in {
       bind = $mod SHIFT CTRL, D, exit,
       bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
 
-      bind = SUPER, L, exec, hyprlock
+      bind = SUPER, L, exec, loginctl lock-session
       bind = SUPER, L, exec, sleep 1 && hyprctl dispatch dpms off
-      bind = $mod, BACKSLASH, exec, hyprlock
-      bind = $mod SHIFT, BACKSLASH, exec, hyprlock
+      bind = $mod, BACKSLASH, exec, loginctl lock-session
+      bind = $mod SHIFT, BACKSLASH, exec, loginctl lock-session
       bind = $mod SHIFT, BACKSLASH, exec, sleep 1 && hyprctl dispatch dpms off
-      bind = $mod CTRL, BACKSLASH, exec, hyprlock
       bind = $mod CTRL, BACKSLASH, exec, systemctl suspend
 
       bind = $mod, Y, fullscreen, 1
@@ -205,6 +205,8 @@ in {
       windowrulev2 = center,class:rofinix-build
       windowrulev2 = stayfocused,class:rofinix-build
       windowrulev2 = dimaround,class:rofinix-build
+
+      layerrule = dimaround, rofi
     '';
   };
 
@@ -265,7 +267,36 @@ in {
       halign = center
       valign = bottom
     }
+  '';
 
+  xdg.configFile."hypr/hypridle.conf".text = ''
+    general {
+        lock_cmd = pidof hyprlock || hyprlock
+        before_sleep_cmd = loginctl lock-session
+        after_sleep_cmd = hyprctl dispatch dpms on
+    }
+
+    listener {
+        timeout = 270
+        on-timeout = rofi -e 'locking in 30s' -theme-str 'textbox { horizontal-align: 0.5; }'
+        on-resume = pkill -e -s0 rofi
+    }
+
+    listener {
+        timeout = 300
+        on-timeout = loginctl lock-session
+    }
+
+    listener {
+        timeout = 330
+        on-timeout = hyprctl dispatch dpms off
+        on-resume = hyprctl dispatch dpms on
+    }
+
+    listener {
+        timeout = 1800
+        on-timeout = systemctl suspend
+    }
   '';
 
   xdg.dataFile."light-mode.d/hyprland-light.sh" = {
