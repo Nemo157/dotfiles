@@ -11,6 +11,10 @@ let
     text = lib.readFile ./change-wallpapers.sh;
   };
 in {
+  home.packages = [
+    set-wallpaper
+  ];
+
   systemd.user = {
     timers = {
       swww-change-wallpaper = {
