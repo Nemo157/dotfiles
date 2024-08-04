@@ -7,6 +7,7 @@ let
   pidof = lib.getExe' pkgs.procps "pidof";
   pkill = lib.getExe' pkgs.procps "pkill";
   rofi = lib.getExe pkgs.rofi;
+  wljoywake = lib.getExe pkgs.wljoywake;
 
   loginctl = lib.getExe' pkgs.systemd "loginctl";
   systemctl = lib.getExe' pkgs.systemd "systemctl";
@@ -49,6 +50,21 @@ in {
 
     "systemd/user/graphical-session.target.wants/hypridle.service" = {
       source = "${pkgs.hypridle}/share/systemd/user/hypridle.service";
+    };
+  };
+
+  systemd.user.services = {
+    wljoywake = {
+      Unit = {
+        After = "graphical-session.target";
+        PartOf = "graphical-session.target";
+      };
+      Service = {
+        ExecStart = "${wljoywake}";
+      };
+      Install = {
+        WantedBy = [ "graphical-session.target" ];
+      };
     };
   };
 }
