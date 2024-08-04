@@ -8,11 +8,12 @@ open-taskbars() {
       echo "taskbar already open for '$model'" >&2
     else
       echo "opening taskbar for '$model'" >&2
-      while ! eww open taskbar --id "$model" --screen "$model"
+      while ! eww open taskbar --id "$model" --screen "$model" >&2
       do
         echo "opening failed, retrying in 1 sec" >&2
         sleep 1
       done
+      systemctl --user start --no-block swww-change-wallpaper
     fi
   done
 }
@@ -34,7 +35,6 @@ do
     then
       echo "monitor added event detected" >&2
       open-taskbars
-      systemctl --user start --no-block swww-change-wallpaper
     fi
   done
 done
