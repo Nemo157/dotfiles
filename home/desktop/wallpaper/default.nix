@@ -70,6 +70,7 @@ in {
         Unit = {
           After = "graphical-session.target";
           PartOf = "graphical-session.target";
+          Wants = "swww-change-wallpaper.service";
         };
         Service = {
           ExecStart = "${lib.getExe' pkgs.swww "swww-daemon"} --no-cache";
