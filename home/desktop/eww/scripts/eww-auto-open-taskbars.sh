@@ -17,6 +17,12 @@ open-taskbars() {
   done
 }
 
+while ! eww ping >/dev/null
+do
+  echo "eww not available, retrying in 1 sec" >&2
+  sleep 1
+done
+
 open-taskbars
 
 while true
