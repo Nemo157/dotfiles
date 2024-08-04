@@ -20,7 +20,7 @@
     colmena
     comma
     fd
-    htop
+    htop-vim
     jq
     moreutils
     nix-index
