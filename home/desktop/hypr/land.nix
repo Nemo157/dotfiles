@@ -1,18 +1,6 @@
 { lib, config, pkgs, ... }:
 let
-  sol-base = import ../sol.nix;
-  sol = sol-base // {
-    rgb = builtins.mapAttrs (name: value: "rgb(${value})") sol-base.nohash;
-  };
-  hyprlock-date-time = pkgs.writeShellScript "hyprlock-date-time" ''
-    date +'%Y<span color="${sol.hash.base02}">-</span>%m<span color="${sol.hash.base02}">-</span>%d'
-    if (( $(date +'%S') % 2 ))
-    then
-      date +'%H<span color="${sol.hash.base02}">:</span>%M<span color="${sol.hash.base02}">%z</span>'
-    else
-      date +'%H %M<span color="${sol.hash.base02}">%z</span>'
-    fi | tr -d $'\n'
-  '';
+  sol = import ../../sol.nix;
 in {
   scripts.wl-screenshot = {
     runtimeInputs = [ pkgs.grim pkgs.slurp pkgs.wl-clipboard pkgs.swayimg ];
@@ -26,7 +14,7 @@ in {
     '';
   };
 
-  home.packages = with pkgs; [ hyprlock hypridle xwayland libnotify ];
+  home.packages = with pkgs; [ xwayland ];
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -210,95 +198,6 @@ in {
       layerrule = dimaround, rofi
     '';
   };
-
-  xdg.configFile."hypr/hyprlock.conf".text = ''
-    general {
-      ignore_empty_input = true
-    }
-
-    background {
-      monitor =
-      color = ${sol.rgb.base03}
-    }
-
-    input-field {
-      monitor =
-      size = 1600, 80
-      outline_thickness = 0
-      dots_size = 1.0
-      dots_spacing = 0.0
-      dots_center = true
-      dots_rounding = 0
-      inner_color = ${sol.rgb.base02}
-      font_color = ${sol.rgb.base01}
-      fade_on_empty = false
-      placeholder_text =
-      hide_input = false
-      rounding = 0
-      check_color = ${sol.rgb.base03}
-      fail_color = ${sol.rgb.red}
-      fail_text = ☠️
-      fail_transition = 300
-      swap_font_color = true
-
-      halign = center
-      valign = center
-    }
-
-    label {
-      monitor =
-      text = cmd[update:1000] ${hyprlock-date-time}
-      text_align = left
-      color = ${sol.rgb.base01}
-      font_family = FiraCode Nerd Font
-      font_size = 25
-
-      halign = left
-      valign = bottom
-    }
-
-    label {
-      monitor =
-      text = $LAYOUT
-      text_align = right
-      color = ${sol.rgb.base02}
-      font_family = FiraCode Nerd Font
-      font_size = 25
-
-      halign = center
-      valign = bottom
-    }
-  '';
-
-  xdg.configFile."hypr/hypridle.conf".text = ''
-    general {
-        lock_cmd = pidof hyprlock || hyprlock
-        before_sleep_cmd = loginctl lock-session
-        after_sleep_cmd = hyprctl dispatch dpms on
-    }
-
-    listener {
-        timeout = 270
-        on-timeout = rofi -e 'locking in 30s' -theme-str 'textbox { horizontal-align: 0.5; }'
-        on-resume = pkill -e -s0 rofi
-    }
-
-    listener {
-        timeout = 300
-        on-timeout = loginctl lock-session
-    }
-
-    listener {
-        timeout = 330
-        on-timeout = hyprctl dispatch dpms off
-        on-resume = hyprctl dispatch dpms on
-    }
-
-    listener {
-        timeout = 1800
-        on-timeout = systemctl suspend
-    }
-  '';
 
   xdg.dataFile."light-mode.d/hyprland-light.sh" = {
     source = pkgs.writeShellScript "hyprland-light.sh" ''

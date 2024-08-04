@@ -1,4 +1,4 @@
-let 
+let
   nohash = {
     base03 = "002b36";
     base02 = "073642";
@@ -18,4 +18,5 @@ let
     green = "859900";
   };
   hash = builtins.mapAttrs (name: value: "#${value}") nohash;
-in hash // { inherit hash nohash; }
+  rgb = builtins.mapAttrs (name: value: "rgb(${value})") nohash;
+in hash // { inherit hash nohash rgb; }

@@ -6,7 +6,7 @@
     ./eww
     ./firefox.nix
     ./fonts.nix
-    ./hyprland.nix
+    ./hypr
     ./mako.nix
     ./mpv.nix
     ./portal.nix
