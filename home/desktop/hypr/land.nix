@@ -25,7 +25,6 @@ in {
       env = NIXOS_OZONE_WL,1
 
       exec-once = systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE
-      exec-once = hypridle
 
       monitor = , highres, auto, 1
       monitor = desc:Samsung Electric Company U32J59x H4LRC00573, highres, auto-up, 1

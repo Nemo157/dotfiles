@@ -15,6 +15,9 @@ in {
     atuin;
   inherit (pkgs-hyprland) hyprland hyprcursor hyprlock;
 
+  # https://github.com/hyprwm/hypridle/issues/83
+  hypridle = pkgs-hyprland.hypridle.overrideAttrs { patches = [ ./hypridle-flush-logs.patch ]; };
+
   darkman = callOverlay ./darkman.nix;
 
   shairport-sync = callOverlay ./shairport-sync.nix;

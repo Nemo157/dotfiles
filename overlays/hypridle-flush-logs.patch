@@ -1,0 +1,14 @@
+diff --git a/src/helpers/Log.hpp b/src/helpers/Log.hpp
+index e11da90bbd...b0ac3f3a6e 100644
+--- a/src/helpers/Log.hpp
++++ b/src/helpers/Log.hpp
+@@ -53,6 +53,6 @@
+             std::cout << "] ";
+         }
+ 
+-        std::cout << std::vformat(fmt, std::make_format_args(args...)) << "\n";
++        std::cout << std::vformat(fmt, std::make_format_args(args...)) << std::endl;
+     }
+-};
+\ No newline at end of file
++};
