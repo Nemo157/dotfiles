@@ -281,8 +281,8 @@ then
       "-spread 15 -noise 3"
       "-spread 20 -noise 3"
     )
-    # shellcheck disable=SC2206
-    args+=(choose "${filters[@]}")
+    # shellcheck disable=SC2207
+    args+=($(choose "${filters[@]}"))
   else
    dithers=(
      checks
