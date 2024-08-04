@@ -4,7 +4,10 @@
 
   systemd.user.services = {
     sunshine = {
-      Unit.Description = pkgs.sunshine.meta.description;
+      Unit = {
+        After = "graphical-session.target";
+        PartOf = "graphical-session.target";
+      };
       Service = {
         ExecStart = lib.getExe' pkgs.sunshine "sunshine";
         Restart = "on-abnormal";

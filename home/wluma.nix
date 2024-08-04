@@ -18,6 +18,7 @@
     Unit = {
       Description = pkgs.wluma.meta.description;
       After = "graphical-session.target";
+      PartOf = "graphical-session.target";
     };
     Service = {
       Environment = "RUST_LOG=debug";

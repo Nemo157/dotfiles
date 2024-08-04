@@ -15,14 +15,14 @@ in {
     timers = {
       swww-change-wallpaper = {
         Unit = {
-          After = "swww-daemon.service";
-          BindsTo = "swww-daemon.service";
+          After = "graphical-session.target";
+          PartOf = "graphical-session.target";
         };
         Timer = {
           OnStartupSec = 0;
           OnCalendar = "*:00";
         };
-        Install.WantedBy = [ "swww-daemon.service" ];
+        Install.WantedBy = [ "graphical-session.target" ];
       };
     };
 
@@ -68,6 +68,7 @@ in {
 
       swww-daemon = {
         Unit = {
+          After = "graphical-session.target";
           PartOf = "graphical-session.target";
         };
         Service = {

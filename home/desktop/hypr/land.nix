@@ -102,6 +102,7 @@ in {
       bind = $mod SHIFT, SPACE, exec, rofi-characters
       bind = $mod, C, togglesplit,
       bind = $mod, COMMA, killactive,
+      bind = $mod SHIFT CTRL, D, exec, systemctl --user stop hyprland-session.target
       bind = $mod SHIFT CTRL, D, exit,
       bind = $mod SHIFT, SEMICOLON, exec, wl-screenshot
 
@@ -215,7 +216,11 @@ in {
   programs.zsh.profileExtra = lib.mkAfter ''
     if [[ ! -v WAYLAND_DISPLAY ]] && [[ ! -v TMUX ]] && [[ "$XDG_VTNR" -eq 1 ]]
     then
-      exec Hyprland
+      Hyprland
+      # while we start stopping the target on the exit shortcut, hyprland doesn't actually wait for
+      # it to complete, so do that here
+      systemctl --user stop hyprland-session.target
+      exit
     fi
   '';
 }

@@ -1,21 +1,9 @@
 { lib, config, pkgs, ... }: {
-  systemd.user.targets = {
-    tray = {
-      Unit = {
-        After = "graphical-session-pre.target";
-        BindsTo = "graphical-session-pre.target";
-      };
-      Install = {
-        WantedBy = [ "hyprland-session.target" ];
-      };
-    };
-  };
-
   systemd.user.services = {
     eww-daemon = {
       Unit = {
-        After = "graphical-session-pre.target";
-        BindsTo = "graphical-session-pre.target";
+        After = "graphical-session.target";
+        PartOf = "graphical-session.target";
       };
       Service = {
         ExecSearchPath = [
@@ -34,18 +22,21 @@
         ExecStart = "eww daemon --no-daemonize";
         ExecReload = "eww reload";
       };
+      Install = {
+        WantedBy = [ "graphical-session.target" ];
+      };
     };
 
     eww-auto-open-taskbars = {
       Unit = {
-        After = "eww-daemon.service";
-        BindsTo = "eww-daemon.service";
+        After = "graphical-session.target";
+        PartOf = "graphical-session.target";
       };
       Service = {
         ExecStart = "${config.binHome}/eww-auto-open-taskbars";
       };
       Install = {
-        RequiredBy = [ "tray.target" ];
+        WantedBy = [ "graphical-session.target" ];
       };
     };
   };
