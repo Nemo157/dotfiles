@@ -49,7 +49,7 @@
         # disable output on mic
         {
           matches = [
-            { device.nick = "!Samson GoMic" }
+            { device.nick = "!~(Samson GoMic|HDA NVidia)" }
             { node.nick = "Samson GoMic", media.class = "Audio/Sink" }
           ]
           actions = { update-props = { device.disabled = true } }
