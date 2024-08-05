@@ -12,8 +12,6 @@ let
   loginctl = lib.getExe' pkgs.systemd "loginctl";
   systemctl = lib.getExe' pkgs.systemd "systemctl";
 in {
-  home.packages = [pkgs.hypridle];
-
   xdg.configFile = {
     "hypr/hypridle.conf" = {
       text = ''
@@ -46,6 +44,10 @@ in {
         }
       '';
       onChange = "${systemctl} --user restart hypridle";
+    };
+
+    "systemd/user/hypridle.service" = {
+      source = "${pkgs.hypridle}/share/systemd/user/hypridle.service";
     };
 
     "systemd/user/graphical-session.target.wants/hypridle.service" = {
