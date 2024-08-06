@@ -40,10 +40,6 @@
 
   xdg.configFile = {
     "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
-      wireplumber.settings = {
-        bluetooth.autoswitch-to-headset-profile = false
-      }
-
       monitor.alsa.rules = [
         # disable all alsa devices except mic
         # disable output on mic
@@ -55,6 +51,28 @@
           actions = { update-props = { device.disabled = true } }
         }
       ]
+
+      monitor.bluez.rules = [
+        {
+          matches = [
+            { device.description = "WH-1000XM3" }
+          ]
+          actions = {
+            update-props = {
+              media-role.use-headset-profile = false
+              bluetooth.autoswitch-to-headset-profile = false
+              bluez5.autoswitch-profile = false
+
+              bluez5.auto-connect = [ a2dp_sink ]
+            }
+          }
+        }
+      ]
+
+      monitor.bluez.properties = {
+        bluez5.roles = [ a2dp_source a2dp_sink ]
+        bluez5.hfphsp-backend = "none"
+      }
     '';
 
     "pipewire/pipewire.conf.d/92-low-latency.conf".text = ''
