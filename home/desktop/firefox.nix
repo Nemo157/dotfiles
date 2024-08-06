@@ -93,16 +93,12 @@ in {
         };
       };
 
-      settings = let
-        doh = "https://base.dns.mullvad.net/dns-query";
-      in {
+      settings = {
         "browser.tabs.tabmanager.enabled" = false;
         "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
         "browser.newtabpage.activity-stream.showSerch" = false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = false;
-        "network.trr.custom_uri" = doh;
-        "network.trr.mode" = 3;
-        "network.trr.uri" = doh;
+        "network.trr.mode" = 5;
         "privacy.trackingprotection.emailtracking.enabled" = true;
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtracking.enabled" = true;
