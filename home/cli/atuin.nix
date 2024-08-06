@@ -56,6 +56,9 @@
     Service = {
       ExecStart = "${lib.getExe pkgs.atuin} daemon";
       Environment = [ "ATUIN_LOG=info" ];
+      Restart = "on-failure";
+      RestartSteps = 5;
+      RestartMaxDelaySec = 10;
     };
     Install = {
       Also = [ "atuin-daemon.socket" ];

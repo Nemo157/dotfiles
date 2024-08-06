@@ -21,6 +21,9 @@
         ];
         ExecStart = "eww daemon --no-daemonize";
         ExecReload = "eww reload";
+        Restart = "on-failure";
+        RestartSteps = 5;
+        RestartMaxDelaySec = 10;
       };
       Install = {
         WantedBy = [ "graphical-session.target" ];
@@ -31,9 +34,13 @@
       Unit = {
         After = "graphical-session.target";
         PartOf = "graphical-session.target";
+        BindsTo = "eww-daemon.service";
       };
       Service = {
         ExecStart = "${config.binHome}/eww-auto-open-taskbars";
+        Restart = "on-failure";
+        RestartSteps = 5;
+        RestartMaxDelaySec = 10;
       };
       Install = {
         WantedBy = [ "graphical-session.target" ];

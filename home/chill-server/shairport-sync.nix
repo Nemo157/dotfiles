@@ -31,6 +31,9 @@
     Service = {
       ExecStart = "${lib.getExe shairport-sync} -c ${config} -v -o pw";
       RuntimeDirectory = "shairport-sync";
+      Restart = "on-failure";
+      RestartSteps = 5;
+      RestartMaxDelaySec = 10;
     };
     Install = {
       WantedBy = [ "default.target" ];

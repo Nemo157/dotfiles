@@ -79,6 +79,8 @@ in {
         Service = {
           ExecStart = "${lib.getExe' pkgs.swww "swww-daemon"} --no-cache";
           Restart = "on-failure";
+          RestartSteps = 5;
+          RestartMaxDelaySec = 10;
         };
         Install.WantedBy = [ "graphical-session.target" ];
       };

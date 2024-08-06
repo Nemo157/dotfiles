@@ -109,6 +109,9 @@ in {
       };
       Service = {
         ExecStart = "${wljoywake}";
+        Restart = "on-failure";
+        RestartSteps = 5;
+        RestartMaxDelaySec = 10;
       };
       Install = {
         WantedBy = [ "graphical-session.target" ];

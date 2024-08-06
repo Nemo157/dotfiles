@@ -10,7 +10,9 @@
       };
       Service = {
         ExecStart = lib.getExe' pkgs.sunshine "sunshine";
-        Restart = "on-abnormal";
+        Restart = "on-failure";
+        RestartSteps = 5;
+        RestartMaxDelaySec = 10;
       };
       Install.WantedBy = [ "graphical-session.target" ];
     };
