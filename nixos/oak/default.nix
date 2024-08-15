@@ -54,4 +54,18 @@
     autoPrune.enable = true;
     storageDriver = "overlay2";
   };
+
+  # Can't use extraRules because this needs to go before 73 for uaccess support
+  services.udev.packages = [
+    (pkgs.writeTextFile {
+      name = "stlink-udev-rules";
+      text = ''
+        # ID 0483:374e STMicroelectronics STLINK-V3
+        SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="0483", ENV{ID_MODEL_ID}=="374e", TAG+="uaccess", MODE="660"
+        # ID 0483:374d STMicroelectronics STLINK-V3 Loader
+        SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="0483", ENV{ID_MODEL_ID}=="374d", TAG+="uaccess", MODE="660"
+      '';
+      destination = "/etc/udev/rules.d/70-stlink.rules";
+    })
+  ];
 }
