@@ -76,6 +76,10 @@ in {
     openssl
   ] ++ extraBuildInputs;
 
+  passthru = {
+    inherit rust-toolchain;
+  };
+
   shellHook = ''
     export RUST_BACKTRACE=1
 
