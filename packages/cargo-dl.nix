@@ -2,14 +2,14 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-dl";
-  version = "0.1.4";
+  version = "0.1.5";
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "sha256-txSRmOr3tYw72xI5Dqt/y1EboaqFWEMN+lASVXLNdgQ=";
+    sha256 = "sha256-Rmgn1oTFKZ5wTE6akfRuPwYQu5ePiJWuJduHfqF6Wpo=";
   };
 
-  cargoHash = "sha256-mkRZtC6JjsJxQ4DTjS2qw2y1opFIMt39eEMR1DurgAM=";
+  cargoHash = "sha256-f7ptVwpm3LEKOxzbplyT5IjibjrlDrWkT2JJGvltekM=";
 
   meta = with lib; {
     description = "Cargo subcommand for downloading crate sources";
