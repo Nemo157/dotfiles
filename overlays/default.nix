@@ -1,4 +1,4 @@
-{ pkgs-unstable, pkgs-hyprland, maintainers }: final: prev: let
+{ pkgs-unstable, maintainers }: final: prev: let
   args = {
     inherit pkgs-unstable;
     # nix flake check doesn't like me renaming the function arguments,
@@ -12,11 +12,11 @@
 in {
   inherit (pkgs-unstable)
     tmux cargo-deny swww obsidian
-    atuin shairport-sync;
-  inherit (pkgs-hyprland) hyprland hyprcursor hyprlock;
+    atuin shairport-sync
+    hyprland hyprcursor hyprlock;
 
   # https://github.com/hyprwm/hypridle/issues/83
-  hypridle = pkgs-hyprland.hypridle.overrideAttrs { patches = [ ./hypridle-flush-logs.patch ]; };
+  hypridle = pkgs-unstable.hypridle.overrideAttrs { patches = [ ./hypridle-flush-logs.patch ]; };
 
   darkman = callOverlay ./darkman.nix;
 

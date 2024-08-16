@@ -58,7 +58,12 @@ in {
         col.active_border = ${sol.rgb.yellow} ${sol.rgb.orange} ${sol.rgb.red} ${sol.rgb.violet} 45deg
         col.inactive_border = ${sol.rgb.base0} ${sol.rgb.base1} ${sol.rgb.base2} ${sol.rgb.base3} 45deg
         layout = dwindle
-        no_cursor_warps = true
+      }
+
+      cursor {
+        no_hardware_cursors = true
+        no_break_fs_vrr = true
+        no_warps = true
       }
 
       misc {
@@ -66,6 +71,10 @@ in {
         mouse_move_enables_dpms = true
         key_press_enables_dpms = true
         disable_hyprland_logo = true
+      }
+
+      render {
+        direct_scanout = true
       }
 
       decoration {
@@ -118,7 +127,7 @@ in {
       bind = $mod CTRL, Y, togglefloating,
       bind = $mod SHIFT, Y, fullscreen, 0
       bind = $mod CTRL SHIFT, Y, pin,
-      bind = $mod, S, toggleopaque,
+      bind = $mod, S, exec, hyprctl setprop active opaque toggle
 
       bind = $mod, J, movefocus, l
       bind = $mod, P, movefocus, r
