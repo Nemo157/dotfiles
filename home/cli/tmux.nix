@@ -31,7 +31,7 @@ in {
       bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'wl-copy'
       bind-key -T copy-mode-vi v send-keys -X begin-selection
 
-      bind-key ] run 'wl-paste -t text | tmux load-buffer - && tmux paste-buffer'
+      bind-key ] run 'wl-paste -n -t text | tmux load-buffer - && tmux paste-buffer'
 
       bind-key 'C-n' next-window
       bind-key 'C-p' previous-window
