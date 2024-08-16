@@ -34,7 +34,8 @@ in {
 
   jujutsu = callOverlay ./jujutsu.nix;
 
-  starship = callOverlay ./starship.nix;
+  # broken with 1.80 changes
+  # starship = callOverlay ./starship.nix;
 
   u2f-touch-detector = prev.u2f-touch-detector.override {
     rustPlatform = pkgs-unstable.rustPlatform;
