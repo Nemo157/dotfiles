@@ -1,5 +1,5 @@
 scheme="$(appearance-watcher --once | jq -r '.["color-scheme"]')"
-op="$([ "$scheme" = 1 ] && echo -le || echo -ge)"
+op="$([ "$scheme" = "dark" ] && echo -le || echo -ge)"
 
 echo "color-scheme $scheme => op $op" >&2
 
