@@ -44,6 +44,12 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    appearance-watcher = {
+      url = "github:Nemo157/appearance-watcher";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     # transitive dependencies to allow following :ferrisPensive:
     systems.url = "github:nix-systems/default-linux";
     flake-utils = {
@@ -59,12 +65,13 @@
   outputs = {
     self,
     agenix,
+    appearance-watcher,
     colmena,
     home-manager,
     nixos-hardware,
     nixpkgs,
-    nixpkgs-unstable,
     nixpkgs-hyprland,
+    nixpkgs-unstable,
     nixur,
     rust-overlay,
     u2f-touch-detector,
@@ -90,6 +97,7 @@
         nixur.overlay
         rust-overlay.overlays.default
         u2f-touch-detector.overlays.default
+        appearance-watcher.overlays.default
         self.overlays.default
       ];
     };

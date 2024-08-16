@@ -18,6 +18,7 @@
           "${pkgs.coreutils}/bin"
           config.binHome
           "${pkgs.systemd}/bin"
+          "${pkgs.appearance-watcher}/bin"
         ];
         ExecStart = "eww daemon --no-daemonize";
         ExecReload = "eww reload";

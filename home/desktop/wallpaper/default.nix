@@ -5,9 +5,18 @@ let
     runtimeInputs = with pkgs; [ coreutils swww hyprland jq imagemagick ];
     text = lib.readFile ./set-wallpaper.sh;
   };
+
   change-wallpapers = pkgs.writeShellApplication {
     name = "change-wallpapers";
-    runtimeInputs = with pkgs; [ coreutils fd hyprland jq set-wallpaper systemd imagemagick ];
+    runtimeInputs = with pkgs; [
+      appearance-watcher
+      coreutils
+      fd
+      hyprland
+      imagemagick
+      jq
+      set-wallpaper
+    ];
     text = lib.readFile ./change-wallpapers.sh;
   };
 in {

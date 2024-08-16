@@ -9,11 +9,6 @@
     source = ./eww-hypr-focus-window-for-realsiez.sh;
   };
 
-  scripts.eww-color-scheme = {
-    runtimeInputs = with pkgs; [ jq systemd ];
-    source = ./eww-color-scheme.sh;
-  };
-
   scripts.eww-music-queue = {
     runtimeInputs = with pkgs; [ mpc-cli jq playerctl ];
     source = ./eww-music-queue.sh;

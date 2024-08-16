@@ -27,6 +27,29 @@
         "type": "github"
       }
     },
+    "appearance-watcher": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1723801507,
+        "narHash": "sha256-bDd3e35DqLx5m9bMeyJfckg6pF45oSnoI0eHGzdsPbQ=",
+        "owner": "Nemo157",
+        "repo": "appearance-watcher",
+        "rev": "a7a35bfc98ff99e26d4f3e04f01faf5d300669ab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nemo157",
+        "repo": "appearance-watcher",
+        "type": "github"
+      }
+    },
     "colmena": {
       "inputs": {
         "flake-compat": [
@@ -216,6 +239,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "appearance-watcher": "appearance-watcher",
         "colmena": "colmena",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",

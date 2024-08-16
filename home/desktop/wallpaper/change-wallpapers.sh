@@ -1,16 +1,4 @@
-export svc=org.freedesktop.portal.Desktop
-export obj=/org/freedesktop/portal/desktop
-export int=org.freedesktop.portal.Settings
-export ns=org.freedesktop.appearance
-export key=color-scheme
-
-scheme="$(
-  for _ in {0..5}
-  do
-    (busctl -j --user call $svc $obj $int Read ss $ns $key  | jq -Mc '.data[0].data.data') && break
-    sleep 1
-  done
-)"
+scheme="$(appearance-watcher --once | jq -r '.["color-scheme"]')"
 op="$([ "$scheme" = 1 ] && echo -le || echo -ge)"
 
 echo "color-scheme $scheme => op $op" >&2

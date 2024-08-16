@@ -30,13 +30,13 @@
   )
 )
 
-(deflisten color-scheme
-  "eww-color-scheme")
+(deflisten appearance
+  "appearance-watcher")
 
 (defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
 
 (defwidget taskbar [screen]
-  (v-box :class "bar ${color-scheme}" :vexpand true
+  (v-box :class "bar ${appearance.color-scheme}" :vexpand true
     (label :class "hostname" :text hostname)
     (workspaces :screen screen)
     (hypr-buttons)
