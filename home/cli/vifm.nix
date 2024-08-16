@@ -139,7 +139,7 @@ in {
       fileviewer *.zip,*.jar,*.war,*.ear,*.oxt,*.apkg,*.hlc zip -sf %c
 
       " ArchiveMount
-      filetype *.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz
+      filetype *.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.crate
              \ {Mount with archivemount}
              \ FUSE_MOUNT|archivemount %SOURCE_FILE %DESTINATION_DIR,
       fileviewer *.tgz,*.tar.gz tar -tzf %c
