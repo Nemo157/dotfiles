@@ -2,17 +2,17 @@
 
 (pkgs-prev.jujutsu.overrideAttrs (jujutsu-final: jujutsu-prev: rec {
   # version using openssh instead of libssh2 for working ed25519-sk support
-  version = "6312becabc1e0dfbaad6639f30db83aa8c77ce20";
+  version = "9cf51e4b8c4d96180ec010541579b00686365934";
   src = pkgs-final.fetchFromGitHub {
     owner = "martinvonz";
     repo = "jj";
     rev = version;
-    sha256 = "sha256-XdTfRfXdoi8Wv1woZpH93DR0uPLtKwfbPbLBMXk+8Kw=";
+    sha256 = "sha256-Ck69lkyT/vKyyIfd6/UNkChD/WqxpLGtsno+gr8QS4Q=";
   };
   cargoDeps = pkgs-final.rustPlatform.importCargoLock {
     lockFile = "${src}/Cargo.lock";
     outputHashes = {
-      "git2-0.18.2" = "sha256-FpHp1zbHRYCINQ72Hrc+jTGE4wQnb6pib1QFQQahQwE=";
+      "git2-0.19.0" = "sha256-fV8dFChGeDhb20bMyqefpAD5/+raQQ2sMdkEtlA1jaE=";
     };
   };
   buildInputs = with pkgs-final; [
