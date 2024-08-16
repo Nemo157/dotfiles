@@ -233,6 +233,11 @@
 
     colmena-hive = colmena.lib.makeHive colmena-config;
 
+    prefixAttrs = prefix: attrs:
+      pkgs.lib.mapAttrs'
+        (name: value: { name = "${prefix}-${name}"; inherit value; })
+        attrs;
+
   in rec {
 
     maintainers = {
@@ -259,5 +264,9 @@
     nixosConfigurations = {
       inherit (colmena-hive.nodes) contabo mithril zinc oak;
     };
+
+    checks.${system} =
+      (prefixAttrs "packages" packages.${system})
+      // (prefixAttrs "shells" devShells.${system});
   };
 }
