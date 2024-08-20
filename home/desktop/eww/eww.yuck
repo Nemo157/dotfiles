@@ -132,7 +132,7 @@
     (btn :icon "󱓞" :onclick "hyprctl dispatch exec rofi-systemd")
     (box :hexpand true)
     (btn
-      :icon {hypr-info?.activewindow?.fullscreen ?: false ? "󰊔" : "󰊓"}
+      :icon {(hypr-info?.activewindow?.fullscreen ?: 0) > 0 ? "󰊔" : "󰊓"}
       :onclick "hyprctl dispatch fullscreen 1"
     )
     (box :hexpand true)
