@@ -33,11 +33,11 @@
         "format_timestamp(timestamp)" = "timestamp.ago()";
         log_compact = ''
           if(root,
-            builtin_log_root(change_id, commit_id),
+            format_root_commit(self),
             label(if(current_working_copy, "working_copy"),
               concat(
                 separate(" ",
-                  builtin_change_id_with_hidden_and_divergent_info,
+                  format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_commit_id(commit_id),
                   git_head,
                   branches,
