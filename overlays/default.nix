@@ -13,10 +13,18 @@ in {
   inherit (pkgs-unstable)
     tmux cargo-deny swww obsidian
     atuin shairport-sync
-    hyprland hyprcursor hyprlock;
+    hyprcursor hyprlock;
+
+  hyprland = pkgs-unstable.hyprland.override {
+    # mesa is not cross-version compatible, without overriding it there are issues related to libgbm
+    # https://github.com/hyprwm/Hyprland/issues/6967#issuecomment-2291694316
+    mesa = final.mesa;
+  };
 
   # https://github.com/hyprwm/hypridle/issues/83
-  hypridle = pkgs-unstable.hypridle.overrideAttrs { patches = [ ./hypridle-flush-logs.patch ]; };
+  hypridle = pkgs-unstable.hypridle.overrideAttrs {
+    patches = [ ./hypridle-flush-logs.patch ];
+  };
 
   darkman = callOverlay ./darkman.nix;
 
