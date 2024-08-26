@@ -1,4 +1,12 @@
 { lib, pkgs, ... }: {
+  scripts.jj-ws.text = ''
+    branch="$1"
+    slug="$(echo "$branch" | tr '/' '-')"
+    jj workspace new "../$slug"
+    cd "../$slug"
+    jj new "$branch"@origin
+  '';
+
   programs.jujutsu = {
     enable = true;
     settings = {
