@@ -2,7 +2,7 @@
   scripts.jj-ws.text = ''
     branch="$1"
     slug="$(echo "$branch" | tr '/' '-')"
-    jj workspace new "../$slug"
+    jj workspace add "../$slug"
     cd "../$slug"
     jj new "$branch"@origin
   '';
