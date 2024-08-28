@@ -69,14 +69,16 @@ in {
       set -g status-justify left
 
       set -g status-style 'fg=white bg=terminal'
-      set -g window-status-style 'fg=terminal bg=black'
 
-      set -g window-status-bell-style 'fg=red bg=black'
+      set -g window-status-style 'fg=terminal bg=black'
       set -g window-status-last-style 'fg=terminal bg=black'
+      set -g window-status-activity-style 'fg=terminal bg=black'
+      set -g window-status-bell-style 'fg=terminal bg=black'
+
       set -g window-status-current-style 'fg=magenta bg=black'
 
-      set -g window-status-current-format ' #I #W '
-      set -g window-status-format ' #I #W '
+      set -g window-status-current-format ' #{?window_bell_flag,🛎️,}#I #W '
+      set -g window-status-format ' #{?window_bell_flag,🛎️,}#{?window_activity_flag,⏩,}#{?window_silence_flag,🔇,}#I #W '
 
       set -g message-style 'fg=white bg=black'
 
