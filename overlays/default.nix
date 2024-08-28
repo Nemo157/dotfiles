@@ -13,7 +13,9 @@ in {
   inherit (pkgs-unstable)
     tmux cargo-deny swww obsidian
     atuin shairport-sync
-    hyprcursor hyprlock;
+    hyprcursor hyprlock
+    rofimoji # current stable version is buggy
+  ;
 
   hyprland = pkgs-unstable.hyprland.override {
     # mesa is not cross-version compatible, without overriding it there are issues related to libgbm
