@@ -73,16 +73,6 @@ in {
         ${darkenListeners}
 
         listener {
-            timeout = 300
-        }
-
-        listener {
-            timeout = 330
-            on-timeout = ${hyprctl} dispatch dpms off
-            on-resume = ${hyprctl} dispatch dpms on
-        }
-
-        listener {
             timeout = 1800
             on-timeout = ${systemctl} suspend
         }
