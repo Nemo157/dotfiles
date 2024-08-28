@@ -34,4 +34,8 @@ in {
     [Service]
     Environment=XDG_DESKTOP_PORTAL_DIR="${portals}/share/xdg-desktop-portal/portals"
   '';
+
+  xdg.configFile."systemd/user/hyprland-session.target.wants/xdg-desktop-portal-hyprland.service" = {
+    source = "${pkgs.xdg-desktop-portal-hyprland}/share/systemd/user/xdg-desktop-portal-hyprland.service";
+  };
 }
