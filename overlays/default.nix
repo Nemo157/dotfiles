@@ -14,6 +14,7 @@ in {
     tmux cargo-deny swww obsidian
     atuin shairport-sync
     hyprcursor hyprlock
+    iamb # lots of recent features
     rofimoji # current stable version is buggy
   ;
 
