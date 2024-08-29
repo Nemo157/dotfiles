@@ -13,5 +13,8 @@
 
   programs.home-manager.enable = true;
 
-  home.packages = with pkgs; [ wluma ];
+  home.packages = with pkgs; [
+    iamb
+    wluma
+  ];
 }
