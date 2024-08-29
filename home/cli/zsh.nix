@@ -44,6 +44,18 @@
       export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=14'
       export KEYTIMEOUT=1
       bindkey '^n' autosuggest-accept
+
+      dir_in_title() {
+        printf "\ek%s\e\\" "''${(%):-%~}"
+      }
+
+      cmd_in_title() {
+        printf "\ek%s %.50s\e\\" "''${(%):-%~}" "$3"
+      }
+
+      chpwd_functions+=(dir_in_title)
+      precmd_functions+=(dir_in_title)
+      preexec_functions+=(cmd_in_title)
     '';
   };
 }

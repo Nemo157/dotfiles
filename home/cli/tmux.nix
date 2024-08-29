@@ -88,6 +88,8 @@ in {
 
       set -g default-terminal tmux-256color
 
+      set -g allow-rename on
+
       bind-key u run-shell "${lib.getExe tmux-urlview}"
     '';
   };
