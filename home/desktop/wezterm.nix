@@ -35,8 +35,8 @@
           blue magenta cyan base02
         ];
         brights = [
-          base3 red green yellow
-          blue magenta cyan base03
+          base3 orange base01 base00
+          base0 violet base1 base03
         ];
 
         cursor_bg = foreground;
