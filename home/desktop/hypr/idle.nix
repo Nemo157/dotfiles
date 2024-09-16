@@ -71,11 +71,6 @@ in {
         }
 
         ${darkenListeners}
-
-        listener {
-            timeout = 1800
-            on-timeout = ${systemctl} suspend
-        }
       '';
       onChange = "${systemctl} --user restart hypridle";
     };
