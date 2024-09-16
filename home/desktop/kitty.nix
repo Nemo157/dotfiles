@@ -86,6 +86,8 @@ in {
 
       scrollback_lines = 0;
 
+      dim_opacity = "0.8";
+
       shell = lib.getExe kitty-shell;
 
       allow_remote_control = "socket-only";
