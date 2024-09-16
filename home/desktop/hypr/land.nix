@@ -205,6 +205,9 @@ in {
       windowrulev2 = stayfocused,class:rofinix-build
       windowrulev2 = dimaround,class:rofinix-build
 
+      windowrulev2 = tile,title:^EDDiscovery Version
+      windowrulev2 = opaque,title:^EDDiscovery Version
+
       layerrule = dimaround, rofi
     '';
   };
