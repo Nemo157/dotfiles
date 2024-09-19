@@ -92,10 +92,14 @@ in {
 
       allow_remote_control = "socket-only";
       listen_on = "unix:$XDG_RUNTIME_DIR/kitty-{kitty_pid}.socket";
+
+
     };
 
     extraConfig = ''
       include ${color-schemes.light}
+
+      symbol_map U+1F600 ferris-icons
     '';
   };
 

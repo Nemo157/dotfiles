@@ -16,6 +16,7 @@ in {
     hyprcursor hyprlock
     iamb # lots of recent features
     rofimoji # current stable version is buggy
+    kitty # better font support
   ;
 
   hyprland = pkgs-unstable.hyprland.override {

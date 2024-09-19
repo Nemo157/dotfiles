@@ -101,6 +101,29 @@
         "type": "github"
       }
     },
+    "ferris-icons": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1726763512,
+        "narHash": "sha256-Ym/Ea358bY2vEtvI50H2VyLSUbxkpMJLSbJhSwOr2ZE=",
+        "owner": "Nemo157",
+        "repo": "ferris-icons",
+        "rev": "88f9a684807f9991637da2b7bd8e6f2efaafaf0e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nemo157",
+        "repo": "ferris-icons",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -225,6 +248,7 @@
         "agenix": "agenix",
         "appearance-watcher": "appearance-watcher",
         "colmena": "colmena",
+        "ferris-icons": "ferris-icons",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",

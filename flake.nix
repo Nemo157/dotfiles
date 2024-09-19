@@ -48,6 +48,12 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    ferris-icons = {
+      url = "github:Nemo157/ferris-icons";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     # transitive dependencies to allow following :ferrisPensive:
     systems.url = "github:nix-systems/default-linux";
     flake-utils = {
@@ -65,6 +71,7 @@
     agenix,
     appearance-watcher,
     colmena,
+    ferris-icons,
     home-manager,
     nixos-hardware,
     nixpkgs,
@@ -90,6 +97,7 @@
         rust-overlay.overlays.default
         u2f-touch-detector.overlays.default
         appearance-watcher.overlays.default
+        ferris-icons.overlays.default
         self.overlays.default
       ];
     };
