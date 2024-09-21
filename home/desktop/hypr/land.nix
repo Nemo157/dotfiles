@@ -208,6 +208,12 @@ in {
       windowrulev2 = tile,title:^EDDiscovery Version
       windowrulev2 = opaque,title:^EDDiscovery Version
 
+      windowrulev2 = tile,class:^steam$,title:^Steam$
+
+      windowrulev2 = float,class:^steam$,title:^(?!Steam$).+
+      windowrulev2 = size 50% 70%,class:^steam$,title:^(?!Steam$).+
+      windowrulev2 = center,class:^steam$,title:^(?!Steam$).+
+
       layerrule = dimaround, rofi
     '';
   };
