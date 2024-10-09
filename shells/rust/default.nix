@@ -1,4 +1,21 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  extraBuildInputs ? [],
+  rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
+    toolchain.minimal.override {
+      extensions = [
+        "rust-src"
+        "rustc-codegen-cranelift-preview"
+        "miri"
+        "clippy"
+        "rustfmt"
+      ];
+    }
+  )),
+  custom ? true,
+  ...
+}:
 let
   wrap-rust = pkgs.callPackage ./wrap-rust.nix {};
   setup-xdg-cargo-home = pkgs.writeShellApplication {
@@ -28,21 +45,7 @@ let
       fi
     '';
   };
-in {
-  extraBuildInputs ? [],
-  rust-toolchain ? (pkgs.rust-bin.selectLatestNightlyWith (toolchain:
-    toolchain.minimal.override {
-      extensions = [
-        "rust-src"
-        "rustc-codegen-cranelift-preview"
-        "miri"
-        "clippy"
-        "rustfmt"
-      ];
-    }
-  )),
-  custom ? true,
-}: pkgs.mkShell {
+in pkgs.mkShell {
   buildInputs = with pkgs; [
     # Rust itself
     (if custom then (wrap-rust rust-toolchain) else rust-toolchain)
