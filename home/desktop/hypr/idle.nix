@@ -52,7 +52,7 @@ let
     resetListener = ''
       listener {
         timeout = ${toString startTime}
-        on-resume = ${hyprctl} keyword decoration:screen_shader ""
+        on-resume = ${hyprctl} keyword decoration:screen_shader ${mkShader 0}
       }
     '';
 
