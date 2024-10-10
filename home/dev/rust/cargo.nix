@@ -1,5 +1,8 @@
 { config, ... }: {
   xdg.configFile."cargo/config.toml".text = ''
+    [build]
+    target = "x86_64-unknown-linux-gnu"
+
     [profile.release]
     lto = "thin"
     overflow-checks = true
