@@ -14,4 +14,7 @@ in {
       };
     };
   };
+
+  # Fuck 16-bit color codes
+  home.sessionVariables.GLAMOUR_STYLE = "ascii";
 }
