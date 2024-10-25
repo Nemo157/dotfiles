@@ -185,9 +185,6 @@ in {
 
       windowrulev2 = maximize,class:calibre-gui
 
-      windowrulev2 = tile,class:steam_app_1284210
-      windowrulev2 = opaque,class:steam_app_1284210
-
       # the title: clause avoids applying to menus, only popup windows
       # (annoyingly they appear unfocused and afaict there is no way to force initial focus)
       windowrulev2 = size 1200 800,class:Geeqie,title:Geeqie,floating:1
@@ -209,6 +206,12 @@ in {
       windowrulev2 = opaque,title:^EDDiscovery Version
 
       windowrulev2 = tile,class:^steam$,title:^Steam$
+
+      windowrulev2 = fullscreen,class:^steam_app
+      windowrulev2 = opaque,class:^steam_app
+
+      windowrulev2 = tile,class:steam_app_1284210
+      windowrulev2 = opaque,class:steam_app_1284210
 
       windowrulev2 = float,class:^steam$,title:^(?!Steam$).+
       windowrulev2 = size 50% 70%,class:^steam$,title:^(?!Steam$).+
