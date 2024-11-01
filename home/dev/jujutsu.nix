@@ -37,6 +37,31 @@
 
         elided = "bright cyan";
         "node elided" = "bright cyan";
+
+        "working_copy change_id" = "magenta";
+        "working_copy commit_id" = "blue";
+        "working_copy author" = "yellow";
+        "working_copy committer" = "yellow";
+        "working_copy timestamp" = "cyan";
+        "working_copy working_copies" = "green";
+        "working_copy bookmark" = "magenta";
+        "working_copy bookmarks" = "magenta";
+        "working_copy local_bookmarks" = "magenta";
+        "working_copy remote_bookmarks" = "magenta";
+        "working_copy branch" = "magenta";
+        "working_copy branches" = "magenta";
+        "working_copy local_branches" = "magenta";
+        "working_copy remote_branches" = "magenta";
+        "working_copy tag" = "magenta";
+        "working_copy tags" = "magenta";
+        "working_copy git_refs" = "green";
+        "working_copy divergent" = "red";
+        "working_copy divergent change_id" = "red";
+        "working_copy conflict" = "red";
+        "working_copy empty" = "green";
+        "working_copy placeholder" = "red";
+        "working_copy description placeholder" = "yellow";
+        "working_copy empty description placeholder" = "green";
       };
 
       templates = {
