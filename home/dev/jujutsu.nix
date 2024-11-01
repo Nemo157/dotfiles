@@ -26,14 +26,19 @@
           });
         };
       };
+
       colors = {
-        rest = "bright cyan";
+        rest = "bright blue";
         tags = "yellow";
         branch = "cyan";
         branches = "blue";
         local_branches = "green";
         remote_branches = "red";
+
+        elided = "bright cyan";
+        "node elided" = "bright cyan";
       };
+
       templates = {
         log = "log_compact";
       };
