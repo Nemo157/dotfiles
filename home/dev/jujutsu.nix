@@ -107,6 +107,12 @@
       git = {
         fetch = ["origin" "upstream"];
       };
+      fix.tools = {
+        rustfmt = {
+          command = ["rustfmt"];
+          patterns = ["glob:**/*.rs"];
+        };
+      };
     };
   };
 }
