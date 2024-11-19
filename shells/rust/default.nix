@@ -88,6 +88,9 @@ in pkgs.mkShell {
 
     source ${lib.getExe setup-xdg-cargo-home}
 
+    # Directory that rustc dumps internal compiler error files to
+    export RUSTC_ICE=/tmp
+
     export CARGO_BUILD_TARGET_DIR="$CARGO_HOME/target/shared"
     '' + (if custom then ''
     rustflags=(
@@ -138,8 +141,5 @@ in pkgs.mkShell {
 
     # Some crates disable nightly feature detection when this is set
     export RUSTC_STAGE=1
-
-    # Directory that rustc dumps internal compiler error files to
-    export RUSTC_ICE=/tmp
   '' else "");
 }
