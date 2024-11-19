@@ -112,6 +112,10 @@
           command = ["rustfmt"];
           patterns = ["glob:**/*.rs"];
         };
+        taplo = {
+          command = ["taplo" "fmt" "--stdin-filepath=$path" "-"];
+          patterns = ["glob:**/*.toml"];
+        };
       };
     };
   };
