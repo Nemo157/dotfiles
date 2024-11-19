@@ -138,5 +138,8 @@ in pkgs.mkShell {
 
     # Some crates disable nightly feature detection when this is set
     export RUSTC_STAGE=1
+
+    # Directory that rustc dumps internal compiler error files to
+    export RUSTC_ICE=/tmp
   '' else "");
 }
