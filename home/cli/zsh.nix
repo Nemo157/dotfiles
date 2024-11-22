@@ -46,11 +46,17 @@
       bindkey '^n' autosuggest-accept
 
       dir_in_title() {
-        printf "\ek%s\e\\" "''${(%):-%~}"
+        if [[ "$TERM" = "tmux"* ]]
+        then
+          printf "\ek%s\e\\" "''${(%):-%~}"
+        fi
       }
 
       cmd_in_title() {
-        printf "\ek%s %.50s\e\\" "''${(%):-%~}" "$3"
+        if [[ "$TERM" = "tmux"* ]]
+        then
+          printf "\ek%s %.50s\e\\" "''${(%):-%~}" "$3"
+        fi
       }
 
       chpwd_functions+=(dir_in_title)
