@@ -43,6 +43,7 @@
     (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
       (security-key)
     )
+    ; (listenbrainz)
     (music)
     (tray)
     (pies)
@@ -103,6 +104,10 @@
   :initial '{"artist":"","album":"","title":"","duration":1}'
   "eww-music-metadata")
 
+; (deflisten listenbrainz
+;   :initial '{"artist":"","release":"","track":"","number":0,"mbid":null}'
+;   "eww-listenbrainz")
+
 (defwidget dynamic-label [class text ?visible]
   (label
     :class {class}
@@ -151,6 +156,16 @@
     :vexpand true
   )
 )
+
+; (defwidget listenbrainz []
+;   (v-box :class 'music'
+;     (dynamic-label :class "album" :text {listenbrainz.release})
+;     (dynamic-label :class "albumartist" :text {listenbrainz.artist})
+;     (image :class "albumart" :image-width 89 :path {listenbrainz.mbid ?  no-album-png : no-album-png})
+;     ; "https://coverartarchive.org/release/${listenbrainz.mbid}/front"
+;     (dynamic-label :class "title" :text {listenbrainz.track})
+;   )
+; )
 
 (defwidget music []
   (v-box :class 'music ${music-status.state}'

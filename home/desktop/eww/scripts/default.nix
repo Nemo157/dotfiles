@@ -33,4 +33,9 @@
     runtimeInputs = with pkgs; [ eww hyprland socat jq ripgrep coreutils ];
     source = ./eww-auto-open-taskbars.sh;
   };
+
+  scripts.eww-listenbrainz = {
+    runtimeInputs = with pkgs; [ curl jq ];
+    source = ./eww-listenbrainz.sh;
+  };
 }
