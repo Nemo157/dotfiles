@@ -35,6 +35,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    jujutsu = {
+      url = "github:bnjmnt4n/jj/ssh-openssh";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
+
     u2f-touch-detector = {
       url = "github:Nemo157/u2f-touch-detector/monitor";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -73,6 +80,7 @@
     colmena,
     ferris-icons,
     home-manager,
+    jujutsu,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
@@ -95,6 +103,7 @@
         agenix.overlays.default
         nixur.overlay
         rust-overlay.overlays.default
+        jujutsu.overlays.default
         u2f-touch-detector.overlays.default
         appearance-watcher.overlays.default
         ferris-icons.overlays.default

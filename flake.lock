@@ -181,6 +181,33 @@
         "type": "github"
       }
     },
+    "jujutsu": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": [
+          "rust-overlay"
+        ]
+      },
+      "locked": {
+        "lastModified": 1730965461,
+        "narHash": "sha256-EuncKr4+rSFE+WICJVGAmoHlKMcf7s2FgjuAav0oUlo=",
+        "owner": "bnjmnt4n",
+        "repo": "jj",
+        "rev": "87a2356c21c3e824c422e62d90136333778e3d35",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bnjmnt4n",
+        "ref": "ssh-openssh",
+        "repo": "jj",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "locked": {
         "lastModified": 1712760404,
@@ -252,6 +279,7 @@
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
+        "jujutsu": "jujutsu",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",

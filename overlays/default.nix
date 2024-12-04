@@ -44,8 +44,6 @@ in {
   # No release in over 2 years, with many many commits since :ferrisPensive:
   beets = prev.beets-unstable;
 
-  jujutsu = callOverlay ./jujutsu.nix;
-
   # broken with 1.80 changes
   # starship = callOverlay ./starship.nix;
 
