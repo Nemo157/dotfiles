@@ -43,7 +43,7 @@ in {
     debug = "line-tables-only"
   '';
 
-  xdg.configFile."cargo-audit/config.toml".text = ''
+  xdg.configFile."cargo-audit/audit.toml".text = ''
     # smh cargo-audit, get your own dirs, stop borrowing cargo's
     [database]
     path = "${config.xdg.cacheHome}/cargo-audit/advisory-db"
