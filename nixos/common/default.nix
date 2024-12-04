@@ -4,8 +4,6 @@
   ];
 
   nix = {
-    package = pkgs.nixFlakes;
-
     daemonIOSchedClass = "idle";
     daemonCPUSchedPolicy = "idle";
 

@@ -18,13 +18,13 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/release-24.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixos-hardware.url = "github:nixos/nixos-hardware/e1c4bac14beb8c409d0534382cf967171706b9d9";
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
 
     nixpkgs-unstable.url = "github:nixos/nixpkgs";
 
@@ -101,6 +101,7 @@
       config.allowUnfree = true;
       overlays = [
         agenix.overlays.default
+        colmena.overlays.default
         nixur.overlay
         rust-overlay.overlays.default
         jujutsu.overlays.default
@@ -155,7 +156,33 @@
       zinc = "4OZ4P7V-7PTKETZ-NG4DVX7-5VABDM7-BY2XMW3-2PFOQV7-FRZCABK-VXA4PAT";
     };
 
-    colmena-config = {
+    prefixAttrs = prefix: attrs:
+      pkgs.lib.mapAttrs'
+        (name: value: { name = "${prefix}-${name}"; inherit value; })
+        attrs;
+
+  in {
+
+    maintainers = {
+      nemo157 = {
+        email = "nix@nemo157.com";
+        name = "Nemo157";
+        github = "Nemo157";
+        githubId = 81079;
+        keys = [{
+          fingerprint = "E3D8 2B6B F270 2722 4925  CD19 A65D C69A 2364 9F86";
+        }];
+      };
+    };
+
+    overlays.default = import ./overlays { inherit pkgs-unstable; inherit (self.outputs) maintainers; };
+
+    packages.${system} = import ./packages { inherit pkgs; };
+    legacyPackages.${system} = pkgs;
+
+    devShells.${system} = import ./shells { inherit pkgs; };
+
+    colmena = {
       meta = {
         nixpkgs = pkgs;
         specialArgs = {
@@ -248,42 +275,14 @@
       };
     };
 
-    colmena-hive = colmena.lib.makeHive colmena-config;
-
-    prefixAttrs = prefix: attrs:
-      pkgs.lib.mapAttrs'
-        (name: value: { name = "${prefix}-${name}"; inherit value; })
-        attrs;
-
-  in rec {
-
-    maintainers = {
-      nemo157 = {
-        email = "nix@nemo157.com";
-        name = "Nemo157";
-        github = "Nemo157";
-        githubId = 81079;
-        keys = [{
-          fingerprint = "E3D8 2B6B F270 2722 4925  CD19 A65D C69A 2364 9F86";
-        }];
-      };
-    };
-
-    overlays.default = import ./overlays { inherit pkgs-unstable maintainers; };
-
-    packages.${system} = import ./packages { inherit pkgs; };
-    legacyPackages.${system} = pkgs;
-
-    devShells.${system} = import ./shells { inherit pkgs; };
-
-    colmena = colmena-config;
+    colmenaHive = colmena.lib.makeHive self.outputs.colmena;
 
     nixosConfigurations = {
-      inherit (colmena-hive.nodes) contabo mithril zinc oak;
+      inherit (self.outputs.colmenaHive.nodes) contabo mithril zinc oak;
     };
 
     checks.${system} =
-      (prefixAttrs "packages" packages.${system})
-      // (prefixAttrs "shells" devShells.${system});
+      (prefixAttrs "packages" self.outputs.packages.${system})
+      // (prefixAttrs "shells" self.outputs.devShells.${system});
   };
 }

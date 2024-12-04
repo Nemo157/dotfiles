@@ -42,7 +42,6 @@ in {
     links2
     lsd
     lynx
-    mp3info
     p7zip
     poppler_utils
     ripgrep
@@ -85,7 +84,6 @@ in {
 
       fileviewer *.pdf pdftotext -nopgbrk %c -
 
-      fileviewer *.mp3 mp3info
       fileviewer *.flac soxi
 
       fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg

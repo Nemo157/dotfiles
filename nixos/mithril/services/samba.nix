@@ -1,9 +1,12 @@
 {
   services.samba = {
     enable = true;
-    enableNmbd = false;
-    enableWinbindd = false;
-    shares = {
+    nmbd.enable = false;
+    winbindd.enable = false;
+    settings = {
+      global = {
+        "map to guest" = "Bad User";
+      };
       videos = {
         path = "/srv/videos";
         "read only" = true;
@@ -11,11 +14,7 @@
         "guest ok" = "yes";
       };
     };
-    extraConfig = ''
-      map to guest = Bad User
-    '';
   };
-
 
   networking.firewall.interfaces.tailscale0 = {
     allowedTCPPorts = [ 445 ];

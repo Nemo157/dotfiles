@@ -100,7 +100,6 @@ in {
       dwindle {
         pseudotile = true
         preserve_split = true
-        no_gaps_when_only = 1
       }
 
       $mod = ALT
@@ -167,6 +166,14 @@ in {
 
       bindl = , switch:on:Lid Switch, exec, hyprctl keyword monitor "eDP-1, disable"
       bindl = , switch:off:Lid Switch, exec, hyprctl keyword monitor "eDP-1, highres, 0x0, 1"
+
+      # no gaps / border when alone on a workspace
+      workspace = w[tv1], gapsout:0, gapsin:0
+      workspace = f[1], gapsout:0, gapsin:0
+      windowrulev2 = bordersize 0, floating:0, onworkspace:w[tv1]
+      windowrulev2 = rounding 0, floating:0, onworkspace:w[tv1]
+      windowrulev2 = bordersize 0, floating:0, onworkspace:f[1]
+      windowrulev2 = rounding 0, floating:0, onworkspace:f[1]
 
       windowrulev2 = float,class:RimPy,title:^(?!RimPy)
 

@@ -1,7 +1,5 @@
 { config, ... }: {
   boot = {
-    kernelPackages = config.boot.zfs.package.latestCompatibleLinuxPackages;
-
     initrd = {
       supportedFilesystems = [ "zfs" ];
       availableKernelModules = [ "zfs" "nvme" ];
