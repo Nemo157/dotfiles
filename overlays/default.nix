@@ -35,8 +35,6 @@ in {
   rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;
   rofi = final.rofi-wayland;
 
-  sunshine = callOverlay ./sunshine.nix;
-
   freetube = callOverlay ./freetube.nix;
 
   maintainers = prev.maintainers // maintainers;
