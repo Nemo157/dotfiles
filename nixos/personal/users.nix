@@ -27,6 +27,7 @@ in {
         "networkmanager"
         "seat"
         "tty"
+        "dialout"
         "users"
         "video"
         "wheel"

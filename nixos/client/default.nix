@@ -1,4 +1,4 @@
-{
+{ pkgs, ... }: {
   imports = [
     ./autologin.nix
     ./monitors.nix
@@ -39,4 +39,24 @@
   '';
 
   documentation.dev.enable = true;
+
+  # Can't use extraRules because this needs to go before 73 for uaccess support
+  services.udev.packages = [
+    (pkgs.writeTextFile {
+      name = "rpi-pico-udev-rules";
+      text = ''
+        # ID 2e8a:000a Raspberry Pi Pico
+        SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="2e8a", ENV{ID_MODEL_ID}=="000a", TAG+="uaccess", MODE="660"
+      '';
+      destination = "/etc/udev/rules.d/70-rpi-pico.rules";
+    })
+    (pkgs.writeTextFile {
+      name = "ἐννεάς-udev-rules";
+      text = ''
+        # ID f055:cf82 Nullus157 ἐννεάς
+        SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="f055", ENV{ID_MODEL_ID}=="cf82", TAG+="uaccess", MODE="660"
+      '';
+      destination = "/etc/udev/rules.d/70-ἐννεάς.rules";
+    })
+  ];
 }
