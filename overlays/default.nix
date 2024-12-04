@@ -27,7 +27,7 @@ in {
 
   # https://github.com/hyprwm/hypridle/issues/83
   hypridle = pkgs-unstable.hypridle.overrideAttrs {
-    patches = [ ./hypridle-flush-logs.patch ];
+    # patches = [ ./hypridle-flush-logs.patch ];
   };
 
   darkman = callOverlay ./darkman.nix;
