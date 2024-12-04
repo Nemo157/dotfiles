@@ -4,6 +4,11 @@
     ./cargo.nix
   ];
 
+  home.sessionVariables = {
+    RUST_BACKTRACE = "1";
+    # Directory that rustc dumps internal compiler error files to
+    RUSTC_ICE = "/tmp";
+  };
 
   # scripts.for-each-rust = {
   #   text = let

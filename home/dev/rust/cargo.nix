@@ -32,6 +32,7 @@ in {
   xdg.configFile."cargo/config.toml".text = ''
     [build]
     target = "x86_64-unknown-linux-gnu"
+    target-dir = "${config.xdg.cacheHome}/cargo/target/shared"
 
     [profile.release]
     lto = "thin"
