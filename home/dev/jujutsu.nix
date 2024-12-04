@@ -78,7 +78,7 @@
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_commit_id(commit_id),
                   git_head,
-                  branches,
+                  bookmarks,
                   tags,
                   working_copies,
                   if(conflict, label("conflict", "conflict")),
@@ -97,8 +97,8 @@
       };
       revset-aliases = {
         "current" = "ancestors(trunk()..@, 2) | trunk() | @-::";
-        "pulls" = "remote_branches(pulls/)";
-        "interesting_heads" = "visible_heads() ~ remote_branches() | branches()";
+        "pulls" = "remote_bookmarks(pulls/)";
+        "interesting_heads" = "visible_heads() ~ remote_bookmarks() | bookmarks()";
       };
       aliases = {
         lo = ["log" "-r" "current"];
