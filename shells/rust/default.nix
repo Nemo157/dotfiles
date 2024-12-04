@@ -18,10 +18,6 @@
 }:
 let
   wrap-rust = pkgs.callPackage ./wrap-rust.nix {};
-  setup-xdg-cargo-home = pkgs.writeShellApplication {
-    name = "setup-xdg-cargo-home";
-    text = lib.readFile ./setup-xdg-cargo-home.sh;
-  };
   cargo-upgrade = pkgs.writeShellApplication {
     name = "cargo-upgrade";
     text = ''
@@ -85,8 +81,6 @@ in pkgs.mkShell {
 
   shellHook = ''
     export RUST_BACKTRACE=1
-
-    source ${lib.getExe setup-xdg-cargo-home}
 
     # Directory that rustc dumps internal compiler error files to
     export RUSTC_ICE=/tmp
