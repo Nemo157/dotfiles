@@ -31,8 +31,8 @@
 )
 
 (deflisten appearance
-  :initial '{"color-scheme":"dark"}'
-  "appearance-watcher")
+  :initial '{"color-scheme":"light"}'
+  "eww-appearance-watcher")
 
 (defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
 

@@ -38,4 +38,9 @@
     runtimeInputs = with pkgs; [ curl jq ];
     source = ./eww-listenbrainz.sh;
   };
+
+  scripts.eww-appearance-watcher = {
+    runtimeInputs = with pkgs; [ appearance-watcher coreutils ];
+    source = ./eww-appearance-watcher.sh;
+  };
 }
