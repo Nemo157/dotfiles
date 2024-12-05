@@ -77,7 +77,7 @@
                 separate(" ",
                   format_short_change_id_with_hidden_and_divergent_info(self),
                   format_short_commit_id(commit_id),
-                  git_head,
+                  if(git_head, label("git_head", "HEAD")),
                   bookmarks,
                   tags,
                   working_copies,
