@@ -30,10 +30,10 @@
       colors = {
         rest = "bright blue";
         tags = "yellow";
-        branch = "cyan";
-        branches = "blue";
-        local_branches = "green";
-        remote_branches = "red";
+        bookmark = "cyan";
+        bookmarks = "blue";
+        local_bookmarks = "green";
+        remote_bookmarks = "red";
 
         elided = "bright cyan";
         "node elided" = "bright cyan";
@@ -48,10 +48,6 @@
         "working_copy bookmarks" = "magenta";
         "working_copy local_bookmarks" = "magenta";
         "working_copy remote_bookmarks" = "magenta";
-        "working_copy branch" = "magenta";
-        "working_copy branches" = "magenta";
-        "working_copy local_branches" = "magenta";
-        "working_copy remote_branches" = "magenta";
         "working_copy tag" = "magenta";
         "working_copy tags" = "magenta";
         "working_copy git_refs" = "green";
