@@ -76,6 +76,10 @@ do
       then
         options["$selected"]="$(printf '%s\x1f%s\n' "$url" "$name")"
       fi
+      if (( ${#url} > max_url_width ))
+      then
+        max_url_width=${#url}
+      fi
       echo -ne '\e[?25l\e[?1049h'
       ;;
     "" )
