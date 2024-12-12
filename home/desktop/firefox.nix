@@ -94,6 +94,7 @@ in {
       };
 
       settings = {
+        "browser.eme.ui.enabled" = false;
         "browser.tabs.tabmanager.enabled" = false;
         "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
         "browser.newtabpage.activity-stream.showSerch" = false;
