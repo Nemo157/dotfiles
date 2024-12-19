@@ -25,6 +25,10 @@
             '';
           });
         };
+        difftastic = {
+          program = lib.getExe pkgs.difftastic;
+          diff-args = [ "--color=always" "$left" "$right" ];
+        };
       };
 
       colors = {
