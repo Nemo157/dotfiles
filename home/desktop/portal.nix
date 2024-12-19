@@ -4,10 +4,12 @@ let
     [preferred]
     default=hyprland
     org.freedesktop.impl.portal.Settings=darkman
+    org.freedesktop.impl.portal.FileChooser=gtk
   '';
   packages = [
     pkgs.xdg-desktop-portal
     pkgs.xdg-desktop-portal-hyprland
+    pkgs.xdg-desktop-portal-gtk
     pkgs.darkman
   ];
   portals = pkgs.symlinkJoin {
@@ -37,5 +39,9 @@ in {
 
   xdg.configFile."systemd/user/hyprland-session.target.wants/xdg-desktop-portal-hyprland.service" = {
     source = "${pkgs.xdg-desktop-portal-hyprland}/share/systemd/user/xdg-desktop-portal-hyprland.service";
+  };
+
+  xdg.configFile."systemd/user/hyprland-session.target.wants/xdg-desktop-portal-gtk.service" = {
+    source = "${pkgs.xdg-desktop-portal-gtk}/share/systemd/user/xdg-desktop-portal-gtk.service";
   };
 }
