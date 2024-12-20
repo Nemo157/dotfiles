@@ -105,7 +105,7 @@
       overlays = [
         agenix.overlays.default
         colmena.overlays.default
-        nixur.overlay
+        nixur.overlays.default
         rust-overlay.overlays.default
         jujutsu.overlays.default
         u2f-touch-detector.overlays.default
