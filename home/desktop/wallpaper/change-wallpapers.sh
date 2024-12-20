@@ -19,9 +19,16 @@ wallpaper() {
   done
 }
 
-hyprctl monitors -j | jq -r '.[].name' | while read -r monitor
-do
-  img="$(wallpaper)"
-  echo "selected $img" >&2
-  set-wallpaper "$monitor" "$img"
-done
+hyprctl monitors -j \
+  | jq -r '.[] | "\(.solitary) \(.name)"' \
+  | while read -r solitary monitor
+    do
+      if [[ "$solitary" == "0" ]]
+      then
+        img="$(wallpaper)"
+        echo "selected $img for $monitor" >&2
+        set-wallpaper "$monitor" "$img"
+      else
+        echo "skipping $monitor with solitary client $solitary" >&2
+      fi
+    done
