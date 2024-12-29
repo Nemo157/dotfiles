@@ -26,7 +26,7 @@
 
       selection.semantic_escape_chars = ",│`|:\"' ()[]{}<>";
 
-      shell = {
+      terminal.shell = {
         program = "zsh";
         args = [
           "--login"
