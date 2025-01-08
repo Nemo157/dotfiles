@@ -42,6 +42,13 @@ in {
     [profile.dev.package."*"]
     opt-level = 2
     debug = "line-tables-only"
+
+    [profile.tarpaulin]
+    inherits = "dev"
+
+    [profile.tarpaulin.package."*"]
+    opt-level = 0
+    debug = "full"
   '';
 
   xdg.configFile."cargo-audit/audit.toml".text = ''
