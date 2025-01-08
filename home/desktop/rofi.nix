@@ -12,7 +12,7 @@ let
         "$cmd" "$@"
       }
 
-      app="$(systemd-escape "$1")"
+      app="$(systemd-escape "$(filename 1)")"
       unit="app-rofi-$app-$RANDOM"
       run exec systemd-run --scope --user --slice-inherit --slice="$app" --unit="$unit" systemd-cat -t "$app" "$@"
     '';
