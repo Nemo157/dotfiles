@@ -1,22 +1,50 @@
 { pkgs, ... }:
 let
   getExe = pkgs.lib.getExe;
-  vifm-sixel-viewer = pkgs.writeShellApplication {
-    name = "vifm-sixel-viewer";
-    runtimeInputs = with pkgs; [ imagemagick ];
+  vifm-image-viewer = pkgs.writeShellApplication {
+    name = "vifm-image-viewer";
+    runtimeInputs = with pkgs; [ imagemagick kitty ];
     text = ''
-        file="$1"
-        cols="$2"
-        rows="$3"
+      if [ "$1" == "clear" ]
+      then
+        kitten icat --clear --silent
+      else
+        file="$2"
+        cols="$3"
+        rows="$4"
+        col="$5"
+        row="$6"
+
+        # ffprobe -hide_banner -pretty "$file" 2>&1
 
         # IFS=';' read -rs -d t -p $'\e[16t' _ h w
         # (( height = h * rows ))
         # (( width = w * cols ))
 
-        (( height = 19 * rows ))
-        (( width = 9 * cols ))
+        # TODO detect terminal
+        # needs https://github.com/xaizek/vifm/commit/ff096996a91566f2c2c3354fc9e378fbf3ca9948
+        # probably
 
-        exec magick "$file" -scale "''${width}x$height>" six:-
+        # --use-window-size "$cols,$rows,$height,$width"
+        # --stdin=no
+
+        (( half = rows / 2 ))
+
+        kitten icat \
+          --place "''${cols}x$half@''${col}x$row" \
+          --transfer-mode=memory \
+          "$file" \
+          </dev/tty >/dev/tty
+
+        for (( i = 0 ; i < half + 1 ; i++ ))
+        do
+          echo
+        done
+
+        ffprobe -hide_banner -pretty "$file" 2>&1
+
+        # exec magick "$file" -scale "''${width}x$height>" six:-
+      fi
     '';
   };
 in {
@@ -51,7 +79,7 @@ in {
     unzip
     xz
     zip
-    vifm-sixel-viewer
+    vifm-image-viewer
   ];
 
   xdg.configFile = {
@@ -86,8 +114,10 @@ in {
 
       fileviewer *.flac soxi
 
-      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg
-               \ vifm-sixel-viewer %c %pw %ph %pd
+      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg,*.image
+               \ vifm-image-viewer show %c %pw %ph %px %py %pu %N
+               \ %pc
+               \ vifm-image-viewer clear %N
 
       fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac
                 \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4[av],*.r[am],*.qt,*.divx,
