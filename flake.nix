@@ -39,7 +39,7 @@
     };
 
     jujutsu = {
-      url = "github:bnjmnt4n/jj/ssh-openssh";
+      url = "github:jj-vcs/jj";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
       inputs.rust-overlay.follows = "rust-overlay";

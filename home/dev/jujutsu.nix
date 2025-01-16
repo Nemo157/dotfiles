@@ -14,6 +14,7 @@
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
         diff.tool = "delta";
       };
+
       merge-tools = {
         delta = {
           program = lib.getExe (pkgs.writeShellApplication {
@@ -92,6 +93,7 @@
           )
         '';
       };
+
       revsets = {
         "log" = "@ | ancestors(immutable_heads()..interesting_heads, 2) | trunk()";
       };
@@ -100,13 +102,17 @@
         "pulls" = "remote_bookmarks(pulls/)";
         "interesting_heads" = "visible_heads() ~ remote_bookmarks() | bookmarks()";
       };
+
       aliases = {
         lo = ["log" "-r" "current"];
         f = ["git" "fetch" "--all-remotes"];
       };
+
       git = {
         fetch = ["origin" "upstream"];
+        subprocess = true;
       };
+
       fix.tools = {
         rustfmt = {
           command = ["rustfmt"];

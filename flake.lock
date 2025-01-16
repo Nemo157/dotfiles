@@ -216,16 +216,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1734245687,
-        "narHash": "sha256-yMEKYrVkZy8c5YSaFUPYGMTZ0WolbExObFpSasbQaN8=",
-        "owner": "bnjmnt4n",
+        "lastModified": 1738101364,
+        "narHash": "sha256-POlIghrBe38BX8YVBmUi71JF10DTRHr+Tm85n33trdg=",
+        "owner": "jj-vcs",
         "repo": "jj",
-        "rev": "70e796a6b622dfdf135c353e6765b2066bb6cc62",
+        "rev": "120b9cc76646150d2775402a14136b4cdf3597d9",
         "type": "github"
       },
       "original": {
-        "owner": "bnjmnt4n",
-        "ref": "ssh-openssh",
+        "owner": "jj-vcs",
         "repo": "jj",
         "type": "github"
       }
