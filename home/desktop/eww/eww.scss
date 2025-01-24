@@ -26,9 +26,11 @@ tooltip {
   border-color: $base0;
 }
 
-.bar.light {
-  color: $base00;
-  background-color: $base3;
+.light {
+  .bar {
+    color: $base00;
+    background-color: $base3;
+  }
 
   progress {
     background-color: $base00;
@@ -134,9 +136,11 @@ tooltip {
   }
 }
 
-.bar.dark {
-  color: $base0;
-  background-color: $base03;
+.dark {
+  .bar {
+    color: $base0;
+    background-color: $base03;
+  }
 
   progress {
     background-color: $base0;
