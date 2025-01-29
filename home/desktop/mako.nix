@@ -8,6 +8,6 @@
     padding = "20";
     borderSize = 2;
     maxIconSize = 128;
-    defaultTimeout = 3000;
+    defaultTimeout = 10000;
   };
 }
