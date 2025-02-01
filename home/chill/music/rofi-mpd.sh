@@ -17,10 +17,10 @@ then
 elif ! [[ -v ROFI_INFO ]]
 then
   albumartist="$1"
-  albums=("$(run beet ls -a -f $'$albumartist\x1c$album\x1c$artpath' "albumartists:$albumartist")")
+  albums=("$(run beet ls -a -f $'$year\x1c$month\x1c$day\x1c$album\x1c$albumartist\x1c$artpath' "albumartists:$albumartist" | sort)")
 
   len=0
-  while IFS=$'\x1c' read -r albumartist album artpath
+  while IFS=$'\x1c' read -r year month day album albumartist artpath
   do
     if (( ${#albumartist} > len ))
     then
@@ -28,9 +28,9 @@ then
     fi
   done <<<"${albums[*]}"
 
-  while IFS=$'\x1c' read -r albumartist album artpath
+  while IFS=$'\x1c' read -r year month day album albumartist artpath
   do
-    run printf '%-*s  ¦  %s\0icon\x1f%s\x1finfo\x1f%s\x1c%s\n' "$len" "$albumartist" "$album" "$artpath" "$albumartist" "$album"
+    run printf '%-*s  ¦  [%s] %s\0icon\x1f%s\x1finfo\x1f%s\x1c%s\n' "$len" "$albumartist" "$year" "$album" "$artpath" "$albumartist" "$album"
   done <<<"${albums[*]}"
 else
   IFS=$'\x1c' read -r albumartist album <<<"$ROFI_INFO"
