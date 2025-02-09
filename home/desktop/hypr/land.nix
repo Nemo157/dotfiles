@@ -21,6 +21,27 @@ in {
     '';
   };
 
+  scripts.hypr-emulate-right-layer = {
+    runtimeInputs = [ pkgs.jq pkgs.hyprland ];
+    text = ''
+      client="$(hyprctl activewindow -j)"
+
+      window="address:$(jq -r '.address' <<<"$client")"
+      width="$(jq -r '.size[0]' <<<"$client")"
+      monitor="$(hyprctl monitors -j | jq -r --argjson client "$client" '.[] | select(.id == $client.monitor)')"
+      monname="$(jq -r '.name' <<<"$monitor")"
+      monwidth="$(jq -r '.width' <<<"$monitor")"
+
+      hyprctl dispatch setfloating "$window"
+      hyprctl dispatch pin "$window"
+      hyprctl dispatch resizewindowpixel "exact $width 100%,$window"
+      hyprctl dispatch movewindowpixel "exact $((monwidth - width)) 0,$window"
+      hyprctl setprop "$window" opaque on
+
+      hyprctl keyword "monitor $monname, addreserved, 0, 0, 0, $width"
+    '';
+  };
+
   home.packages = with pkgs; [ xwayland ];
 
   wayland.windowManager.hyprland = {
@@ -134,6 +155,8 @@ in {
       bind = $mod SHIFT, Y, fullscreen, 0
       bind = $mod CTRL SHIFT, Y, pin,
       bind = $mod, S, exec, hyprctl setprop active opaque toggle
+
+      bind = $mod, APOSTROPHE, exec, hypr-emulate-right-layer
 
       bind = $mod, J, movefocus, l
       bind = $mod, P, movefocus, r
