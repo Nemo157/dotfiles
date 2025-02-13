@@ -62,5 +62,27 @@
         ${lib.getExe pkgs.lsd} --tree "$dir"
       done
     '';
+
+    miniserve-archive = {
+      runtimeInputs = with pkgs; [ archivemount coreutils miniserve ];
+      text = ''
+        trap exit SIGINT
+
+        archive="''${1:-missing archive path}"
+        shift
+        dir="$(mktemp --tmpdir -d "miniserve-archive.XXXXXX")"
+
+        archivemount -o readonly "$archive" "$dir"
+
+        cleanup() {
+          fusermount -u "$dir"
+          rmdir "$dir"
+        }
+
+        trap cleanup EXIT
+
+        miniserve -i ::1 --index index.html "$dir" "$@"
+      '';
+    };
   };
 }
