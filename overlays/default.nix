@@ -23,6 +23,22 @@ in {
   # broken with 1.80 changes
   # starship = callOverlay ./starship.nix;
 
+  # https://github.com/Leseratte10/acsm-calibre-plugin/issues/68#issuecomment-2162686156
+  calibre = final.symlinkJoin {
+    inherit (prev.calibre) name;
+    paths = [
+      (final.writeShellApplication {
+        name = "calibre";
+        text = ''
+          export ACSM_LIBCRYPTO=${final.openssl.out}/lib/libcrypto.so
+          export ACSM_LIBSSL=${final.openssl.out}/lib/libssl.so
+          ${prev.calibre}/bin/calibre
+        '';
+      })
+      prev.calibre
+    ];
+  };
+
   unstable = pkgs-unstable;
 
   cargo-llvm-cov = final.callPackage ({ rustPlatform }: rustPlatform.buildRustPackage rec {
