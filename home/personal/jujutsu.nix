@@ -6,9 +6,12 @@
         email = "git@nemo157.com";
       };
       signing = {
-        sign-all = true;
+        behavior = "drop";
         backend = "gpg";
         key = "git@nemo157.com";
+      };
+      git = {
+        sign-on-push = true;
       };
     };
   };
