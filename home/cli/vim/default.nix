@@ -159,7 +159,8 @@ in {
       au FileType coffee setlocal tabstop=2 shiftwidth=2
       au FileType typescript setlocal expandtab sw=2 ts=2
       au FileType javascript setlocal expandtab sw=2 ts=2
-      au FileType rust let b:ale_linters = ['cargo-rubber']
+      au FileType rust let b:ale_linter_aliases = ['rust', 'markdown']
+      au FileType rust let b:ale_linters = ['cargo-rubber', 'vale']
 
       au BufRead,BufNewFile *.kramdown setf mkd
       au BufRead,BufNewFile *.xaml setf xml
