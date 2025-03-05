@@ -224,6 +224,8 @@ in {
       windowrulev2 = size 50% 70%,class:^steam$,title:^(?!Steam$).+
       windowrulev2 = center,class:^steam$,title:^(?!Steam$).+
 
+      windowrulev2 = float,class:xdg-desktop-portal-gtk
+
       layerrule = dimaround, rofi
     '';
   };
