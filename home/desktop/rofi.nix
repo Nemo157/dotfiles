@@ -19,6 +19,7 @@ let
   };
   rofimoji-modes = [
     "emojis"
+    "kaomoji"
     "box_drawing"
     "math"
     "letterlike_symbols"
