@@ -6,7 +6,7 @@
     firewall = {
       allowedTCPPorts = [
         # shairport-sync
-        5000
+        5000 5001
       ];
 
       allowedUDPPortRanges = [
