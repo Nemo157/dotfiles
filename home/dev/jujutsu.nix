@@ -119,7 +119,7 @@
 
       fix.tools = {
         rustfmt = {
-          command = ["rustfmt"];
+          command = ["rustfmt" "--edition" "2021"];
           patterns = ["glob:**/*.rs"];
         };
         taplo = {
