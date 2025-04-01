@@ -13,7 +13,11 @@ in {
 
       sleep 1
 
-      grim -t png -g "$(slurp)" - | wl-copy -t image/png
+      coords="$(slurp)"
+
+      sleep 1
+
+      grim -t png -g "$coords" - | wl-copy -t image/png
     '';
   };
 
@@ -228,6 +232,8 @@ in {
       windowrulev2 = center,class:^steam$,title:^(?!Steam$).+
 
       windowrulev2 = float,class:xdg-desktop-portal-gtk
+
+      windowrulev2 = fullscreen,class:^wl-screenshot-swayimg$
 
       layerrule = dimaround, rofi
     '';
