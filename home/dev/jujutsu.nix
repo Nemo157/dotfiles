@@ -32,6 +32,10 @@
         };
       };
 
+      snapshot = {
+        auto-update-stale = true;
+      };
+
       colors = {
         rest = "bright blue";
         tags = "yellow";
