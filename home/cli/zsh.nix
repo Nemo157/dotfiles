@@ -63,5 +63,16 @@
       precmd_functions+=(dir_in_title)
       preexec_functions+=(cmd_in_title)
     '';
+    plugins = [
+      {
+        name = "zsh-completion-sync";
+        src = pkgs.fetchFromGitHub {
+          owner = "BronzeDeer";
+          repo = "zsh-completion-sync";
+          rev = "v0.3.0";
+          hash = "sha256-zDlmFaKU/Ilzcw6o22Hu9JFt8JKsER8idkb6QrtQKjI=";
+        };
+      }
+    ];
   };
 }
