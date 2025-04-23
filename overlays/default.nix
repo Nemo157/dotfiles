@@ -24,4 +24,16 @@ in {
   # starship = callOverlay ./starship.nix;
 
   unstable = pkgs-unstable;
+
+  cargo-llvm-cov = final.callPackage ({ rustPlatform }: rustPlatform.buildRustPackage rec {
+    pname = "cargo-llvm-cov";
+    version = "0.6.15";
+    src = final.fetchCrate {
+      inherit pname version;
+      sha256 = "sha256-NOgo36hyWhdJq1It24gwn9Pu9jbDPOiWsOlvaWPRgJc=";
+    };
+    cargoHash = "sha256-MfccCi8nw/sz+5WfVc4ge1D57rISJbwI6MvVPA/aBDk=";
+    doCheck = false;
+  }) {};
+
 } // import ../packages { pkgs = final; }
