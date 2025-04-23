@@ -5,6 +5,8 @@
     defaultKeymap = "viins";
     autosuggestion.enable = true;
     enableVteIntegration = true;
+    # handled by zsh-completion-sync, avoid initializing twice
+    completionInit = "";
     syntaxHighlighting.enable = true;
     cdpath = [
       "${config.home.homeDirectory}"
