@@ -32,6 +32,18 @@ bwrap_args=(
   --ro-bind "$root" "$root"
   --ro-bind "${CARGO_HOME:-$HOME/.cargo}" "${CARGO_HOME:-$HOME/.cargo}"
   --bind "$target_dir" "$target_dir"
+)
+
+if build_dir="$(cargo metadata "${manifest[@]}" --format-version 1 | jq -er .build_directory)"
+then
+  build_dir="$(realpath "$build_dir")"
+  mkdir -p "$build_dir"
+  bwrap_args+=(
+    --bind "$build_dir" "$build_dir"
+  )
+fi
+
+bwrap_args+=(
   --unshare-net
   --unsetenv TMPDIR
 )
