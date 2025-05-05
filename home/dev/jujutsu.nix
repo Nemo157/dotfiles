@@ -114,7 +114,6 @@
 
       git = {
         fetch = ["origin" "upstream"];
-        subprocess = true;
       };
 
       fix.tools = {
