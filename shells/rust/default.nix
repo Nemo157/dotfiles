@@ -112,6 +112,9 @@ in pkgs.mkShell {
     export CARGO_PROFILE_DEV_CODEGEN_BACKEND=cranelift
     export CARGO_PROFILE_DEV_PANIC=abort
 
+    export CARGO_BUILD_BUILD_DIR="{cargo-cache-home}/target/build/{workspace-path-hash}"
+
+    export CARGO_UNSTABLE_BUILD_DIR=true
     export CARGO_UNSTABLE_BUILD_STD=std,panic_abort
     export CARGO_UNSTABLE_BUILD_STD_FEATURES=compiler-builtins-no-f16-f128
     export CARGO_UNSTABLE_CHECK_CFG=true
