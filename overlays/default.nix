@@ -10,7 +10,6 @@
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
 in {
-  rofi-wayland-unwrapped = callOverlay ./rofi-wayland.nix;
   rofi = final.rofi-wayland;
 
   freetube = callOverlay ./freetube.nix;
@@ -19,9 +18,6 @@ in {
 
   # No release in over 2 years, with many many commits since :ferrisPensive:
   beets = prev.beets-unstable;
-
-  # broken with 1.80 changes
-  # starship = callOverlay ./starship.nix;
 
   # https://github.com/Leseratte10/acsm-calibre-plugin/issues/68#issuecomment-2162686156
   calibre = final.symlinkJoin {
