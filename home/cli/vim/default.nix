@@ -9,6 +9,8 @@ in {
   programs.vim = {
     enable = true;
     defaultEditor = true;
+    # drop all the gui/interpreted language support from vim-full
+    packageConfigurable = pkgs.vim;
 
     plugins = with plugins; [
       vim-gitgutter
