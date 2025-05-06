@@ -2,8 +2,8 @@
   services.telegraf.extraConfig.inputs = {
     docker = {};
     linux_cpu = {};
-    nvidia_smi = {
-      bin_path = lib.getExe' config.hardware.nvidia.package "nvidia-smi";
+    amd_rocm_smi = {
+      bin_path = lib.getExe' pkgs.rocmPackages.rocm-smi "rocm-smi";
     };
     sensors = {};
     zfs = {

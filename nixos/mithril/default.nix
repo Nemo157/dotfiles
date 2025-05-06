@@ -5,7 +5,7 @@
     ../personal
 
     nixos-hardware.common-cpu-amd
-    nixos-hardware.common-gpu-nvidia-nonprime
+    nixos-hardware.common-gpu-amd
     nixos-hardware.common-pc-ssd
 
     ./boot-loader.nix

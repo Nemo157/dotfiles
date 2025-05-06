@@ -26,18 +26,6 @@
     tray.enable = true;
   };
 
-  wayland.windowManager.hyprland = {
-    extraConfig = lib.mkBefore ''
-      env = LIBVA_DRIVER_NAME,nvidia
-      env = GBM_BACKEND,nvidia-drm
-      env = __GLX_VENDOR_LIBRARY_NAME,nvidia
-      env = WLR_NO_HARDWARE_CURSORS,1
-
-      # No idea why this monitor appears, but disable it :shrug:
-      monitor = Unknown-1, disable
-    '';
-  };
-
   xdg.configFile = {
     "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
       monitor.alsa.rules = [
