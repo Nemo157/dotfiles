@@ -33,6 +33,8 @@
       autofit = "37%";
       geometry = "100%:100%";
 
+      audio-channels = "stereo";
+
       input-ipc-server = "/tmp/mpvsocket";
     };
   };
