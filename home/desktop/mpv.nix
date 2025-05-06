@@ -5,6 +5,7 @@
       mpv = pkgs.mpv.unwrapped.override {
         vapoursynthSupport = true;
       };
+      scripts = with pkgs.mpvScripts; [ sponsorblock uosc ];
     };
     defaultProfiles = [ "gpu-hq" ];
     profiles = {
