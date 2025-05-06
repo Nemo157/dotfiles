@@ -40,6 +40,7 @@
       fetch.prune = true;
       gc.auto = 200;
       "url \"git@github.com:\"".pushInsteadOf = "https://github.com/";
+      "url \"git@codeberg.org:\"".pushInsteadOf = "https://codeberg.org/";
       "url \"git@gitlab.com:\"".pushInsteadOf = "https://gitlab.com/";
       "url \"git@gist.github.com:\"".pushInsteadOf = "https://gist.github.com/";
     };
