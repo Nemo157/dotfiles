@@ -9,5 +9,6 @@
     extraModprobeConfig = ''
       options hid_apple swap_opt_cmd=1
     '';
+    blacklistedKernelModules = [ "rtc_cmos" ];
   };
 }
