@@ -31,7 +31,7 @@
     };
     profileExtra = ''
     '';
-    initExtra = ''
+    initContent = ''
       setopt auto_menu
       setopt correct_all
       setopt dvorak

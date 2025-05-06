@@ -13,7 +13,7 @@ in {
       path = "njgb2g6v.default";
 
       search = {
-        default = "DuckDuckGo";
+        default = "ddg";
         force = true;
         engines = {
           "Nix Packages" = {
@@ -71,7 +71,7 @@ in {
                 { name = "q"; value = "{searchTerms}"; }
               ];
             }];
-            iconUpdateURL = "https://www.protondb.com/sites/protondb/images/favicon-32x32.png";
+            icon = "https://www.protondb.com/sites/protondb/images/favicon-32x32.png";
             definedAliases = [ "@pd" ];
           };
 
@@ -87,9 +87,9 @@ in {
           };
 
           "Amazon.de".metaData.hidden = true;
-          Bing.metaData.hidden = true;
-          Google.metaData.hidden = true;
-          "Wikipedia (en)".metaData.hidden = true;
+          bing.metaData.hidden = true;
+          google.metaData.hidden = true;
+          wikipedia.metaData.hidden = true;
         };
       };
 
@@ -115,7 +115,7 @@ in {
         # "${csshacks}/chrome/navbar_below_content.css"
       ]);
 
-      extensions = with pkgs.nur.repos.rycee.firefox-addons; [
+      extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
         augmented-steam
         bitwarden
         firefox-translations

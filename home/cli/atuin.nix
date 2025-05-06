@@ -24,7 +24,7 @@
     };
   };
 
-  programs.zsh.initExtra = lib.mkAfter ''
+  programs.zsh.initContent = lib.mkAfter ''
     if [[ $options[zle] = on ]]; then
       _atuin_search_viins_clear() {
         BUFFER= _atuin_search_viins

@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }: {
+{ lib, config, pkgs, ts, hostname, ... }: {
   imports = [
     ./cli
     ./dev
@@ -24,6 +24,7 @@
   services.syncthing = {
     enable = true;
     tray.enable = true;
+    guiAddress = "${ts.ips.mithril}:8384";
   };
 
   xdg.configFile = {

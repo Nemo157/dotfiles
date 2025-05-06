@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }: {
+{ lib, config, pkgs, ts, ... }: {
   imports = [
     ./cli
     ./dev
@@ -22,5 +22,6 @@
   services.syncthing = {
     enable = true;
     tray.enable = true;
+    guiAddress = "${ts.ips.zinc}:8384";
   };
 }

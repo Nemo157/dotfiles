@@ -9,7 +9,7 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-Rmgn1oTFKZ5wTE6akfRuPwYQu5ePiJWuJduHfqF6Wpo=";
   };
 
-  cargoHash = "sha256-f7ptVwpm3LEKOxzbplyT5IjibjrlDrWkT2JJGvltekM=";
+  cargoHash = "sha256-q3SUCKax8SpKbC15+T+3jnGcww8pNUiXXt7IAvsNpNQ=";
 
   meta = with lib; {
     description = "Cargo subcommand for downloading crate sources";

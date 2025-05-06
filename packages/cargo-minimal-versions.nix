@@ -9,7 +9,7 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-6uJ/QXuDJ55baWGuzP8IIsezM1QSEeKOxN+0jm6Or50=";
   };
 
-  cargoSha256 = "sha256-Zcr+xWNFPJhtfJF8pl+KUN/ZSVa25mSbdXHMqY6OMv0=";
+  cargoHash = "sha256-1oK4UpSLDPKALOKIc2KY+HO1Wv0SdhZSy7SrY+hbTJ0=";
 
   meta = with lib; {
     description = "Cargo subcommand for proper use of -Z minimal-versions";

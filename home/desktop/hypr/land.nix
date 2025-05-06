@@ -205,7 +205,8 @@ in {
       windowrulev2 = bordersize 0, floating:0, onworkspace:f[1]
       windowrulev2 = rounding 0, floating:0, onworkspace:f[1]
 
-      windowrulev2 = float,class:RimPy,title:^(?!RimPy)
+      windowrulev2 = float,class:RimPy
+      windowrulev2 = tile,class:RimPy,title:^RimPy
 
       windowrulev2 = opaque,title:Picture in picture
       windowrulev2 = float,title:Picture in picture
@@ -214,8 +215,10 @@ in {
       windowrulev2 = move 70% 70%,title:Picture in picture
 
       windowrulev2 = tile,class:^RimWorldLinux
-      windowrulev2 = tile,class:^Minecraft
       windowrulev2 = tile,class:^Melvor
+
+      windowrulev2 = tile,class:^Minecraft
+      windowrulev2 = opaque,class:^Minecraft
 
       windowrulev2 = tile,title:^Vintage Story
       windowrulev2 = opaque,title:^Vintage Story
@@ -242,17 +245,17 @@ in {
       windowrulev2 = tile,title:^EDDiscovery Version
       windowrulev2 = opaque,title:^EDDiscovery Version
 
-      windowrulev2 = tile,class:^steam$,title:^Steam$
-
       windowrulev2 = fullscreen,class:^steam_app
       windowrulev2 = opaque,class:^steam_app
 
       windowrulev2 = tile,class:steam_app_1284210
       windowrulev2 = opaque,class:steam_app_1284210
 
-      windowrulev2 = float,class:^steam$,title:^(?!Steam$).+
-      windowrulev2 = size 50% 70%,class:^steam$,title:^(?!Steam$).+
-      windowrulev2 = center,class:^steam$,title:^(?!Steam$).+
+      windowrulev2 = float,class:^steam$
+      windowrulev2 = size 50% 70%,class:^steam$
+      windowrulev2 = center,class:^steam$
+
+      windowrulev2 = tile,class:^steam$,title:^Steam$
 
       windowrulev2 = float,class:xdg-desktop-portal-gtk
 
