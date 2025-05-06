@@ -15,6 +15,10 @@
       automatic = true;
       options = "--delete-older-than +20";
     };
+
+    optimise = {
+      automatic = true;
+    };
   };
 
   environment.systemPackages = with pkgs; [
