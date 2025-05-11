@@ -118,7 +118,7 @@
 
 
 (defwidget duration [?prefix value]
-    (label :text "${prefix}${jq(value, '. / 60 | floor')}:${jq(value, '(. | floor) % 60 | if . < 10 then 0 else empty end')}${jq(value, '(. | floor) % 60')}")
+  (label :text "${prefix}${floor(value / 60)}:${value % 60 < 10 ? "0" : ""}${floor(value % 60)}")
 )
 
 (defwidget btn [onclick icon]
