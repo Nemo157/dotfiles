@@ -25,6 +25,7 @@
       indicators = true;
       total-size = true;
 
+      hyperlink = "auto";
     };
 
     colors = {
