@@ -1,10 +1,10 @@
 filter_bare() {
-  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?)'
+  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?)' || true
 }
 
 filter_osc8() {
   # shellcheck disable=SC1003
-  rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\(.*?)\x1b\]8;;\x1b\\' --replace $'$1\x1f$2'
+  rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\(.*?)\x1b\]8;;\x1b\\' --replace $'$1\x1f$2' || true
 }
 
 capture_urls() {
