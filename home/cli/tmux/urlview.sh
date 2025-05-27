@@ -21,7 +21,7 @@ readarray -t urls < <(capture_urls)
 if ! [[ -v urls ]]
 then
   tmux display-message "No urls found"
-  return
+  exit 0
 fi
 
 echo "urls" >&2
