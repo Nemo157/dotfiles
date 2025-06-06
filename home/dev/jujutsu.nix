@@ -12,7 +12,7 @@
     settings = {
       ui = {
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
-        diff.tool = "delta";
+        diff-formatter = "delta";
       };
 
       merge-tools = {
