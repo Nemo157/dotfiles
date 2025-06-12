@@ -49,6 +49,12 @@ in {
     [profile.tarpaulin.package."*"]
     opt-level = 0
     debug = "full"
+
+    # `cargo-expand` pretends it's a builtin subcommand and reuses cargo's config file 👿.
+    [expand]
+    # This is a custom theme setup from `../../cli/bat/default.nix` that uses only ansi color codes
+    # and reduces candy vomit.
+    theme = "eink2"
   '';
 
   xdg.configFile."cargo-audit/audit.toml".text = ''
