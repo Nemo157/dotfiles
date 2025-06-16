@@ -94,6 +94,8 @@ in {
       };
 
       settings = {
+        # FUCK YOU MOZILLA
+        "browser.ml.chat.enabled" = false;
         "browser.eme.ui.enabled" = false;
         "browser.tabs.tabmanager.enabled" = false;
         "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
