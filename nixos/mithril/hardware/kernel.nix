@@ -7,6 +7,6 @@
       kernelModules = [ "dm-snapshot" ];
     };
     kernelModules = [ "kvm-amd" ];
-    kernelPackages = pkgs.linuxPackages_6_13;
+    kernelPackages = pkgs.linuxPackages_6_15;
   };
 }
