@@ -13,6 +13,7 @@
       ui = {
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
         diff-formatter = "delta";
+        always-allow-large-revsets = true;
       };
 
       merge-tools = {
