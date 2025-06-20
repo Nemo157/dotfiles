@@ -25,20 +25,35 @@ in {
     runtimeInputs = [ pkgs.jq pkgs.hyprland ];
     text = ''
       client="$(hyprctl activewindow -j)"
-
-      window="address:$(jq -r '.address' <<<"$client")"
-      width="$(jq -r '.size[0]' <<<"$client")"
       monitor="$(hyprctl monitors -j | jq -r --argjson client "$client" '.[] | select(.id == $client.monitor)')"
+      reserved="$(jq -r '.reserved[2]' <<<"$monitor")"
+      window="address:$(jq -r '.address' <<<"$client")"
       monname="$(jq -r '.name' <<<"$monitor")"
-      monwidth="$(jq -r '.width' <<<"$monitor")"
 
-      hyprctl dispatch setfloating "$window"
-      hyprctl dispatch pin "$window"
-      hyprctl dispatch resizewindowpixel "exact $width 100%,$window"
-      hyprctl dispatch movewindowpixel "exact $((monwidth - width)) 0,$window"
-      hyprctl setprop "$window" opaque on
+      if [ "$reserved" = "0" ]
+      then
+        # no right reserved space, we're promoting a window to be an emulated layer
+        width="$(jq -r '.size[0]' <<<"$client")"
+        monwidth="$(jq -r '.width' <<<"$monitor")"
 
-      hyprctl keyword "monitor $monname, addreserved, 0, 0, 0, $width"
+        hyprctl dispatch setfloating "$window"
+        hyprctl dispatch pin "$window"
+        hyprctl dispatch resizewindowpixel "exact $width 100%,$window"
+        hyprctl dispatch movewindowpixel "exact $((monwidth - width)) 0,$window"
+        hyprctl setprop "$window" opaque on
+
+        hyprctl keyword "monitor $monname, addreserved, 0, 0, 0, $width"
+      else
+        # there was right reserved space, assume we're cleaning up a previous emulated layer
+        if [ "$(jq -r '.pinned' <<<"$client")" = "true" ]
+        then
+          # previous emulated layer is open and selected, undo its pinning
+          hyprctl dispatch settiled "$window"
+          hyprctl setprop "$window" opaque off
+        fi
+        # unreserve the space
+        hyprctl keyword "monitor $monname, addreserved, 0, 0, 0, 0"
+      fi
     '';
   };
 
