@@ -26,9 +26,9 @@ in {
   };
 
   services.udev.extraRules = ''
-    SUBSYSTEM=="power_supply", TAG+="systemd"
-    SUBSYSTEM=="power_supply", ENV{SYSTEMD_ALIAS}="/ac"
-    SUBSYSTEM=="power_supply", ATTR{online}=="0", ENV{SYSTEMD_READY}="0"
-    SUBSYSTEM=="power_supply", ATTR{online}=="1", ENV{SYSTEMD_READY}="1"
+    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", TAG+="systemd"
+    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ENV{SYSTEMD_ALIAS}="/ac"
+    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", ENV{SYSTEMD_READY}="0"
+    SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", ENV{SYSTEMD_READY}="1"
   '';
 }
