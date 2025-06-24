@@ -57,7 +57,6 @@ in pkgs.mkShell {
     cargo-minimal-versions
     cargo-nextest
     cargo-outdated
-    cargo-rubber
     cargo-semver-checks
     cargo-supply-chain
     cargo-sweep

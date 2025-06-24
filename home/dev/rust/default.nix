@@ -4,6 +4,10 @@
     ./cargo.nix
   ];
 
+  home.packages = [
+    pkgs.cargo-rubber
+  ];
+
   home.sessionVariables = {
     RUST_BACKTRACE = "1";
     # Directory that rustc dumps internal compiler error files to
