@@ -13,6 +13,17 @@ in {
     };
   };
 
+  systemd.services = {
+    inhibit-suspend-on-ac = {
+      path = [ pkgs.coreutils pkgs.systemd ];
+      script = ''
+        systemd-inhibit --what sleep:handle-lid-switch --who inhibit-suspend-on-ac sleep 7d
+      '';
+      partOf = [ "ac.target" ];
+      wantedBy = [ "ac.target" ];
+    };
+  };
+
   systemd.user.targets = {
     ac = {
       description = "On AC power";
