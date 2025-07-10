@@ -13,11 +13,11 @@ in {
     };
   };
 
-  systemd.services = {
+  systemd.user.services = {
     inhibit-suspend-on-ac = {
       path = [ pkgs.coreutils pkgs.systemd ];
       script = ''
-        systemd-inhibit --what sleep:handle-lid-switch --who inhibit-suspend-on-ac sleep 7d
+        systemd-inhibit --what handle-lid-switch --who inhibit-suspend-on-ac sleep 7d
       '';
       partOf = [ "ac.target" ];
       wantedBy = [ "ac.target" ];
