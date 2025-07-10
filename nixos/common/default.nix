@@ -13,7 +13,7 @@
 
     gc = {
       automatic = true;
-      options = "--delete-older-than +20";
+      options = "--delete-older-than 30d";
     };
 
     optimise = {
