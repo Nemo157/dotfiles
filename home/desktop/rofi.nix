@@ -2,6 +2,7 @@
 let
   run-command = pkgs.writeShellApplication {
     name = "run-command";
+    runtimeInputs = with pkgs; [ coreutils systemd ];
     text = ''
       run() {
         cmd="$1"
@@ -12,7 +13,7 @@ let
         "$cmd" "$@"
       }
 
-      app="$(systemd-escape "$(filename 1)")"
+      app="$(systemd-escape "$(basename 1)")"
       unit="app-rofi-$app-$RANDOM"
       run exec systemd-run --scope --user --slice-inherit --slice="$app" --unit="$unit" systemd-cat -t "$app" "$@"
     '';
