@@ -10,9 +10,11 @@
         backend = "gpg";
         key = "wim.looman@veecle.io";
       };
-      git = rec {
+      git = {
         sign-on-push = true;
-        push-bookmark-prefix = "wim/push-";
+      };
+      templates = {
+        git_push_bookmark = ''"wim/push-" ++ change_id.short()'';
       };
     };
   };
