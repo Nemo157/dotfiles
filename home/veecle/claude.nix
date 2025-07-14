@@ -42,4 +42,12 @@ let
   '';
 in {
   home.packages = [ claude-code ];
+
+  # Run a claude instance in a fresh workspace
+  scripts.jj-claude = {
+    runtimeInputs = [ pkgs.coreutils pkgs.jujutsu claude-code ];
+    source = ./jj-claude.sh;
+  };
+
+  programs.jujutsu.settings.aliases.claude = ["util" "exec" "--" "jj-claude"];
 }
