@@ -183,7 +183,14 @@
     packages.${system} = import ./packages { inherit pkgs; };
     legacyPackages.${system} = pkgs;
 
-    devShells.${system} = import ./shells { inherit pkgs; };
+    devShells.${system} = import ./shells { inherit pkgs; } // {
+      local = pkgs.mkShell {
+        buildInputs = [
+          pkgs.agenix
+          pkgs.colmena
+        ];
+      };
+    };
 
     colmena = {
       meta = {
