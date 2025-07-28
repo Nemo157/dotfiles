@@ -1,6 +1,6 @@
 { pkgs, ... }: {
   imports = [
-    ./claude.nix
+    ./claude
     ./ssh.nix
     ./git.nix
     ./jujutsu.nix
