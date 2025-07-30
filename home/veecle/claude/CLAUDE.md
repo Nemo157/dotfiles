@@ -1,7 +1,7 @@
 # Bash commands
 
 - Prefer using `rg` and `fd` instead of `grep` and `find`.
-- Read `@jj.md` to see how to use `jj` as a replacement for `git`.
+- Read @jj.md to see how to use `jj` as a replacement for `git`.
 - Use `cargo clippy` instead of `cargo check`.
 
 # Workflow
