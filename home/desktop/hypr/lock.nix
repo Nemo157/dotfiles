@@ -7,7 +7,7 @@ let
     runtimeInputs = with pkgs; [ coreutils ];
     text = ''
       date +'%Y<span color="${sol.hash.base02}">-</span>%m<span color="${sol.hash.base02}">-</span>%d'
-      if (( $(date +'%S') % 2 ))
+      if (( 10#$(date +'%S') % 2 ))
       then
         date +'%H<span color="${sol.hash.base02}">:</span>%M<span color="${sol.hash.base02}">%z</span>'
       else
