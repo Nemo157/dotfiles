@@ -13,9 +13,12 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 
 ### Status and History
 - `jj status` (or `jj st`) ≈ `git status` + `git log --oneline -1`
-- `jj log` ≈ `git log --graph --oneline` (shows graphical history)
+- `jj log` ≈ `git log --graph --oneline` (shows graphical history with short commit messages)
 - `jj log -r ::` ≈ `git log --all --graph` (show all revisions)
-- `jj log -p` ≈ `git log -p` (show patches)
+- `jj show <rev>` ≈ `git show <rev>` (show specific revision with full commit message and patch)
+  - Use `jj show @-` to inspect the most recent commit with complete details
+  - Prefer `jj show` over `jj log -p` for examining individual commits
+- `jj log -p` ≈ `git log -p` (show patches for range of revisions)
 
 ### Working with Changes
 - `jj new` ≈ `git checkout -b` (create new revision and switch to it)
