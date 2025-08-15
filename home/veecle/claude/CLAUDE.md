@@ -13,6 +13,10 @@
 
 # Code Quality Workflow
 
+## Code Review
+- **Use code-reviewer subagent** for reviewing recently written code, ensuring best practices, and catching potential issues before committing
+- Code reviews focus on quality, architecture, and correctness - build verification is handled separately
+
 ## Rust Projects
 - **Build verification order:**
   1. `cargo clippy --all-targets -- -Awarnings` (build check)
