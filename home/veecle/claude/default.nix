@@ -4,23 +4,50 @@ let
 
   json = pkgs.formats.json {};
 
-  allowed-commands = ''
-    cargo check
-    cargo clippy
-    cargo test
-    jj diff
-    jj file show
-    jj log
-    jj new
-    jj show
-    jj status
-    rg
-  '';
+  allowed-commands = [
+    "cargo check"
+    "cargo clippy"
+    "cargo test"
+    "jj diff"
+    "jj file show"
+    "jj log"
+    "jj new"
+    "jj show"
+    "jj status"
+    "rg"
+  ];
+
+  allowed-mcp = {
+    linear-server = [
+      "get_document"
+      "get_issue"
+      "get_issue_status"
+      "get_project"
+      "get_team"
+      "get_user"
+      "list_comments"
+      "list_cycles"
+      "list_documents"
+      "list_issue_labels"
+      "list_issue_statuses"
+      "list_issues"
+      "list_my_issues"
+      "list_project_labels"
+      "list_projects"
+      "list_teams"
+      "list_users"
+      "search_documentation"
+    ];
+  };
 
   claude-code-settings = json.generate "claude-code-settings.json" {
     includeCoAuthoredBy = false;
     permissions = {
-      allow = map (command: "Bash(${command}:*)") (lib.splitString "\n" (lib.removeSuffix "\n" allowed-commands));
+      allow = 
+        (map (command: "Bash(${command}:*)") allowed-commands) ++
+        (lib.flatten (lib.mapAttrsToList (server: functions: 
+          map (func: "mcp__${server}__${func}") functions
+        ) allowed-mcp));
       deny = [];
       defaultMode = "acceptEdits";
       env = {
