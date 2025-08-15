@@ -1,19 +1,42 @@
-# Bash commands
+# Tool Preferences
 
-- Prefer using `rg` and `fd` instead of `grep` and `find`.
-- Read @jj.md to see how to use `jj` as a replacement for `git`.
-- Use `cargo clippy` instead of `cargo check`.
+- Use `rg` instead of `grep` for searching
+- Use `fd` instead of `find` for file discovery
+- Use `jj` instead of `git` (see @jj.md for commands)
+- Use `cargo clippy` instead of `cargo check` for Rust
 
-# Workflow
+# Communication Style
 
-- Format output for issue descriptions as markdown but with syntax highlighting applied appropriately.
-- Be very succinct in explaining what steps you will take.
+- Be concise and direct - explain steps briefly
+- Format technical output as markdown with appropriate syntax highlighting
+- Use file:line references when mentioning code locations (e.g., `src/main.rs:42`)
 
-## Rust projects
+# Code Quality Workflow
 
-- When checking the code works:
-  - First check the code builds with `cargo clippy --all-targets -- -Awarnings`
-  - Then run tests
-  - Then fix warnings from `cargo clippy --all-targets`
-- NEVER use `unsafe` in Rust code.
-- Only check the packages that have been modified, not the whole workspace.
+## Rust Projects
+- **Build verification order:**
+  1. `cargo clippy --all-targets -- -Awarnings` (build check)
+  2. `cargo test` (run tests)
+  3. `cargo clippy --all-targets` (fix all warnings)
+- **Safety:** NEVER use `unsafe` code
+- **Scope:** Only check modified packages, not entire workspace
+- **Testing:** Always verify changes don't break existing functionality
+
+## General Development
+- Always read existing code patterns before making changes
+- Follow project's existing conventions (imports, naming, structure)
+- Never commit secrets or expose sensitive data
+- Run linting/formatting tools after code changes
+
+# Task Management
+
+- Use TodoWrite tool for multi-step tasks (3+ steps)
+- Mark todos in_progress before starting work
+- Complete todos immediately after finishing each step
+- Break complex features into specific, actionable items
+
+# File Operations
+
+- ALWAYS prefer editing existing files over creating new ones
+- NEVER create documentation files unless explicitly requested
+- Read files before editing to understand context and conventions
