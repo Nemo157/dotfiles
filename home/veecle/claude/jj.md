@@ -26,6 +26,7 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj edit <revision>` ≈ `git checkout <commit>` (switch working copy to revision)
 - `jj diff` ≈ `git diff HEAD` (show working copy changes)
 - `jj diff -r <rev>` ≈ `git show <rev>` (show changes in revision)
+- `jj diff -r main..@` ≈ `git diff main..HEAD` (show all changes in current branch since main)
 
 ### Branching and Bookmarks
 - `jj bookmark create <name>` ≈ `git branch <name>`
