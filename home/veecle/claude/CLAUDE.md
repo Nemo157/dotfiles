@@ -2,7 +2,7 @@
 
 - Use `rg` instead of `grep` for searching
 - Use `fd` instead of `find` for file discovery
-- Use `jj` instead of `git` (see @jj.md for commands)
+- Use `jj` instead of `git` (see @imports/jj.md for commands)
 - Use `cargo clippy` instead of `cargo check` for Rust
 
 # Communication Style
