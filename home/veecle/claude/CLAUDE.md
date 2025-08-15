@@ -42,3 +42,7 @@
 - Read files before editing to understand context and conventions
 - **No trailing whitespace:** Never add trailing spaces or tabs at the end of lines
 - **Files end with newline:** Always ensure files end with a single newline character
+
+# Configuration Management
+
+For all Claude configuration changes (CLAUDE.md, subagents, settings), use the `config-manager` subagent to ensure proper formatting, consistency, and adherence to established patterns.

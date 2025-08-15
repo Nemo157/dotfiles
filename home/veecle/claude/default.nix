@@ -49,6 +49,9 @@ in {
 
   xdg.configFile."claude/CLAUDE.md".source = ./CLAUDE.md;
   xdg.configFile."claude/jj.md".source = ./jj.md;
+  xdg.configFile."claude/agents/code-reviewer.md".source = ./agents/code-reviewer.md;
+  xdg.configFile."claude/agents/technical-docs-reviewer.md".source = ./agents/technical-docs-reviewer.md;
+  xdg.configFile."claude/agents/config-manager.md".source = ./agents/config-manager.md;
 
   xdg.configFile."claude/settings.json".source = claude-code-settings;
 
