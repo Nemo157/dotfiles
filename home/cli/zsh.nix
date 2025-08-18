@@ -24,16 +24,12 @@
       "cd.." = "cd ..";
       fu = "sudo $( fc -ln -1 )";
       ytop = "ytop -c ansi-8";
-      man = "nocorrect man";
-      mv = "nocorrect mv";
-      cp = "nocorrect cp";
-      mkdir = "nocorrect mkdir";
     };
     profileExtra = ''
     '';
     initContent = ''
       setopt auto_menu
-      setopt correct_all
+      setopt correct
       setopt dvorak
       setopt hist_ignore_all_dups
       setopt hist_verify
