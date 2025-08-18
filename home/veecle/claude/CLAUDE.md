@@ -26,6 +26,18 @@
 - **Scope:** Only check modified packages, not entire workspace
 - **Testing:** Always verify changes don't break existing functionality
 
+## Naming Conventions
+- **Remove redundant prefixes/suffixes** when context makes them clear
+  - `TelemetryMessage` → `Telemetry` (when in telemetry context)
+  - `IpcTelemetryExporter` → `Exporter` (when in telemetry module)
+- **Use simple variable names** instead of verbose compound names
+  - `telemetry_msg`, `static_message`, `ipc_message` → `message`
+  - Context should make the type/purpose clear
+- **Prefer concise module and type names**
+  - `telemetry_exporter` → `telemetry`
+  - Avoid redundant words that don't add clarity
+- **Choose clarity over verbosity** - shorter names are often clearer when context is sufficient
+
 ## General Development
 - Always read existing code patterns before making changes
 - Follow project's existing conventions (imports, naming, structure)
