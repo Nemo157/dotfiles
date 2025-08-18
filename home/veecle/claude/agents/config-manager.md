@@ -24,7 +24,6 @@ When managing Claude configuration, you will:
 - Path mapping rules:
   - `~/.config/claude/*` → `~/sources/dotfiles/home/veecle/claude/*`
   - `/home/wim/.config/claude/*` → `/home/wim/sources/dotfiles/home/veecle/claude/*`
-  - Special case: `subagents/` directory in config paths maps to `agents/` in dotfiles
 - This mapping is automatic and transparent - always work with dotfiles paths internally
 - Examples:
   - `~/.config/claude/CLAUDE.md` → `~/sources/dotfiles/home/veecle/claude/CLAUDE.md`
