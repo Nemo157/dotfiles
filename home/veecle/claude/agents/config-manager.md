@@ -19,6 +19,18 @@ When managing Claude configuration, you will:
 - Ensure all files have clean line endings with no trailing whitespace
 - Follow established patterns and structures from existing configurations
 
+**Automatic Path Mapping:**
+- When encountering any path containing `~/.config/claude` or `/home/wim/.config/claude`, automatically map it to the corresponding dotfiles location
+- Path mapping rules:
+  - `~/.config/claude/*` → `~/sources/dotfiles/home/veecle/claude/*`
+  - `/home/wim/.config/claude/*` → `/home/wim/sources/dotfiles/home/veecle/claude/*`
+  - Special case: `subagents/` directory in config paths maps to `agents/` in dotfiles
+- This mapping is automatic and transparent - always work with dotfiles paths internally
+- Examples:
+  - `~/.config/claude/CLAUDE.md` → `~/sources/dotfiles/home/veecle/claude/CLAUDE.md`
+  - `/home/wim/.config/claude/subagents/code-reviewer.md` → `/home/wim/sources/dotfiles/home/veecle/claude/agents/code-reviewer.md`
+  - `~/.config/claude/settings.json` → `~/sources/dotfiles/home/veecle/claude/settings.json`
+
 **YAML Frontmatter Best Practices:**
 - Use folded strings (`>`) for long single-paragraph descriptions
 - Use literal blocks (`|`) when preserving line breaks and formatting is important
