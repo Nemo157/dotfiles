@@ -1,65 +1,48 @@
+# Core Overrides
+
+**File operations:**
+- ALWAYS edit existing files over creating new ones
+- NEVER create documentation files unless explicitly requested
+- Files end with single newline, no trailing whitespace
+
+**Task tracking:**
+- Use TodoWrite for multi-step tasks (3+ steps)
+- Mark in_progress before starting, complete immediately after finishing
+
+# Communication & Style
+
+- Be concise and direct
+- Use file:line references (e.g., `src/main.rs:42`)
+- Format code output with appropriate syntax highlighting
+
+# Development Practices
+
+**Code patterns:**
+- Read existing code before making changes
+- Follow project conventions (imports, naming, structure)
+- Never commit secrets or expose sensitive data
+
+**Naming conventions:**
+- Remove redundant prefixes when context is clear (`TelemetryMessage` → `Telemetry`)
+- Use simple variable names (`telemetry_msg` → `message`)
+- Choose clarity over verbosity
+
+**Rust workflow:**
+1. `cargo clippy --all-targets -- -Awarnings` (build check)
+2. `cargo test` (run tests)
+3. `cargo clippy --all-targets` (fix warnings)
+- NEVER use `unsafe` code
+- Only check modified packages, not entire workspace
+- Use code-reviewer subagent after significant changes
+
 # Tool Preferences
 
-- Use `rg` instead of `grep` for searching
-- Use `fd` instead of `find` for file discovery
-- Use `jj` instead of `git` (see @imports/jj.md for commands)
-- Use `cargo clippy` instead of `cargo check` for Rust
+- Use `rg` instead of `grep`
+- Use `fd` instead of `find`
+- Use `jj` instead of `git` (see @imports/jj.md)
+- Use `cargo clippy` instead of `cargo check`
 
-# Communication Style
-
-- Be concise and direct - explain steps briefly
-- Format technical output as markdown with appropriate syntax highlighting
-- Use file:line references when mentioning code locations (e.g., `src/main.rs:42`)
-
-# Code Quality Workflow
-
-## Code Review
-- **Use code-reviewer subagent** for reviewing recently written code, ensuring best practices, and catching potential issues before committing
-- Code reviews focus on quality, architecture, and correctness - build verification is handled separately
-
-## Rust Projects
-- **Build verification order:**
-  1. `cargo clippy --all-targets -- -Awarnings` (build check)
-  2. `cargo test` (run tests)
-  3. `cargo clippy --all-targets` (fix all warnings)
-- **Safety:** NEVER use `unsafe` code
-- **Scope:** Only check modified packages, not entire workspace
-- **Testing:** Always verify changes don't break existing functionality
-
-## Naming Conventions
-- **Remove redundant prefixes/suffixes** when context makes them clear
-  - `TelemetryMessage` → `Telemetry` (when in telemetry context)
-  - `IpcTelemetryExporter` → `Exporter` (when in telemetry module)
-- **Use simple variable names** instead of verbose compound names
-  - `telemetry_msg`, `static_message`, `ipc_message` → `message`
-  - Context should make the type/purpose clear
-- **Prefer concise module and type names**
-  - `telemetry_exporter` → `telemetry`
-  - Avoid redundant words that don't add clarity
-- **Choose clarity over verbosity** - shorter names are often clearer when context is sufficient
-
-## General Development
-- Always read existing code patterns before making changes
-- Follow project's existing conventions (imports, naming, structure)
-- Never commit secrets or expose sensitive data
-- Run linting/formatting tools after code changes
-
-# Task Management
-
-- Use TodoWrite tool for multi-step tasks (3+ steps)
-- Mark todos in_progress before starting work
-- Complete todos immediately after finishing each step
-- Break complex features into specific, actionable items
-
-# File Operations
-
-- ALWAYS prefer editing existing files over creating new ones
-- NEVER create documentation files unless explicitly requested
-- Read files before editing to understand context and conventions
-- **No trailing whitespace:** Never add trailing spaces or tabs at the end of lines
-- **Files end with newline:** Always ensure files end with a single newline character
-
-# Configuration Management
+# Claude configuration changes
 
 **CRITICAL REQUIREMENT: ALL Claude configuration changes MUST use the `config-manager` subagent IMMEDIATELY - never attempt manual file operations first.**
 
