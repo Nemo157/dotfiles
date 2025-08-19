@@ -13,10 +13,12 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 
 ### Status and History
 - `jj status` (or `jj st`) ≈ `git status` + `git log --oneline -1`
-- `jj log` ≈ `git log --graph --oneline` (shows graphical history with short commit messages)
+- `jj log` ≈ `git log --graph --oneline` (shows concise graphical history by default)
+- `jj log --limit <n>` ≈ `git log --oneline -n` (limit number of commits shown)
 - `jj log -r ::` ≈ `git log --all --graph` (show all revisions)
 - `jj show <rev>` ≈ `git show <rev>` (show specific revision with full commit message and patch)
   - Use `jj show @-` to inspect the most recent commit with complete details
+  - Use `jj show <rev>-` to inspect the parent of a specific revision
   - Prefer `jj show` over `jj log -p` for examining individual commits
 - `jj log -p` ≈ `git log -p` (show patches for range of revisions)
 
@@ -85,6 +87,16 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 3. **Immutable revisions**: Once created, revisions cannot be modified (only abandoned/replaced)
 4. **Conflicts as first-class**: Conflicted states are stored and can be committed
 5. **Change IDs**: Revisions have stable change IDs that persist across rebases
+
+## Revset Syntax Differences
+
+Jujutsu uses different operators than Git for parent/ancestor references:
+- **Parent of revision**: Use `<rev>-` (NOT `<rev>^` like Git)
+  - `jj show @-` shows parent of working copy
+  - `jj show <commit-id>-` shows parent of specific commit
+- **Ancestors**: Use `<rev>-` for immediate parent, `<rev>--` for grandparent, etc.
+- **Range queries**: Use `main..<rev>` for commits between main and rev
+- **All ancestors**: Use `::<rev>` to show all ancestors of a revision
 
 ## Workflow Patterns
 
