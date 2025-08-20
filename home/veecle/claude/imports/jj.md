@@ -12,23 +12,24 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 ## Essential Command Mappings
 
 ### Status and History
-- `jj status` (or `jj st`) ≈ `git status` + `git log --oneline -1`
+- `jj status` ≈ `git status` + `git log --oneline -1`
 - `jj log` ≈ `git log --graph --oneline` (shows concise graphical history by default)
 - `jj log --limit <n>` ≈ `git log --oneline -n` (limit number of commits shown)
-- `jj log -r ::` ≈ `git log --all --graph` (show all revisions)
+- `jj log --revisions ::` ≈ `git log --all --graph` (show all revisions)
 - `jj show <rev>` ≈ `git show <rev>` (show specific revision with full commit message and patch)
   - Use `jj show @-` to inspect the most recent commit with complete details
   - Use `jj show <rev>-` to inspect the parent of a specific revision
-  - Prefer `jj show` over `jj log -p` for examining individual commits
-- `jj log -p` ≈ `git log -p` (show patches for range of revisions)
+  - Prefer `jj show` over `jj log --patch` for examining individual commits
+- `jj log --patch` ≈ `git log -p` (show patches for range of revisions)
 
 ### Working with Changes
 - `jj new` ≈ `git checkout -b` (create new revision and switch to it)
-- `jj commit` (or `jj ci`) ≈ `git commit -a` (snapshot current changes and create new working copy)
+- `jj commit` ≈ `git commit -a` (snapshot current changes and create new working copy)
 - `jj edit <revision>` ≈ `git checkout <commit>` (switch working copy to revision)
 - `jj diff` ≈ `git diff HEAD` (show working copy changes)
-- `jj diff -r <rev>` ≈ `git show <rev>` (show changes in revision)
-- `jj diff -r main..@` ≈ `git diff main..HEAD` (show all changes in current branch since main)
+- `jj diff --revisions <rev>` ≈ `git show <rev>` (show changes in revision)
+- `jj diff --from main` ≈ `git diff main..HEAD` (show all changes since main)
+- `jj diff --revisions main..@` ≈ `git diff main..HEAD` (alternative syntax for range)
 
 ### Branching and Bookmarks
 - `jj bookmark create <name>` ≈ `git branch <name>`
@@ -37,13 +38,13 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj bookmark delete <name>` ≈ `git branch -d <name>`
 
 ### Rebasing and History Editing
-- `jj rebase -s <source> -d <dest>` ≈ `git rebase <dest> <source>` (move source and descendants)
-- `jj rebase -r <rev> -d <dest>` ≈ interactive rebase single commit
+- `jj rebase --source <source> --destination <dest>` ≈ `git rebase <dest> <source>` (move source and descendants)
+- `jj rebase --revisions <rev> --destination <dest>` ≈ interactive rebase single commit
 - `jj squash` ≈ `git commit --amend` or `git rebase -i` (move changes to parent)
 - `jj split` ≈ `git reset --soft HEAD~1` + selective commits
 
 ### File Operations
-- `jj file show -r <rev> <file>` ≈ `git show <rev>:<file>`
+- `jj file show --revision <rev> <file>` ≈ `git show <rev>:<file>`
 - `jj file list` ≈ `git ls-files`
 - `jj restore <file>` ≈ `git checkout HEAD -- <file>`
 
@@ -64,9 +65,9 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
   4. `jj squash` to merge resolution into original revision
 
 ### Advanced Operations
-- `jj describe -r <rev>` (or `jj desc -r <rev>`) ≈ `git commit --amend -m` (update commit message for specific revision)
-  - Use `jj describe -r @-` to update the most recent commit's message
-  - Use `jj describe -r @` to update the working copy revision's message
+- `jj describe --revision <rev>` ≈ `git commit --amend -m` (update commit message for specific revision)
+  - Use `jj describe --revision @-` to update the most recent commit's message
+  - Use `jj describe --revision @` to update the working copy revision's message
 - `jj abandon <rev>` ≈ `git reset --hard HEAD~1` (remove revision)
 - `jj duplicate <rev>` ≈ `git cherry-pick <rev>`
 - `jj parallelize <revs>` ≈ make revisions siblings instead of linear
@@ -105,7 +106,7 @@ Jujutsu uses different operators than Git for parent/ancestor references:
 jj status                    # Check current state
 jj new                       # Create new change
 # Make edits
-jj commit -m "description"   # Finalize change
+jj commit --message "description"   # Finalize change
 jj git push                  # Push to remote
 ```
 
@@ -114,9 +115,9 @@ jj git push                  # Push to remote
 jj bookmark create feature
 jj new                       # Start working
 # Make changes
-jj commit -m "implement feature"
-jj rebase -s @ -d main      # Rebase onto main
-jj git push -b feature      # Push bookmark
+jj commit --message "implement feature"
+jj rebase --source @ --destination main      # Rebase onto main
+jj git push --bookmark feature      # Push bookmark
 ```
 
 ### Fixing conflicts:
