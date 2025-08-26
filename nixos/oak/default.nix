@@ -44,6 +44,10 @@
       enable32Bit = true;
     };
     bluetooth.enable = true;
+    openrazer = {
+      enable = true;
+      users = ["wim"];
+    };
   };
 
   boot.kernelParams = [ "i915.force_probe=7d55" ];
