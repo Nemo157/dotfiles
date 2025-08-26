@@ -8,6 +8,14 @@ let
     "cargo check"
     "cargo clippy"
     "cargo test"
+    "gh browse"
+    "gh issue list"
+    "gh issue view"
+    "gh pr diff"
+    "gh pr list"
+    "gh pr view"
+    "gh repo view"
+    "gh status"
     "jj diff"
     "jj file show"
     "jj log"
@@ -43,9 +51,9 @@ let
   claude-code-settings = json.generate "claude-code-settings.json" {
     includeCoAuthoredBy = false;
     permissions = {
-      allow = 
+      allow =
         (map (command: "Bash(${command}:*)") allowed-commands) ++
-        (lib.flatten (lib.mapAttrsToList (server: functions: 
+        (lib.flatten (lib.mapAttrsToList (server: functions:
           map (func: "mcp__${server}__${func}") functions
         ) allowed-mcp));
       deny = [];
