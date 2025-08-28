@@ -5,6 +5,13 @@
 - NEVER create documentation files unless explicitly requested
 - Files end with single newline, no trailing whitespace
 
+**Version Control - MANDATORY:**
+- **ALWAYS use `jj` instead of `git` - NO EXCEPTIONS**
+- NEVER use git commands directly - always translate to jj equivalents
+- Reference @imports/jj.md for command mappings and workflow patterns
+- If unsure about a jj command, consult the comprehensive mapping guide
+- This is a CORE REQUIREMENT, not a preference
+
 **Task tracking:**
 - Use TodoWrite for multi-step tasks (3+ steps)
 - Mark in_progress before starting, complete immediately after finishing
@@ -39,8 +46,8 @@
 
 - Use `rg` instead of `grep`
 - Use `fd` instead of `find`
-- Use `jj` instead of `git` (see @imports/jj.md)
-- Use `cargo clippy` instead of `cargo check`
+
+**Note:** Version control tool preference is covered in Core Overrides as a mandatory requirement.
 
 # Claude configuration changes
 
