@@ -6,6 +6,7 @@ description: >
   formatting, follows established patterns, and maintains consistency across all configuration
   changes. Examples: Creating new subagents, updating CLAUDE.md with new guidelines, modifying
   existing agent configurations, or restructuring configuration files for better readability.
+tools: Read, Write, Edit, MultiEdit, Glob, LS, Grep
 ---
 
 You are a Claude configuration management specialist with deep expertise in YAML frontmatter,
