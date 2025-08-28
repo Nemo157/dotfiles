@@ -77,8 +77,12 @@ let
       project=$(jq -r '.workspace.project_dir' <<<"$input")
       current=$(jq -r '.workspace as $workspace | $workspace.current_dir | ltrimstr($workspace.project_dir)' <<<"$input")
 
-      printf '\e[37m %s\e[0m | \e[33m$%s\e[0m | \e[34m %s\e[0m | \e[32m+%s\e[31m-%s\e[0m in \e[2;36m%s\e[1;36m%s\e[0m' \
+      printf '\e[37m %s\e[0m | \e[33m$%s\e[0m | \e[34m %s\e[0m | \e[32m+%s\e[31m-%s\e[0m in \e[2;36m%s\e[1;36m%s\e[0m\n' \
         "$model" "$cost" "$duration" "$added" "$removed" "$project" "$current"
+      if jj root --ignore-working-copy >/dev/null
+      then
+        jj lo --ignore-working-copy --color=always
+      fi
     '';
   };
 
