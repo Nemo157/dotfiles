@@ -226,7 +226,7 @@ in {
       windowrulev2 = rounding 0, floating:0, onworkspace:f[1]
 
       windowrulev2 = float,class:RimPy
-      windowrulev2 = tile,class:RimPy,title:^RimPy
+      windowrulev2 = tile,class:RimPy,title:RimPy
 
       windowrulev2 = opaque,title:Picture in picture
       windowrulev2 = float,title:Picture in picture
@@ -234,14 +234,14 @@ in {
       windowrulev2 = size 30% 30%,title:Picture in picture
       windowrulev2 = move 70% 70%,title:Picture in picture
 
-      windowrulev2 = tile,class:^RimWorldLinux
-      windowrulev2 = tile,class:^Melvor
+      windowrulev2 = tile,class:RimWorldLinux.*
+      windowrulev2 = tile,class:Melvor.*
 
-      windowrulev2 = tile,class:^Minecraft
-      windowrulev2 = opaque,class:^Minecraft
+      windowrulev2 = tile,class:Minecraft.*
+      windowrulev2 = opaque,class:Minecraft.*
 
-      windowrulev2 = tile,title:^Vintage Story
-      windowrulev2 = opaque,title:^Vintage Story
+      windowrulev2 = tile,title:Vintage Story.*
+      windowrulev2 = opaque,title:Vintage Story.*
 
       windowrulev2 = maximize,class:calibre-gui
 
@@ -253,8 +253,8 @@ in {
       windowrulev2 = dimaround,class:Geeqie,title:Geeqie,floating:1
 
       # Android Emulator, no more specific title available
-      windowrulev2 = float,title:^Emulator$
-      windowrulev2 = move 100%-w-30 30,title:^Emulator$
+      windowrulev2 = float,title:Emulator
+      windowrulev2 = move 100%-w-30 30,title:Emulator
 
       windowrulev2 = float,class:rofinix-build
       windowrulev2 = size 1500 500,class:rofinix-build
@@ -262,24 +262,36 @@ in {
       windowrulev2 = stayfocused,class:rofinix-build
       windowrulev2 = dimaround,class:rofinix-build
 
-      windowrulev2 = tile,title:^EDDiscovery Version
-      windowrulev2 = opaque,title:^EDDiscovery Version
+      windowrulev2 = tile,title:EDDiscovery Version.*
+      windowrulev2 = opaque,title:EDDiscovery Version.*
 
-      windowrulev2 = fullscreen,class:^steam_app
-      windowrulev2 = opaque,class:^steam_app
+      windowrulev2 = fullscreen,class:steam_app_.*
+      windowrulev2 = opaque,class:steam_app_.*
+      windowrulev2 = idleinhibit focus,class:steam_app_.*
 
       windowrulev2 = tile,class:steam_app_1284210
       windowrulev2 = opaque,class:steam_app_1284210
 
-      windowrulev2 = float,class:^steam$
-      windowrulev2 = size 50% 70%,class:^steam$
-      windowrulev2 = center,class:^steam$
+      windowrulev2 = float,class:steam,title:.+
+      windowrulev2 = size 50% 70%,class:steam,title:.+
+      windowrulev2 = center,class:steam,title:.+
 
-      windowrulev2 = tile,class:^steam$,title:^Steam$
+      windowrulev2 = tile,class:steam,title:Steam
 
       windowrulev2 = float,class:xdg-desktop-portal-gtk
 
-      windowrulev2 = fullscreen,class:^wl-screenshot-swayimg$
+      windowrulev2 = fullscreen,class:wl-screenshot-swayimg
+
+      # Rusty's Retirement
+      windowrulev2 = fullscreenstate 0 2,class:steam_app_2666510
+      windowrulev2 = float,class:steam_app_2666510
+      windowrulev2 = pseudo,class:steam_app_2666510
+      # windowrulev2 = tile,class:steam_app_2666510
+      windowrulev2 = opaque,class:steam_app_2666510
+      windowrulev2 = pin,class:steam_app_2666510
+      windowrulev2 = maxsize 1008 2160,class:steam_app_2666510
+      windowrulev2 = size 1008 2160,class:steam_app_2666510
+      windowrulev2 = move 100%-1008 0,class:steam_app_2666510
 
       layerrule = dimaround, rofi
     '';
