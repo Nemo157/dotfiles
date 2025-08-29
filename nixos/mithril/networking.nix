@@ -21,5 +21,9 @@
         ];
       };
     };
+
+    interfaces.enp39s0 = {
+      wakeOnLan.enable = true;
+    };
   };
 }
