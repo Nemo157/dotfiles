@@ -12,7 +12,7 @@
 in {
   rofi = final.rofi-wayland;
 
-  freetube = callOverlay ./freetube.nix;
+  freetube = pkgs-unstable.freetube;
 
   maintainers = prev.maintainers // maintainers;
 
