@@ -65,12 +65,30 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
   4. `jj squash` to merge resolution into original revision
 
 ### Advanced Operations
-- `jj describe --revision <rev>` ≈ `git commit --amend -m` (update commit message for specific revision)
-  - Use `jj describe --revision @-` to update the most recent commit's message
-  - Use `jj describe --revision @` to update the working copy revision's message
+- `jj describe <rev> --message "commit message"` ≈ `git commit --amend -m` (update commit message for specific revision)
+  - Use `jj describe @- --message "commit message"` to update the most recent commit's message
+  - Use `jj describe @ --message "commit message"` to update the working copy revision's message
 - `jj abandon <rev>` ≈ `git reset --hard HEAD~1` (remove revision)
 - `jj duplicate <rev>` ≈ `git cherry-pick <rev>`
 - `jj parallelize <revs>` ≈ make revisions siblings instead of linear
+
+### Commit Message Updates After Squashing
+When updating commit messages after a `jj squash` operation, follow this workflow:
+
+1. **Check where changes landed**: After squashing, changes typically move to an earlier commit (often `@-`), leaving the current commit (`@`) empty
+2. **Verify with log**: Use `jj log` to see the current state and identify which commit contains your actual changes
+3. **Inspect commits**: Use `jj show @` and `jj show @-` to verify which commit contains the changes before updating the message
+4. **Update the correct commit**: Apply `jj describe --revision <correct-rev>` to the commit that actually contains your changes, not necessarily the current working copy
+
+**Example workflow:**
+```bash
+# After making changes and squashing
+jj squash
+jj log                           # Check where changes ended up
+jj show @                        # Check if current commit has changes (often empty)
+jj show @-                       # Check if parent commit has your changes
+jj describe @- --message "your commit message"  # Update the commit with actual changes
+```
 
 ### Operation Log (Undo/Redo)
 - `jj op log` ≈ `git reflog` (show operation history)
