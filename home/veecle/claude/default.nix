@@ -17,6 +17,7 @@ let
     "gh pr view"
     "gh repo view"
     "gh status"
+    "jj bookmark list"
     "jj diff"
     "jj file show"
     "jj log"
