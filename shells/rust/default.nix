@@ -49,12 +49,10 @@ in pkgs.mkShell {
     # Dev utilities
     cargo-audit
     cargo-deny
-    cargo-dl
     cargo-doc-like-docs-rs
     cargo-expand
     cargo-fuzz
     cargo-hack
-    cargo-minimal-versions
     cargo-nextest
     cargo-outdated
     cargo-semver-checks
