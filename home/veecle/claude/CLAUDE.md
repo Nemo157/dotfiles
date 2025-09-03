@@ -16,6 +16,12 @@
 - Use TodoWrite for multi-step tasks (3+ steps)
 - Mark in_progress before starting, complete immediately after finishing
 
+# Personal Information
+
+**GitHub Identity:**
+- GitHub username: `Nemo157`
+- When you see comments or code authored by "Nemo157" on GitHub, this refers to the user
+
 # Communication & Style
 
 - Be concise and direct
