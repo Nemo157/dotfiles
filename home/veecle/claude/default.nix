@@ -94,6 +94,7 @@ let
     };
     permissions = {
       allow =
+        [ "WebSearch" ] ++
         (map (command: "Bash(${command}:*)") allowed-commands) ++
         (lib.flatten (lib.mapAttrsToList (server: functions:
           map (func: "mcp__${server}__${func}") functions
