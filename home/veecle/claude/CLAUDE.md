@@ -32,7 +32,9 @@
 
 # Development Practices
 
-Read @~/sources/veecle/engineering-handbook/.agents/rules/shared/AGENTS.md for
+Read @~/sources/veecle/style-guide/.agents/rules/shared/AGENTS.md for Veecle
+development practices.
+
 organization development details.
 
 **Code patterns:**
