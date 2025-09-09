@@ -32,6 +32,9 @@
 
 # Development Practices
 
+Read @~/sources/veecle/engineering-handbook/.agents/rules/shared/AGENTS.md for
+organization development details.
+
 **Code patterns:**
 - Read existing code before making changes
 - Follow project conventions (imports, naming, structure)
