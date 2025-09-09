@@ -25,6 +25,7 @@ let
     "jj show"
     "jj status"
     "rg"
+    "yamllint"
   ];
 
   allowed-mcp = {
