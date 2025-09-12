@@ -104,6 +104,7 @@ let
       deny = [];
       defaultMode = "acceptEdits";
       env = {
+        "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR" = "1";
         "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC" = "1";
         "DISABLE_AUTOUPDATER" = "1";
         "DISABLE_BUG_COMMAND" = "1";
