@@ -15,6 +15,7 @@
       };
       templates = {
         git_push_bookmark = ''"wim/push-" ++ change_id.short()'';
+        commit_trailers = "format_signed_off_by_trailer(self)";
       };
     };
   };
