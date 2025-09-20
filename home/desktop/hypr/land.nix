@@ -194,6 +194,12 @@ in {
       bind = $mod, 4, workspace, 4
       bind = $mod, 5, workspace, 5
 
+      bind = , code:166, workspace, 1
+      bind = , code:167, workspace, 2
+      bind = , code:136, workspace, 3
+      bind = , code:144, workspace, 4
+      bind = , code:185, workspace, 5
+
       bind = $mod SHIFT, 1, movetoworkspacesilent, 1
       bind = $mod SHIFT, 2, movetoworkspacesilent, 2
       bind = $mod SHIFT, 3, movetoworkspacesilent, 3
