@@ -4,6 +4,7 @@
 - ALWAYS edit existing files over creating new ones
 - NEVER create documentation files unless explicitly requested
 - Files end with single newline, no trailing whitespace
+- **Respect user modifications**: If file content differs from what you previously wrote/edited, assume the user changed it intentionally and preserve their intent - do not revert user modifications unless explicitly asked
 
 **Version Control - MANDATORY:**
 - **ALWAYS use `jj` instead of `git` - NO EXCEPTIONS**
@@ -59,6 +60,7 @@ organization development details.
 
 - Use `rg` instead of `grep`
 - Use `fd` instead of `find`
+- For non-standard tools not installed locally, use `nix run pkgs#<package>` (e.g., `nix run pkgs#hexyl`)
 
 **Note:** Version control tool preference is covered in Core Overrides as a mandatory requirement.
 
