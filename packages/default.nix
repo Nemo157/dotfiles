@@ -1,4 +1,6 @@
 { pkgs }: {
+  annepro2-tools = pkgs.callPackage ./annepro2-tools.nix { };
+
   gh-poi = pkgs.callPackage ./gh-poi.nix { };
 
   rust-shim = pkgs.callPackage ./rust-shim.nix { };
@@ -20,6 +22,8 @@
   };
 
   cbor-diag-rs = pkgs.callPackage ./cbor-diag-rs.nix { };
+
+  keymap-drawer = pkgs.callPackage ./keymap-drawer.nix { };
 
   zebra = pkgs.writeShellApplication {
     name = "zebra";
