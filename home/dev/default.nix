@@ -6,5 +6,6 @@
     ./jujutsu.nix
     ./rust
     ./yamllint.nix
+    ./claude
   ];
 }
