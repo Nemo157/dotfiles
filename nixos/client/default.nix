@@ -58,5 +58,13 @@
       '';
       destination = "/etc/udev/rules.d/70-ἐννεάς.rules";
     })
+    (pkgs.writeTextFile {
+      name = "annepro2-udev-rules";
+      text = ''
+        # ID 04d9:8008 Holtek Semiconductor, Inc. USB-HID IAP
+        SUBSYSTEM=="usb", ENV{ID_VENDOR_ID}=="04d9", ENV{ID_MODEL_ID}=="8008", TAG+="uaccess", MODE="660"
+      '';
+      destination = "/etc/udev/rules.d/70-annepro2.rules";
+    })
   ];
 }
