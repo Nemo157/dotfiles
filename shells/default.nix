@@ -21,4 +21,11 @@ in {
       export CARGO_TARGET_WASM32_WASI_RUNNER="${lib.getExe pkgs.wasmtime}"
     '';
   };
+
+  qmk = pkgs.mkShell {
+    nativeBuildInputs = [
+      pkgs.qmk
+      pkgs.annepro2-tools
+    ];
+  };
 }
