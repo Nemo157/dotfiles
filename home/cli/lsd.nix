@@ -26,6 +26,11 @@
       total-size = true;
 
       hyperlink = "auto";
+
+      ignore-globs = [
+        ".git"
+        ".jj"
+      ];
     };
 
     colors = {
