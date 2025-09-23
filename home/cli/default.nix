@@ -7,7 +7,7 @@
     ./lsd.nix
     ./ssh.nix
     ./ssh-agent.nix
-    ./starship.nix
+    ./starship
     ./tmux.nix
     ./vim
     ./vifm.nix

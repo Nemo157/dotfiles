@@ -8,4 +8,6 @@
     ./yamllint.nix
     ./claude
   ];
+
+  services.ollama.enable = true;
 }

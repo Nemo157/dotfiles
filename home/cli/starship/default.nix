@@ -1,9 +1,17 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, lib, ... }:
+let
+  jj-ai-branch-summary = pkgs.writeShellApplication {
+    name = "jj-ai-branch-summary";
+    runtimeInputs = [ pkgs.jujutsu ];
+    text = builtins.readFile ./jj-ai-branch-summary.sh;
+  };
+in
+{
   programs.starship = {
     enable = true;
     settings = {
       format = ''
-        $username[@](green dimmed)$hostname $directory$git_branch$git_commit$git_state$git_status$all
+        $username[@](green dimmed)$hostname $directory$git_branch$git_commit$git_state$git_status''${custom.jj_summary}$all
         $jobs$battery$time($status )$cmd_duration$character
       '';
 
@@ -43,10 +51,15 @@
 
       git_branch.style = "yellow";
       git_branch.symbol = " ";
+      git_branch.disabled = true;
 
       git_commit.style = "green";
+      git_commit.disabled = true;
 
       git_status.style = "red";
+      git_status.disabled = true;
+
+      git_state.disabled = true;
 
       golang.style = "cyan";
       golang.symbol = " ";
@@ -58,17 +71,6 @@
       hostname.ssh_only = false;
 
       java.symbol = " ";
-
-      # jj_status = {
-      #   symbol = " ";
-      #   format = "\\[$symbol[$change_id_prefix]($change_id_prefix_style)[$change_id_suffix]($change_id_suffix_style) [$commit_id_prefix]($commit_id_prefix_style)[$commit_id_suffix]($commit_id_suffix_style)$no_description_symbol$divergent_symbol\\] ";
-      #   change_id_prefix_style = "bold bright-purple";
-      #   change_id_suffix_style = "bright-cyan";
-      #   commit_id_prefix_style = "bold bright-blue";
-      #   commit_id_suffix_style = "bright-cyan";
-      #   no_description_symbol = " 󰎞";
-      #   divergent_symbol = " 󰚑";
-      # };
 
       line_break.disabled = true;
 
@@ -118,6 +120,13 @@
         format = "[$user]($style)";
         style_user = "green";
         show_always = true;
+      };
+
+      custom.jj_summary = {
+        command = lib.getExe jj-ai-branch-summary;
+        when = "jj root";
+        symbol = " ";
+        style = "yellow";
       };
     };
   };
