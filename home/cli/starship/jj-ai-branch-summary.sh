@@ -15,6 +15,7 @@ MODEL="${JJ_AI_BRANCH_SUMMARY_MODEL:-${1:-$DEFAULT_MODEL}}"
 CACHE_DIR="$HOME/.cache/jj-ai-branch-summary"
 CACHE_TIMEOUT_SECS=$(( 60 * 60 * 24 * 7 ))
 AI_TIMEOUT_SECS=30
+FAILURE_CACHE_TIMEOUT_SECS=$(( 60 * 60 ))  # 1 hour
 
 # Function to detect model type and get appropriate command
 get_ai_command() {
@@ -79,6 +80,17 @@ is_cache_fresh() {
     fi
 }
 
+# Function to check if failure cache is fresh
+is_failure_cache_fresh() {
+    local failure_cache_file="$1"
+    if [[ -f "$failure_cache_file" ]]; then
+        local cache_age=$(( $(date +%s) - $(stat -c %Y "$failure_cache_file") ))
+        [[ $cache_age -lt $FAILURE_CACHE_TIMEOUT_SECS ]]
+    else
+        return 1
+    fi
+}
+
 # Function to display cached content with truncation
 display_cached_content() {
     local cache_file="$1"
@@ -95,8 +107,7 @@ display_cached_content() {
 
 # Function to check if background job is already running
 is_background_job_running() {
-    local cache_key="$1"
-    local lock_file="$CACHE_DIR/${cache_key}.lock"
+    local lock_file="$1"
 
     if [[ -f "$lock_file" ]]; then
         local lock_pid
@@ -121,11 +132,12 @@ run_ai_background() {
     local cache_file="$2"
     local cache_key="$3"
     local ai_command="$4"
-    local lock_file="$CACHE_DIR/${cache_key}.lock"
-    local temp_file="''${cache_file}.tmp.$$"
+    local lock_file="$cache_file.lock"
+    local temp_file="$cache_file.tmp.$$"
+    local failure_cache_file="$cache_file.failure"
 
     # Check if job is already running
-    if is_background_job_running "$cache_key"; then
+    if is_background_job_running "$lock_file"; then
         return 0  # Job already running, don't start another
     fi
 
@@ -144,6 +156,9 @@ run_ai_background() {
         if timeout '$AI_TIMEOUT_SECS' $ai_command > '$temp_file' 2>/dev/null; then
             # Post-process: replace newlines with spaces, keep full content in cache
             tr '\\n' ' ' < '$temp_file' > '$cache_file'
+        else
+            # AI call failed/timed out - create failure cache
+            echo '(analyzing failed)' > '$failure_cache_file'
         fi
 
         # Clean up temp file and lock file
@@ -159,10 +174,13 @@ EOF
 cleanup_cache() {
     # Convert seconds to days/minutes with ceiling division (round up)
     local cache_timeout_days=$(((CACHE_TIMEOUT_SECS + 86399) / 86400))
+    local failure_timeout_mins=$(((FAILURE_CACHE_TIMEOUT_SECS + 59) / 60))
     local ai_timeout_mins=$(((AI_TIMEOUT_SECS + 59) / 60))
 
     # Remove cache files older than cache timeout
     find "$CACHE_DIR" -name "*.cache" -mtime "+$cache_timeout_days" -delete 2>/dev/null || true
+    # Remove failure cache files older than failure timeout
+    find "$CACHE_DIR" -name "*.failure" -mmin "+$failure_timeout_mins" -delete 2>/dev/null || true
     # Remove temp files older than AI timeout
     find "$CACHE_DIR" -name "*.tmp.*" -mmin "+$ai_timeout_mins" -delete 2>/dev/null || true
     # Remove stale lock files (older than AI timeout)
@@ -184,6 +202,7 @@ main() {
     local cache_key
     cache_key=$(generate_cache_key "$log_content" "$MODEL")
     local cache_file="$CACHE_DIR/${cache_key}.cache"
+    local failure_cache_file="$cache_file.failure"
 
     # Get AI command for this model
     local ai_command
@@ -192,6 +211,12 @@ main() {
     # Check if we have a fresh cache hit
     if is_cache_fresh "$cache_file"; then
         display_cached_content "$cache_file"
+        exit 0
+    fi
+
+    # Check if we have a fresh failure cache - don't retry if recent failure
+    if is_failure_cache_fresh "$failure_cache_file"; then
+        cat "$failure_cache_file"
         exit 0
     fi
 
