@@ -29,7 +29,7 @@ get_ai_command() {
 
     # Ollama model detection - check if model exists
     if command -v ollama >/dev/null 2>&1 && ollama show "$model" >/dev/null 2>&1; then
-        echo "ollama run $model"
+        echo "ollama run --hidethinking $model"
         return 0
     fi
 
