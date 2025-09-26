@@ -41,6 +41,9 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj rebase --source <source> --destination <dest>` ≈ `git rebase <dest> <source>` (move source and descendants)
 - `jj rebase --revisions <rev> --destination <dest>` ≈ interactive rebase single commit
 - `jj squash` ≈ `git commit --amend` or `git rebase -i` (move changes to parent)
+  - **Always supply a message** with `--message` unless the source commit has `(no description set)` to avoid interactive editor
+  - Example: `jj squash --from @- --into @-- --message "combined commit message"`
+  - Without `--message`, jj will open an interactive editor to combine commit messages
 - `jj split` ≈ `git reset --soft HEAD~1` + selective commits
 
 ### File Operations
