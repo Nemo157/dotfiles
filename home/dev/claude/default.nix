@@ -89,7 +89,6 @@ in {
 
     agents = {
       code-reviewer.source = ./agents/code-reviewer.md;
-      config-manager.source = ./agents/config-manager.md;
       technical-docs-reviewer.source = ./agents/technical-docs-reviewer.md;
     };
 

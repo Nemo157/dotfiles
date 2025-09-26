@@ -61,32 +61,7 @@
 
 # Claude configuration changes
 
-**CRITICAL REQUIREMENT: ALL Claude configuration changes MUST use the `config-manager` subagent IMMEDIATELY - never attempt manual file operations first.**
+**When asked to modify global Claude configuration (the main CLAUDE.md, agents, etc.) from outside the dotfiles repository**: Remind the user to navigate to their dotfiles repository where the local AGENTS.md provides the proper configuration management workflow. Do not attempt to process global configuration changes from other contexts.
 
-## When to Use Config-Manager
+**Local/project-specific Claude configuration changes within other repositories should be handled directly in their respective contexts.**
 
-**ALWAYS use config-manager when you encounter these patterns:**
-- "update your prompt" / "modify your prompt" (refers to CLAUDE.md)
-- "modify [subagent] behavior" / "change how [agent] works"
-- "configure Claude to..." / "set up Claude to..."
-- "update CLAUDE.md" / "change your instructions"
-- "create/modify/delete subagent"
-- "add new behavior" / "change existing behavior"
-- Any mention of CLAUDE.md, subagent files, or Claude settings
-
-## Prohibited Actions
-
-**NEVER perform these actions manually for configuration tasks:**
-- Direct file editing of CLAUDE.md or subagent files
-- Creating new subagent files without config-manager
-- Modifying YAML frontmatter manually
-- Making configuration changes as a "quick fix"
-
-## Required Process
-
-1. **Recognize** configuration task from user request
-2. **Use config-manager IMMEDIATELY** - no manual attempts first
-3. **Let config-manager handle** all formatting, validation, and structure
-4. **Trust the specialist** - config-manager ensures consistency and best practices
-
-The config-manager subagent ensures proper formatting, consistency, adherence to established patterns, and maintains the integrity of the Claude configuration system.
