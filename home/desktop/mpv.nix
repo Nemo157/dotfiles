@@ -13,6 +13,10 @@
         idle = "yes";
         keep-open = "yes";
       };
+      youtube = {
+        profile-cond = "path:find('youtu%.?be')";
+        speed = 1.5;
+      };
     };
     config = {
       scale = "ewa_lanczossharp";
