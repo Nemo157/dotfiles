@@ -33,6 +33,12 @@
     nix-direnv.enable = true;
   };
 
+  programs.git.ignores = [
+    ".envrc"
+    ".env"
+    ".direnv/"
+  ];
+
   scripts = {
     "dev".text = ''
       exec nix develop pkgs#"$1" --command zsh

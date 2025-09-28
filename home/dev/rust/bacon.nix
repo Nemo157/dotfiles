@@ -73,4 +73,11 @@
       };
     };
   };
+
+  programs.git.ignores = [
+    ".bacon-locations"
+    # Because of https://github.com/Canop/bacon/issues/157 need to create an
+    # empty bacon.toml in all repos to use it...
+    "bacon.toml"
+  ];
 }

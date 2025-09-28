@@ -64,4 +64,8 @@ in {
     fetch = false
     stale = false
   '';
+
+  programs.git.ignores = [
+    ".cargo/"
+  ];
 }

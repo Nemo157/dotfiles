@@ -1,24 +1,22 @@
 { config, pkgs, ... }: {
   programs.git.ignores = [
+    # ruby
     "*.rbc"
+    # python
     "*.pyc"
-    "*.o"
+    # latex (i think)
     "*.bbl"
     "*.blg"
     "*.fdb_latexmk"
+    # silly OS
     ".DS_Store"
     "Thumbs.db"
+    # unconfigured vim
     "*.swp"
+    # c
+    "*.o"
     ".clang-tidy"
     ".clangd/"
-    ".envrc"
-    ".env"
     "compile_commands.json"
-    ".bacon-locations"
-    ".direnv/"
-    # Because of https://github.com/Canop/bacon/issues/157 need to create an
-    # empty bacon.toml in all repos to use it...
-    "bacon.toml"
-    ".cargo/"
   ];
 }

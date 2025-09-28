@@ -179,5 +179,9 @@ in {
       value.source = file;
     }) agentFiles)
     // (lib.mapAttrs (name: file: { source = file; }) cfg.extraConfigFiles);
+
+    programs.git.ignores = [
+      ".claude/settings.local.json"
+    ];
   };
 }
