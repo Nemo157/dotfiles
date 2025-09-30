@@ -51,6 +51,20 @@
 - Only check modified packages, not entire workspace
 - Use code-reviewer subagent after significant changes
 
+**Rust coding patterns:**
+- Prefer `T::from_str()` over `.parse()` variants - more explicit about type construction and import dependencies
+  ```rust
+  // Prefer: let num = i32::from_str("42")?;
+  // Over:   let num = "42".parse::<i32>()?;
+  // Over:   let num: i32 = "42".parse()?;
+  ```
+- Prefer `T::from_iter()` over `.collect()` variants - clearer target type at construction site
+  ```rust
+  // Prefer: let vec = Vec::from_iter(iterator);
+  // Over:   let vec = iterator.collect::<Vec<_>>();
+  // Over:   let vec: Vec<_> = iterator.collect();
+  ```
+
 # Tool Preferences
 
 - Use `rg` instead of `grep`
