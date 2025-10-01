@@ -33,6 +33,14 @@
     nix-direnv.enable = true;
   };
 
+  programs.md-tui = {
+    enable = true;
+    settings = {
+      code_bg_color = "black";
+      code_block_bg_color = "black";
+    };
+  };
+
   programs.git.ignores = [
     ".envrc"
     ".env"
