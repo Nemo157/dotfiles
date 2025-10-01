@@ -48,6 +48,7 @@
 2. `cargo test` (run tests)
 3. `cargo clippy --all-targets` (fix warnings)
 - NEVER use `unsafe` code
+- NEVER run `cargo clean` - it's rarely necessary and wastes time rebuilding
 - Only check modified packages, not entire workspace
 - Use code-reviewer subagent after significant changes
 
