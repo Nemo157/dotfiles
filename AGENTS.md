@@ -80,3 +80,27 @@ When you encounter paths containing `~/.config/claude/`, automatically map them 
 - Don't create agents without proper Nix integration
 
 This approach maintains configuration quality standards when working directly in the dotfiles repository.
+
+## Commit Message Style
+
+**Keep commit messages concise and direct:**
+- Short, descriptive messages without verbose explanations
+- No conventional commit prefixes (not used in this repo)
+- Focus on what changed, not why or how
+
+**Examples:**
+- `separate home-manager modules from config`
+- `setup aws config`
+- `make claude imports first-class in module config`
+
+## Testing Configuration Changes
+
+**Always use colmena to test NixOS and home-manager configuration changes:**
+
+```bash
+colmena build --on <hostname>
+```
+
+- Faster than `nix flake check` which builds all hosts
+- Validates both NixOS system and home-manager configurations
+- Use current hostname (check with `hostname`) to test local changes
