@@ -16,6 +16,7 @@ in
       '';
 
       aws.symbol = " ";
+      aws.disabled = true;
 
       battery = {
         full_symbol = "";

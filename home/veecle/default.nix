@@ -4,6 +4,7 @@
     ./ssh.nix
     ./git.nix
     ./jujutsu.nix
+    ./aws.nix
   ];
 
   home.packages = with pkgs; [
