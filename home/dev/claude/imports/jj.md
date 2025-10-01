@@ -51,6 +51,16 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj file list` ≈ `git ls-files`
 - `jj restore <file>` ≈ `git checkout HEAD -- <file>`
 
+**Working Copy File Manipulation:**
+- Use standard shell commands (`mv`, `cp`, `rm`) to manipulate files in the working copy
+- `mv` ≈ `git mv` - jj automatically detects file moves, renames, and deletions through auto-snapshotting
+- **Do NOT** try to use jj commands for basic file operations
+- Examples:
+  - Move files: `mv old/path.txt new/path.txt` (jj will detect as rename)
+  - Copy files: `cp source.txt dest.txt`
+  - Delete files: `rm file.txt`
+- After file operations, `jj status` will show the changes (including properly tracked renames)
+
 ### Remote Operations (Git interop)
 - `jj git fetch` ≈ `git fetch`
 - `jj git push` ≈ `git push`
