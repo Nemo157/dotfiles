@@ -92,8 +92,11 @@ in {
       technical-docs-reviewer.source = ./agents/technical-docs-reviewer.md;
     };
 
-    extraConfigFiles = {
-      "claude/imports" = ./imports;
+    imports = {
+      jj = {
+        source = ./imports/jj.md;
+        description = "Jujutsu (jj) command mappings and workflow patterns";
+      };
     };
   };
 

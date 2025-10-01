@@ -77,7 +77,25 @@ let
 
   claude-code-settings = json.generate "claude-code-settings.json" cfg.settings;
 
-  claude-md-file = pkgs.writeText "CLAUDE.md" cfg.memory;
+  importFiles = lib.mapAttrs (name: import:
+    if import.text != null then
+      pkgs.writeText "${name}.md" import.text
+    else if import.source != null then
+      import.source
+    else
+      throw "Import '${name}' must have either text or source specified"
+  ) cfg.imports;
+
+  importReferences = lib.concatStringsSep "\n" (lib.mapAttrsToList (name: import:
+    "Reference @${importFiles.${name}} for ${import.description}"
+  ) cfg.imports);
+
+  claudeMdContent = if cfg.imports != {} then
+    cfg.memory + "\n" + importReferences
+  else
+    cfg.memory;
+
+  claude-md-file = pkgs.writeText "CLAUDE.md" claudeMdContent;
 
   agentFiles = lib.mapAttrs (name: agent:
     if agent.text != null then
@@ -158,11 +176,34 @@ in {
       };
     };
 
-    extraConfigFiles = mkOption {
-      type = types.attrsOf types.path;
-      description = "Additional config files to install next to CLAUDE.md";
+    imports = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          text = mkOption {
+            type = types.nullOr types.lines;
+            default = null;
+            description = "Import content as text";
+          };
+
+          source = mkOption {
+            type = types.nullOr types.path;
+            default = null;
+            description = "Import content from file";
+          };
+
+          description = mkOption {
+            type = types.str;
+            description = "Description of what this import provides";
+          };
+        };
+      });
+      default = {};
+      description = "Import definitions with name as key, content, and description";
       example = {
-        "claude/imports" = ./imports;
+        jj = {
+          source = ./imports/jj.md;
+          description = "command mappings and workflow patterns";
+        };
       };
     };
   };
@@ -177,8 +218,7 @@ in {
     // (lib.mapAttrs' (name: file: {
       name = "claude/agents/${name}.md";
       value.source = file;
-    }) agentFiles)
-    // (lib.mapAttrs (name: file: { source = file; }) cfg.extraConfigFiles);
+    }) agentFiles);
 
     programs.git.ignores = [
       ".claude/settings.local.json"

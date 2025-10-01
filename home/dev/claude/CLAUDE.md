@@ -9,8 +9,6 @@
 **Version Control - MANDATORY:**
 - **ALWAYS use `jj` instead of `git` - NO EXCEPTIONS**
 - NEVER use git commands directly - always translate to jj equivalents
-- Reference @imports/jj.md for command mappings and workflow patterns
-- If unsure about a jj command, consult the mapping guide
 - This is a CORE REQUIREMENT, not a preference
 
 **Task tracking:**
