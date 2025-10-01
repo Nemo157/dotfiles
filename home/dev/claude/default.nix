@@ -13,10 +13,6 @@ let
   };
 
 in {
-  imports = [
-    ./module.nix
-  ];
-
   programs.claude-code = {
     enable = true;
 

@@ -183,6 +183,8 @@
     packages.${system} = import ./packages { inherit pkgs; };
     legacyPackages.${system} = pkgs;
 
+    homeManagerModules.default = import ./modules/home-manager;
+
     devShells.${system} = import ./shells { inherit pkgs; } // {
       local = pkgs.mkShell {
         buildInputs = [
@@ -215,7 +217,7 @@
           sharedModules = [
             agenix.homeManagerModules.default
             u2f-touch-detector.homeManagerModules.default
-            ./home/scripts.nix
+            self.homeManagerModules.default
           ];
         };
       };
