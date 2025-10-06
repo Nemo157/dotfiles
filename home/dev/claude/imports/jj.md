@@ -24,7 +24,10 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 
 ### Working with Changes
 - `jj new` ≈ `git checkout -b` (create new revision and switch to it)
-- `jj commit` ≈ `git commit -a` (snapshot current changes and create new working copy)
+- `jj commit --message "description"` ≈ `git commit -a` (snapshot current changes and create new working copy)
+  - **Prefer `jj commit` over `jj describe`** when you want to move to a clean working directory
+  - `jj commit` creates a new empty working copy revision, leaving previous work finalized
+  - `jj describe` only updates the commit message without creating a new working copy
 - `jj edit <revision>` ≈ `git checkout <commit>` (switch working copy to revision)
 - `jj diff` ≈ `git diff HEAD` (show working copy changes)
 - `jj diff --revisions <rev>` ≈ `git show <rev>` (show changes in revision)
@@ -36,6 +39,11 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj bookmark set <name>` ≈ `git checkout -B <name>`
 - `jj bookmark list` ≈ `git branch -v`
 - `jj bookmark delete <name>` ≈ `git branch -d <name>`
+
+**Bookmark Management:**
+- **NEVER proactively create bookmarks** - jj automatically names them
+- Only create bookmarks when explicitly requested by the user
+- jj handles bookmark naming automatically during normal workflow
 
 ### Rebasing and History Editing
 - `jj rebase --source <source> --destination <dest>` ≈ `git rebase <dest> <source>` (move source and descendants)
