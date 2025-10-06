@@ -138,6 +138,26 @@ Jujutsu uses different operators than Git for parent/ancestor references:
 - **Range queries**: Use `main..<rev>` for commits between main and rev
 - **All ancestors**: Use `::<rev>` to show all ancestors of a revision
 
+## Commit Message Style
+
+Commit messages should focus on user-facing changes and the reason for them:
+
+- Describe the user-facing change and the reason for it
+- Avoid implementation details of how the change was achieved
+- When rewriting commits, don't reference intermediate states or refactoring steps from development
+- Avoid phrases like "extracted function X", "refactored Y", "eliminated nested matches", "simplified by removing..." unless the refactoring itself is the purpose
+- Focus on what problem was fixed and why, not the specific code changes or intermediate states
+
+**Examples:**
+
+Good:
+- `fix parsing of nested expressions in error messages`
+- `add timeout handling to prevent hangs on slow networks`
+
+Avoid:
+- `eliminate nested matches and refactor error handling` (focuses on implementation)
+- `simplified by extracting helper function` (focuses on refactoring steps)
+
 ## Workflow Patterns
 
 ### Basic workflow:
