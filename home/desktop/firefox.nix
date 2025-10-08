@@ -108,6 +108,10 @@ in {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         # https://superuser.com/questions/363827/how-can-i-disable-add-application-for-mailto-links-bar-in-firefox
         "network.protocol-handler.external.mailto" = false;
+
+        # middle mouse should scroll not paste
+        "middlemouse.paste" = false;
+        "general.autoScroll" = true;
       };
 
       userChrome = builtins.concatStringsSep "\n" (builtins.map builtins.readFile [
