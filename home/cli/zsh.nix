@@ -1,12 +1,22 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }: let
+  zsh-completion-sync-src = pkgs.fetchFromGitHub {
+    owner = "BronzeDeer";
+    repo = "zsh-completion-sync";
+    rev = "v0.3.0";
+    hash = "sha256-zDlmFaKU/Ilzcw6o22Hu9JFt8JKsER8idkb6QrtQKjI=";
+  };
+in {
   programs.zsh = {
     enable = true;
     dotDir = ".config/zsh";
     defaultKeymap = "viins";
     autosuggestion.enable = true;
     enableVteIntegration = true;
-    # handled by zsh-completion-sync, avoid initializing twice
-    completionInit = "";
+    completionInit = ''
+      # instead of running compinit here, we need to load this plugin here so that it registers its
+      # hooks before autosuggestion's hooks
+      source "$HOME/.config/zsh/plugins/zsh-completion-sync/zsh-completion-sync.plugin.zsh"
+    '';
     syntaxHighlighting.enable = true;
     cdpath = [
       "${config.home.homeDirectory}"
@@ -64,12 +74,7 @@
     plugins = [
       {
         name = "zsh-completion-sync";
-        src = pkgs.fetchFromGitHub {
-          owner = "BronzeDeer";
-          repo = "zsh-completion-sync";
-          rev = "v0.3.0";
-          hash = "sha256-zDlmFaKU/Ilzcw6o22Hu9JFt8JKsER8idkb6QrtQKjI=";
-        };
+        src = zsh-completion-sync-src;
       }
     ];
   };
