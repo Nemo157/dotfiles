@@ -34,6 +34,10 @@
           "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
         ];
       };
+
+      keyboard.bindings = [
+        { key = "Return"; mods = "Shift"; chars = "\\u001b\\u000a"; }
+      ];
     };
   };
 }

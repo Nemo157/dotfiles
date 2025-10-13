@@ -92,8 +92,10 @@ in {
 
       allow_remote_control = "socket-only";
       listen_on = "unix:$XDG_RUNTIME_DIR/kitty-{kitty_pid}.socket";
+    };
 
-
+    keybindings = {
+      "shift+enter" = "send_text all \\x1b\\x0a";
     };
 
     extraConfig = ''

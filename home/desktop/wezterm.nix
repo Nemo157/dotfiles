@@ -87,6 +87,10 @@
           top = 0,
       }
 
+      config.keys = {
+        {key="Enter", mods="SHIFT", action=wezterm.action.SendString("\x1b\x0a")},
+      }
+
       return config
     '';
   };
