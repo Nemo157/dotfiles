@@ -27,5 +27,7 @@
 
   services.grafana = {
     enable = true;
+    # Some dev stuff is hardcoded to 3001 and not overrideable 😔
+    settings.server.http_port = 2998;
   };
 }

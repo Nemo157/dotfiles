@@ -9,7 +9,7 @@
     settings = {
       server = {
         http_addr = lib.mkDefault "127.0.0.1";
-        http_port = 3001;
+        http_port = lib.mkDefault 3001;
       };
       analytics = {
         reporting_enabled = false;
