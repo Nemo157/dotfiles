@@ -52,6 +52,8 @@ in {
       export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=14'
       export KEYTIMEOUT=1
       bindkey '^n' autosuggest-accept
+      bindkey -M viins '\e\n' self-insert-unmeta
+      bindkey -M vicmd '\e\n' self-insert-unmeta
 
       dir_in_title() {
         if [[ "$TERM" = "tmux"* ]]
