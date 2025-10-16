@@ -10,6 +10,9 @@ in {
         prompt = "enabled";
         aliases = {
           co = "pr checkout --detach";
+          conflicts = ''
+            pr list --json number,title,mergeable,headRefName --jq '.[] | select(.mergeable == "CONFLICTING") | "\(.number) \(.headRefName): \(.title)"'
+          '';
         };
       };
     };
