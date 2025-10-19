@@ -40,6 +40,8 @@
       audio-channels = "stereo";
 
       input-ipc-server = "/tmp/mpvsocket";
+
+      ytdl-format = "bestvideo[height<=?2160]+bestaudio/best";
     };
   };
   xsession.windowManager.i3.config.floating.criteria = [{
