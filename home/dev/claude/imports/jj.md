@@ -16,10 +16,11 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
 - `jj log` ≈ `git log --graph --oneline` (shows concise graphical history by default)
 - `jj log --limit <n>` ≈ `git log --oneline -n` (limit number of commits shown)
 - `jj log --revisions ::` ≈ `git log --all --graph` (show all revisions)
-- `jj show <rev>` ≈ `git show <rev>` (show specific revision with full commit message and patch)
-  - Use `jj show @-` to inspect the most recent commit with complete details
-  - Use `jj show <rev>-` to inspect the parent of a specific revision
+- `jj show --git --color=never <rev>` ≈ `git show <rev>` (show specific revision with full commit message and patch)
+  - Use `jj show --git --color=never @-` to inspect the most recent commit with complete details
+  - Use `jj show --git --color=never <rev>-` to inspect the parent of a specific revision
   - Prefer `jj show` over `jj log --patch` for examining individual commits
+  - Use `--git --color=never` for standard unified diffs without color codes (simpler and matches AI training data)
 - `jj log --patch` ≈ `git log -p` (show patches for range of revisions)
 
 ### Working with Changes
@@ -29,10 +30,10 @@ When working with version control, use Jujutsu (jj) instead of Git. Here are the
   - `jj commit` creates a new empty working copy revision, leaving previous work finalized
   - `jj describe` only updates the commit message without creating a new working copy
 - `jj edit <revision>` ≈ `git checkout <commit>` (switch working copy to revision)
-- `jj diff` ≈ `git diff HEAD` (show working copy changes)
-- `jj diff --revisions <rev>` ≈ `git show <rev>` (show changes in revision)
-- `jj diff --from main` ≈ `git diff main..HEAD` (show all changes since main)
-- `jj diff --revisions main..@` ≈ `git diff main..HEAD` (alternative syntax for range)
+- `jj diff --git --color=never` ≈ `git diff HEAD` (show working copy changes)
+- `jj diff --git --color=never --revisions <rev>` ≈ `git show <rev>` (show changes in revision)
+- `jj diff --git --color=never --from main` ≈ `git diff main..HEAD` (show all changes since main)
+- `jj diff --git --color=never --revisions main..@` ≈ `git diff main..HEAD` (alternative syntax for range)
 
 ### Branching and Bookmarks
 - `jj bookmark create <name>` ≈ `git branch <name>`
@@ -106,8 +107,8 @@ When updating commit messages after a `jj squash` operation, follow this workflo
 # After making changes and squashing
 jj squash
 jj log                           # Check where changes ended up
-jj show @                        # Check if current commit has changes (often empty)
-jj show @-                       # Check if parent commit has your changes
+jj show --git --color=never @    # Check if current commit has changes (often empty)
+jj show --git --color=never @-   # Check if parent commit has your changes
 jj describe @- --message "your commit message"  # Update the commit with actual changes
 ```
 
@@ -132,8 +133,8 @@ jj describe @- --message "your commit message"  # Update the commit with actual 
 
 Jujutsu uses different operators than Git for parent/ancestor references:
 - **Parent of revision**: Use `<rev>-` (NOT `<rev>^` like Git)
-  - `jj show @-` shows parent of working copy
-  - `jj show <commit-id>-` shows parent of specific commit
+  - `jj show --git --color=never @-` shows parent of working copy
+  - `jj show --git --color=never <commit-id>-` shows parent of specific commit
 - **Ancestors**: Use `<rev>-` for immediate parent, `<rev>--` for grandparent, etc.
 - **Range queries**: Use `main..<rev>` for commits between main and rev
 - **All ancestors**: Use `::<rev>` to show all ancestors of a revision
