@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Default model if none provided
-DEFAULT_MODEL="sonnet"
+DEFAULT_MODEL="haiku"
 
 # Get model from env var, first argument, or use default
 MODEL="${JJ_AI_BRANCH_SUMMARY_MODEL:-${1:-$DEFAULT_MODEL}}"
