@@ -58,6 +58,10 @@
     storageDriver = "overlay2";
   };
 
+  environment.systemPackages = [
+    pkgs.docker-buildx
+  ];
+
   # Can't use extraRules because this needs to go before 73 for uaccess support
   services.udev.packages = [
     (pkgs.writeTextFile {
