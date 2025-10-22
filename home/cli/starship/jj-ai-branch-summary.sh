@@ -50,7 +50,7 @@ get_log_content() {
 
     # Get structured commit information as JSON - exit gracefully if no commits ahead of trunk
     local log_content
-    log_content=$(jj log -r 'trunk()..@-' --no-graph -T '"{\"date\":" ++ json(committer.timestamp().local().format("%Y-%m-%d %H:%M")) ++ ",\"author\":" ++ json(author.name()) ++ ",\"title\":" ++ json(description.first_line()) ++ ",\"description\":" ++ json(description) ++ "}" ++ "\n"' --reversed 2>/dev/null || true)
+    log_content=$(jj log -r 'trunk()..@-' --no-graph -T '"{\"author\":" ++ json(author.name()) ++ ",\"title\":" ++ json(description.first_line()) ++ ",\"description\":" ++ json(description) ++ "}" ++ "\n"' --reversed 2>/dev/null || true)
 
     # If no commits ahead of trunk, exit silently
     if [[ -z "$log_content" ]]; then
