@@ -5,6 +5,7 @@
     ./git.nix
     ./jujutsu.nix
     ./aws.nix
+    ./linear.nix
   ];
 
   home.packages = with pkgs; [

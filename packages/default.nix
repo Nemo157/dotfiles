@@ -3,6 +3,8 @@
 
   gh-poi = pkgs.callPackage ./gh-poi.nix { };
 
+  linear-cli = pkgs.callPackage ./linear-cli.nix { };
+
   rust-shim = pkgs.callPackage ./rust-shim.nix { };
 
   cargo-dl = pkgs.callPackage ./cargo-dl.nix { };
