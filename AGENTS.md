@@ -109,3 +109,39 @@ colmena build --on <hostname>
 - jj automatically tracks new files through auto-snapshotting
 - Running `jj status` is sufficient to ensure new files are tracked
 - No explicit add/commit needed before testing with colmena
+
+## Working with agenix Secrets
+
+This repository uses agenix for secret management. When adding configurations that need secrets:
+
+**Adding a new secret:**
+1. Add the secret file entry to `secrets.nix` with appropriate public keys
+2. Define the secret in the module using `age.secrets.<name>.file = ./path/to/file.age`
+3. Reference the decrypted path using `config.age.secrets.<name>.path`
+4. **Ask the user to create and encrypt the `.age` file** - you cannot create or encrypt secrets yourself
+
+**Example pattern:**
+```nix
+# In secrets.nix
+"home/veecle/api-key.age".publicKeys = [ wim-oak ];
+
+# In module (e.g., home/veecle/service.nix)
+{ config, ... }: {
+  age.secrets.veecle-api-key.file = ./api-key.age;
+
+  programs.service = {
+    enable = true;
+    environmentFile = config.age.secrets.veecle-api-key.path;
+  };
+}
+```
+
+**Environment file format:**
+Secret files that will be sourced should use shell export syntax:
+```bash
+export SECRET_KEY=value
+export ANOTHER_KEY=value
+```
+
+**Encrypting secrets:**
+Users encrypt secrets with: `agenix -e path/to/file.age`
