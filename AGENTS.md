@@ -104,3 +104,8 @@ colmena build --on <hostname>
 - Faster than `nix flake check` which builds all hosts
 - Validates both NixOS system and home-manager configurations
 - Use current hostname (check with `hostname`) to test local changes
+
+**Note on jj and new files:**
+- jj automatically tracks new files through auto-snapshotting
+- Running `jj status` is sufficient to ensure new files are tracked
+- No explicit add/commit needed before testing with colmena
