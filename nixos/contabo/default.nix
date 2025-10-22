@@ -57,6 +57,13 @@
         reverse_proxy /_matrix/* localhost:8010
       }
 
+      test1.${config.services.pds.settings.PDS_HOSTNAME} ${config.services.pds.settings.PDS_HOSTNAME} {
+        log
+        bind 2a02:c207:2020:2848:533f:f053:25f3:c8dc 173.249.29.28
+        encode gzip zstd
+        reverse_proxy localhost:${toString config.services.pds.settings.PDS_PORT}
+      }
+
       music.nemo157.com {
         log
         bind 173.249.29.28
