@@ -23,6 +23,10 @@ in {
         port = 59127;
       };
 
+      "victor.nemo157.com" = {
+        port = 59127;
+      };
+
       mithril = {
         forwardAgent = true;
       };

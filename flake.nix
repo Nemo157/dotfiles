@@ -64,6 +64,13 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    tangled = {
+      url = "git+https://tangled.org/@tangled.org/core";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.flake-compat.follows = "flake-compat";
+      inputs.gomod2nix.follows = "gomod2nix";
+    };
+
     # transitive dependencies to allow following :ferrisPensive:
     systems.url = "github:nix-systems/default-linux";
     flake-utils = {
@@ -73,6 +80,11 @@
     flake-compat = {
       url = "github:edolstra/flake-compat";
       flake = false;
+    };
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
   };
 
@@ -90,6 +102,7 @@
     nixur,
     rust-overlay,
     u2f-touch-detector,
+    tangled,
     ...
   }: let
     system = "x86_64-linux";
@@ -207,6 +220,7 @@
         imports = [
           agenix.nixosModules.default
           home-manager.nixosModules.home-manager
+          tangled.nixosModules.knot
           pin-nixpkgs
           ./nixos/common
         ];

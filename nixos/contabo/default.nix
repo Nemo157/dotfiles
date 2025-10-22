@@ -64,6 +64,13 @@
         reverse_proxy localhost:${toString config.services.pds.settings.PDS_PORT}
       }
 
+      ${config.services.tangled-knot.server.hostname} {
+        log
+        bind 2a02:c207:2020:2848:353d:2b74:c8f2:b692 173.249.29.28
+        encode gzip zstd
+        reverse_proxy ${config.services.tangled-knot.server.listenAddr}
+      }
+
       music.nemo157.com {
         log
         bind 173.249.29.28

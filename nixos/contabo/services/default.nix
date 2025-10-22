@@ -8,5 +8,6 @@
     ./pds.nix
     ./syncthing.nix
     ./tailscale.nix
+    ./tangled.nix
   ];
 }
