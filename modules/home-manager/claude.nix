@@ -7,6 +7,7 @@ let
 
   unwrapped = pkgs.unstable.claude-code;
   json = pkgs.formats.json {};
+  yaml = pkgs.formats.yaml {};
 
   permissionsType = types.submodule {
     freeformType = json.type;
@@ -75,6 +76,50 @@ let
     };
   };
 
+  skillType = types.submodule ({ name, ... }: {
+    options = {
+      name = mkOption {
+        type = types.strMatching "[a-z0-9-]+";
+        default = name;
+        description = "Skill name (lowercase, numbers, hyphens only)";
+      };
+
+      description = mkOption {
+        type = types.str;
+        description = "Description of what the skill does and when to use it";
+      };
+
+      allowed-tools = mkOption {
+        type = types.nullOr (types.listOf types.str);
+        default = null;
+        description = "Optional list of tools the skill is allowed to use";
+        example = [ "Read" "Grep" "Glob" ];
+      };
+
+      content = mkOption {
+        type = types.nullOr types.lines;
+        default = null;
+        description = "Skill body content as text";
+      };
+
+      source = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = "Skill body content from file";
+      };
+
+      extraFiles = mkOption {
+        type = types.attrsOf types.path;
+        default = {};
+        description = "Additional files to include in the skill directory";
+        example = {
+          "template.txt" = ./template.txt;
+          "helper.sh" = ./helper.sh;
+        };
+      };
+    };
+  });
+
   claude-code-settings = json.generate "claude-code-settings.json" cfg.settings;
 
   importFiles = lib.mapAttrs (name: import:
@@ -105,6 +150,30 @@ let
     else
       throw "Agent '${name}' must have either text or source specified"
   ) cfg.agents;
+
+  skillFiles = lib.mapAttrs (name: skill:
+    let
+      bodyContent = if skill.content != null then
+        skill.content
+      else if skill.source != null then
+        builtins.readFile skill.source
+      else
+        throw "Skill '${name}' must have either content or source specified";
+
+      frontmatterData = {
+        name = skill.name;
+        description = skill.description;
+      } // lib.optionalAttrs (skill.allowed-tools != null) {
+        allowed-tools = skill.allowed-tools;
+      };
+
+      frontmatterFile = yaml.generate "${name}-frontmatter.yaml" frontmatterData;
+      frontmatterYaml = builtins.readFile frontmatterFile;
+
+      skillMd = pkgs.writeText "SKILL.md" ("---\n" + frontmatterYaml + "---\n\n" + bodyContent);
+    in
+      { inherit skillMd; extraFiles = skill.extraFiles; }
+  ) cfg.skills;
 
   claude-code = pkgs.runCommand unwrapped.name {
     nativeBuildInputs = [ pkgs.makeWrapper ];
@@ -206,6 +275,29 @@ in {
         };
       };
     };
+
+    skills = mkOption {
+      type = types.attrsOf skillType;
+      default = {};
+      description = "Skill definitions with key as default name";
+      example = {
+        pdf = {
+          description = "Extract and analyze PDF files";
+          allowed-tools = [ "Read" "Bash" ];
+          content = ''
+            # PDF Skill
+            This skill extracts text from PDF files.
+          '';
+        };
+        xlsx = {
+          description = "Parse and analyze Excel spreadsheets";
+          source = ./skills/xlsx/body.md;
+          extraFiles = {
+            "parser.py" = ./skills/xlsx/parser.py;
+          };
+        };
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -218,7 +310,17 @@ in {
     // (lib.mapAttrs' (name: file: {
       name = "claude/agents/${name}.md";
       value.source = file;
-    }) agentFiles);
+    }) agentFiles)
+    // (lib.foldl' (acc: name:
+      acc
+      // {
+        "claude/skills/${name}/SKILL.md".source = skillFiles.${name}.skillMd;
+      }
+      // (lib.mapAttrs' (filename: path: {
+        name = "claude/skills/${name}/${filename}";
+        value.source = path;
+      }) skillFiles.${name}.extraFiles)
+    ) {} (lib.attrNames skillFiles));
 
     programs.git.ignores = [
       ".claude/settings.local.json"
