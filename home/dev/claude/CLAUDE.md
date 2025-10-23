@@ -48,7 +48,6 @@
 - NEVER use `unsafe` code
 - NEVER run `cargo clean` - it's rarely necessary and wastes time rebuilding
 - Only check modified packages, not entire workspace
-- Use code-reviewer subagent after significant changes
 
 **Rust coding patterns:**
 - Prefer `T::from_str()` over `.parse()` variants - more explicit about type construction and import dependencies

@@ -83,11 +83,6 @@ in {
 
     memory = builtins.readFile ./CLAUDE.md;
 
-    agents = {
-      code-reviewer.source = ./agents/code-reviewer.md;
-      technical-docs-reviewer.source = ./agents/technical-docs-reviewer.md;
-    };
-
     imports = {
       jj = {
         source = ./imports/jj.md;
