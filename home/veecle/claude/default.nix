@@ -3,27 +3,41 @@
     settings = {
       permissions.allow = lib.mkAfter [
         "WebSearch"
-        "mcp__linear-server__get_document"
-        "mcp__linear-server__get_issue"
-        "mcp__linear-server__get_issue_status"
-        "mcp__linear-server__get_project"
-        "mcp__linear-server__get_team"
-        "mcp__linear-server__get_user"
-        "mcp__linear-server__list_comments"
-        "mcp__linear-server__list_cycles"
-        "mcp__linear-server__list_documents"
-        "mcp__linear-server__list_issue_labels"
-        "mcp__linear-server__list_issue_statuses"
-        "mcp__linear-server__list_issues"
-        "mcp__linear-server__list_my_issues"
-        "mcp__linear-server__list_project_labels"
-        "mcp__linear-server__list_projects"
-        "mcp__linear-server__list_teams"
-        "mcp__linear-server__list_users"
-        "mcp__linear-server__search_documentation"
+        "Skill(linear-cli)"
+        "Bash(linear issue list:*)"
+        "Bash(linear issue view:*)"
+        "Bash(linear issue id:*)"
+        "Bash(linear issue title:*)"
+        "Bash(linear issue url:*)"
+        "Bash(linear issue describe:*)"
+        "Bash(linear team list:*)"
+        "Bash(linear team id:*)"
+        "Bash(linear team members:*)"
+        "Bash(linear project list:*)"
+        "Bash(linear project view:*)"
       ];
     };
 
     memory = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md);
+
+    skills = {
+      linear-cli = {
+        description = "Use the linear CLI tool to query Linear data and retrieve issues, teams, or project information";
+        allowed-tools = [
+          "Bash(linear issue list:*)"
+          "Bash(linear issue view:*)"
+          "Bash(linear issue id:*)"
+          "Bash(linear issue title:*)"
+          "Bash(linear issue url:*)"
+          "Bash(linear issue describe:*)"
+          "Bash(linear team list:*)"
+          "Bash(linear team id:*)"
+          "Bash(linear team members:*)"
+          "Bash(linear project list:*)"
+          "Bash(linear project view:*)"
+        ];
+        source = ./skills/linear-cli.md;
+      };
+    };
   };
 }
