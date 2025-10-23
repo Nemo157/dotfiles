@@ -292,32 +292,6 @@
         "url": "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip"
       }
     },
-    "jujutsu": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "rust-overlay": [
-          "rust-overlay"
-        ]
-      },
-      "locked": {
-        "lastModified": 1760853489,
-        "narHash": "sha256-WWL41kHEErxVaIB0c3ZFak6NUaIk4HLdNY2IuNQ8YJ8=",
-        "owner": "jj-vcs",
-        "repo": "jj",
-        "rev": "730d633c73dfe7242ead617d59f04ad5733f5ae5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jj-vcs",
-        "repo": "jj",
-        "type": "github"
-      }
-    },
     "lucide-src": {
       "flake": false,
       "locked": {
@@ -429,7 +403,6 @@
         "flake-utils": "flake-utils",
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
-        "jujutsu": "jujutsu",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",

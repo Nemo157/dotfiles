@@ -9,6 +9,7 @@
 
   programs.jujutsu = {
     enable = true;
+    package = pkgs.unstable.jujutsu;
     settings = {
       ui = {
         pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
