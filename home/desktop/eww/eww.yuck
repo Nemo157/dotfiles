@@ -241,7 +241,16 @@
       :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
       :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
     )
-    (pie :icon "B" :class "inverse" :clockwise false
+    (pie :class "inverse" :clockwise false
+      :icon "${
+        EWW_BATTERY == ""
+            ? ""
+            : EWW_BATTERY.total_avg < 0.2
+            ? "🪫"
+            : EWW_BATTERY.BAT1.status == "Charging"
+            ? "🔌"
+            : "🔋"
+      }"
       :visible {EWW_BATTERY != ""}
       :value {EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg}
       :tooltip "${round(EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg, 1)}%"
