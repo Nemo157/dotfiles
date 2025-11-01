@@ -127,6 +127,8 @@
           # In case I want to access stuff pre-overlay
           nixpkgs.flake = nixpkgs;
 
+          nixpkgs-unstable.flake = nixpkgs-unstable;
+
           # Uses the `legacyPackages` below to allow access to my overlays,
           # along with my packages through `packages` like normal
           pkgs.flake = self;
@@ -134,7 +136,10 @@
 
         # For legacy commands
         channel.enable = true;
-        nixPath = [ "nixpkgs=${nixpkgs.outPath}" ];
+        nixPath = [
+          "nixpkgs=${nixpkgs.outPath}"
+          "nixpkgs-unstable=${nixpkgs-unstable.outPath}"
+        ];
 
         # Don't import all the registry entries, just explicit ones above
         settings.flake-registry = "/etc/nixos/registry.json";
