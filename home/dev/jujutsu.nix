@@ -108,6 +108,7 @@
         "pulls" = "remote_bookmarks(pulls/)";
         "interesting_heads" = "visible_heads() ~ remote_bookmarks() | bookmarks()";
         "trunk" = "trunk()";
+        "main" = "trunk()";
         "all" = "all()";
       };
 
