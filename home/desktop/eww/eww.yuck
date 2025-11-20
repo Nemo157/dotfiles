@@ -202,6 +202,10 @@
   )
 )
 
+(deflisten amdgpu
+  :initial "{}"
+  "amdgpu_top --json")
+
 (defvar GiB {1024 * 1024 * 1024})
 
 (defwidget pie [value ?class tooltip icon ?clockwise ?visible]
@@ -228,32 +232,55 @@
 )
 
 (defwidget pies []
-  (h-box :class "pies" :halign "fill" :space-evenly true
-    (data-pie :icon "M"
-      :used {EWW_RAM.used_mem}
-      :total {EWW_RAM.total_mem}
+  (v-box
+    (h-box :class "pies" :halign "fill" :space-evenly true
+      (data-pie :icon "M"
+        :used {EWW_RAM.used_mem}
+        :total {EWW_RAM.total_mem}
+      )
+      (pie :icon "C"
+        :value {EWW_CPU.avg}
+        :tooltip "${round(EWW_CPU.avg, 2)}"
+      )
+      (data-pie :icon "D"
+        :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
+        :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
+      )
+      (pie :class "inverse" :clockwise false
+        :icon "${
+          EWW_BATTERY == ""
+              ? ""
+              : EWW_BATTERY.BAT1.status == "Charging"
+              ? "🔌"
+              : EWW_BATTERY.total_avg < 0.9
+              ? "🪫"
+              : "🔋"
+        }"
+        :visible {EWW_BATTERY != ""}
+        :value {EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg}
+        :tooltip "${round(EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg, 1)}%"
+      )
     )
-    (pie :icon "C"
-      :value {EWW_CPU.avg}
-      :tooltip "${round(EWW_CPU.avg, 2)}"
+    (h-box :class "pies" :halign "fill" :space-evenly true
+      (data-pie :icon "G"
+        :used {amdgpu.devices[0].VRAM["Total GTT Usage"].value * 1024 * 1024}
+        :total {amdgpu.devices[0].VRAM["Total GTT"].value * 1024 * 1024}
+      )
+      (data-pie :icon "V"
+        :used {amdgpu.devices[0].VRAM["Total VRAM Usage"].value * 1024 * 1024}
+        :total {amdgpu.devices[0].VRAM["Total VRAM"].value * 1024 * 1024}
+      )
+      (pie :icon "C"
+        :value {amdgpu.devices[0].gpu_activity.GFX.value}
+        :tooltip "${round(amdgpu.devices[0].gpu_activity.GFX.value, 2)}"
+      )
     )
-    (data-pie :icon "D"
-      :used {EWW_DISK["/home"]?.used ?: EWW_DISK["/"]?.used}
-      :total {EWW_DISK["/home"]?.total ?: EWW_DISK["/"]?.total}
-    )
-    (pie :class "inverse" :clockwise false
-      :icon "${
-        EWW_BATTERY == ""
-            ? ""
-            : EWW_BATTERY.total_avg < 0.2
-            ? "🪫"
-            : EWW_BATTERY.BAT1.status == "Charging"
-            ? "🔌"
-            : "🔋"
-      }"
-      :visible {EWW_BATTERY != ""}
-      :value {EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg}
-      :tooltip "${round(EWW_BATTERY == "" ? 0 : EWW_BATTERY.total_avg, 1)}%"
+
+    (graph
+      :value {amdgpu.devices[0].VRAM["Total GTT Usage"].value * 100 / amdgpu.devices[0].VRAM["Total GTT"].value}
+      :time-range 60
+      :min 0
+      :max 100
     )
   )
 )

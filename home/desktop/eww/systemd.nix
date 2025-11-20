@@ -19,6 +19,7 @@
           config.binHome
           "${pkgs.systemd}/bin"
           "${pkgs.appearance-watcher}/bin"
+          "${pkgs.amdgpu_top}/bin"
         ];
         ExecStart = "eww daemon --no-daemonize";
         ExecReload = "eww reload";
