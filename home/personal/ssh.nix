@@ -23,6 +23,14 @@ in {
         port = 59127;
       };
 
+      slate = {
+        user = "overflow";
+        port = 44247;
+        setEnv = {
+          TERM = "ansi";
+        };
+      };
+
       "victor.nemo157.com" = {
         port = 59127;
       };
@@ -39,6 +47,7 @@ in {
 
     contabo ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBap8/dDxDUVLcVn4U/bIGT44kw4Amm54kaRUwxdYEdZ
     mithril ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINuIJQEiQuK0HxfPjk28NUkqJtzNQpv0nwJ55rQK4PKd
+    slate ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgdPjQPwDdgtr0MgJL3OO886OtJdYoLe5rBRyXA31FY
 
     docsrs.infra.rust-lang.org ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBO+laPFbYTkh6pGR36X2oOmIDGHSlGSSpDLv+Lhtesz2qWNVuioSPpX9imaMssTrqUiWSRdzqAlatXiGXxKBz5A=
     docsrs.infra.rust-lang.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8l7FvHwVF6L2h3FnmRf/kXhka8+tyI/fg6/7oX9Fsw
