@@ -19,6 +19,7 @@
   home.packages = with pkgs; [
     stc-cli
     flatpak
+    amdgpu_top
   ];
 
   services.syncthing = {
