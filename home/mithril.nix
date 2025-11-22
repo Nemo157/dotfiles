@@ -1,13 +1,14 @@
 { lib, config, pkgs, ts, hostname, ... }: {
   imports = [
-    ./cli
-    ./dev
+    ./age.nix
+    ./audio.nix
     ./chill
     ./chill-server
+    ./cli
     ./desktop
-    ./xdg.nix
-    ./age.nix
+    ./dev
     ./personal
+    ./xdg.nix
   ];
 
   home.stateVersion = "23.05";
@@ -26,53 +27,6 @@
     enable = true;
     tray.enable = true;
     guiAddress = "${ts.ips.mithril}:8384";
-  };
-
-  xdg.configFile = {
-    "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
-      monitor.alsa.rules = [
-        # disable all alsa devices except mic
-        # disable output on mic
-        {
-          matches = [
-            { device.nick = "!~(Samson GoMic|HDA NVidia)" }
-            { node.nick = "Samson GoMic", media.class = "Audio/Sink" }
-          ]
-          actions = { update-props = { device.disabled = true } }
-        }
-      ]
-
-      monitor.bluez.rules = [
-        {
-          matches = [
-            { device.description = "WH-1000XM3" }
-          ]
-          actions = {
-            update-props = {
-              media-role.use-headset-profile = false
-              bluetooth.autoswitch-to-headset-profile = false
-              bluez5.autoswitch-profile = false
-
-              bluez5.auto-connect = [ a2dp_sink ]
-            }
-          }
-        }
-      ]
-
-      monitor.bluez.properties = {
-        bluez5.roles = [ a2dp_source a2dp_sink ]
-        bluez5.hfphsp-backend = "none"
-      }
-    '';
-
-    "pipewire/pipewire.conf.d/92-low-latency.conf".text = ''
-      context.properties = {
-        default.clock.rate = 48000
-        default.clock.quantum = 256
-        default.clock.min-quantum = 256
-        default.clock.max-quantum = 256
-      }
-    '';
   };
 
   scripts."switch-to-virtual-monitor" = {

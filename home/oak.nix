@@ -1,12 +1,13 @@
 { lib, config, pkgs, ... }: {
   imports = [
-    ./cli
-    ./dev
-    ./desktop
-    ./xdg.nix
     ./age.nix
-    ./wluma.nix
+    ./audio.nix
+    ./cli
+    ./desktop
+    ./dev
     ./veecle
+    ./wluma.nix
+    ./xdg.nix
   ];
 
   home.stateVersion = "24.05";
@@ -19,23 +20,6 @@
   ];
 
   xdg.configFile = {
-    "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
-      monitor.bluez.rules = [
-        {
-          matches = [
-            { device.description = "J55" }
-          ]
-          actions = {
-            update-props = {
-              media-role.use-headset-profile = false
-              bluetooth.autoswitch-to-headset-profile = false
-              bluez5.auto-connect = [ a2dp_sink ]
-            }
-          }
-        }
-      ]
-    '';
-
     "pipewire/pipewire.conf.d/92-j55-mono.conf".text = ''
       context.modules = [
         {
