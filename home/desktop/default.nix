@@ -10,6 +10,7 @@
     ./kitty.nix
     ./mako.nix
     ./mpv.nix
+    ./niri.nix
     ./portal.nix
     ./rofi.nix
     ./wallpaper

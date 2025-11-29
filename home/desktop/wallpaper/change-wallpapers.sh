@@ -19,16 +19,28 @@ wallpaper() {
   done
 }
 
-hyprctl monitors -j \
-  | jq -r '.[] | "\(.solitary) \(.name)"' \
-  | while read -r solitary monitor
-    do
-      if [[ "$solitary" == "0" ]]
-      then
-        img="$(wallpaper)"
-        echo "selected $img for $monitor" >&2
-        set-wallpaper "$monitor" "$img"
-      else
-        echo "skipping $monitor with solitary client $solitary" >&2
-      fi
-    done
+if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
+then
+  get-monitors() {
+    hyprctl monitors -j | jq -r '.[] | "\(.solitary == 1) \(.name)"'
+  }
+fi
+
+if [[ -v NIRI_SOCKET ]]
+then
+  get-monitors() {
+    niri msg -j outputs | jq -r 'keys.[] | "\(false) \(.)"'
+  }
+fi
+
+get-monitors | while read -r solitary monitor
+do
+  if [[ "$solitary" == "false" ]]
+  then
+    img="$(wallpaper)"
+    echo "selected $img for $monitor" >&2
+    set-wallpaper "$monitor" "$img"
+  else
+    echo "skipping $monitor with solitary client $solitary" >&2
+  fi
+done

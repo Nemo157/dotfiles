@@ -28,9 +28,20 @@ choose() {
   echo "${args[$RANDOM % ${#args[@]}]}"
 }
 
-read -r monwidth monheight monleft montop monright monbottom < <(
-  hyprctl monitors -j | jq --arg monitor "$monitor" -r '.[] | select(.name == $monitor) | [.width, .height, .reserved[]] | join(" ")'
-)
+if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
+then
+  read -r monwidth monheight monleft montop monright monbottom < <(
+    hyprctl monitors -j | jq --arg monitor "$monitor" -r '.[] | select(.name == $monitor) | [.width, .height, .reserved[]] | join(" ")'
+  )
+fi
+
+if [[ -v NIRI_SOCKET ]]
+then
+  # TODO: layer reserved area
+  read -r monwidth monheight monleft montop monright monbottom < <(
+    niri msg -j outputs | jq --arg monitor "$monitor" -r '.[$monitor].logical | [.width, .height, 0, 0, 0, 0] | join(" ")'
+  )
+fi
 
 read -r frames imgfmt imgwidth imgheight < <(run magick "$wallpaper" -format '%n %m %w %h\n' info:-)
 echo "$wallpaper: $imgfmt $frames frames"
