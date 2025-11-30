@@ -288,11 +288,15 @@
 (defpoll keymap
   :interval "1s"
   :initial "unknown"
-  " \
-    hyprctl devices -j \
-    | jq -r '.keyboards[] | select(.main) | .active_keymap' \
-    | sed 's/English (programmer Dvorak)/dvp/' \
-    | sed 's/English (US)/qwerty/' \
+  "
+    if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
+    then
+      hyprctl devices -j | jq -r '.keyboards[] | select(.main) | .active_keymap'
+    elif [[ -v NIRI_SOCKET ]]
+    then
+      # TODO: niri has an event for layout change so this doesn't need to be polling
+      niri msg -j keyboard-layouts | jq -r '.names[.current_idx]'
+    fi | sed -E -e 's/English \\((.*)\\)/\\1/' -e 's/programmer Dvorak/dvp/' -e 's/US/qwerty/'
   "
 )
 

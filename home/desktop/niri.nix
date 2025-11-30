@@ -39,6 +39,11 @@
           open-floating true
       }
 
+      window-rule {
+          match app-id="^steam_app_"
+          open-fullscreen true
+      }
+
       xwayland-satellite {
         path "${lib.getExe pkgs.xwayland-satellite}"
       }
