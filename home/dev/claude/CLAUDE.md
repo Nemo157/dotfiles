@@ -36,6 +36,11 @@
 - Follow project conventions (imports, naming, structure)
 - Never commit secrets or expose sensitive data
 
+**Commit messages:**
+- Use markdown formatting for clarity
+- Wrap inline code, commands, file names, function names, etc. in backticks
+- Examples: "fix `parse_config` to handle empty strings", "update `Cargo.toml` dependencies"
+
 **Naming conventions:**
 - Remove redundant prefixes when context is clear (`TelemetryMessage` → `Telemetry`)
 - Use simple variable names (`telemetry_msg` → `message`)
