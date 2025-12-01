@@ -1,7 +1,9 @@
 { config, pkgs, ... }: {
-  programs.git = {
-    userEmail = "git@nemo157.com";
-    userName = "Wim Looman";
-    extraConfig.github.user = "Nemo157";
+  programs.git.settings = {
+    user = {
+      email = "git@nemo157.com";
+      name = "Wim Looman";
+    };
+    github.user = "Nemo157";
   };
 }

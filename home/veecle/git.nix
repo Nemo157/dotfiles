@@ -4,8 +4,12 @@
       key = null;
       signByDefault = true;
     };
-    userEmail = "wim.looman@veecle.io";
-    userName = "Wim Looman";
-    extraConfig.github.user = "Nemo157";
+    settings = {
+      user = {
+        email = "wim.looman@veecle.io";
+        name = "Wim Looman";
+      };
+      github.user = "Nemo157";
+    };
   };
 }

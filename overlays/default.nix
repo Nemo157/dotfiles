@@ -10,8 +10,6 @@
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
 in {
-  rofi = final.rofi-wayland;
-
   freetube = pkgs-unstable.freetube;
 
   maintainers = prev.maintainers // maintainers;

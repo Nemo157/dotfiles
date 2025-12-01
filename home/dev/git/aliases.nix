@@ -1,5 +1,5 @@
 { config, pkgs, ... }: {
-  programs.git.aliases = {
+  programs.git.settings.alias = {
     di = "diff --color-words";
     f = "fetch --all";
     fb = "!git f && git br -av";

@@ -3,10 +3,6 @@ let
   lib = pkgs.lib;
   mkRustShell = args: pkgs.callPackage ./rust args;
 in {
-  rofi-wayland = pkgs.mkShell {
-    inputsFrom = [ pkgs.rofi-wayland-unwrapped ];
-  };
-
   rust = mkRustShell { };
   rust-unwrapped = mkRustShell { custom = false; };
 

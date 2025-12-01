@@ -1,6 +1,7 @@
 { config, pkgs, ... }: {
-  programs.git.delta = {
+  programs.delta = {
     enable = true;
+    enableGitIntegration = true;
     options = {
       syntax-theme = "eink2";
       plus-style = "syntax black";

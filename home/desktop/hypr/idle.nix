@@ -19,8 +19,11 @@ let
       original = toString (left * (1.0 - 2.0 * ratio));
       other = toString (left * ratio);
     in pkgs.writeText "darken-${toString amount}.frag" ''
+      #version 300 es
+
       precision mediump float;
-      varying vec2 v_texcoord;
+      in vec2 v_texcoord;
+      layout(location = 0) out vec4 fragColor;
       uniform sampler2D tex;
 
       void main() {
@@ -33,7 +36,7 @@ let
           new[2] = c[0] * ${other} + c[1] * ${other} + c[2] * ${original};
           new[3] = c[3];
 
-          gl_FragColor = new;
+          fragColor = new;
       }
     '';
 
@@ -52,7 +55,7 @@ let
     resetListener = ''
       listener {
         timeout = ${toString startTime}
-        on-resume = ${hyprctl} keyword decoration:screen_shader ${mkShader 0}
+        on-resume = ${hyprctl} keyword decoration:screen_shader ""
       }
     '';
 

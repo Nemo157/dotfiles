@@ -67,4 +67,6 @@
       destination = "/etc/udev/rules.d/70-annepro2.rules";
     })
   ];
+
+  environment.pathsToLink = [ "/share/applications" "/share/xdg-desktop-portal" ];
 }

@@ -6,6 +6,10 @@
     includes = [
       config.age.secrets.veecle-ssh-config.path
     ];
-    userKnownHostsFile = lib.mkForce "~/.ssh/known_hosts.new ${config.age.secrets.veecle-known-hosts.path} ~/.ssh/known_hosts";
+    matchBlocks = {
+      "*" = {
+        userKnownHostsFile = lib.mkForce "~/.ssh/known_hosts.new ${config.age.secrets.veecle-known-hosts.path} ~/.ssh/known_hosts";
+      };
+    };
   };
 }

@@ -7,7 +7,7 @@
 
   programs.git = {
     enable = true;
-    extraConfig = {
+    settings = {
       advice.detachedHead = false;
       init.defaultBranch = "main";
       core.safecrlf = true;

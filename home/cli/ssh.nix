@@ -1,16 +1,21 @@
 { lib, ... }: {
   programs.ssh = {
     enable = true;
-
-    controlPath = "~/.ssh/control/%r@%n:%p";
-    controlMaster = "auto";
-    controlPersist = "1m";
-    userKnownHostsFile = "~/.ssh/known_hosts.new ~/.ssh/known_hosts";
+    enableDefaultConfig = false;
 
     matchBlocks = {
       "*" = {
+        forwardAgent = false;
+        addKeysToAgent = "1d";
+        compression = false;
+        serverAliveInterval = 0;
+        serverAliveCountMax = 3;
+        hashKnownHosts = false;
+        controlPath = "~/.ssh/control/%r@%n:%p";
+        controlMaster = "auto";
+        controlPersist = "1m";
+        userKnownHostsFile = "~/.ssh/known_hosts.new ~/.ssh/known_hosts";
         extraOptions = {
-          AddKeysToAgent = "1d";
           StrictHostKeyChecking = "ask";
           UpdateHostKeys = "ask";
         };

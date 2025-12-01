@@ -10,7 +10,7 @@
   };
 
   scripts.eww-music-queue = {
-    runtimeInputs = with pkgs; [ mpc-cli jq playerctl ];
+    runtimeInputs = with pkgs; [ mpc jq playerctl ];
     source = ./eww-music-queue.sh;
   };
 

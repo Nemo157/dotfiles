@@ -88,9 +88,10 @@ in {
       }
 
       gestures {
-        workspace_swipe = true
-        workspace_swipe_fingers = 4
-        workspace_swipe_cancel_ratio = 0.3
+        # TODO: new gesture action syntax
+        # workspace_swipe = true
+        # workspace_swipe_fingers = 4
+        # workspace_swipe_cancel_ratio = 0.3
       }
 
       general {

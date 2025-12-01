@@ -57,7 +57,7 @@ in {
     coreutils
     curlftpfs
     delta
-    du-dust
+    dust
     fd
     ffmpeg
     fuse-7z-ng
@@ -71,7 +71,7 @@ in {
     lsd
     lynx
     p7zip
-    poppler_utils
+    poppler-utils
     ripgrep
     sox
     sshfs
