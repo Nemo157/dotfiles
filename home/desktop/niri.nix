@@ -1,7 +1,11 @@
-{ lib, pkgs, ... }: {
-  home.packages = [ pkgs.niri ];
+{ lib, pkgs, ... }: let
+  configFile = pkgs.writeTextFile {
+    name = "niri-config.kdl";
 
-  xdg.configFile."niri/config.kdl"= {
+    checkPhase = ''
+      ${lib.getExe pkgs.niri} validate --config "$target"
+    '';
+
     text = ''
       // https://yalter.github.io/niri/Configuration:-Introduction
 
@@ -35,13 +39,80 @@
       screenshot-path null
 
       window-rule {
-          match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-          open-floating true
+          opacity 0.95
       }
 
       window-rule {
-          match app-id="^steam_app_"
+          match is-active=false
+          opacity 0.8
+      }
+
+      window-rule {
+        match app-id="FreeTube"
+        opacity 1.0
+      }
+
+      window-rule {
+        match app-id="^Minecraft"
+        opacity 1.0
+      }
+
+      window-rule {
+          match app-id="^$" title="^Picture in picture$"
+          match app-id="firefox$" title="^Picture-in-Picture$"
+          open-floating true
+          open-focused false
+          opacity 1.0
+          default-column-width { fixed 1280; }
+          default-window-height { fixed 720; }
+          default-floating-position x=10 y=10 relative-to="bottom-right"
+      }
+
+      window-rule {
+          match app-id="^steam_app_(1977170)$"
           open-fullscreen true
+      }
+
+      window-rule {
+          match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+          default-floating-position x=10 y=10 relative-to="bottom-right"
+          opacity 1.0
+      }
+
+      window-rule {
+          match app-id="steam" title="^Payment Authentication$"
+          open-floating true
+      }
+
+      layer-rule {
+        match namespace="^swww-daemon$"
+        place-within-backdrop true
+      }
+
+      layout {
+        gaps 4
+        empty-workspace-above-first
+        default-column-width { proportion 1.0; }
+        background-color "transparent"
+        focus-ring {
+            width 4
+            active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
+        }
+        border {
+            off
+        }
+        shadow {
+            on
+        }
+        insert-hint {
+            gradient from="#2aa19880" to="#cb4b1680" angle=45 relative-to="workspace-view"
+        }
+      }
+
+      overview {
+        workspace-shadow {
+          off
+        }
       }
 
       xwayland-satellite {
@@ -63,7 +134,7 @@
           Alt+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
           Alt+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
 
-          Alt+O repeat=false { toggle-overview; }
+          Alt+O repeat=false { toggle-window-rule-opacity; }
 
           Alt+W repeat=false { close-window; }
 
@@ -103,4 +174,8 @@
       }
     '';
   };
+in {
+  home.packages = [ pkgs.niri ];
+
+  xdg.configFile."niri/config.kdl".source = configFile;
 }
