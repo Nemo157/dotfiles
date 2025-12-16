@@ -150,6 +150,11 @@
           Alt+K { focus-window-up; }
           Alt+L { focus-column-right; }
 
+          Alt+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+          Alt+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+          Alt+WheelScrollRight cooldown-ms=150 { focus-column-right; }
+          Alt+WheelScrollLeft cooldown-ms=150 { focus-column-left; }
+
           Alt+Shift+H { consume-or-expel-window-left; }
           Alt+Shift+J { move-window-down; }
           Alt+Shift+K { move-window-up; }
