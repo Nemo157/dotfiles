@@ -65,8 +65,7 @@ in {
     gnupg
     gnutar
     imagemagick
-    # broken build on 24.05
-    # jd-cli
+    cfr
     links2
     lsd
     lynx
@@ -131,7 +130,7 @@ in {
       filetype *.[1-8] man ./%c
       fileviewer *.[1-8] man ./%c | col -b
 
-      fileviewer *.class jd-cli --logLevel OFF --outputConsole
+      fileviewer *.class cfr %c
 
       " MD5
       filetype *.md5
