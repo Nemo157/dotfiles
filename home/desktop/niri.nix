@@ -85,6 +85,13 @@
           open-floating true
       }
 
+      window-rule {
+          match is-floating=true
+          focus-ring {
+              on
+          }
+      }
+
       layer-rule {
         match namespace="^swww-daemon$"
         place-within-backdrop true
@@ -99,15 +106,11 @@
         default-column-width { proportion 1.0; }
         background-color "transparent"
         focus-ring {
-            width 4
-            active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
+          off
+          active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
         }
-        border {
-            off
-        }
-        shadow {
-            on
-        }
+        border { off; }
+        shadow { off; }
         insert-hint {
             gradient from="#2aa19880" to="#cb4b1680" angle=45 relative-to="workspace-view"
         }
