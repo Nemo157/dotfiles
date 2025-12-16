@@ -14,9 +14,6 @@ in {
 
   maintainers = prev.maintainers // maintainers;
 
-  # No release in over 2 years, with many many commits since :ferrisPensive:
-  beets = prev.beets-unstable;
-
   # https://github.com/Leseratte10/acsm-calibre-plugin/issues/68#issuecomment-2162686156
   calibre = final.symlinkJoin {
     inherit (prev.calibre) name;

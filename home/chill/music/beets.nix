@@ -27,6 +27,7 @@ in {
         "fromfilename"
         "info"
         "mbsync"
+        "musicbrainz"
         "missing"
         "random"
         "replaygain"
