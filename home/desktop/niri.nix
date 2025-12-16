@@ -91,7 +91,10 @@
       }
 
       layout {
-        gaps 4
+
+        gaps 0
+        struts { top 0; bottom 0; left 0; right 64; }
+
         empty-workspace-above-first
         default-column-width { proportion 1.0; }
         background-color "transparent"
