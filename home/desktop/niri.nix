@@ -40,6 +40,7 @@
 
       window-rule {
           opacity 0.95
+          draw-border-with-background false
       }
 
       window-rule {
