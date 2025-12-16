@@ -146,8 +146,8 @@
           Alt+W repeat=false { close-window; }
 
           Alt+H { focus-column-left; }
-          Alt+J { focus-window-down; }
-          Alt+K { focus-window-up; }
+          Alt+J { focus-window-or-workspace-down; }
+          Alt+K { focus-window-or-workspace-up; }
           Alt+L { focus-column-right; }
 
           Alt+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
@@ -156,8 +156,8 @@
           Alt+WheelScrollLeft cooldown-ms=150 { focus-column-left; }
 
           Alt+Shift+H { consume-or-expel-window-left; }
-          Alt+Shift+J { move-window-down; }
-          Alt+Shift+K { move-window-up; }
+          Alt+Shift+J { move-window-down-or-to-workspace-down; }
+          Alt+Shift+K { move-window-up-or-to-workspace-up; }
           Alt+Shift+L { consume-or-expel-window-right; }
 
           Alt+Ampersand { focus-workspace 1; }
