@@ -43,4 +43,5 @@ in {
     doCheck = false;
   }) {};
 
+  jujutsu = pkgs-unstable.jujutsu;
 } // import ../packages { pkgs = final; }
