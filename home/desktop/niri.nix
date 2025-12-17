@@ -30,6 +30,10 @@
           scale 1
       }
 
+      output "Samsung Electric Company U32J59x H4LT100011" {
+          scale 1
+      }
+
       hotkey-overlay {
           skip-at-startup
       }
