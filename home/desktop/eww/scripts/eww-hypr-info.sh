@@ -1,8 +1,5 @@
 shopt -s nullglob
 
-IFS=$':\n' read -r -a xdg_data_dirs <<<"${XDG_DATA_DIRS?:}"
-dirs=("${xdg_data_dirs[@]/%//icons}")
-
 if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
 then
   get-info() {
@@ -152,6 +149,8 @@ then
 fi
 
 add_icons() {
+  IFS=$':\n' read -r -a xdg_data_dirs <<<"${XDG_DATA_DIRS?:}"
+
   while read -r line
   do
     workspaces=$(jq -Mc '.workspaces[]' <<<"$line" | while read -r workspace
@@ -159,9 +158,9 @@ add_icons() {
       windows=$(jq -Mc '.windows[]' <<<"$workspace" | while read -r window
       do
         class="$(jq -rM '.class' <<<"$window")"
-        for dir in "${dirs[@]}"
+        for dir in "${xdg_data_dirs[@]}"
         do
-          for icon in "$dir"/hicolor/{scalable,64x64,128x128,256x256,48x48,32x32,16x16,512x512}/apps/*{"$class","${class@L}","${class@u}"}.{svg,png}
+          for icon in "$dir"/{icons/hicolor/{scalable,64x64,128x128,256x256,48x48,32x32,16x16,512x512}/apps,pixmaps}/*{"$class","${class@L}","${class@u}"}.{svg,png}
           do
             if [ -f "$icon" ]
             then
