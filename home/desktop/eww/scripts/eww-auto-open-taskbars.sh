@@ -23,7 +23,7 @@ fi
 if [[ -v NIRI_SOCKET ]]
 then
   get-monitors() {
-    niri msg -j outputs | jq -r '.[].model | if . == "" then "Unknown" else . end'
+    niri msg -j outputs | jq -r '.[] | select(.current_mode) | .model | if . == "" then "Unknown" else . end'
   }
 
   wait-for-monitor-change() {
