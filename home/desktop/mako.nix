@@ -7,9 +7,9 @@
       height = 200;
       margin = "40,20";
       padding = "20";
-      borderSize = 2;
-      maxIconSize = 128;
-      defaultTimeout = 10000;
+      border-size = 2;
+      max-icon-size = 128;
+      default-timeout = 10000;
     };
   };
 }
