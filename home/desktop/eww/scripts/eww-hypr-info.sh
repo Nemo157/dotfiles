@@ -119,7 +119,9 @@ then
                     monitor: $outputs[.output].model,
                     virtual: false,
                     windows: [
-                      $windows.[]
+                      $windows
+                      | sort_by(.layout.pos_in_scrolling_layout)
+                      | .[]
                       | select(.workspace_id == $workspace.id)
                       | select(.app_id | length > 0)
                       | {
