@@ -60,6 +60,7 @@
       window-rule {
         match app-id="^Minecraft"
         opacity 1.0
+        open-maximized-to-edges true
       }
 
       window-rule {
@@ -107,12 +108,22 @@
         struts { top 0; bottom 0; left 0; right 64; }
 
         empty-workspace-above-first
+
+        preset-column-widths {
+            proportion 0.33333
+            proportion 0.5
+            proportion 0.66667
+            proportion 1.0
+        }
+
         default-column-width { proportion 1.0; }
+
         background-color "transparent"
         focus-ring {
           off
           active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
         }
+
         border { off; }
         shadow { off; }
         insert-hint {
@@ -178,7 +189,7 @@
 
           Alt+R { switch-preset-column-width; }
 
-          Alt+F { maximize-column; }
+          Alt+F { maximize-window-to-edges; }
           Alt+Shift+F { fullscreen-window; }
           Alt+Ctrl+F { toggle-window-floating; }
 
