@@ -3,12 +3,12 @@
     ./alacritty
     ./cursor.nix
     ./darkman.nix
+    ./dunst.nix
     ./eww
     ./firefox.nix
     ./fonts.nix
     ./hypr
     ./kitty.nix
-    ./mako.nix
     ./mpv.nix
     ./niri.nix
     ./portal.nix
