@@ -6,11 +6,11 @@
     ./jujutsu.nix
     ./aws.nix
     ./linear.nix
+    ./slack.nix
   ];
 
   home.packages = with pkgs; [
     element-desktop
     xdg-utils
-    slack
   ];
 }
