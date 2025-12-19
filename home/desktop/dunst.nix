@@ -4,8 +4,8 @@
 
     settings = {
       global = {
-        width = 400;
-        height = 200;
+        width = "(400,400)";
+        height = "(200,200)";
         offset = "(84,20)";
         origin = "top-right";
         transparency = 10;
