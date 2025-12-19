@@ -33,6 +33,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    lix-module = {
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/release-2.93.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -88,6 +94,7 @@
     colmena,
     ferris-icons,
     home-manager,
+    lix-module,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
@@ -116,6 +123,7 @@
         appearance-watcher.overlays.default
         ferris-icons.overlays.default
         self.overlays.default
+        lix-module.overlays.lixFromNixpkgs
       ];
     };
 
