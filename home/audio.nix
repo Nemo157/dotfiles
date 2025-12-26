@@ -1,6 +1,10 @@
 {
   xdg.configFile = {
     "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
+      wireplumber.settings = {
+        node.features.audio.monitor-ports = false
+      }
+
       monitor.alsa.rules = [
         # disable all alsa devices except usb mic
         # (seem to be different firmware that reports a different nick on my 2 devices)
