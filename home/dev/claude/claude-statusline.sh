@@ -26,5 +26,5 @@ printf '\e[37m\uEE0D %s\e[0m | \e[33m$%s\e[0m | \e[34m\uF017 %s\e[0m | \e[32m+%s
   "$model" "$cost" "$duration" "$added" "$removed" "$project" "$current"
 if jj root --ignore-working-copy >/dev/null
 then
-  jj lo --ignore-working-copy --color=always
+  jj lo --ignore-working-copy --color=always --limit 4
 fi
