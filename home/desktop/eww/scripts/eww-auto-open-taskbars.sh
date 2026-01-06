@@ -22,7 +22,7 @@ open-taskbars() {
       echo "taskbar already open for '$model'" >&2
     else
       echo "opening taskbar for '$model'" >&2
-      while ! eww open taskbar --id "$model" --screen "$model" >&2
+      while ! eww --no-daemonize open taskbar --id "$model" --screen "$model" >&2
       do
         echo "opening failed, retrying in 1 sec" >&2
         sleep 1
