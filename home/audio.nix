@@ -1,4 +1,8 @@
-{
+{ pkgs, ... }: {
+  home.packages = [
+    pkgs.pavucontrol
+  ];
+
   xdg.configFile = {
     "wireplumber/wireplumber.conf.d/51-config.conf".text = ''
       wireplumber.settings = {
