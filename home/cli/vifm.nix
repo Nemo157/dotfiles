@@ -30,11 +30,17 @@ let
 
         (( half = rows / 2 ))
 
+        tmp="$(mktemp --tmpdir vifm-image-viewer-XXXXXX.png)"
+
+        ffmpeg -hide_banner -i "$file" -frames:v 1 -update 1 -y "$tmp" 2>/dev/null
+
         kitten icat \
           --place "''${cols}x$half@''${col}x$row" \
           --transfer-mode=memory \
-          "$file" \
+          "$tmp" \
           </dev/tty >/dev/tty
+
+        rm "$tmp"
 
         for (( i = 0 ; i < half + 1 ; i++ ))
         do
@@ -114,7 +120,9 @@ in {
 
       fileviewer *.flac soxi
 
-      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg,*.image
+      fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg,*.image,*.webp,
+                \*.avi,*.mp[4g],*.wmv,*.ogv,*.mkv,*.mpeg,
+                \*.mov,*.webm,*.ts,*.mts,*.m4v,*.divx
                \ vifm-image-viewer show %c %pw %ph %px %py %pu %N
                \ %pc
                \ vifm-image-viewer clear %N
