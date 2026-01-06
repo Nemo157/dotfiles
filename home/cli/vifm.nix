@@ -65,6 +65,7 @@ in {
     gnupg
     gnutar
     imagemagick
+    jq
     cfr
     links2
     lsd
@@ -207,6 +208,7 @@ in {
 
       fileviewer *.patch delta --paging=never <%f
       fileviewer *.diff delta --paging=never <%f
+      fileviewer *.json jq --color-output . %c
       fileviewer *[^/] bat --color=always -pp %f
 
       fileviewer */ lsd --tree --long --color=always %f
