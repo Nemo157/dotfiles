@@ -113,7 +113,6 @@ in pkgs.mkShell {
 
     export CARGO_UNSTABLE_BUILD_DIR=true
     export CARGO_UNSTABLE_BUILD_STD=std,panic_abort
-    export CARGO_UNSTABLE_BUILD_STD_FEATURES=compiler-builtins-no-f16-f128
     export CARGO_UNSTABLE_CHECK_CFG=true
     export CARGO_UNSTABLE_CODEGEN_BACKEND=true
     export CARGO_UNSTABLE_GITOXIDE_CHECKOUT=true
