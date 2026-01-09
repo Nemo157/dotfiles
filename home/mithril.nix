@@ -5,6 +5,7 @@
     ./chill
     ./chill-server
     ./cli
+    ./common.nix
     ./desktop
     ./dev
     ./personal

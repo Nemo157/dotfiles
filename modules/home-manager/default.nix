@@ -1,6 +1,7 @@
 {
   imports = [
     ./claude.nix
+    ./colors.nix
     ./linear-cli.nix
     ./md-tui.nix
     ./scripts.nix

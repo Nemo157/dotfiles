@@ -7,63 +7,41 @@ let
     '';
   };
 
-  color-schemes = with (import ../sol.nix); {
-    dark = pkgs.writeText "dark-theme.auto.conf" ''
-      foreground ${base0}
-      background ${base03}
-      selection_foreground ${base03}
-      selection_background ${base0}
+  mkTheme = palette: ''
+    background #${palette.base00}
+    foreground #${palette.base05}
+    selection_background #${palette.base03}
+    selection_foreground #${palette.base05}
 
-      color0 ${base02}
-      color1 ${red}
-      color2 ${green}
-      color3 ${yellow}
-      color4 ${blue}
-      color5 ${magenta}
-      color6 ${cyan}
-      color7 ${base2}
+    cursor #${palette.base05}
+    cursor_text_color #${palette.base00}
 
-      color8 ${base03}
-      color9 ${orange}
-      color10 ${base1}
-      color11 ${base0}
-      color12 ${base00}
-      color13 ${violet}
-      color14 ${base01}
-      color15 ${base3}
+    color0 #${palette.base00}
+    color1 #${palette.base08}
+    color2 #${palette.base0B}
+    color3 #${palette.base0A}
+    color4 #${palette.base0D}
+    color5 #${palette.base0E}
+    color6 #${palette.base0C}
+    color7 #${palette.base05}
 
-      cursor ${base0}
-      cursor_text_color ${base03}
-    '';
+    color8 #${palette.base02}
+    color9 #${palette.base08}
+    color10 #${palette.base0B}
+    color11 #${palette.base0A}
+    color12 #${palette.base0D}
+    color13 #${palette.base0E}
+    color14 #${palette.base0C}
+    color15 #${palette.base07}
 
-    light = pkgs.writeText "light-theme.auto.conf" ''
-      foreground ${base00}
-      background ${base3}
-      selection_foreground ${base3}
-      selection_background ${base00}
+    color16 #${palette.base09}
+    color17 #${palette.base0F}
+    color18 #${palette.base01}
+    color19 #${palette.base02}
+    color20 #${palette.base04}
+    color21 #${palette.base06}
+  '';
 
-      color0 ${base2}
-      color1 ${red}
-      color2 ${green}
-      color3 ${yellow}
-      color4 ${blue}
-      color5 ${magenta}
-      color6 ${cyan}
-      color7 ${base02}
-
-      color8 ${base3}
-      color9 ${orange}
-      color10 ${base01}
-      color11 ${base00}
-      color12 ${base0}
-      color13 ${violet}
-      color14 ${base1}
-      color15 ${base03}
-
-      cursor ${base00}
-      cursor_text_color ${base3}
-    '';
-  };
 in {
   programs.kitty = {
     enable = true;
@@ -104,9 +82,9 @@ in {
   };
 
   xdg.configFile = {
-    "kitty/dark-theme.auto.conf".source = color-schemes.dark;
-    "kitty/light-theme.auto.conf".source = color-schemes.light;
-    "kitty/no-preference-theme.auto.conf".source = color-schemes.dark;
+    "kitty/dark-theme.auto.conf".text = mkTheme config.colorSchemes.dark.palette;
+    "kitty/light-theme.auto.conf".text = mkTheme config.colorSchemes.light.palette;
+    "kitty/no-preference-theme.auto.conf".text = mkTheme config.colorSchemes.dark.palette;
   };
 }
 

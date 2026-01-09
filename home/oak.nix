@@ -3,6 +3,7 @@
     ./age.nix
     ./audio.nix
     ./cli
+    ./common.nix
     ./desktop
     ./dev
     ./veecle

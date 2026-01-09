@@ -43,9 +43,9 @@ in {
 
       set -g pane-border-format ' #P #T '
       set -g pane-border-style 'fg=cyan'
-      set -g pane-active-border-style 'fg=magenta'
+      set -g pane-active-border-style 'fg=colour17'
 
-      set -g display-panes-active-colour magenta
+      set -g display-panes-active-colour colour17
       set -g display-panes-colour cyan
 
       set -g status on
@@ -56,31 +56,31 @@ in {
       set -g status-left-length 30
       set -g status-right-length 150
 
-      set -g status-left '#[bg=black]'
+      set -g status-left '#[bg=colour18]'
       set -ag status-left '#[fg=blue] #h '
-      set -ag status-left '#[fg=magenta] #S '
+      set -ag status-left '#[fg=colour17] #S '
       set -ag status-left '#[fg=terminal bg=terminal] · '
 
       set -g status-right ""
       set -ag status-right '#[fg=terminal bg=terminal] · '
-      set -ag status-right '#[bg=black]'
+      set -ag status-right '#[bg=colour18]'
       set -ag status-right "#[fg=terminal]#(date '+  %Y-%m-%d %H:%M:%S') "
 
       set -g status-justify left
 
       set -g status-style 'fg=white bg=terminal'
 
-      set -g window-status-style 'fg=terminal bg=black'
-      set -g window-status-last-style 'fg=terminal bg=black'
-      set -g window-status-activity-style 'fg=terminal bg=black'
-      set -g window-status-bell-style 'fg=terminal bg=black'
+      set -g window-status-style 'fg=terminal bg=colour18'
+      set -g window-status-last-style 'fg=terminal bg=colour18'
+      set -g window-status-activity-style 'fg=terminal bg=colour18'
+      set -g window-status-bell-style 'fg=terminal bg=colour18'
 
-      set -g window-status-current-style 'fg=magenta bg=black'
+      set -g window-status-current-style 'fg=colour17 bg=colour18'
 
       set -g window-status-current-format ' #{?window_bell_flag,🛎️,}#I #W '
       set -g window-status-format ' #{?window_bell_flag,🛎️,}#{?window_activity_flag,⏩,}#{?window_silence_flag,🔇,}#I #W '
 
-      set -g message-style 'fg=white bg=black'
+      set -g message-style 'fg=white bg=colour18'
 
       set -g popup-border-lines heavy
 

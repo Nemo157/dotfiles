@@ -33,6 +33,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-colors.url = "github:misterio77/nix-colors";
+
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/release-2.93.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -95,6 +97,7 @@
     ferris-icons,
     home-manager,
     lix-module,
+    nix-colors,
     nixos-hardware,
     nixpkgs,
     nixpkgs-unstable,
@@ -237,6 +240,9 @@
             u2f-touch-detector.homeManagerModules.default
             self.homeManagerModules.default
           ];
+          extraSpecialArgs = {
+            inherit nix-colors;
+          };
         };
       };
 
