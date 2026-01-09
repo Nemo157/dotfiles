@@ -8,7 +8,7 @@ let
   };
 
   color-schemes = with (import ../sol.nix); {
-    dark = pkgs.writeText "kitty-dark.conf" ''
+    dark = pkgs.writeText "dark-theme.auto.conf" ''
       foreground ${base0}
       background ${base03}
       selection_foreground ${base03}
@@ -36,7 +36,7 @@ let
       cursor_text_color ${base03}
     '';
 
-    light = pkgs.writeText "kitty-light.conf" ''
+    light = pkgs.writeText "light-theme.auto.conf" ''
       foreground ${base00}
       background ${base3}
       selection_foreground ${base3}
@@ -99,22 +99,14 @@ in {
     };
 
     extraConfig = ''
-      include ${color-schemes.light}
-
       symbol_map U+1F600 ferris-icons
     '';
   };
 
-  xdg.dataFile = lib.attrsets.mapAttrs' (mode: file: {
-    name = "${mode}-mode.d/kitty-${mode}.sh";
-    value = {
-      source = pkgs.writeShellScript "kitty-${mode}.sh" ''
-        for socket in $XDG_RUNTIME_DIR/kitty-*.socket
-        do
-          ${lib.getExe' pkgs.kitty "kitten"} @ --to unix:$socket set-colors -a ${file}
-        done
-      '';
-    };
-  }) color-schemes;
+  xdg.configFile = {
+    "kitty/dark-theme.auto.conf".source = color-schemes.dark;
+    "kitty/light-theme.auto.conf".source = color-schemes.light;
+    "kitty/no-preference-theme.auto.conf".source = color-schemes.dark;
+  };
 }
 
