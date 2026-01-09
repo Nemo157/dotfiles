@@ -82,9 +82,9 @@
             label(if(current_working_copy, "working_copy"),
               concat(
                 separate(" ",
-                  format_short_change_id_with_hidden_and_divergent_info(self),
+                  format_short_change_id_with_change_offset(self),
                   format_short_commit_id(commit_id),
-                  if(git_head, label("git_head", "HEAD")),
+                  if(self.contained_in('first_parent(@)'), label("git_head", "HEAD")),
                   bookmarks,
                   tags,
                   working_copies,
