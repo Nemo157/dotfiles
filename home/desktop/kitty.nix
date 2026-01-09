@@ -3,7 +3,7 @@ let
   kitty-shell = pkgs.writeShellApplication {
     name = "kitty-tmux-session";
     text = ''
-        zsh --login -c "tmux -u new-session -s primary-$(hosttname -s) -t primary -A"
+        zsh --login -c "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
     '';
   };
 
