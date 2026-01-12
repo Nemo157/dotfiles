@@ -68,7 +68,7 @@ in {
       set viminfofile=${statedir}/viminfo
       let g:netrw_home = "${statedir}"
 
-      colorscheme eink2
+      colorscheme base24-eink2
 
       set autochdir
       set bs=indent,eol,start

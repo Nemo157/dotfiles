@@ -3,12 +3,12 @@
     enable = true;
     enableGitIntegration = true;
     options = {
-      syntax-theme = "eink2";
+      syntax-theme = "base24-eink2";
       plus-style = "syntax 18";
-      plus-emph-style = "white green";
+      plus-emph-style = "black green";
       plus-empty-line-marker-style = "green normal";
       minus-style = "normal 18";
-      minus-emph-style = "white red";
+      minus-emph-style = "black red";
       minus-empty-line-marker-style = "red normal";
       keep-plus-minus-markers = "true";
       line-numbers = "true";
