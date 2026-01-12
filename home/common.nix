@@ -1,4 +1,4 @@
 { nix-colors, ... }: {
-  colorSchemes.light = nix-colors.colorSchemes.solarized-light;
-  colorSchemes.dark = nix-colors.colorSchemes.solarized-dark;
+  colorSchemes.light = nix-colors.colorSchemes.gruvbox-light-medium;
+  colorSchemes.dark = nix-colors.colorSchemes.gruvbox-dark-medium;
 }
