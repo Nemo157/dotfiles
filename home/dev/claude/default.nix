@@ -168,6 +168,26 @@ in {
           "shellcheck *" = "allow";
         };
       };
+
+      keybinds = {
+        leader = "ctrl+t";
+
+        app_exit = "<leader>q";
+
+        session_export = "none";
+        session_new = "none";
+        session_list = "none";
+        session_timeline = "none";
+        session_compact = "none";
+
+        session_child_cycle = "<leader>l";
+        session_child_cycle_reverse = "<leader>h";
+
+        session_parent = "<leader>k";
+
+        messages_half_page_up = "ctrl+u";
+        messages_half_page_down = "ctrl+d";
+      };
     };
   };
 }
