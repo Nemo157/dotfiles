@@ -40,4 +40,8 @@
       };
     };
   };
+
+  programs.opencode = {
+    rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md);
+  };
 }

@@ -93,4 +93,21 @@ in {
 
   # Run a claude instance in a fresh workspace
   programs.jujutsu.settings.aliases.claude = ["util" "exec" "--" (lib.getExe jj-claude)];
+
+  programs.opencode = {
+    enable = true;
+    package = pkgs.unstable.opencode;
+
+    rules = builtins.readFile ./CLAUDE.md;
+
+    settings = {
+      autoupdate = false;
+
+      theme = "system";
+
+      permission = {
+        "*" = "ask";
+      };
+    };
+  };
 }
