@@ -107,6 +107,64 @@ in {
 
       permission = {
         "*" = "ask";
+
+        todoread = "allow";
+        todowrite = "allow";
+
+        read = "allow";
+        glob = "allow";
+        grep = "allow";
+        list = "allow";
+
+        edit = {
+          "*" = "allow";
+          ".jj" = "deny";
+          ".git" = "deny";
+        };
+
+        bash = {
+          "rg *" = "allow";
+          "fd *" = "allow";
+          "find *" = "allow";
+          "grep *" = "allow";
+          "ls *" = "allow";
+          "cat *" = "allow";
+          "head *" = "allow";
+          "tail *" = "allow";
+          "wc *" = "allow";
+          "sort *" = "allow";
+          "uniq *" = "allow";
+
+          "git status *" = "allow";
+          "git log *" = "allow";
+          "git show *" = "allow";
+          "git diff *" = "allow";
+          "jj status *" = "allow";
+          "jj log *" = "allow";
+          "jj show *" = "allow";
+          "jj diff *" = "allow";
+          "jj file show *" = "allow";
+          "jj bookmark list *" = "allow";
+          "jj new *" = "allow";
+
+          "gh browse *" = "allow";
+          "gh issue list *" = "allow";
+          "gh issue view *" = "allow";
+          "gh pr diff *" = "allow";
+          "gh pr list *" = "allow";
+          "gh pr view *" = "allow";
+          "gh repo view *" = "allow";
+          "gh status *" = "allow";
+
+          "nix flake check *" = "allow";
+
+          "cargo check *" = "allow";
+          "cargo clippy *" = "allow";
+          "cargo test *" = "allow";
+
+          "yamllint *" = "allow";
+          "shellcheck *" = "allow";
+        };
       };
     };
   };
