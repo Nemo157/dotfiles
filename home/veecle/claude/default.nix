@@ -44,4 +44,6 @@
   programs.opencode = {
     rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md);
   };
+
+  xdg.configFile."opencode/skill/linear-cli/SKILL.md".source = config.xdg.configFile."claude/skills/linear-cli/SKILL.md".source;
 }
