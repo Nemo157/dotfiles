@@ -105,6 +105,8 @@ in {
 
       theme = "system";
 
+      instructions = ["CONTRIBUTING.md"];
+
       permission = {
         "*" = "ask";
 
