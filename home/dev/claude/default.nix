@@ -118,6 +118,8 @@ in {
         grep = "allow";
         list = "allow";
 
+        skill = "allow";
+
         edit = {
           "*" = "allow";
           ".jj" = "deny";

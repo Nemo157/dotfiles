@@ -43,6 +43,22 @@
 
   programs.opencode = {
     rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md);
+
+    permission = {
+      bash = {
+        "linear issue list *" = "allow";
+        "linear issue view *" = "allow";
+        "linear issue id *" = "allow";
+        "linear issue title *" = "allow";
+        "linear issue url *" = "allow";
+        "linear issue describe *" = "allow";
+        "linear team list *" = "allow";
+        "linear team id *" = "allow";
+        "linear team members *" = "allow";
+        "linear project list *" = "allow";
+        "linear project view *" = "allow";
+      };
+    };
   };
 
   xdg.configFile."opencode/skill/linear-cli/SKILL.md".source = config.xdg.configFile."claude/skills/linear-cli/SKILL.md".source;
