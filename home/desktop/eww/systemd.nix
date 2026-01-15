@@ -12,7 +12,6 @@
           "${pkgs.bash}/bin"
           # scripts and tools used in event handlers
           "${pkgs.playerctl}/bin"
-          "${pkgs.hyprland}/bin"
           "${pkgs.niri}/bin"
           "${pkgs.jq}/bin"
           "${pkgs.gnused}/bin"

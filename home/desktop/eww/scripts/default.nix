@@ -1,12 +1,32 @@
 { lib, config, pkgs, ... }: {
-  scripts.eww-hypr-info = {
-    runtimeInputs = with pkgs; [ hyprland socat jq coreutils ];
-    source = ./eww-hypr-info.sh;
+  scripts.eww-wm-info = {
+    runtimeInputs = with pkgs; [ niri jq coreutils ];
+    source = ./eww-wm-info.sh;
   };
 
-  scripts.eww-hypr-focus-window-for-realsiez = {
-    runtimeInputs = with pkgs; [ hyprland jq ];
-    source = ./eww-hypr-focus-window-for-realsiez.sh;
+  scripts.eww-wm-focus-workspace = {
+    runtimeInputs = with pkgs; [ niri ];
+    source = ./eww-wm-focus-workspace.sh;
+  };
+
+  scripts.eww-wm-close-window = {
+    runtimeInputs = with pkgs; [ niri ];
+    source = ./eww-wm-close-window.sh;
+  };
+
+  scripts.eww-wm-maximize = {
+    runtimeInputs = with pkgs; [ niri ];
+    source = ./eww-wm-maximize.sh;
+  };
+
+  scripts.eww-wm-focus-window = {
+    runtimeInputs = with pkgs; [ niri ];
+    source = ./eww-wm-focus-window.sh;
+  };
+
+  scripts.eww-wm-spawn = {
+    runtimeInputs = with pkgs; [ niri ];
+    source = ./eww-wm-spawn.sh;
   };
 
   scripts.eww-music-queue = {
@@ -30,7 +50,7 @@
   };
 
   scripts.eww-auto-open-taskbars = {
-    runtimeInputs = with pkgs; [ eww hyprland socat jq ripgrep coreutils ];
+    runtimeInputs = with pkgs; [ eww niri socat jq ripgrep coreutils ];
     source = ./eww-auto-open-taskbars.sh;
   };
 

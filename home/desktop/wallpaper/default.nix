@@ -2,7 +2,7 @@
 let
   set-wallpaper = pkgs.writeShellApplication {
     name = "set-wallpaper";
-    runtimeInputs = with pkgs; [ coreutils swww hyprland jq imagemagick ];
+    runtimeInputs = with pkgs; [ coreutils swww niri jq imagemagick ];
     text = lib.readFile ./set-wallpaper.sh;
   };
 
@@ -12,7 +12,7 @@ let
       appearance-watcher
       coreutils
       fd
-      hyprland
+      niri
       imagemagick
       jq
       set-wallpaper

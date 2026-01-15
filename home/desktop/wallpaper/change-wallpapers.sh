@@ -19,19 +19,9 @@ wallpaper() {
   done
 }
 
-if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
-then
-  get-monitors() {
-    hyprctl monitors -j | jq -r '.[] | "\(.solitary == 1) \(.name)"'
-  }
-fi
-
-if [[ -v NIRI_SOCKET ]]
-then
-  get-monitors() {
-    niri msg -j outputs | jq -r 'keys.[] | "\(false) \(.)"'
-  }
-fi
+get-monitors() {
+  niri msg -j outputs | jq -r 'keys.[] | "\(false) \(.)"'
+}
 
 get-monitors | while read -r solitary monitor
 do

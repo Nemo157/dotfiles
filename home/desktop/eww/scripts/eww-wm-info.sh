@@ -1,83 +1,5 @@
 shopt -s nullglob
 
-if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
-then
-  get-info() {
-    echo | jq \
-        --argjson activewindow "$(hyprctl activewindow -j)" \
-        --argjson activeworkspace "$(hyprctl activeworkspace -j)" \
-        --argjson clients "$(hyprctl clients -j)" \
-        --argjson monitors "$(hyprctl monitors -j)" \
-        --argjson workspaces "$(hyprctl workspaces -j)" \
-        --argjson names '["einz", "zwei", "drei", "vier", "funf"]' \
-        -sMc '
-      (
-        [
-          $names
-          | keys.[]
-          | {
-              key: (. + 1) | tostring,
-              value: {
-                id: (. + 1),
-                name: $names[.],
-                active: false,
-                virtual: true,
-                windows: [],
-              },
-            }
-        ]
-        | from_entries
-      ) as $virtual_workspaces
-      | (
-          $workspaces
-          | sort_by(.id)
-          | map(
-              . as $workspace
-              | {
-                  key: .id | tostring,
-                  value: ($workspace + {
-                    name: (if .name == (.id | tostring) then $names[.id - 1] else .name end),
-                    monitor: $monitors.[] | select(.id == $workspace.monitorID) | .model | (if . == "" then "Unknown" else . end),
-                    virtual: false,
-                    windows: [
-                      $clients.[]
-                      | select(.workspace.id == $workspace.id)
-                      | select(.address and (.class | length > 0))
-                      | {
-                        class,
-                        title,
-                        address,
-                        active: (.address == $activewindow.address),
-                      }
-                      | select(if .class == "steam" then .title != "" else true end)
-                    ],
-                    active: (.id == $activeworkspace.id),
-                  })
-                }
-          ) | from_entries
-        ) as $real_workspaces
-        | [($virtual_workspaces + $real_workspaces).[]] as $workspaces
-      | {
-        activewindow: $activewindow,
-        activeworkspace: $activeworkspace,
-        workspaces: $workspaces,
-      }
-    ' | add_icons
-  }
-
-  wait-for-update() {
-    SOCKET="UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
-    socat -u "$SOCKET",forever - | while read -r
-    do
-      info
-      # Some events like closing windows fire before everything is updated,
-      # check again after a little while :ferrisPensive:
-      sleep 0.1
-      info
-    done
-  }
-fi
-
 if [[ -v NIRI_SOCKET ]]
 then
   get-info() {
@@ -122,6 +44,7 @@ then
                       | select(.workspace_id == $workspace.id)
                       | select(.app_id | length > 0)
                       | {
+                        id,
                         class: .app_id,
                         title,
                         active: .is_focused,

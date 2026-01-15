@@ -36,7 +36,7 @@
   (v-box :class "bar" :vexpand true
     (label :class "hostname" :text hostname)
     (workspaces :screen screen)
-    (hypr-buttons)
+    (wm-buttons)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
       (security-key)
     )
@@ -50,25 +50,25 @@
 )
 
 
-(deflisten hypr-info
+(deflisten wm-info
   :initial "{}"
-  "eww-hypr-info")
+  "eww-wm-info")
 
 (defwidget workspaces [screen]
   (box :orientation "v" :class "workspaces" :space-evenly false
-    (for workspace in {jq(hypr-info?.workspaces ?: [], '[.[] | select((.monitor == "${screen}") or .virtual)]')}
+    (for workspace in {jq(wm-info?.workspaces ?: [], '[.[] | select((.monitor == "${screen}") or .virtual)]')}
       (box :orientation "v" :space-evenly false
         (eventbox
           :class "workspace ${workspace.active ? "active" : ""} ${workspace.virtual ? "virtual" : ""}"
           :cursor {workspace.active ? "default" : "pointer"}
-          :onclick {workspace.active ? "true" : "hyprctl dispatch workspace ${workspace.id}"}
+          :onclick {workspace.active ? "true" : "eww-wm-focus-workspace ${workspace.idx}"}
           (label :class "name" :text "${workspace.name}")
         )
         (for window in {workspace.windows ?: []}
           (eventbox
             :class "window ${window.active ? "active" : ""}"
             :cursor {window.active ? "default" : "pointer"}
-            :onclick {window.active ? "true" : "eww-hypr-focus-window-for-realsiez ${window.address}"}
+            :onclick {window.active ? "true" : "eww-wm-focus-window ${window.id}"}
             (v-box
               (image :class "icon" :image-width 64
                 :visible {window.icon != "null"}
@@ -129,16 +129,13 @@
   )
 )
 
-(defwidget hypr-buttons []
-  (h-box :class "hypr-buttons"
-    (btn :icon "󱓞" :onclick "hyprctl dispatch exec rofi-systemd")
+(defwidget wm-buttons []
+  (h-box :class "wm-buttons"
+    (btn :icon "󱓞" :onclick "eww-wm-spawn rofi-systemd")
     (box :hexpand true)
-    (btn
-      :icon {(hypr-info?.activewindow?.fullscreen ?: 0) > 0 ? "󰊔" : "󰊓"}
-      :onclick "hyprctl dispatch fullscreen 1"
-    )
+    (btn :icon "󰊓" :onclick "eww-wm-maximize")
     (box :hexpand true)
-    (btn :icon "" :onclick "hyprctl dispatch killactive")
+    (btn :icon "" :onclick "eww-wm-close-window")
   )
 )
 
@@ -188,7 +185,7 @@
     )
     (h-box
       (box :hexpand true)
-      (btn :icon "󰲸" :onclick "sleep 0.1 && hyprctl dispatch exec rofi-mpd")
+      (btn :icon "󰲸" :onclick "sleep 0.1 && eww-wm-spawn rofi-mpd")
       (box :hexpand true)
       (btn :icon "󰎈" :onclick "rand-album")
       (box :hexpand true)
@@ -298,14 +295,9 @@
   :interval "1s"
   :initial "unknown"
   "
-    if [[ -v HYPRLAND_INSTANCE_SIGNATURE ]]
-    then
-      hyprctl devices -j | jq -r '.keyboards[] | select(.main) | .active_keymap'
-    elif [[ -v NIRI_SOCKET ]]
-    then
-      # TODO: niri has an event for layout change so this doesn't need to be polling
-      niri msg -j keyboard-layouts | jq -r '.names[.current_idx]'
-    fi | sed -E -e 's/English \\((.*)\\)/\\1/' -e 's/programmer Dvorak/dvp/' -e 's/US/qwerty/'
+    # TODO: niri has an event for layout change so this doesn't need to be polling
+    niri msg -j keyboard-layouts | jq -r '.names[.current_idx]' \
+      | sed -E -e 's/English \\((.*)\\)/\\1/' -e 's/programmer Dvorak/dvp/' -e 's/US/qwerty/'
   "
 )
 

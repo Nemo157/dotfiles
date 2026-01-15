@@ -13,17 +13,5 @@
     #     flatpak override -u --filesystem /nix/store:ro
     "icons/catppuccin-latte-light-cursors".source = "${pkgs.catppuccin-cursors.latteLight}/share/icons/catppuccin-latte-light-cursors";
     "icons/catppuccin-mocha-dark-cursors".source = "${pkgs.catppuccin-cursors.mochaDark}/share/icons/catppuccin-mocha-dark-cursors";
-
-    "light-mode.d/hyprcursor-light.sh" = {
-      source = pkgs.writeShellScript "hyprcursor-light.sh" ''
-        ${pkgs.hyprland}/bin/hyprctl setcursor catppuccin-mocha-dark-cursors 32
-      '';
-    };
-
-    "dark-mode.d/hyprcursor-dark.sh" = {
-      source = pkgs.writeShellScript "hyprcursor-dark.sh" ''
-        ${pkgs.hyprland}/bin/hyprctl setcursor catppuccin-latte-light-cursors 32
-      '';
-    };
   };
 }
