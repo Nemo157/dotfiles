@@ -89,7 +89,7 @@
     };
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     agenix,
     appearance-watcher,
@@ -155,6 +155,17 @@
         # Don't import all the registry entries, just explicit ones above
         settings.flake-registry = "/etc/nixos/registry.json";
       };
+    };
+
+    # adds all inputs (recursively) as extra dependencies so they will be gc-rooted
+    root-flake-inputs = let
+      collectFlakeInputs = input:
+        [ input ]
+        ++ builtins.concatMap collectFlakeInputs (builtins.attrValues (input.inputs or { }));
+    in {
+      system.extraDependencies =
+        [ self ]
+        ++ builtins.concatMap collectFlakeInputs (builtins.attrValues inputs);
     };
 
     ts = rec {
@@ -255,6 +266,7 @@
       mithril = {
         imports = [
           ./nixos/mithril
+          root-flake-inputs
         ];
         deployment = {
           allowLocalDeployment = true;
@@ -271,11 +283,16 @@
             ];
           };
         };
+        system.extraDependencies = [
+          self.devShells.${system}.rust
+          self.devShells.${system}.rust-unwrapped
+        ];
       };
 
       zinc = {
         imports = [
           ./nixos/zinc
+          root-flake-inputs
         ];
         deployment = {
           allowLocalDeployment = true;
@@ -291,11 +308,16 @@
             ];
           };
         };
+        system.extraDependencies = [
+          self.devShells.${system}.rust
+          self.devShells.${system}.rust-unwrapped
+        ];
       };
 
       oak = {
         imports = [
           ./nixos/oak
+          root-flake-inputs
         ];
         deployment = {
           allowLocalDeployment = true;
@@ -308,6 +330,10 @@
             home = { username = "wim"; homeDirectory = "/home/wim"; };
           };
         };
+        system.extraDependencies = [
+          self.devShells.${system}.rust
+          self.devShells.${system}.rust-unwrapped
+        ];
       };
     };
 
