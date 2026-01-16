@@ -29,6 +29,14 @@
         "/home/nemo157/sources/crates.io-index"
         "/home/nemo157/.var/app/com.valvesoftware.Steam"
       ];
+      pruneOpts = [
+        "--host=mithril"
+        "--keep-daily=7"
+        "--keep-weekly=5"
+        "--keep-monthly=12"
+        "--keep-yearly=75"
+      ];
+      inhibitsSleep = true;
     };
   };
 }
