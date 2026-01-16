@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ config, pkgs, ... }: {
   imports = [
     ./autologin.nix
     ./monitors.nix
@@ -17,10 +17,10 @@
     rtkit.enable = true;
     pam = {
       u2f.enable = true;
-      services.hyprlock = {
-        # hyprlock has issues with parallel u2f and password,
-        # disable u2f for now
-        u2fAuth = false;
+      services = {
+        swaylock = {
+          rules.auth.unix.order = config.security.pam.services.swaylock.rules.auth.u2f.order - 10;
+        };
       };
     };
   };

@@ -7,7 +7,6 @@
     ./eww
     ./firefox.nix
     ./fonts.nix
-    ./hypr
     ./kitty.nix
     ./mpv.nix
     ./niri.nix

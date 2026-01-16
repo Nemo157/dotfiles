@@ -205,4 +205,19 @@ in {
   home.packages = [ pkgs.niri ];
 
   xdg.configFile."niri/config.kdl".source = configFile;
+
+  programs = {
+    swaylock = {
+      enable = true;
+    };
+  };
+
+  services = {
+    swayidle = {
+      enable = true;
+      events = [
+        { event = "lock"; command = "${lib.getExe pkgs.swaylock} -fF"; }
+      ];
+    };
+  };
 }
