@@ -26,4 +26,30 @@
       wakeOnLan.enable = true;
     };
   };
+
+  systemd.network.networks = {
+    "50-eth" = {
+      matchConfig = {
+        Name = "enp39s0";
+      };
+      networkConfig = {
+        DHCP = "ipv4";
+        IPv6AcceptRA = true;
+        IPv6LinkLocalAddressGenerationMode = "random";
+        IPv6PrivacyExtensions = true;
+      };
+      linkConfig = {
+        RequiredForOnline = "yes";
+      };
+    };
+
+    "50-wlan" = {
+      matchConfig = {
+        Type = "wlan";
+      };
+      linkConfig = {
+        RequiredForOnline = "no";
+      };
+    };
+  };
 }
