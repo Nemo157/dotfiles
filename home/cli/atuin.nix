@@ -27,7 +27,10 @@
   programs.zsh.initContent = lib.mkAfter ''
     if [[ $options[zle] = on ]]; then
       _atuin_search_viins_clear() {
-        BUFFER= _atuin_search_viins
+        local saved=$BUFFER
+        BUFFER=""
+        _atuin_search_viins
+        [[ -z $LBUFFER ]] && BUFFER=$saved
       }
 
       zle -N atuin-search-viins-clear _atuin_search_viins_clear
