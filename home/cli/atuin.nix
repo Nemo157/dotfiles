@@ -35,8 +35,10 @@
 
       zle -N atuin-search-viins-clear _atuin_search_viins_clear
 
-      bindkey -a / atuin-search-viins-clear
-      bindkey -a k atuin-up-search-vicmd
+      bindkey -M vicmd / atuin-search-viins-clear
+
+      bindkey -M viins '^r' atuin-search-vicmd
+      bindkey -M vicmd k atuin-up-search-vicmd
     fi
 
     # Add --cwd flag to have auto-workspace-detection active
