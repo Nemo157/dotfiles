@@ -190,6 +190,27 @@ in {
         messages_half_page_up = "ctrl+u";
         messages_half_page_down = "ctrl+d";
       };
+
+      agent = {
+        ask = {
+          description = "Readonly agent for answering codebase questions";
+          mode = "primary";
+          prompt = ''
+            You are a codebase exploration assistant. Your role is to answer questions about the codebase succinctly and accurately.
+
+            ## Guidelines
+            - Search and read code to understand the codebase structure and implementation
+            - Provide concise, direct answers with file:line references
+            - Do not make any modifications - you are readonly
+            - Focus on explaining what exists, not suggesting changes unless asked
+            - When answering, cite specific code locations
+          '';
+          tools = {
+            edit = false;
+            bash = false;
+          };
+        };
+      };
     };
   };
 }
