@@ -43,11 +43,11 @@
 
     # Add --cwd flag to have auto-workspace-detection active
     _zsh_autosuggest_strategy_atuin_auto() {
-        suggestion=$(atuin search --cwd . --cmd-only --limit 1 --search-mode prefix -- "$1")
+        suggestion=$(atuin search --cwd . --cmd-only --limit 1 --search-mode prefix 2>/dev/null -- "$1")
     }
 
     _zsh_autosuggest_strategy_atuin_global() {
-        suggestion=$(atuin search --cmd-only --limit 1 --search-mode prefix -- "$1")
+        suggestion=$(atuin search --cmd-only --limit 1 --search-mode prefix 2>/dev/null -- "$1")
     }
 
     ZSH_AUTOSUGGEST_STRATEGY=(atuin_auto atuin_global)
