@@ -15,7 +15,7 @@ done | sort -rn | head -n1
 echo -ne '\e[?25l\e[?1049h'
 
 read -r height < <(tput lines cols)
-# height=$(( height - 2 ))
+height=$(( height - 1 ))
 
 while true
 do
@@ -54,13 +54,19 @@ do
       printf ' %-*s  │  %s\e[K\e[0m' "$max_url_width" "$url" "$name"
     fi
 
-    if (( i != height - 1 ))
-    then
-      echo
-    fi
+    echo
   done
 
+  echo -ne "\e[48;5;18m\e[38;5;20m  [j/k: navigate]  [ctrl+u/d: half page]  [enter: open]  [e: edit & open]  [q: quit]  \e[K\e[0m"
+
   read -r -s -n1 key
+
+  # read escape sequences for ctrl+u/d
+  if [[ "$key" == $'\e' ]]
+  then
+    read -r -s -n4 -t 0.01 seq || true
+    key="$key$seq"
+  fi
 
   case "$key" in
     "k" )
@@ -69,16 +75,27 @@ do
     "j" )
       selected=$(( selected == count - 1 ? selected : selected + 1 ))
       ;;
+    $'\x15' | $'\e[1;5A' )  # ctrl+u
+      selected=$(( selected - height / 2 ))
+      (( selected < 0 )) && selected=0
+      ;;
+    $'\x04' | $'\e[1;5B' )  # ctrl+d
+      selected=$(( selected + height / 2 ))
+      (( selected >= count )) && selected=$(( count - 1 ))
+      ;;
     "e" )
       echo -ne '\e[?1049l\e[?25h'
       IFS=$'\x1f' read -r url name <<< "${options[$selected]}"
       if url="$(vipe 2>/dev/null <<< "$url")"
       then
-        options["$selected"]="$(printf '%s\x1f%s\n' "$url" "$name")"
-      fi
-      if (( ${#url} > max_url_width ))
-      then
-        max_url_width=${#url}
+        xdg-open "$url"
+        if [ -n "$name" ]
+        then
+          tmux display-message "Opened $url ($name)"
+        else
+          tmux display-message "Opened $url"
+        fi
+        exit
       fi
       echo -ne '\e[?25l\e[?1049h'
       ;;

@@ -7,7 +7,8 @@ let
   };
   tmux-urlview = pkgs.writeShellApplication {
     name = "tmux-urlview";
-    runtimeInputs = with pkgs; [ tmux ripgrep tmux-urlview-popup ];
+    runtimeInputs = with pkgs; [ tmux ripgrep ];
+    runtimeEnv.TMUX_URLVIEW_POPUP = lib.getExe tmux-urlview-popup;
     text = lib.readFile ./tmux/urlview.sh;
   };
 in {

@@ -1,5 +1,25 @@
+strip_unbalanced_parens() {
+  while IFS= read -r url
+  do
+    while [[ "$url" == *')' ]]
+    do
+      opens="${url//[^(]/}"
+      closes="${url//[^)]/}"
+      if (( ${#closes} > ${#opens} ))
+      then
+        url="${url%')'}"
+      else
+        break
+      fi
+    done
+    echo "$url"
+  done
+}
+
 filter_bare() {
-  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?)' || true
+  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?)' \
+    | strip_unbalanced_parens \
+    || true
 }
 
 filter_osc8() {
@@ -13,7 +33,7 @@ capture_urls() {
   (
     tmux capture-pane -Jp -S "$start" -E "$end" | filter_bare
     tmux capture-pane -Jpe -S "$start" -E "$end" | filter_osc8
-  ) | sort -u
+  )
 }
 
 readarray -t urls < <(capture_urls)
@@ -27,25 +47,27 @@ fi
 echo "urls" >&2
 printf "%q\n" "${urls[@]}" >&2
 
-# sort -u takes care of exact duplicates, but we want to also remove duplicates
-# with different additional info, taking the last value for each url will do,
-# any info-less version will be first
-
+# deduplicate while preserving order, taking the last name for each url
 declare -A mapped
-for url in "${urls[@]}"
+declare -a order
+for entry in "${urls[@]}"
 do
-  IFS=$'\x1f' read -r url name <<< "$url"
+  IFS=$'\x1f' read -r url name <<< "$entry"
+  if [[ ! -v mapped["$url"] ]]
+  then
+    order+=("$url")
+  fi
   mapped["$url"]="$name"
 done
 
 readarray -t urls < <(
-  for url in "${!mapped[@]}"
+  for url in "${order[@]}"
   do
     printf '%s\x1f%s\n' "$url" "${mapped[$url]}"
-  done | sort
+  done
 )
 
 echo "clean urls" >&2
 printf "%q\n" "${urls[@]}" >&2
 
-tmux display-popup -E -T 'Open url' "$(which tmux-urlview-popup)" "${urls[@]}"
+tmux display-popup -E -T 'Open url' "$TMUX_URLVIEW_POPUP" "${urls[@]}"
