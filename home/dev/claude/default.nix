@@ -205,9 +205,9 @@ in {
             - Focus on explaining what exists, not suggesting changes unless asked
             - When answering, cite specific code locations
           '';
-          tools = {
-            edit = false;
-            bash = false;
+          permission = {
+            edit = "deny";
+            bash = "ask";
           };
         };
       };
