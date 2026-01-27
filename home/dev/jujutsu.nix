@@ -130,6 +130,10 @@
           command = ["taplo" "fmt" "--stdin-filepath=$path" "-"];
           patterns = ["glob:**/*.toml"];
         };
+        prettier = {
+          command = ["pnpm" "exec" "prettier" "--stdin-filepath=$path"];
+          patterns = map (ext: "glob:**/*.${ext}") (lib.splitString " " "js mjs cjs jsx ts tsx");
+        };
       };
     };
   };
