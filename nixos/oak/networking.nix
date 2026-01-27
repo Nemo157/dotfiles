@@ -2,6 +2,8 @@
   networking = {
     hostName = "oak";
     wireless.enable = true;
+    firewall.interfaces.docker0.allowedTCPPorts = [ 3000 ];
+    firewall.interfaces."br+".allowedTCPPorts = [ 3000 ];
   };
 
   services.tailscale = {
