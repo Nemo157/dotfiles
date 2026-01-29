@@ -1,10 +1,4 @@
-{ lib, config, pkgs, ... }:
-let
-  ffmpeg-fdk-aac = pkgs.ffmpeg.override {
-    withUnfree = true;
-    withFdkAac = true;
-  };
-in {
+{ lib, config, pkgs, ... }: {
   home.packages = [
     pkgs.ffmpeg
   ];
@@ -59,7 +53,7 @@ in {
         embed = false;
         max_bitrate = 128;
         formats.aac = {
-          command = "${lib.getExe ffmpeg-fdk-aac} -i $source -y -vn -c:a libfdk_aac -vbr 4 $dest";
+          command = "${lib.getExe pkgs.ffmpeg-fdk-aac} -i $source -y -vn -c:a libfdk_aac -vbr 4 $dest";
           extension = "m4a";
         };
         format = "aac";

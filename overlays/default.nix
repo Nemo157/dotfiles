@@ -44,4 +44,9 @@ in {
   }) {};
 
   jujutsu = pkgs-unstable.jujutsu;
+
+  ffmpeg-fdk-aac = prev.ffmpeg.override {
+    withUnfree = true;
+    withFdkAac = true;
+  };
 } // import ../packages { pkgs = final; }
