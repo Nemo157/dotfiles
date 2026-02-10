@@ -134,6 +134,10 @@
           command = ["pnpm" "exec" "prettier" "--stdin-filepath=$path"];
           patterns = map (ext: "glob:**/*.${ext}") (lib.splitString " " "js mjs cjs jsx ts tsx");
         };
+        terraform = {
+          command = ["terraform" "fmt" "-"];
+          patterns = ["glob:**/*.tf" "glob:**/*.tfvars" "glob:**/*.tftest.hcl"];
+        };
       };
     };
   };
