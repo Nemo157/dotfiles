@@ -14,8 +14,7 @@ done | sort -rn | head -n1
 
 echo -ne '\e[?25l\e[?1049h'
 
-read -r height < <(tput lines cols)
-height=$(( height - 1 ))
+height=$(( $(tput lines) - 1 ))
 
 while true
 do
@@ -30,28 +29,33 @@ do
     offset=$(( count - height ))
   fi
 
-  for (( i = 0 ; i < height && offset + i < count ; i++ ))
+  for (( i = 0 ; i < height ; i++ ))
   do
     index=$(( offset + i ))
-    if (( index == selected ))
+    if (( index < count ))
     then
-      echo -ne "\e[40m  \e[95m»\e[39m"
-    elif (( i == 0 && index > 0 ))
-    then
-      echo -ne "  \e[95m▲\e[39m"
-    elif (( i == height - 1 && index < count - 1 ))
-    then
-      echo -ne "  \e[95m▼\e[39m"
-    else
-      echo -ne "   "
-    fi
+      if (( index == selected ))
+      then
+        echo -ne "\e[40m  \e[95m»\e[39m"
+      elif (( i == 0 && index > 0 ))
+      then
+        echo -ne "  \e[95m▲\e[39m"
+      elif (( i == height - 1 && index < count - 1 ))
+      then
+        echo -ne "  \e[95m▼\e[39m"
+      else
+        echo -ne "   "
+      fi
 
-    IFS=$'\x1f' read -r url name <<< "${options[$index]}"
-    if (( index == selected ))
-    then
-      printf ' %-*s  │  \e[95m%s\e[K\e[0m' "$max_url_width" "$url" "$name"
+      IFS=$'\x1f' read -r url name <<< "${options[$index]}"
+      if (( index == selected ))
+      then
+        printf ' %-*s  │  \e[95m%s\e[K\e[0m' "$max_url_width" "$url" "$name"
+      else
+        printf ' %-*s  │  %s\e[K\e[0m' "$max_url_width" "$url" "$name"
+      fi
     else
-      printf ' %-*s  │  %s\e[K\e[0m' "$max_url_width" "$url" "$name"
+      printf '    %-*s  │\e[K' "$max_url_width" ""
     fi
 
     echo
