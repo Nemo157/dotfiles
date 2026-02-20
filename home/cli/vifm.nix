@@ -1,6 +1,7 @@
 { pkgs, ... }:
 let
   getExe = pkgs.lib.getExe;
+
   vifm-image-viewer = pkgs.writeShellApplication {
     name = "vifm-image-viewer";
     runtimeInputs = with pkgs; [ imagemagick kitty ];
@@ -47,9 +48,49 @@ let
           echo
         done
 
+        printf '\e[0m'
         ffprobe -hide_banner -pretty "$file" 2>&1
 
         # exec magick "$file" -scale "''${width}x$height>" six:-
+      fi
+    '';
+  };
+
+  vifm-epub-viewer = pkgs.writeShellApplication {
+    name = "vifm-epub-viewer";
+    runtimeInputs = with pkgs; [ imagemagick kitty calibre ];
+    text = ''
+      if [ "$1" == "clear" ]
+      then
+        kitten icat --clear --silent
+      else
+        file="$2"
+        cols="$3"
+        rows="$4"
+        col="$5"
+        row="$6"
+
+        (( half = rows / 2 ))
+
+        tmp="$(mktemp --tmpdir vifm-epub-viewer-XXXXXX.img)"
+
+        output="$(ebook-meta "$file" --get-cover "$tmp" 2>/dev/null)"
+
+        kitten icat \
+          --place "''${cols}x$half@''${col}x$row" \
+          --transfer-mode=memory \
+          "$tmp" \
+          </dev/tty >/dev/tty
+
+        rm "$tmp"
+
+        for (( i = 0 ; i < half + 1 ; i++ ))
+        do
+          echo
+        done
+
+        printf '\e[0m'
+        echo "$output" | head -n -1
       fi
     '';
   };
@@ -86,6 +127,7 @@ in {
     xz
     zip
     vifm-image-viewer
+    vifm-epub-viewer
   ];
 
   xdg.configFile = {
@@ -127,10 +169,18 @@ in {
                \ %pc
                \ vifm-image-viewer clear %N
 
-      fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac
+      fileviewer *.avi,*.mp[34g],*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpeg,*.vob,*.flac,
                 \*.fl[icv],*.m2v,*.mov,*.webm,*.ts,*.mts,*.m4[av],*.r[am],*.qt,*.divx,
                 \*.as[fx],*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm
                \ ffprobe -hide_banner -pretty %c 2>&1
+
+
+      fileviewer *.azw,*.azw1,*.azw3,*.azw4,*.cb7,*.cbc,*.cbr,*.cbz,*.chm,*.docx,*.epub,
+                \*.fb2,*.fbz,*.kepub,*.lit,*.lrf,*.lrx,*.mobi,*.odt,*.oebzip,*.opf,*.pml,
+                \*.pmlz,*.pobi,*.prc,*.snb,*.tpz,*.updb
+               \ vifm-epub-viewer show %c %pw %ph %px %py %pu %N
+               \ %pc
+               \ vifm-epub-viewer clear %N
 
       filetype *.html,*.htm links2, lynx
 
