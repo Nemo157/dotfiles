@@ -9,5 +9,8 @@
     ./claude
   ];
 
-  services.ollama.enable = true;
+  services.ollama = {
+    enable = true;
+    package = pkgs.unstable.ollama-vulkan;
+  };
 }
