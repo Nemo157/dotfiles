@@ -12,6 +12,27 @@ let
     text = lib.readFile ./jj-claude.sh;
   };
 
+  opencode-unwrapped = pkgs.unstable.opencode;
+
+  opencode = pkgs.symlinkJoin {
+    name = "opencode";
+    paths = [
+      (pkgs.writeShellApplication {
+        name = "opencode";
+        runtimeInputs = [ opencode-unwrapped ];
+        text = ''
+          #!/bin/sh
+          if [ $# -eq 0 ]; then
+            exec opencode attach http://127.0.0.1:16321
+          else
+            exec opencode "$@"
+          fi
+        '';
+      })
+      opencode-unwrapped
+    ];
+  };
+
 in {
   programs.claude-code = {
     enable = true;
@@ -96,7 +117,7 @@ in {
 
   programs.opencode = {
     enable = true;
-    package = pkgs.unstable.opencode;
+    package = opencode;
 
     rules = builtins.readFile ./CLAUDE.md;
 
@@ -211,6 +232,23 @@ in {
           };
         };
       };
+    };
+  };
+
+  systemd.user.services.opencode = {
+    Unit = {
+      Description = "opencode headless server";
+      After = [ "default.target" ];
+      PartOf = [ "default.target" ];
+    };
+    Service = {
+      ExecStart = "${lib.getExe opencode-unwrapped} serve --port 16321";
+      Restart = "on-failure";
+      RestartSteps = 5;
+      RestartMaxDelaySec = 10;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 }
