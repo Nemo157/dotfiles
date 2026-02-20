@@ -36,7 +36,6 @@
         "--keep-monthly=12"
         "--keep-yearly=75"
       ];
-      inhibitsSleep = true;
     };
   };
 }
