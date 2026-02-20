@@ -156,8 +156,8 @@
           Alt+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
           Alt+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
 
-          XF86AudioPlay { spawn "playerctl" "play-pause"; }
-          XF86AudioPause { spawn "playerctl" "play-pause"; }
+          XF86AudioPlay { spawn "playerctl" "play"; }
+          XF86AudioPause { spawn "playerctl" "pause"; }
           XF86AudioNext { spawn "playerctl" "next"; }
           XF86AudioPrev { spawn "playerctl" "previous"; }
 
