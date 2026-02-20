@@ -28,7 +28,7 @@
   };
 
   systemd.network.networks = {
-    "50-eth" = {
+    "30-enp39s0" = {
       matchConfig = {
         Name = "enp39s0";
       };
