@@ -128,6 +128,11 @@ in {
 
       instructions = ["CONTRIBUTING.md"];
 
+      enabled_providers = [
+        "anthropic"
+        "openrouter"
+      ];
+
       permission = {
         "*" = "ask";
 
