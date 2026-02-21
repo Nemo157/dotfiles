@@ -3,6 +3,7 @@
     ./claude.nix
     ./colors.nix
     ./linear-cli.nix
+    ./opencode.nix
     ./md-tui.nix
     ./scripts.nix
   ];

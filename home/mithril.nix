@@ -30,6 +30,8 @@
     guiAddress = "${ts.ips.mithril}:8384";
   };
 
+  services.opencode.hostname = ts.ips.mithril;
+
   programs.opencode = {
     settings = {
       model = "openrouter/z-ai/glm-5";

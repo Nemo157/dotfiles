@@ -12,28 +12,6 @@ let
     text = lib.readFile ./jj-claude.sh;
   };
 
-  opencode-unwrapped = pkgs.unstable.opencode;
-
-  opencode = pkgs.symlinkJoin {
-    name = "opencode";
-    paths = [
-      (pkgs.writeShellApplication {
-        name = "opencode";
-        runtimeInputs = [ opencode-unwrapped ];
-        text = ''
-          if [ $# -eq 0 ]; then
-            # shellcheck disable=SC1091
-            . ${config.age.secrets.opencode-server-password.path}
-            exec opencode attach --dir "$PWD" http://127.0.0.1:16321
-          else
-            exec opencode "$@"
-          fi
-        '';
-      })
-      opencode-unwrapped
-    ];
-  };
-
 in {
   age.secrets.opencode-server-password.file = ./opencode-server-password.age;
 
@@ -120,7 +98,6 @@ in {
 
   programs.opencode = {
     enable = true;
-    package = opencode;
 
     rules = builtins.readFile ./CLAUDE.md;
 
@@ -243,22 +220,9 @@ in {
     };
   };
 
-  systemd.user.services.opencode = {
-    Unit = {
-      Description = "opencode headless server";
-      After = [ "default.target" ];
-      PartOf = [ "default.target" ];
-      X-Restart-Triggers = [ config.xdg.configFile."opencode/config.json".source ];
-    };
-    Service = {
-      ExecStart = "${lib.getExe opencode-unwrapped} serve --port 16321";
-      EnvironmentFile = config.age.secrets.opencode-server-password.path;
-      Restart = "on-failure";
-      RestartSteps = 5;
-      RestartMaxDelaySec = 10;
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
+  services.opencode = {
+    enable = true;
+    package = pkgs.unstable.opencode;
+    environmentFile = config.age.secrets.opencode-server-password.path;
   };
 }
