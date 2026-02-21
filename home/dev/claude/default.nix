@@ -245,6 +245,7 @@ in {
       Description = "opencode headless server";
       After = [ "default.target" ];
       PartOf = [ "default.target" ];
+      X-Restart-Triggers = [ config.xdg.configFile."opencode/config.json".source ];
     };
     Service = {
       ExecStart = "${lib.getExe opencode-unwrapped} serve --port 16321";
