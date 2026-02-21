@@ -21,8 +21,9 @@ let
         name = "opencode";
         runtimeInputs = [ opencode-unwrapped ];
         text = ''
-          #!/bin/sh
           if [ $# -eq 0 ]; then
+            # shellcheck disable=SC1091
+            . ${config.age.secrets.opencode-server-password.path}
             exec opencode attach --dir "$PWD" http://127.0.0.1:16321
           else
             exec opencode "$@"
@@ -34,6 +35,8 @@ let
   };
 
 in {
+  age.secrets.opencode-server-password.file = ./opencode-server-password.age;
+
   programs.claude-code = {
     enable = true;
 
@@ -249,6 +252,7 @@ in {
     };
     Service = {
       ExecStart = "${lib.getExe opencode-unwrapped} serve --port 16321";
+      EnvironmentFile = config.age.secrets.opencode-server-password.path;
       Restart = "on-failure";
       RestartSteps = 5;
       RestartMaxDelaySec = 10;
