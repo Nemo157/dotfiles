@@ -126,7 +126,8 @@
         appearance-watcher.overlays.default
         ferris-icons.overlays.default
         self.overlays.default
-        lix-module.overlays.lixFromNixpkgs
+        # run into various issues (e.g. nix-serve)
+        # lix-module.overlays.lixFromNixpkgs
       ];
     };
 
