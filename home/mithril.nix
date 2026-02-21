@@ -41,6 +41,10 @@
           };
           models = {
             "ministral-3:14B-16k".name = "ministral-3:14B-16k";
+            "ministral-3:14B-96k".name = "ministral-3:14B-96k";
+            "ministral-3:8B-96k".name = "ministral-3:8B-96k";
+            "ministral-3:14B-128k".name = "ministral-3:14B-128k";
+            "lfm2.5-thinking:1.2b-128k".name = "lfm2.5-thinking:1.2b-128k";
           };
         };
       };
