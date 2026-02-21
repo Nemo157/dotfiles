@@ -23,7 +23,7 @@ let
         text = ''
           #!/bin/sh
           if [ $# -eq 0 ]; then
-            exec opencode attach http://127.0.0.1:16321
+            exec opencode attach --dir "$PWD" http://127.0.0.1:16321
           else
             exec opencode "$@"
           fi
