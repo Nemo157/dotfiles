@@ -36,4 +36,8 @@
     autoPrune.enable = true;
     storageDriver = "zfs";
   };
+
+  virtualisation.podman = {
+    enable = true;
+  };
 }

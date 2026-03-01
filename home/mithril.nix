@@ -30,6 +30,8 @@
     guiAddress = "${ts.ips.mithril}:8384";
   };
 
+  services.speaches.enable = true;
+
   services.opencode.hostname = ts.ips.mithril;
 
   programs.opencode = {

@@ -4,6 +4,7 @@
     ./colors.nix
     ./linear-cli.nix
     ./opencode.nix
+    ./speaches.nix
     ./md-tui.nix
     ./scripts.nix
   ];

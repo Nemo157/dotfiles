@@ -38,5 +38,7 @@
   #   text = pkgs.lib.readFile ./cargo-rustdoc-clippy.sh;
   # };
 
+  speaches-cli = pkgs.callPackage ./speaches-cli.nix { };
+
   sshagmux = pkgs.callPackage ./sshagmux.nix { };
 }
