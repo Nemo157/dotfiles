@@ -30,6 +30,7 @@
     guiAddress = "${ts.ips.mithril}:8384";
   };
 
+  services.kokoro-fastapi.enable = true;
   services.speaches.enable = true;
 
   services.opencode.hostname = ts.ips.mithril;
