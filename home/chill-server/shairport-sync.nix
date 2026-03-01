@@ -2,12 +2,17 @@
     shairport-sync = pkgs.shairport-sync.override {
       enableAirplay2 = false;
       enableAlsa = false;
+      enableSndio = false;
       enablePulse = false;
       enablePipe = false;
+      enablePipewire = true;
+      enableAo = false;
       enableJack = false;
-      enableMpris = false;
-      enableDbus = false;
+      enableSoundio = false;
       enableMetadata = false;
+      enableMpris = false;
+      enableMqttClient = false;
+      enableDbus = false;
       enableLibdaemon = false;
     };
 
