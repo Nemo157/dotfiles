@@ -2,6 +2,7 @@
   imports = [
     ./chatterbox-tts.nix
     ./claude.nix
+    ./f5-tts-server.nix
     ./colors.nix
     ./linear-cli.nix
     ./opencode.nix

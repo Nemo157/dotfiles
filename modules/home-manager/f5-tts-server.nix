@@ -3,49 +3,54 @@
 with lib;
 
 let
-  cfg = config.services.chatterbox-tts;
+  cfg = config.services.f5-tts-server;
 
   defaultEnvironment = {
     DO_NOT_TRACK = "1";
-    NUMBA_CACHE_DIR = "/tmp/numba_cache";
   };
 
   environment = defaultEnvironment // cfg.environment;
 
   envFlags = concatStringsSep " " (mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment);
 
-  configFile = (pkgs.formats.yaml { }).generate "chatterbox-tts-config.yaml" {
-    device = "auto";
-    host = "0.0.0.0";
-  };
+  execStartPre = pkgs.writeShellScript "f5-tts-server-build" ''
+    if ! ${pkgs.podman}/bin/podman image exists ${cfg.image}; then
+      ${pkgs.podman}/bin/podman build \
+        --build-arg GPU=rocm \
+        -t ${cfg.image} \
+        -f ${./f5-tts-server.Dockerfile} \
+        $(mktemp -d)
+    fi
+  '';
 
-  execStart = pkgs.writeShellScript "chatterbox-tts-start" ''
-    mkdir -p ${cfg.modelCacheDir}
+  refAudiosDir = "${config.xdg.stateHome}/f5-tts-server/ref-audios";
+
+  execStart = pkgs.writeShellScript "f5-tts-server-start" ''
+    mkdir -p ${refAudiosDir}
     exec ${pkgs.podman}/bin/podman run \
-      --name chatterbox-tts \
+      --name f5-tts-server \
       --replace \
       --rm \
       --cap-drop=ALL \
       --security-opt=no-new-privileges \
+      --network=pasta:--no-map-gw \
       --publish ${cfg.hostname}:${toString cfg.port}:8000 \
-      --volume ${cfg.modelCacheDir}:/app/hf_cache:rw \
-      --tmpfs /app/logs:rw,mode=1777 \
-      --volume ${configFile}:/app/config.base.yaml:ro \
-      --pull=missing \
+      --device /dev/kfd \
+      --device /dev/dri \
+      --tmpfs /app/output:rw,mode=1777 \
+      --volume ${refAudiosDir}:/app/ref_audios/custom:rw \
       ${envFlags} \
       ${optionalString (cfg.environmentFile != null) "--env-file ${cfg.environmentFile}"} \
-      --entrypoint sh \
-      ${cfg.image} \
-      -c 'cp /app/config.base.yaml /app/config.yaml && exec /opt/nvidia/nvidia_entrypoint.sh python3 server.py'
+      ${cfg.image}
   '';
 in {
-  options.services.chatterbox-tts = {
-    enable = mkEnableOption "chatterbox-tts TTS server";
+  options.services.f5-tts-server = {
+    enable = mkEnableOption "F5-TTS-Server TTS server";
 
     image = mkOption {
       type = types.str;
-      default = "ghcr.io/devnen/chatterbox-tts-server:main";
-      description = "OCI image to use for chatterbox-tts";
+      default = "localhost/f5-tts-server:latest";
+      description = "OCI image to use for f5-tts-server";
     };
 
     hostname = mkOption {
@@ -56,14 +61,8 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 8004;
+      default = 8005;
       description = "Port to expose on host";
-    };
-
-    modelCacheDir = mkOption {
-      type = types.str;
-      default = "${config.xdg.cacheHome}/chatterbox-tts/models";
-      description = "Directory to cache HuggingFace models";
     };
 
     environment = mkOption {
@@ -80,17 +79,18 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.user.services.chatterbox-tts = {
+    systemd.user.services.f5-tts-server = {
       Unit = {
-        Description = "chatterbox-tts TTS server";
+        Description = "F5-TTS-Server TTS server";
         After = [ "default.target" ];
         PartOf = [ "default.target" ];
       };
 
       Service = {
+        ExecStartPre = toString execStartPre;
         ExecStart = toString execStart;
-        ExecStop = "${pkgs.podman}/bin/podman stop chatterbox-tts";
-        ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i chatterbox-tts";
+        ExecStop = "${pkgs.podman}/bin/podman stop f5-tts-server";
+        ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i f5-tts-server";
         Type = "simple";
         Restart = "on-failure";
         RestartSteps = 5;
