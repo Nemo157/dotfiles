@@ -30,6 +30,12 @@
     guiAddress = "${ts.ips.mithril}:8384";
   };
 
+  age.secrets.hf-token.file = ./hf-token.age;
+
+  services.chatterbox-tts = {
+    enable = true;
+    environmentFile = config.age.secrets.hf-token.path;
+  };
   services.kokoro-fastapi.enable = true;
   services.speaches.enable = true;
 

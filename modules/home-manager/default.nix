@@ -1,5 +1,6 @@
 {
   imports = [
+    ./chatterbox-tts.nix
     ./claude.nix
     ./colors.nix
     ./linear-cli.nix
