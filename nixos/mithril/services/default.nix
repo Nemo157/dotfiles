@@ -10,4 +10,10 @@
   ];
 
   services.upower.enable = true;
+
+  services.wyoming.piper.servers."default" = {
+    enable = true;
+    voice = "en_US-libritts_r-medium";
+    uri = "tcp://127.0.0.1:10200";
+  };
 }
