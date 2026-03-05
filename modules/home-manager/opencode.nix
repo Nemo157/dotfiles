@@ -69,6 +69,7 @@ in {
 
       Service = {
         ExecStart = "${lib.getExe cfg.package} serve --hostname ${cfg.hostname} --port ${toString cfg.port} --print-logs";
+        Environment = [ "OPENCODE_EXPERIMENTAL_LSP_TOOL=true" ];
         EnvironmentFile = mkIf (cfg.environmentFile != null) cfg.environmentFile;
         Restart = "on-failure";
         RestartSteps = 5;

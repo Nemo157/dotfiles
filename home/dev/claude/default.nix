@@ -128,6 +128,8 @@ in {
         list = "allow";
 
         skill = "allow";
+        lsp = "allow";
+
 
         edit = {
           "*" = "allow";
