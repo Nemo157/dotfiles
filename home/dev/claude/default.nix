@@ -99,7 +99,10 @@ in {
   programs.opencode = {
     enable = true;
 
-    rules = builtins.readFile ./CLAUDE.md;
+    rules = (builtins.readFile ./CLAUDE.md) + ''
+      Most projects will have a `.envrc` providing project-specific tools, you need to use `direnv exec` to run these.
+      General system or broadly used development tools do not need this and should be available in the environment directly.
+    '';
 
     settings = {
       autoupdate = false;
