@@ -99,6 +99,10 @@ Use the project directory name (e.g. `dotfiles`, `my-app`). The description shou
 - User-requested changes in direction
 - External failures (network issues, flaky tests)
 
+**Subagents:**
+- When spawning subagents via the Task tool, instruct them to report any problems they encounter in their response
+- Log problems on behalf of subagents based on what they report back
+
 # Claude configuration changes
 
 **When asked to modify global Claude configuration (the main CLAUDE.md, agents, etc.) from outside the dotfiles repository**: Remind the user to navigate to their dotfiles repository where the local AGENTS.md provides the proper configuration management workflow. Do not attempt to process global configuration changes from other contexts.
