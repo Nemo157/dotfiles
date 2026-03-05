@@ -54,6 +54,12 @@ in {
       default = null;
       description = "Environment file containing secrets like server password";
     };
+
+    path = mkOption {
+      type = types.listOf types.package;
+      default = [];
+      description = "Extra packages to add to the server's PATH";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -67,9 +73,16 @@ in {
         X-Restart-Triggers = [ config.xdg.configFile."opencode/config.json".source ];
       };
 
-      Service = {
-        ExecStart = "${lib.getExe cfg.package} serve --hostname ${cfg.hostname} --port ${toString cfg.port} --print-logs";
+      Service = let
+        execStart = "${lib.getExe cfg.package} serve --hostname ${cfg.hostname} --port ${toString cfg.port} --print-logs";
+      in {
         Environment = [ "OPENCODE_EXPERIMENTAL_LSP_TOOL=true" ];
+        ExecStart =
+          if cfg.path == [] then execStart
+          else "${pkgs.writeShellScript "opencode-serve" ''
+            export PATH="${lib.makeBinPath cfg.path}:$PATH"
+            exec ${execStart}
+          ''}";
         EnvironmentFile = mkIf (cfg.environmentFile != null) cfg.environmentFile;
         Restart = "on-failure";
         RestartSteps = 5;

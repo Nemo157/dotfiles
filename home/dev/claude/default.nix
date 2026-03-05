@@ -12,6 +12,31 @@ let
     text = lib.readFile ./jj-claude.sh;
   };
 
+  log-problem = pkgs.writeShellApplication {
+    name = "log-problem";
+    runtimeInputs = [ pkgs.coreutils ];
+    text = ''
+      if [ $# -lt 2 ]; then
+        echo "Usage: log-problem <project> <description>" >&2
+        exit 1
+      fi
+
+      project="$1"
+      shift
+      description="$*"
+
+      log_file="''${XDG_DATA_HOME:-$HOME/.local/share}/opencode/problems.md"
+      mkdir -p "$(dirname "$log_file")"
+
+      {
+        echo ""
+        echo "## $(date --iso-8601=seconds) — $project"
+        echo ""
+        echo "$description"
+      } >> "$log_file"
+    '';
+  };
+
 in {
   age.secrets.opencode-server-password.file = ./opencode-server-password.age;
 
@@ -104,6 +129,10 @@ in {
       General system or broadly used development tools do not need this and should be available in the environment directly.
     '';
 
+    commands = {
+      retrospective = builtins.readFile ./commands/retrospective.md;
+    };
+
     settings = {
       autoupdate = false;
 
@@ -182,6 +211,8 @@ in {
 
           "yamllint *" = "allow";
           "shellcheck *" = "allow";
+
+          "log-problem *" = "allow";
         };
       };
 
@@ -232,5 +263,6 @@ in {
     enable = true;
     package = pkgs.unstable.opencode;
     environmentFile = config.age.secrets.opencode-server-password.path;
+    path = [ log-problem ];
   };
 }
