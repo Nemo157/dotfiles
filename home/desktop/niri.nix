@@ -101,6 +101,16 @@
           }
       }
 
+      window-rule {
+          match is-window-cast-target=true
+          border {
+              on
+              width 4
+              active-gradient from="#dc322f" to="#cb4b16" angle=45
+              inactive-gradient from="#dc322f" to="#cb4b16" angle=45
+          }
+      }
+
       layer-rule {
         match namespace="^swww-daemon$"
         place-within-backdrop true
@@ -155,7 +165,7 @@
       }
 
       binds {
-          Alt+Shift+Z { show-hotkey-overlay; }
+          Alt+Shift+Slash { show-hotkey-overlay; }
 
           Alt+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
           Alt+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
@@ -200,11 +210,16 @@
 
           Alt+F { maximize-window-to-edges; }
           Alt+Shift+F { fullscreen-window; }
+          Alt+Shift+Ctrl+F { toggle-windowed-fullscreen; }
           Alt+Ctrl+F { toggle-window-floating; }
 
           Alt+S { screenshot; }
           Alt+Shift+S { screenshot-screen; }
           Alt+Ctrl+S { screenshot-window; }
+
+          Alt+P hotkey-overlay-title="Dynamic Cast: Window" { set-dynamic-cast-window; }
+          Alt+Shift+P hotkey-overlay-title="Dynamic Cast: Monitor" { set-dynamic-cast-monitor; }
+          Alt+Ctrl+P hotkey-overlay-title="Dynamic Cast: Clear" { clear-dynamic-cast-target; }
 
           Alt+Ctrl+Shift+E { quit; }
       }
