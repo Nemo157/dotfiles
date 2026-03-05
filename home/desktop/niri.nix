@@ -34,6 +34,10 @@
           scale 1
       }
 
+      output "Samsung Display Corp. 0x4181 Unknown" {
+          scale 1
+      }
+
       hotkey-overlay {
           skip-at-startup
       }
