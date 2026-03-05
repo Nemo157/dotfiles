@@ -20,6 +20,10 @@
     wluma
   ];
 
+  services.ollama = {
+    package = lib.mkForce pkgs.unstable.ollama;
+  };
+
   xdg.configFile = {
     "pipewire/pipewire.conf.d/92-j55-mono.conf".text = ''
       context.modules = [
