@@ -130,6 +130,9 @@ in {
         skill = "allow";
         lsp = "allow";
 
+        task = {
+          "explore" = "allow";
+        };
 
         edit = {
           "*" = "allow";
