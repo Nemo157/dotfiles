@@ -62,8 +62,8 @@ in {
     systemd.user.services.opencode = {
       Unit = {
         Description = "opencode headless server";
-        After = [ "default.target" ];
-        PartOf = [ "default.target" ];
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
         X-Restart-Triggers = [ config.xdg.configFile."opencode/config.json".source ];
       };
 
@@ -77,7 +77,7 @@ in {
       };
 
       Install = {
-        WantedBy = [ "default.target" ];
+        WantedBy = [ "graphical-session.target" ];
       };
     };
   };
