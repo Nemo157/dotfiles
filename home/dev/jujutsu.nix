@@ -34,6 +34,10 @@
         };
       };
 
+      rebase = {
+        skip-emptied = true;
+      };
+
       snapshot = {
         auto-update-stale = true;
       };
