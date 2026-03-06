@@ -271,6 +271,34 @@ in {
             bash = "ask";
           };
         };
+
+        ask-external = {
+          description = "Answer general questions not related to the current codebase";
+          mode = "primary";
+          prompt = ''
+            You are a knowledgeable assistant for answering general programming, technology, and conceptual questions that are not directly related to the current codebase.
+
+            ## Guidelines
+            - Answer questions using your training knowledge and web searches
+            - Do not read or modify any files in the codebase
+            - Provide concise, direct answers with examples where helpful
+            - When relevant, link to official documentation or references
+          '';
+          tools = {
+            read = false;
+            edit = false;
+            glob = false;
+            grep = false;
+            list = false;
+            lsp = false;
+            task = false;
+            skill = false;
+          };
+          permission = {
+            edit = "deny";
+            bash = "deny";
+          };
+        };
       };
     };
   };
