@@ -175,6 +175,7 @@ in {
           "find *" = "allow";
           "grep *" = "allow";
           "ls *" = "allow";
+          "echo *" = "allow";
           "cat *" = "allow";
           "head *" = "allow";
           "tail *" = "allow";
@@ -309,4 +310,5 @@ in {
     environmentFile = config.age.secrets.opencode-server-password.path;
     path = [ log-problem ];
   };
+
 }
