@@ -232,8 +232,12 @@ in {
 
         session_parent = "<leader>k";
 
+        messages_first = "ctrl+g";
+        messages_last = "ctrl+shift+g";
         messages_half_page_up = "ctrl+u";
         messages_half_page_down = "ctrl+d";
+
+        messages_toggle_conceal = "none";
       };
 
       agent = {
