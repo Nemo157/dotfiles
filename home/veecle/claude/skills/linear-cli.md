@@ -132,6 +132,12 @@ linear team members DEV
 linear project list --team DEV
 ```
 
+## Known Limitations
+
+- `linear issue view` does **not** include issue state/status in its output. To get an issue's state, use `linear issue list` with filters, or query the issue in Linear directly.
+- `linear issue list` returns at most **50 results**. If you need to find specific issues in a large backlog, narrow results with `--state`, `--assignee`, or `--team` filters, or query specific issues by ID with `linear issue view <id>`.
+- The `--sort` flag may not be accepted by all versions of the CLI. Sorting may require the `LINEAR_ISSUE_SORT` env var or `.linear.toml` config instead. If `--sort` is rejected, omit it and accept default ordering.
+
 ## Important Notes
 
 - When `issueId` is optional and not provided, the command will try to extract it from the current git branch
