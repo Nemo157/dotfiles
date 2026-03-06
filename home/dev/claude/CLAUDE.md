@@ -87,6 +87,8 @@ When you encounter a problem during a session, log it for later review using `lo
 - You make a wrong assumption about tooling, project structure, or conventions
 - Something the rules should have covered but didn't
 
+**Timing:** Log problems IMMEDIATELY when they occur (right after the retry or workaround), not at the end of a task. Deferring leads to forgetting. If inside a subagent, include problems in the response for the parent to log on return.
+
 **How to log:**
 ```bash
 log-problem <project-name> "<what went wrong and what was attempted>"
