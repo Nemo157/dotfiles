@@ -241,6 +241,18 @@ in {
       };
 
       agent = {
+        explore = {
+          permission = {
+            task = "deny";
+          };
+        };
+
+        general = {
+          permission = {
+            task = "deny";
+          };
+        };
+
         ask = {
           description = "Readonly agent for answering codebase questions";
           mode = "primary";
