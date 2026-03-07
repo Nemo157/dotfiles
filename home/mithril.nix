@@ -22,6 +22,7 @@
     stc-cli
     flatpak
     amdgpu_top
+    fluffychat
   ];
 
   services.syncthing = {
