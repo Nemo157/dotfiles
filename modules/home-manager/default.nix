@@ -1,5 +1,6 @@
 {
   imports = [
+    ./adaptive-brightness.nix
     ./chatterbox-tts.nix
     ./claude.nix
     ./f5-tts-server.nix

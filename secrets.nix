@@ -10,6 +10,7 @@ let
 in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
   "home/dev/claude/opencode-server-password.age".publicKeys = [ nemo157-mithril nemo157-zinc wim-oak ];
+  "home/ha-token.age".publicKeys = [ nemo157-mithril ];
   "home/hf-token.age".publicKeys = [ nemo157-mithril ];
   "home/veecle/aws-credentials.age".publicKeys = [ nemo157-zinc wim-oak ];
   "home/veecle/linear-api-key.age".publicKeys = [ wim-oak ];

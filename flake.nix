@@ -175,6 +175,7 @@
         contabo = "100.93.46.63";
         mithril = "100.120.211.104";
         zinc = "100.71.97.27";
+        slate = "100.104.56.100";
       };
       hosts = pkgs.lib.mapAttrs (host: ip: {
         inherit ip;

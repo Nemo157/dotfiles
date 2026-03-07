@@ -31,7 +31,19 @@
     guiAddress = "${ts.ips.mithril}:8384";
   };
 
+  age.secrets.ha-token.file = ./ha-token.age;
   age.secrets.hf-token.file = ./hf-token.age;
+
+  services.adaptive-brightness = {
+    enable = true;
+    tokenFile = config.age.secrets.ha-token.path;
+    ha_url = "http://${ts.hosts.slate.host}:8123";
+    sensorEntityId = "sensor.hue_outdoor_motion_sensor_1_illuminance";
+    luxMin = 6000;
+    luxMax = 10000;
+    brightnessMin = 80;
+    brightnessMax = 100;
+  };
 
   services.chatterbox-tts = {
     enable = true;
