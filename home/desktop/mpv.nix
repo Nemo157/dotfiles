@@ -41,7 +41,7 @@
 
       input-ipc-server = "/tmp/mpvsocket";
 
-      ytdl-format = "bestvideo[height<=?2160]+bestaudio/best";
+      ytdl-raw-options = "format-sort=height:2160";
     };
   };
   xsession.windowManager.i3.config.floating.criteria = [{
