@@ -23,6 +23,7 @@
     flatpak
     amdgpu_top
     fluffychat
+    starsector
   ];
 
   services.syncthing = {
