@@ -65,6 +65,17 @@
       inputs.flake-utils.follows = "flake-utils";
     };
 
+    # > nix flake update ἐννεάς
+    # error: invalid flake input attribute path element 'ἐννεάς'
+    # :pensive:
+    ennead = {
+      url = "github:Nemo157/ennead";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.rust-overlay.follows = "rust-overlay";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     tangled = {
       url = "git+https://tangled.org/@tangled.org/core";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -105,6 +116,7 @@
     rust-overlay,
     u2f-touch-detector,
     tangled,
+    ennead,
     ...
   }: let
     system = "x86_64-linux";
@@ -243,6 +255,7 @@
           tangled.nixosModules.knot
           pin-nixpkgs
           ./nixos/common
+          ennead.nixosModules.default
         ];
 
         home-manager = {
@@ -252,6 +265,7 @@
             agenix.homeManagerModules.default
             u2f-touch-detector.homeManagerModules.default
             self.homeManagerModules.default
+            ennead.homeManagerModules.default
           ];
           extraSpecialArgs = {
             inherit nix-colors;

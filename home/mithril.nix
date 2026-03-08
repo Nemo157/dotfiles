@@ -116,4 +116,10 @@
       };
     };
   };
+
+  services."ἐννεάς-listenbrainz-watcher" = {
+    enable = true;
+    username = "Nemo157";
+    deviceActivation = true;
+  };
 }

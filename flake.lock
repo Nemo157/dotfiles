@@ -134,6 +134,35 @@
         "type": "github"
       }
     },
+    "ennead": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": [
+          "rust-overlay"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772992842,
+        "narHash": "sha256-ZEzeszqalZLCHKyIX+q/VO2YwiWMZBiTg7fwC7zc1Ig=",
+        "owner": "Nemo157",
+        "repo": "ennead",
+        "rev": "8bb868fdb35e4205f038a24b91ec1cfc4ded72e5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nemo157",
+        "repo": "ennead",
+        "type": "github"
+      }
+    },
     "ferris-icons": {
       "inputs": {
         "flake-utils": [
@@ -516,6 +545,7 @@
         "agenix": "agenix",
         "appearance-watcher": "appearance-watcher",
         "colmena": "colmena",
+        "ennead": "ennead",
         "ferris-icons": "ferris-icons",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
