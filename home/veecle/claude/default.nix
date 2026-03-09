@@ -132,6 +132,7 @@
 
     commands = {
       brain = builtins.readFile ./commands/brain.md;
+      daily = builtins.readFile ./commands/daily.md;
     };
 
     settings = {
