@@ -29,10 +29,4 @@ Watch for these patterns that indicate something should be filed:
 
 ## Skills
 
-The filing mechanics, formats, and conventions are in the `brain-file` skill. The other brain skills handle querying:
-
-- `brain-file` — file information into the brain (daily entries, tasks, people, projects, decisions)
-- `brain-sync` — fill journal gaps from GitHub/Linear, generate rollups, audit tasks
-- `brain-investigate` — research a topic across brain + external sources, file a report
-- `brain-recap` — summarize journal entries for a time period
-- `brain-todos` — display the task board with status cross-referencing
+The filing mechanics, formats, and conventions are in the `brain-file` skill. Load it when filing information.

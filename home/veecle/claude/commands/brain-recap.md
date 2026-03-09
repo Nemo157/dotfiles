@@ -1,10 +1,10 @@
-# Brain Recap Skill
+---
+description: Summarize recent work from the second brain's journal entries
+---
 
 Summarize recent work from the second brain's journal entries for a specified time period.
 
-## Usage
-
-The user will say something like "recap my week", "what did I do last month", "summarize this week", or just "recap". Default to the current week if no period is specified.
+The user may provide a time period after the command. Default to the current week if none is specified.
 
 ## Workflow
 
@@ -77,7 +77,7 @@ If confirmed, write to the appropriate rollup file (always include the Sources s
 And commit:
 
 ```bash
-jj -R ~/.local/share/second-brain commit -m "recap: YYYY-Www" 
+jj -R ~/.local/share/second-brain commit -m "recap: YYYY-Www"
 ```
 
 ## Guidelines

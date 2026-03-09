@@ -1,10 +1,10 @@
-# Brain Investigate Skill
+---
+description: Investigate a topic across the second brain, GitHub, and Linear — then file a report
+---
 
 Research a topic by searching the second brain and external sources (GitHub, Linear), then synthesize findings into a structured report.
 
-## Usage
-
-The user will say something like "investigate X" or "research X" or "what do we know about X". The topic may be a technical concept, a project, a system component, or a cross-cutting concern.
+The user will provide a topic after the command. The topic may be a technical concept, a project, a system component, or a cross-cutting concern.
 
 ## Workflow
 

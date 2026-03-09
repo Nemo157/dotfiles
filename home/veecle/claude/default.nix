@@ -17,10 +17,6 @@
         "Bash(linear project view:*)"
 
         "Skill(brain-file)"
-        "Skill(brain-sync)"
-        "Skill(brain-investigate)"
-        "Skill(brain-recap)"
-        "Skill(brain-todos)"
 
         "Bash(jj -R ~/.local/share/second-brain:*)"
         "Bash(mkdir -p ~/.local/share/second-brain:*)"
@@ -72,58 +68,6 @@
         ];
         source = ./skills/brain-file.md;
       };
-      brain-sync = {
-        description = "Sync the second brain — fill journal gaps from GitHub/Linear, generate rollups, audit tasks";
-        allowed-tools = [
-          "Bash(jj -R ~/.local/share/second-brain:*)"
-          "Bash(mkdir -p ~/.local/share/second-brain:*)"
-          "Bash(ls ~/.local/share/second-brain:*)"
-          "Bash(cat ~/.local/share/second-brain:*)"
-          "Bash(gh search issues:*)"
-          "Bash(gh search prs:*)"
-          "Bash(linear issue list:*)"
-          "Bash(linear issue view:*)"
-        ];
-        source = ./skills/brain-sync.md;
-      };
-      brain-investigate = {
-        description = "Investigate a topic by searching the second brain, GitHub, and Linear, then file a report";
-        allowed-tools = [
-          "Bash(rg:*)"
-          "Bash(jj -R ~/.local/share/second-brain:*)"
-          "Bash(mkdir -p ~/.local/share/second-brain:*)"
-          "Bash(ls ~/.local/share/second-brain:*)"
-          "Bash(cat ~/.local/share/second-brain:*)"
-          "Bash(gh search issues:*)"
-          "Bash(gh search prs:*)"
-          "Bash(gh search code:*)"
-          "Bash(linear issue list:*)"
-          "Bash(linear issue view:*)"
-        ];
-        source = ./skills/brain-investigate.md;
-      };
-      brain-recap = {
-        description = "Summarize recent work from the second brain's journal entries";
-        allowed-tools = [
-          "Bash(ls ~/.local/share/second-brain:*)"
-          "Bash(cat ~/.local/share/second-brain:*)"
-          "Bash(jj -R ~/.local/share/second-brain:*)"
-          "Bash(mkdir -p ~/.local/share/second-brain:*)"
-        ];
-        source = ./skills/brain-recap.md;
-      };
-      brain-todos = {
-        description = "Show the task board from the second brain with status cross-referencing";
-        allowed-tools = [
-          "Bash(ls ~/.local/share/second-brain:*)"
-          "Bash(cat ~/.local/share/second-brain:*)"
-          "Bash(jj -R ~/.local/share/second-brain:*)"
-          "Bash(mkdir -p ~/.local/share/second-brain:*)"
-          "Bash(gh issue view:*)"
-          "Bash(linear issue view:*)"
-        ];
-        source = ./skills/brain-todos.md;
-      };
     };
   };
 
@@ -131,7 +75,10 @@
     rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md + "\n\n" + builtins.readFile ./imports/second-brain.md);
 
     commands = {
-      brain = builtins.readFile ./commands/brain.md;
+      brain-sync = builtins.readFile ./commands/brain-sync.md;
+      brain-investigate = builtins.readFile ./commands/brain-investigate.md;
+      brain-recap = builtins.readFile ./commands/brain-recap.md;
+      brain-todos = builtins.readFile ./commands/brain-todos.md;
       daily = builtins.readFile ./commands/daily.md;
     };
 
@@ -173,9 +120,5 @@
   xdg.configFile = {
     "opencode/skill/linear-cli/SKILL.md".source = config.xdg.configFile."claude/skills/linear-cli/SKILL.md".source;
     "opencode/skill/brain-file/SKILL.md".source = config.xdg.configFile."claude/skills/brain-file/SKILL.md".source;
-    "opencode/skill/brain-sync/SKILL.md".source = config.xdg.configFile."claude/skills/brain-sync/SKILL.md".source;
-    "opencode/skill/brain-investigate/SKILL.md".source = config.xdg.configFile."claude/skills/brain-investigate/SKILL.md".source;
-    "opencode/skill/brain-recap/SKILL.md".source = config.xdg.configFile."claude/skills/brain-recap/SKILL.md".source;
-    "opencode/skill/brain-todos/SKILL.md".source = config.xdg.configFile."claude/skills/brain-todos/SKILL.md".source;
   };
 }

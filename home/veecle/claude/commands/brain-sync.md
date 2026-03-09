@@ -1,4 +1,6 @@
-# Brain Sync Skill
+---
+description: Sync the second brain — fill journal gaps from GitHub/Linear, generate rollups, audit tasks
+---
 
 Synchronize the second brain at `~/.local/share/second-brain/` by detecting gaps in the journal, generating rollups, and auditing tasks.
 

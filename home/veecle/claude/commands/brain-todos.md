@@ -1,10 +1,8 @@
-# Brain Todos Skill
+---
+description: Show the task board from the second brain with status cross-referencing
+---
 
 Display the task board from the second brain, grouped by status with cross-references to external trackers.
-
-## Usage
-
-The user will say something like "show my todos", "what's on my plate", "task board", or "brain todos".
 
 ## Workflow
 
