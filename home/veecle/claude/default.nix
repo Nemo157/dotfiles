@@ -126,7 +126,7 @@
   };
 
   programs.opencode = {
-    rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md);
+    rules = lib.mkAfter ("\n\n" + builtins.readFile ./CLAUDE.md + "\n\n" + builtins.readFile ./imports/second-brain.md);
 
     commands = {
       brain = builtins.readFile ./commands/brain.md;
