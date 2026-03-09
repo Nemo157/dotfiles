@@ -162,6 +162,9 @@
           "gh search prs *" = "allow";
           "gh search code *" = "allow";
         };
+
+        webfetch = "allow";
+        websearch = "allow";
       };
     };
   };
