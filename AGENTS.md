@@ -10,37 +10,33 @@ This is a comprehensive Nix-based dotfiles repository managing system and user c
 
 **Repository Management:** Managed as a Nix flake with comprehensive system and user configurations
 
-## Claude Configuration Management
+## Agent Configuration Management
 
-This repository contains Claude configuration files at multiple levels:
-- **Global configuration:** `home/dev/claude/` (main CLAUDE.md, agents, imports)
-- **Profile-specific additions:** Additional context and permissions for specific environments
-  - Example: `home/veecle/claude/` adds Veecle development practices and Linear MCP permissions via `lib.mkAfter`
+This repository is the single source of truth for all agent configuration (Claude, OpenCode, etc.). Both Claude and OpenCode configs are managed through the Nix module at `home/dev/claude/default.nix`, with profile-specific additions in other modules (e.g., `home/veecle/claude/` adds Veecle development practices and Linear MCP permissions via `lib.mkAfter`).
+
+**NEVER read or modify files under `~/.config/claude/` or `~/.config/opencode/`.** These are symlinked outputs managed by Nix. All changes must be made to the source files in this repository.
 
 When making configuration changes, follow the workflow and standards below.
 
 ### Configuration Workflow
 
-**For Claude configuration changes within this repository:**
-1. **Read existing patterns**: Use Read tool to examine current configurations
+1. **Read existing patterns**: Use Read tool to examine current configurations in this repo
 2. **Apply standards directly**: Follow the configuration standards documented below
 3. **Make changes**: Use Edit, MultiEdit, Write as needed
 4. **Validate changes**: Ensure YAML frontmatter and file structure are correct
 5. **Update Nix integration**: Add new agents to `default.nix` when creating subagents
 
-### File Locations and Path Mapping
+### File Locations
 
-When working in this repository, the actual files are at:
-- `home/dev/claude/CLAUDE.md` - Main configuration
-- `home/dev/claude/agents/` - Subagent definitions
+Source files in this repository:
+- `home/dev/claude/CLAUDE.md` - Shared agent rules (used by both Claude and OpenCode)
+- `home/dev/claude/agents/` - Claude subagent definitions
 - `home/dev/claude/imports/jj.md` - Jujutsu mappings
-- `home/dev/claude/default.nix` - Nix configuration
+- `home/dev/claude/commands/` - Slash commands
+- `home/dev/claude/default.nix` - Nix module configuring both Claude and OpenCode
+- `home/veecle/claude/default.nix` - Veecle-specific additions for both tools
 
-These get symlinked to `~/.config/claude/` by the Nix configuration.
-
-**Automatic Path Mapping:**
-When you encounter paths containing `~/.config/claude/`, automatically map them to the corresponding dotfiles repository location:
-- `~/.config/claude/*` → `<dotfiles-repo>/home/dev/claude/*`
+These get symlinked into `~/.config/claude/` and `~/.config/opencode/` by Nix. Never access the symlink targets directly.
 
 ### Configuration Standards to Apply
 
@@ -75,11 +71,9 @@ When you encounter paths containing `~/.config/claude/`, automatically map them 
 
 ### Prohibited Actions
 
-- Never modify symlinked targets in `~/.config/claude/`
+- Never read or modify files under `~/.config/claude/` or `~/.config/opencode/` — these are Nix-managed symlinks
 - Don't bypass established patterns and validation approaches
 - Don't create agents without proper Nix integration
-
-This approach maintains configuration quality standards when working directly in the dotfiles repository.
 
 ## Commit Message Style
 
