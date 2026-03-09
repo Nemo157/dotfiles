@@ -17,7 +17,23 @@ ls ~/.local/share/second-brain/journal/daily/ | tail -14
 
 Identify the last 7 days (from today backwards). Note which days have entries and which are missing.
 
-### 2. Discover GitHub Activity
+### 2. Read Sync State
+
+Record the current UTC timestamp **before** running any queries — this becomes the "last synced at" value written at the end:
+
+```bash
+SYNC_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+```
+
+Then read the existing sync state file:
+
+```bash
+cat ~/.local/share/second-brain/.brain-sync.json 2>/dev/null || echo '{}'
+```
+
+Extract `github.last_query_at` if present. If it exists, use it as `$START_DATE` for the GitHub queries below. If the state file doesn't exist or has no `github.last_query_at`, fall back to the earliest missing day from step 1 (or 7 days ago if all days have entries).
+
+### 3. Discover GitHub Activity
 
 Query GitHub for all PRs and issues where `Nemo157` was involved within the `veecle` organization over the sync period:
 
@@ -31,9 +47,7 @@ gh search issues --involves=Nemo157 --owner=veecle --updated='>=$START_DATE' \
   --json number,title,repository,url,state,updatedAt,createdAt
 ```
 
-Use `$START_DATE` as the earliest missing day (or 7 days ago if updating existing entries).
-
-### 3. Inspect Each PR/Issue for Interaction Timestamps
+### 4. Inspect Each PR/Issue for Interaction Timestamps
 
 For each PR/issue found, fetch the detailed interaction history using the wrapper scripts:
 
@@ -56,7 +70,7 @@ From these, build a list of interaction events with timestamps:
 
 Group these events by date (in local time) to assign them to the correct daily journal.
 
-### 4. Discover Calendar Events
+### 5. Discover Calendar Events
 
 Use the Google Calendar MCP tools to find meetings for each day in the sync period:
 
@@ -79,7 +93,7 @@ Meeting: **title** with dev team
 #auto-sync
 ```
 
-### 5. Fill Gaps from Linear
+### 6. Fill Gaps from Linear
 
 If the `linear` CLI is available, query for recent activity:
 
@@ -89,7 +103,7 @@ linear issue list --all-states --assignee wim --no-pager 2>/dev/null || true
 
 Note: Linear may not be available in all contexts. Skip silently if the command fails.
 
-### 6. Generate/Update Daily Entries
+### 7. Generate/Update Daily Entries
 
 For each day in the sync period, create or update the daily note with timestamped entries based on the interaction data gathered above.
 
@@ -119,7 +133,7 @@ of the review or interaction based on comments/review body.
 
 Use `[[projects/repo|repo]]` wiki-links for repository/project names so daily entries connect to project nodes in the graph view.
 
-### 7. Generate Weekly Rollup
+### 8. Generate Weekly Rollup
 
 If the current week has 5+ daily entries and no weekly rollup exists for this week:
 
@@ -155,7 +169,7 @@ Preserve full GitHub URLs from the daily entries so PRs remain clickable.
 
 The Sources section links back to every daily entry that was summarized, creating backlinks visible in Obsidian's graph view and backlinks panel.
 
-### 8. Generate Monthly Rollup
+### 9. Generate Monthly Rollup
 
 If the current month has 3+ weekly rollups and no monthly rollup exists:
 
@@ -166,7 +180,7 @@ Read the weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar s
 - [[journal/weekly/YYYY-Www|Week Www]]
 ```
 
-### 9. Audit Tasks
+### 10. Audit Tasks
 
 Read all files in `tasks/`:
 
@@ -177,9 +191,21 @@ Read all files in `tasks/`:
 
 Present flagged tasks and ask the user which ones to update.
 
-### 10. Commit
+### 11. Commit
 
-After all changes:
+Write the sync state file using `$SYNC_TIMESTAMP` captured in step 2 (before any queries ran):
+
+```bash
+cat > ~/.local/share/second-brain/.brain-sync.json << EOF
+{
+  "github": {
+    "last_query_at": "$SYNC_TIMESTAMP"
+  }
+}
+EOF
+```
+
+Then commit all changes together:
 
 ```bash
 jj -R ~/.local/share/second-brain commit -m "brain-sync: fill gaps and generate rollups"
