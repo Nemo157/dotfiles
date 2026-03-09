@@ -17,7 +17,8 @@ File information into the second brain at `~/.local/share/second-brain/`.
 ├── projects/
 │   └── <name>.md        # Project overview
 ├── people/
-│   └── <name>.md
+│   ├── <name>.md          # Non-developer people (kebab-case)
+│   └── @<handle>.md       # Developers (GitHub handle with @ prefix)
 ├── reports/
 │   └── <slug>.md     # Investigation write-ups
 └── decisions/
@@ -32,7 +33,7 @@ Create or append to today's daily note at `journal/daily/YYYY-MM-DD.md`:
 - Write a concise summary of what was shared
 - Use `[[wiki-links]]` to reference related projects, tasks, people, decisions
 - Add relevant `#tags` at the end of the entry
-- Link format: `[[projects/<name>|Project Name]]`, `[[people/<name>|Name]]`, `[[tasks/<slug>|Task Title]]`
+- Link format: `[[projects/<name>|Project Name]]`, `[[people/@handle|Name]]` or `[[people/<name>|Name]]`, `[[tasks/<slug>|Task Title]]`
 
 Example:
 
@@ -78,16 +79,24 @@ The `linear`, `github`, and `due` fields are optional — only include when rele
 
 When a person is mentioned:
 
-1. If no file exists at `people/<name>.md`, ask: "I don't have a file for <Name>. Want me to create one? What's their role/team?"
+1. If no file exists, ask: "I don't have a file for <Name>. Want me to create one? What's their role/team?"
 2. If a file exists and the conversation reveals new information, append to their notes
 
-Format (`people/<name>.md`):
+**Filename convention:**
+- Developers use their GitHub handle with `@` prefix: `people/@handle.md`
+- Non-developers use kebab-case real names: `people/first-last.md`
+- When unsure if someone is a developer, ask
+
+**Link format:**
+- Developers: `[[people/@handle|Display Name]]`
+- Non-developers: `[[people/first-last|Display Name]]`
+
+Format (`people/@handle.md` or `people/<name>.md`):
 
 ```markdown
+- **Name**: Full Name
 - **Role**: Their role
 - **Team**: Their team
-- **GitHub**: @username
-- **Linear**: @username
 
 ## Notes
 
@@ -155,7 +164,7 @@ Keep messages short: "daily entry for 2026-03-06", "add task: implement caching"
 
 ## Conventions
 
-- **Slugs**: lowercase kebab-case (`connection-pooling`, `alice-smith`)
+- **Slugs**: lowercase kebab-case (`connection-pooling`, `alice-smith`); developers use `@github-handle` instead
 - **Wiki-links**: Obsidian-style `[[path|display text]]`
 - **Timestamps**: 24-hour `HH:MM` for journal entries
 - **Dates**: `YYYY-MM-DD` everywhere
