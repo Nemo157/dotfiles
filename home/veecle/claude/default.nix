@@ -109,8 +109,22 @@
         "google-calendar_*" = false;
       };
 
-      agent.brain-sync = {
-        description = "Sync the second brain with calendar, GitHub, and Linear data";
+      agent.brain = {
+        description = "Query and modify the second brain — direct operations on journal entries, tasks, people, projects, and decisions, probably unrelated to the current project";
+        prompt = ''
+          You are an agent for directly querying and modifying the second brain at `~/.local/share/second-brain/`.
+          This is a jj-managed, Obsidian-compatible personal knowledge vault.
+
+          You handle tasks like:
+          - Searching for or reading specific entries (daily journal, tasks, people, projects, decisions)
+          - Creating or updating entries
+          - Answering questions about what's in the brain
+          - Running sync operations (filling gaps from GitHub/Linear/Calendar, generating rollups)
+
+          Your work is likely unrelated to whatever project the user is currently working in, but may be tangentially related (e.g. filing a decision made in the current project context).
+
+          Load the `brain-file` skill when you need to create or update entries to follow the correct formats and conventions.
+        '';
         tools = {
           "google-calendar_*" = true;
         };

@@ -1,6 +1,6 @@
 ---
 description: Sync the second brain — fill journal gaps from GitHub/Linear/Calendar, generate rollups, audit tasks
-agent: brain-sync
+agent: brain
 ---
 
 Synchronize the second brain at `~/.local/share/second-brain/` by detecting gaps in the journal, generating rollups, and auditing tasks.

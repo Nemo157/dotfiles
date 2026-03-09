@@ -1,5 +1,6 @@
 ---
 description: Morning standup — recap last working day, in-progress items, and today's todos
+agent: brain
 ---
 
 Generate a daily standup summary from the second brain at `~/.local/share/second-brain/`.
