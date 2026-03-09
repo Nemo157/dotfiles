@@ -1,4 +1,19 @@
 { config, lib, pkgs, ... }: {
+  age.secrets.gcal-oauth-credentials.file = ../gcal-oauth-credentials.age;
+
+  services.mcp-proxy = {
+    enable = true;
+    path = [ pkgs.nodejs ];
+    port = 14127;
+    servers.google-calendar = {
+      command = [ "npx" "-y" "@cocal/google-calendar-mcp" ];
+      env = {
+        GOOGLE_OAUTH_CREDENTIALS = config.age.secrets.gcal-oauth-credentials.path;
+        ENABLED_TOOLS = "list-calendars,list-events,search-events,get-event,get-freebusy,get-current-time";
+      };
+    };
+  };
+
   programs.claude-code = {
     settings = {
       permissions.allow = lib.mkAfter [
@@ -83,6 +98,24 @@
     };
 
     settings = {
+      mcp = {
+        google-calendar = {
+          type = "remote";
+          url = "http://127.0.0.1:14127/servers/google-calendar/sse";
+        };
+      };
+
+      tools = {
+        "google-calendar_*" = false;
+      };
+
+      agent.brain-sync = {
+        description = "Sync the second brain with calendar, GitHub, and Linear data";
+        tools = {
+          "google-calendar_*" = true;
+        };
+      };
+
       permission = {
         external_directory = {
           "~/.local/share/second-brain/**" = "allow";

@@ -13,6 +13,7 @@ in {
   "home/ha-token.age".publicKeys = [ nemo157-mithril ];
   "home/hf-token.age".publicKeys = [ nemo157-mithril ];
   "home/veecle/aws-credentials.age".publicKeys = [ nemo157-zinc wim-oak ];
+  "home/veecle/gcal-oauth-credentials.age".publicKeys = [ wim-oak ];
   "home/veecle/linear-api-key.age".publicKeys = [ wim-oak ];
   "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc wim-oak ];
   "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc wim-oak ];
