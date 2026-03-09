@@ -13,6 +13,7 @@ When the user shares any of the following, load the `brain-file` skill and use i
 - **Decisions**: confirmed technical or architectural choices
 - **Tasks**: explicit action items, follow-ups, deadlines, requests from others
 - **People**: new names mentioned, role/team changes for known people
+- **Workflow/tooling changes**: agent config changes, development environment tweaks, process rule updates
 
 Don't ask for permission to file — just do it as part of your response.
 
@@ -24,6 +25,7 @@ Watch for these patterns that indicate something should be filed:
 - Decision signals: "we decided to...", "going with...", "the plan is..."
 - People signals: names of colleagues, especially with context about their role or involvement
 - Project signals: mentions of specific projects, repos, or systems being worked on
+- Workflow signals: changes to agent config, dotfiles, dev environment, CI/CD, editor settings, or process rules
 
 ## Skills
 
