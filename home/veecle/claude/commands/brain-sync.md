@@ -35,29 +35,17 @@ Use `$START_DATE` as the earliest missing day (or 7 days ago if updating existin
 
 ### 3. Inspect Each PR/Issue for Interaction Timestamps
 
-For each PR/issue found, fetch the detailed interaction history to determine when `Nemo157` actually interacted with it:
+For each PR/issue found, fetch the detailed interaction history using the wrapper scripts:
 
 ```bash
-# PR metadata (authorship, creation, merge)
-gh api repos/OWNER/REPO/pulls/NUMBER \
-  --jq '{created_at, merged_at, user: .user.login, body}'
+# For PRs — returns metadata, reviews, review_comments, and commits filtered to the current user
+gh-pr-activity OWNER/REPO PR_NUMBER
 
-# Reviews by Nemo157
-gh api repos/OWNER/REPO/pulls/NUMBER/reviews \
-  --jq '.[] | select(.user.login == "Nemo157") | {submitted_at, state}'
-
-# Review comments
-gh api repos/OWNER/REPO/pulls/NUMBER/comments \
-  --jq '.[] | select(.user.login == "Nemo157") | {created_at, body}'
-
-# Issue comments
-gh api repos/OWNER/REPO/issues/NUMBER/comments \
-  --jq '.[] | select(.user.login == "Nemo157") | {created_at, body}'
-
-# Commits authored (for authored PRs)
-gh api repos/OWNER/REPO/pulls/NUMBER/commits \
-  --jq '.[] | select(.author.login == "Nemo157" or .committer.login == "Nemo157") | {date: .commit.author.date, message: .commit.message}'
+# For issues — returns metadata and comments filtered to the current user
+gh-issue-activity OWNER/REPO ISSUE_NUMBER
 ```
+
+Both scripts output a single JSON object. `gh-pr-activity` returns `{metadata, reviews, review_comments, commits}` and `gh-issue-activity` returns `{metadata, comments}`.
 
 From these, build a list of interaction events with timestamps:
 - **Authored PR**: use the PR `created_at`

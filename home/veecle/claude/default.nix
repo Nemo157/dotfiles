@@ -1,4 +1,18 @@
-{ config, lib, pkgs, ... }: {
+{ config, lib, pkgs, ... }:
+let
+  gh-pr-activity = pkgs.writeShellApplication {
+    name = "gh-pr-activity";
+    runtimeInputs = [ pkgs.gh pkgs.jq pkgs.coreutils ];
+    text = lib.readFile ./gh-pr-activity.sh;
+  };
+
+  gh-issue-activity = pkgs.writeShellApplication {
+    name = "gh-issue-activity";
+    runtimeInputs = [ pkgs.gh pkgs.jq pkgs.coreutils ];
+    text = lib.readFile ./gh-issue-activity.sh;
+  };
+
+in {
   age.secrets.gcal-oauth-credentials.file = ../gcal-oauth-credentials.age;
 
   services.mcp-proxy = {
@@ -43,6 +57,9 @@
         "Bash(gh search issues:*)"
         "Bash(gh search prs:*)"
         "Bash(gh search code:*)"
+
+        "Bash(gh-pr-activity:*)"
+        "Bash(gh-issue-activity:*)"
       ];
     };
 
@@ -156,6 +173,9 @@
           "gh search issues *" = "allow";
           "gh search prs *" = "allow";
           "gh search code *" = "allow";
+
+          "gh-pr-activity *" = "allow";
+          "gh-issue-activity *" = "allow";
         };
 
         webfetch = "allow";
@@ -163,6 +183,8 @@
       };
     };
   };
+
+  services.opencode.path = [ gh-pr-activity gh-issue-activity ];
 
   xdg.configFile = {
     "opencode/skill/linear-cli/SKILL.md".source = config.xdg.configFile."claude/skills/linear-cli/SKILL.md".source;
