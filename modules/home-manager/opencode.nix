@@ -68,7 +68,7 @@ in {
     systemd.user.services.opencode = {
       Unit = {
         Description = "opencode headless server";
-        After = [ "graphical-session.target" ];
+        After = [ "graphical-session.target" "ssh-agent.service" ];
         PartOf = [ "graphical-session.target" ];
         X-Restart-Triggers = [ config.xdg.configFile."opencode/config.json".source ];
       };
@@ -76,7 +76,10 @@ in {
       Service = let
         execStart = "${lib.getExe cfg.package} serve --hostname ${cfg.hostname} --port ${toString cfg.port} --print-logs";
       in {
-        Environment = [ "OPENCODE_EXPERIMENTAL_LSP_TOOL=true" ];
+        Environment = [
+          "OPENCODE_EXPERIMENTAL_LSP_TOOL=true"
+          "SSH_AUTH_SOCK=%t/ssh-agent.socket"
+        ];
         ExecStart =
           if cfg.path == [] then execStart
           else "${pkgs.writeShellScript "opencode-serve" ''
