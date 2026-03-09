@@ -27,6 +27,8 @@
         "Bash(ls ~/.local/share/second-brain:*)"
         "Bash(cat ~/.local/share/second-brain:*)"
 
+        "Bash(date:*)"
+
         "Bash(gh search issues:*)"
         "Bash(gh search prs:*)"
         "Bash(gh search code:*)"
@@ -153,6 +155,8 @@
 
           "jj -R ~/.local/share/second-brain *" = "allow";
           "mkdir -p ~/.local/share/second-brain *" = "allow";
+
+          "date *" = "allow";
 
           "gh search issues *" = "allow";
           "gh search prs *" = "allow";
