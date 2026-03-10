@@ -19,9 +19,8 @@ Read every `.md` file in `tasks/` (except `index.md`). Parse the YAML frontmatte
 For tasks with external references, check current status:
 
 **Linear:**
-```bash
-linear issue view <issue-id> --no-comments --no-pager 2>/dev/null || true
-```
+Use the `linear` agent to check the issue status:
+> Get the status of issue <issue-id>
 
 **GitHub:**
 ```bash

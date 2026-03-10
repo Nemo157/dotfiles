@@ -33,18 +33,9 @@ gh search code "<topic>" --owner=veecle --json path,repository,url --limit 10
 
 ### 3. Search Linear
 
-If the `linear` CLI is available:
+Use the `linear` agent to search for related issues and get details on matches:
 
-```bash
-# Search issue titles for the topic
-linear issue list --all-states --all-assignees --no-pager 2>/dev/null | rg -i "<topic>" || true
-```
-
-For matching issues, get details:
-
-```bash
-linear issue view <issue-id> --no-pager
-```
+> List all issues across all states and assignees related to "<topic>", and return full details for each match
 
 ### 4. Synthesize Report
 
@@ -102,5 +93,5 @@ jj -R ~/.local/share/second-brain commit -m "investigate: <topic>"
 - Prioritize the user's own repos and issues over public noise
 - When brain files already contain relevant context, lead with that — external sources supplement
 - Include direct links (URLs) to GitHub issues/PRs for easy follow-up
-- If Linear is unavailable, skip silently and note it in the report
+- If the Linear agent is unavailable, skip silently and note it in the report
 - Keep the report concise — aim for actionable context, not exhaustive logs

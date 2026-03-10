@@ -5,7 +5,6 @@
     ./git.nix
     ./jujutsu.nix
     ./aws.nix
-    ./linear.nix
     ./slack.nix
   ];
 

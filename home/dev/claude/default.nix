@@ -146,7 +146,12 @@ in {
       ];
 
       permission = {
-        "*" = "ask";
+        # Workaround: "*" = "ask" overrides tools deny rules due to
+        # https://github.com/anomalyco/opencode/issues/15664
+        # so we explicitly set each unmentioned tool to "ask" instead.
+        webfetch = lib.mkDefault "ask";
+        websearch = lib.mkDefault "ask";
+        codesearch = lib.mkDefault "ask";
 
         todoread = "allow";
         todowrite = "allow";
@@ -170,6 +175,8 @@ in {
         };
 
         bash = {
+          "*" = "ask";
+
           "rg *" = "allow";
           "fd *" = "allow";
           "find *" = "allow";

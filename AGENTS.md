@@ -12,7 +12,7 @@ This is a comprehensive Nix-based dotfiles repository managing system and user c
 
 ## Agent Configuration Management
 
-This repository is the single source of truth for all agent configuration (Claude, OpenCode, etc.). Both Claude and OpenCode configs are managed through the Nix module at `home/dev/claude/default.nix`, with profile-specific additions in other modules (e.g., `home/veecle/claude/` adds Veecle development practices and Linear MCP permissions via `lib.mkAfter`).
+This repository is the single source of truth for all agent configuration (Claude, OpenCode, etc.). Both Claude and OpenCode configs are managed through the Nix module at `home/dev/claude/default.nix`, with profile-specific additions in other modules (e.g., `home/veecle/claude/` adds Veecle development practices and additional permissions via `lib.mkAfter`).
 
 **NEVER read or modify files under `~/.config/claude/` or `~/.config/opencode/`.** These are symlinked outputs managed by Nix. All changes must be made to the source files in this repository.
 

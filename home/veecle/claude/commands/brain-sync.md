@@ -95,13 +95,11 @@ Meeting: **title** with dev team
 
 ### 6. Fill Gaps from Linear
 
-If the `linear` CLI is available, query for recent activity:
+Use the `linear` agent to query for recent activity:
 
-```bash
-linear issue list --all-states --assignee wim --no-pager 2>/dev/null || true
-```
+> List all issues assigned to me across all states that have had activity since $START_DATE, including recent comments and state changes
 
-Note: Linear may not be available in all contexts. Skip silently if the command fails.
+Use the returned issues and their activity to supplement daily entries with Linear activity.
 
 ### 7. Generate/Update Daily Entries
 
@@ -184,7 +182,7 @@ Read the weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar s
 
 Read all files in `tasks/`:
 
-- For each task with a `linear:` reference, check its status via `linear issue view`
+- For each task with a `linear:` reference, check its status via the `linear` agent
 - For each task with a `github:` reference, check its status via `gh issue view`
 - If an external source shows the task as completed/closed but the brain shows it as `active`, flag it
 - If a task has been `active` for more than 14 days without updates, flag it as potentially stale
