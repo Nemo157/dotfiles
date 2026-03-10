@@ -17,9 +17,19 @@
 
   programs.claude-code = {
     settings = {
-      mcpServers.linear = {
-        type = "http";
-        url = "https://mcp.linear.app/mcp";
+      mcpServers = {
+        linear = {
+          type = "http";
+          url = "https://mcp.linear.app/mcp";
+        };
+        slack = {
+          type = "http";
+          url = "https://mcp.slack.com/mcp";
+          oauth = {
+            clientId = "1601185624273.8899143856786";
+            callbackPort = 3118;
+          };
+        };
       };
 
       permissions.allow = lib.mkAfter [
@@ -75,16 +85,18 @@
           type = "remote";
           url = "https://mcp.linear.app/mcp";
         };
-        # Blocked on <https://github.com/anomalyco/opencode/issues/7377>
-        # slack = {
-        #   type = "remote";
-        #   url = "https://mcp.slack.com/mcp";
-        #   oauth = {
-        #     # Claude's clientId :eyes:
-        #     clientId = "1601185624273.8899143856786";
-        #     redirectUri = "http://127.0.0.1:3118/mcp/oauth/callback;
-        #   };
-        # };
+        slack = {
+          type = "remote";
+          url = "https://mcp.slack.com/mcp";
+          oauth = {
+            # Claude's clientId :eyes:
+            clientId = "1601185624273.8899143856786";
+            # Blocked on <https://github.com/anomalyco/opencode/issues/7377>
+            # But until it can natively complete oauth, you can do oauth with claude-code then copy
+            # the token across to give it access.
+            # redirectUri = "http://127.0.0.1:3118/mcp/oauth/callback;
+          };
+        };
       };
 
       tools = {
