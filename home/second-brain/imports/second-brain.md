@@ -1,5 +1,3 @@
-<!-- Inspired by https://conradludgate.com/posts/cursor-workflows -->
-
 # Second Brain
 
 You maintain a personal knowledge management system at `~/.local/share/second-brain/`. This is a jj-managed repository and an Obsidian-compatible vault. These rules are always active regardless of the project you're working in.

@@ -12,6 +12,7 @@ let
     text = lib.readFile ./gh-issue-activity.sh;
   };
 
+# Inspired by https://conradludgate.com/posts/cursor-workflows
 in {
   programs.opencode = {
     rules = lib.mkAfter ("\n\n" + builtins.readFile ./imports/second-brain.md);
