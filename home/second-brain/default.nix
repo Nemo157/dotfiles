@@ -46,6 +46,13 @@ in {
         '';
         tools = {
           "google-calendar_*" = true;
+          "slack_slack_search_public" = true;
+          "slack_slack_search_public_and_private" = true;
+          "slack_slack_search_channels" = true;
+          "slack_slack_search_users" = true;
+          "slack_slack_read_channel" = true;
+          "slack_slack_read_thread" = true;
+          "slack_slack_read_user_profile" = true;
         };
       };
 

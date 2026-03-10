@@ -102,11 +102,14 @@ Format (`people/@handle.md` or `people/<name>.md`):
 - **Name**: Full Name
 - **Role**: Their role
 - **Team**: Their team
+- **Slack**: @slack-display-name
 
 ## Notes
 
 - YYYY-MM-DD: Context about this person
 ```
+
+All header fields except **Name** are optional — only include when known. The **Slack** field stores the person's Slack display name (with `@` prefix), used by `brain-sync` to quickly match Slack users to existing people files without fetching full profiles.
 
 ## Project Overviews
 

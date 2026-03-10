@@ -102,6 +102,7 @@
       tools = {
         "google-calendar_*" = false;
         "linear_*" = false;
+        "slack_*" = false;
       };
 
       agent.linear = {
