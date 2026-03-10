@@ -6,6 +6,7 @@
     ./common.nix
     ./desktop
     ./dev
+    ./second-brain
     ./veecle
     ./wluma.nix
     ./xdg.nix

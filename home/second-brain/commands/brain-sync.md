@@ -35,15 +35,15 @@ Extract `github.last_query_at` and `linear.last_query_at` if present. Use `githu
 
 ### 3. Discover GitHub Activity
 
-Query GitHub for all PRs and issues where `Nemo157` was involved within the `veecle` organization over the sync period:
+Query GitHub for all PRs and issues where `Nemo157` was involved over the sync period. Add an `--owner` flag to scope queries to the relevant GitHub organization (see profile-specific configuration appended to this command).
 
 ```bash
 # PRs involved in (covers authored, reviewed, commented, mentioned)
-gh search prs --involves=Nemo157 --owner=veecle --updated='>=$START_DATE' \
+gh search prs --involves=Nemo157 --updated='>=$START_DATE' \
   --json number,title,repository,url,state,updatedAt,createdAt
 
 # Issues involved in
-gh search issues --involves=Nemo157 --owner=veecle --updated='>=$START_DATE' \
+gh search issues --involves=Nemo157 --updated='>=$START_DATE' \
   --json number,title,repository,url,state,updatedAt,createdAt
 ```
 
