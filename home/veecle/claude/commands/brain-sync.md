@@ -31,7 +31,7 @@ Then read the existing sync state file:
 cat ~/.local/share/second-brain/.brain-sync.json 2>/dev/null || echo '{}'
 ```
 
-Extract `github.last_query_at` if present. If it exists, use it as `$START_DATE` for the GitHub queries below. If the state file doesn't exist or has no `github.last_query_at`, fall back to the earliest missing day from step 1 (or 7 days ago if all days have entries).
+Extract `github.last_query_at` and `linear.last_query_at` if present. Use `github.last_query_at` as `$START_DATE` for GitHub queries and `linear.last_query_at` as `$LINEAR_START_DATE` for Linear queries. If either value is missing, fall back to the earliest missing day from step 1 (or 7 days ago if all days have entries).
 
 ### 3. Discover GitHub Activity
 
@@ -95,11 +95,11 @@ Meeting: **title** with dev team
 
 ### 6. Fill Gaps from Linear
 
-Use the `linear` agent to query for recent activity:
+Use the `linear` agent to query for recent activity. Use `$LINEAR_START_DATE` (from step 2) as the cutoff:
 
-> List all issues assigned to me across all states that have had activity since $START_DATE, including recent comments and state changes
+> List all issues assigned to me across all states that have had activity since $LINEAR_START_DATE. For each issue, include the minute-accurate timestamps (ISO 8601 with time, e.g. 2026-03-10T14:32:00Z) of: state changes (with from/to states), comments (with author), and assignment changes. I need the exact `createdAt`/`updatedAt` timestamps on each event, not just the issue-level `updatedAt`.
 
-Use the returned issues and their activity to supplement daily entries with Linear activity.
+Use the returned issues and their event timestamps to supplement daily entries with Linear activity. Convert timestamps to local time for journal entry headings.
 
 ### 7. Generate/Update Daily Entries
 
@@ -197,6 +197,9 @@ Write the sync state file using `$SYNC_TIMESTAMP` captured in step 2 (before any
 cat > ~/.local/share/second-brain/.brain-sync.json << EOF
 {
   "github": {
+    "last_query_at": "$SYNC_TIMESTAMP"
+  },
+  "linear": {
     "last_query_at": "$SYNC_TIMESTAMP"
   }
 }
