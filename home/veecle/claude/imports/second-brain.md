@@ -26,6 +26,7 @@ Watch for these patterns that indicate something should be filed:
 - People signals: names of colleagues, especially with context about their role or involvement
 - Project signals: mentions of specific projects, repos, or systems being worked on
 - Workflow signals: changes to agent config, dotfiles, dev environment, CI/CD, editor settings, or process rules
+- Commit signals: when a commit is created, the changes are worth recording as work context
 
 ## Skills
 
