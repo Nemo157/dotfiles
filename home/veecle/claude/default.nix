@@ -119,6 +119,16 @@ in {
           type = "remote";
           url = "https://mcp.linear.app/mcp";
         };
+        # Blocked on <https://github.com/anomalyco/opencode/issues/7377>
+        # slack = {
+        #   type = "remote";
+        #   url = "https://mcp.slack.com/mcp";
+        #   oauth = {
+        #     # Claude's clientId :eyes:
+        #     clientId = "1601185624273.8899143856786";
+        #     redirectUri = "http://127.0.0.1:3118/mcp/oauth/callback;
+        #   };
+        # };
       };
 
       tools = {
