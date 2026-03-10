@@ -101,7 +101,35 @@ Use the `linear` agent to query for recent activity. Use `$LINEAR_START_DATE` (f
 
 Use the returned issues and their event timestamps to supplement daily entries with Linear activity. Convert timestamps to local time for journal entry headings.
 
-### 7. Generate/Update Daily Entries
+### 7. Update Task ↔ PR ↔ People Links
+
+The `gh-pr-activity` output from step 4 already includes the fields needed for task linking:
+- **`metadata.body`**: PR body text — extract Linear issue IDs from patterns like `Closes DEV-1234`, `Closes: DEV-1234`, `Fixes: DEV-1234`, `Refs: DEV-1234`
+- **`metadata.user`**: PR author's GitHub login
+- **`all_reviews`**: all reviewers with their final review state (deduplicated by login, `claude` bot excluded), each with `{login, state, submitted_at}`
+
+For each Linear issue referenced by a PR:
+
+1. **If a task file `tasks/DEV-XXXX.md` exists**: ensure it has:
+   - `github:` field in frontmatter linking to the PR (format: `owner/repo#number`)
+   - People links in the `## Related` section for the PR author (if not the current user) and reviewers (excluding the current user)
+   - Use `[[people/@handle|Display Name]]` wiki-link format
+   - Author link: `[[people/@handle|Name]] — authored PR #N`
+   - Reviewer link: `[[people/@handle|Name]] — reviewed PR #N (STATE)`
+   - Skip adding links that already exist
+
+2. **If no task file exists**: create one following the brain-file skill format:
+   - Set `status:` based on the Linear issue status from step 6 (map to: `active`, `done`, `blocked`, `cancelled`)
+   - Set `linear:` and `github:` frontmatter fields
+   - Use the Linear issue title as the `##` heading
+   - Add `[[projects/repo|repo]]` and people links in `## Related`
+   - Add a `## Log` entry with the PR merge/creation date
+
+For PRs **not** linked to any Linear issue, skip task creation (these are standalone chores/docs/deps).
+
+**People file lookup**: read the `- **Name**:` line from each referenced person's file under `people/` to get their display name for wiki-links. If no people file exists for a reviewer, note it in the sync summary but don't create one automatically.
+
+### 8. Generate/Update Daily Entries
 
 For each day in the sync period, create or update the daily note with timestamped entries based on the interaction data gathered above.
 
@@ -131,7 +159,7 @@ of the review or interaction based on comments/review body.
 
 Use `[[projects/repo|repo]]` wiki-links for repository/project names so daily entries connect to project nodes in the graph view.
 
-### 8. Generate Weekly Rollup
+### 9. Generate Weekly Rollup
 
 If the current week has 5+ daily entries and no weekly rollup exists for this week:
 
@@ -167,7 +195,7 @@ Preserve full GitHub URLs from the daily entries so PRs remain clickable.
 
 The Sources section links back to every daily entry that was summarized, creating backlinks visible in Obsidian's graph view and backlinks panel.
 
-### 9. Generate Monthly Rollup
+### 10. Generate Monthly Rollup
 
 If the current month has 3+ weekly rollups and no monthly rollup exists:
 
@@ -178,7 +206,7 @@ Read the weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar s
 - [[journal/weekly/YYYY-Www|Week Www]]
 ```
 
-### 10. Audit Tasks
+### 11. Audit Tasks
 
 Read all files in `tasks/`:
 
@@ -189,7 +217,7 @@ Read all files in `tasks/`:
 
 Present flagged tasks and ask the user which ones to update.
 
-### 11. Commit
+### 12. Commit
 
 Write the sync state file using `$SYNC_TIMESTAMP` captured in step 2 (before any queries ran):
 
@@ -218,5 +246,6 @@ After completing the sync, present a summary:
 
 - Days synced: X/7
 - New entries generated: N
+- Tasks linked: N new, N updated (PR/people links added)
 - Rollups generated: weekly/monthly
 - Tasks flagged: N stale, N out-of-sync
