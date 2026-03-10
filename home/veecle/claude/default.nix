@@ -137,6 +137,7 @@ in {
       };
 
       agent.linear = {
+        mode = "subagent";
         description = "Query Linear issues, projects, teams, and other data — use this for any Linear lookups";
         prompt = ''
           You are a Linear query agent. Your job is to fetch data from Linear and return concise, structured results.
@@ -180,6 +181,7 @@ in {
       };
 
       agent.brain = {
+        mode = "primary";
         description = "Query and modify the second brain — direct operations on journal entries, tasks, people, projects, and decisions, probably unrelated to the current project";
         prompt = ''
           You are an agent for directly querying and modifying the second brain at `~/.local/share/second-brain/`.
