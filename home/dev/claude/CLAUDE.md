@@ -10,6 +10,9 @@
 - **ALWAYS use `jj` instead of `git` - NO EXCEPTIONS**
 - NEVER use git commands directly - always translate to jj equivalents
 - This is a CORE REQUIREMENT, not a preference
+- When running `jj commit`/`jj describe`, ALWAYS use single quotes for the `-m` argument
+  (double quotes allow zsh to interpret backticks and other special characters)
+- After every `jj commit`, trigger second-brain filing for the work context
 
 **Task tracking:**
 - Use TodoWrite for multi-step tasks (3+ steps)
