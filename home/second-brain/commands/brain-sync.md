@@ -308,7 +308,7 @@ Read all files in `tasks/`:
 - If an external source shows the task as completed/closed but the brain shows it as `active`, flag it
 - If a task has been `active` for more than 14 days without updates, flag it as potentially stale
 
-Present flagged tasks and ask the user which ones to update.
+Present flagged tasks with their title (the `##` heading from the task file) and ask the user which ones to update.
 
 ### 13. Commit
 
