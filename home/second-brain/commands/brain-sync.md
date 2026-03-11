@@ -190,7 +190,7 @@ with [[people/@handle|Name]]. Action: <next step>.
 
 Use the `linear` agent to query for recent activity. Use `$LINEAR_START_DATE` (from step 2) as the cutoff:
 
-> List all issues assigned to me across all states that have had activity since $LINEAR_START_DATE. For each issue, include the minute-accurate timestamps (ISO 8601 with time, e.g. 2026-03-10T14:32:00Z) of: state changes (with from/to states), comments (with author), and assignment changes. I need the exact `createdAt`/`updatedAt` timestamps on each event, not just the issue-level `updatedAt`.
+> List all issues assigned to me across all states that have had activity since $LINEAR_START_DATE. For each issue, include the minute-accurate timestamps (ISO 8601 with time, e.g. 2026-03-10T14:32:00Z) of: state changes (with from/to states), comments (with author), and assignment changes. I need the exact `createdAt`/`updatedAt` timestamps on each event, not just the issue-level `updatedAt`. If nothing has activity in this date range, just return an empty result — do not search outside the requested range. Only use the Linear MCP tools — do not try other data sources. If some of the requested data is not available in the MCP responses, note what's missing and skip it.
 
 Use the returned issues and their event timestamps to supplement daily entries with Linear activity. Convert timestamps to local time for journal entry headings.
 
