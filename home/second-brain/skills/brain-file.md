@@ -58,6 +58,7 @@ When tasks are detected, prompt: "I noticed a potential task: <description>. Wan
 ```markdown
 ---
 status: active
+role: owner
 priority: medium
 due: YYYY-MM-DD
 linear: VEE-1234
@@ -78,7 +79,9 @@ Description of what needs to be done.
 
 Valid statuses: `active`, `blocked`, `done`, `cancelled`
 Valid priorities: `high`, `medium`, `low`
-The `linear`, `github`, and `due` fields are optional — only include when relevant.
+Valid roles: `owner` (driving the work), `reviewer` (reviewing or consulting), `tracking` (someone else owns it, watching progress)
+The `role` field defaults to `tracking` when missing — only tasks explicitly marked `owner` appear as action items.
+The `linear`, `github`, `due`, and `role` fields are optional — only include when relevant.
 
 ## People Files
 

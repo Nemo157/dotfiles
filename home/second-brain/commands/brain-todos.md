@@ -12,7 +12,7 @@ Display the task board from the second brain, grouped by status with cross-refer
 ls ~/.local/share/second-brain/tasks/
 ```
 
-Read every `.md` file in `tasks/` (except `index.md`). Parse the YAML frontmatter for `status`, `priority`, `due`, `linear`, and `github` fields.
+Read every `.md` file in `tasks/` (except `index.md`). Parse the YAML frontmatter for `status`, `priority`, `due`, `linear`, `github`, and `role` fields. Tasks without a `role` field are treated as `tracking`.
 
 ### 2. Cross-Reference External Status
 
@@ -31,33 +31,39 @@ Flag discrepancies where the brain's status differs from the external source.
 
 ### 3. Display Task Board
 
-Present tasks grouped by status, sorted by priority within each group:
+Present tasks grouped first by role, then by status and priority:
 
 ```
-## Active (N tasks)
+## My Tasks (role: owner)
 
-### High Priority
+### Active
+#### High Priority
 - [ ] **Task Title** — brief description
   Due: YYYY-MM-DD | Linear: VEE-123 | [[projects/foo|foo]]
 
-### Medium Priority
+#### Medium Priority
 - [ ] **Task Title** — brief description
   [[projects/bar|bar]]
 
-### Low Priority
-- [ ] **Task Title** — brief description
-
-## Blocked (N tasks)
+### Blocked
 - [ ] **Task Title** — reason for block
   Blocked since: YYYY-MM-DD
 
-## Overdue
+### Overdue
 - [ ] **Task Title** — was due YYYY-MM-DD (N days ago)
-  Linear: VEE-456 ⚠ Linear shows "completed" but brain shows "active"
+
+## Reviewing (role: reviewer)
+- [ ] **Task Title** — brief description | Linear: VEE-789
+
+## Tracking (role: tracking)
+- [ ] **Task Title** — owner: [[people/@handle|Name]] | Linear: VEE-456
+  ⚠ Linear shows "completed" but brain shows "active"
 
 ## Recently Completed (last 7 days)
 - [x] **Task Title** — completed YYYY-MM-DD
 ```
+
+The "My Tasks" section gets full priority breakdown. "Reviewing" and "Tracking" sections are kept brief — one line per task, with the owner/assignee noted where known.
 
 ### 4. Flag Issues
 

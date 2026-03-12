@@ -194,6 +194,12 @@ Use the `linear` agent to query for recent activity. Use `$LINEAR_START_DATE` (f
 
 Use the returned issues and their event timestamps to supplement daily entries with Linear activity. Convert timestamps to local time for journal entry headings.
 
+**Role assignment from Linear:** When creating or updating task files from Linear issues, set the `role` frontmatter field based on the assignee:
+- Assigned to the current user → `role: owner`
+- Assigned to someone else → `role: tracking`
+- You're listed as a reviewer/subscriber but not assignee → `role: reviewer`
+- If assignee is ambiguous or unset, omit `role` (defaults to `tracking`)
+
 ### 8. Update Task ↔ PR ↔ People Links
 
 The `gh-pr-activity` output from step 4 already includes the fields needed for task linking:
@@ -213,6 +219,7 @@ For each Linear issue referenced by a PR:
 
 2. **If no task file exists**: create one following the brain-file skill format:
    - Set `status:` based on the Linear issue status from step 7 (map to: `active`, `done`, `blocked`, `cancelled`)
+   - Set `role:` based on who authored the PR: `owner` if the current user authored it, `reviewer` if the current user only reviewed it, `tracking` otherwise. If Linear assignee info is available from step 7, prefer that over PR authorship.
    - Set `linear:` and `github:` frontmatter fields
    - Use the Linear issue title as the `##` heading
    - Add `[[projects/repo|repo]]` and people links in `## Related`
