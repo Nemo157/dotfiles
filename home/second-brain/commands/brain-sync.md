@@ -111,6 +111,8 @@ Use strikethrough (`~~`) on the original meeting line and append the annotation.
 
 Use the Slack MCP tools to find conversations you participated in since `$SLACK_START_DATE`. Focus on **non-DM channels** (public channels, private channels, and group DMs — exclude 1:1 DMs).
 
+**Important:** Slack's `after:` filter is exclusive — `after:2026-03-12` excludes March 12th. Subtract one day from `$SLACK_START_DATE` when building the query to ensure the boundary day is included.
+
 **Step 1 — Find your messages:**
 
 Use `slack_search_public_and_private` with `channel_types` set to `public_channel,private_channel,mpim`:
