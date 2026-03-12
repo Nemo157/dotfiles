@@ -127,6 +127,7 @@
           - Issue summary: `jq '{id, identifier, title, state: .state.name, assignee: .assignee.name}' response.json`
           - Issue list: `jq '[.[] | {identifier, title, state: .state.name}]' response.json`
         '';
+
         tools = {
           "linear_get_document" = true;
           "linear_get_issue" = true;
@@ -146,6 +147,10 @@
           "linear_list_teams" = true;
           "linear_list_users" = true;
           "linear_search_documentation" = true;
+        };
+
+        permission = {
+          task = "deny";
         };
       };
 
