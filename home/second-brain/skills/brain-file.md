@@ -84,8 +84,9 @@ The `linear`, `github`, and `due` fields are optional — only include when rele
 
 When a person is mentioned:
 
-1. If no file exists, ask: "I don't have a file for <Name>. Want me to create one? What's their role/team?"
-2. If a file exists and the conversation reveals new information, append to their notes
+1. **Find existing files first**: use the Grep tool to search `~/.local/share/second-brain/people/` for the person's name, since filenames use GitHub handles which may not match real names, email addresses, or Slack handles.
+2. If no file exists, ask: "I don't have a file for <Name>. Want me to create one? What's their role/team?"
+3. If a file exists and the conversation reveals new information, append to their notes
 
 **Filename convention:**
 - Developers use their GitHub handle with `@` prefix: `people/@handle.md`
