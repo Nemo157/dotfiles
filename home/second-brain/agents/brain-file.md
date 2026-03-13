@@ -1,10 +1,3 @@
----
-name: brain-file
-description: >
-  File information into the second brain — daily journal entries, tasks,
-  people, projects, and decision records
----
-
 File information into the second brain at `~/.local/share/second-brain/`.
 
 ## Directory Structure

@@ -219,7 +219,7 @@ For each Linear issue referenced by a PR:
    - Reviewer link: `[[people/@handle|Name]] — reviewed PR #N (STATE)`
    - Skip adding links that already exist
 
-2. **If no task file exists**: create one following the brain-file skill format:
+2. **If no task file exists**: create one following the brain-file agent format:
    - Set `status:` based on the Linear issue status from step 7 (map to: `active`, `done`, `blocked`, `cancelled`)
    - Set `role:` based on who authored the PR: `owner` if the current user authored it, `reviewer` if the current user only reviewed it, `tracking` otherwise. If Linear assignee info is available from step 7, prefer that over PR authorship.
    - Set `linear:` and `github:` frontmatter fields
