@@ -71,6 +71,8 @@ in {
           Your work is likely unrelated to whatever project the user is currently working in, but may be tangentially related (e.g. filing a decision made in the current project context).
 
           Invoke the `brain-file` subagent via the Task tool when you need to create or update entries — it handles all filing formats and conventions.
+
+          **File operations:** Always use the Read, Write, Edit, Glob, and Grep tools for file operations. Do not use bash commands like `cat`, `head`, `tail`, `sed`, `awk`, `echo`, `find`, or `grep` — use the dedicated tools instead. Reserve Bash exclusively for `jj`, `gh`, `date`, and the helper scripts.
         '';
         tools = {
           "google-calendar_*" = true;
