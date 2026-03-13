@@ -263,9 +263,9 @@ Use `[[projects/repo|repo]]` wiki-links for repository/project names so daily en
 
 ### 10. Generate Weekly Rollup
 
-If the current week has 5+ daily entries and no weekly rollup exists for this week:
+Only generate rollups for **completed** weeks — a week is complete when today is Monday or later of the following week. Check all recent weeks that don't yet have a rollup (not just the current one), so that missed rollups from previous weeks are caught up.
 
-Read all daily entries for the week and generate `journal/weekly/YYYY-Www.md`:
+For each completed week without a rollup, read all its daily entries and generate `journal/weekly/YYYY-Www.md`:
 
 ```markdown
 ## Summary
@@ -299,9 +299,9 @@ The Sources section links back to every daily entry that was summarized, creatin
 
 ### 11. Generate Monthly Rollup
 
-If the current month has 3+ weekly rollups and no monthly rollup exists:
+Only generate rollups for **completed** months — a month is complete when today is in the following month or later. Check all recent months that don't yet have a rollup, so that missed rollups are caught up.
 
-Read the weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar structure but at monthly granularity. Include a `## Sources` section linking back to each weekly rollup:
+For each completed month without a rollup, read its weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar structure but at monthly granularity. Include a `## Sources` section linking back to each weekly rollup:
 
 ```markdown
 ## Sources
@@ -312,10 +312,21 @@ Read the weekly rollups and generate `journal/monthly/YYYY-MM.md` with similar s
 
 Read all files in `tasks/`:
 
-- For each task with a `linear:` reference, check its status via the `linear` agent
+- For each task with a `linear:` reference, check its current status via the `linear` agent
 - For each task with a `github:` reference, check its status via `gh issue view`
-- If an external source shows the task as completed/closed but the brain shows it as `active`, flag it
-- If a task has been `active` for more than 14 days without updates, flag it as potentially stale
+
+**Syncing from Linear:**
+
+- If Linear shows a task as done/completed/closed, update the brain to match (regardless of role). Linear moving to done is a reliable signal.
+- If Linear shows a different active-ish state (e.g. "In Review" vs "In Progress"), update the brain's `status:` to follow Linear.
+
+**Catching forgotten updates:**
+
+- Only for `role: owner` tasks: if linked PRs are all merged and/or linked GitHub issues are closed, but both Linear and the brain still show `active`, flag it for review — I may have forgotten to update the Linear issue.
+
+**Additional checks:**
+
+- Only for `role: owner` tasks: if `active` for more than 14 days without journal mentions or linked activity, flag as potentially stale
 
 Present flagged tasks with their title (the `##` heading from the task file) and ask the user which ones to update.
 
