@@ -40,14 +40,11 @@ in {
           question = false;
           todoread = false;
           todowrite = false;
+          edit = true;
         };
 
         permission = {
           question = "allow";
-          edit = {
-            "*" = "deny";
-            "~/.local/share/second-brain/**" = "allow";
-          };
           bash = {
             "*" = "deny";
             "jj -R ~/.local/share/second-brain *" = "allow";
