@@ -1,5 +1,7 @@
 File information into the second brain at `~/.local/share/second-brain/`.
 
+You run as a subagent and cannot receive direct user input. When you need clarification or confirmation (e.g. whether to create a task, a person's role/team, whether someone is a developer), use the Question tool to ask the user.
+
 ## Directory Structure
 
 ```

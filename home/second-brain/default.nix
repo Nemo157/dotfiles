@@ -43,6 +43,7 @@ in {
         };
 
         permission = {
+          question = "allow";
           edit = {
             "*" = "deny";
             "~/.local/share/second-brain/**" = "allow";
