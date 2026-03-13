@@ -235,7 +235,9 @@ For PRs **not** linked to any Linear issue, skip task creation (these are standa
 
 For each day in the sync period, create or update the daily note with timestamped entries based on the interaction data gathered above.
 
-**For days with no existing entry**, create a new file. **For days with an existing auto-sync block**, update it with any newly discovered activity.
+**For days with no existing entry**, create a new file. **For days with an existing entry**, update it with any newly discovered activity.
+
+**Chronological ordering:** Insert new entries at the correct position so that all `### HH:MM` headings in the file are in ascending time order. Do not simply append new entries to the end of the file — interleave them with existing entries based on their timestamps.
 
 Use approximate timestamps from the GitHub data (converted to local time) for each entry:
 
