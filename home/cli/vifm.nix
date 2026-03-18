@@ -41,6 +41,8 @@ let
           "$tmp" \
           </dev/tty >/dev/tty
 
+        printf '\e[0m' >/dev/tty
+
         rm "$tmp"
 
         for (( i = 0 ; i < half + 1 ; i++ ))
@@ -48,10 +50,50 @@ let
           echo
         done
 
-        printf '\e[0m'
         ffprobe -hide_banner -pretty "$file" 2>&1
 
         # exec magick "$file" -scale "''${width}x$height>" six:-
+      fi
+    '';
+  };
+
+  vifm-music-viewer = pkgs.writeShellApplication {
+    name = "vifm-music-viewer";
+    runtimeInputs = with pkgs; [ imagemagick kitty ffmpeg ];
+    text = ''
+      if [ "$1" == "clear" ]
+      then
+        kitten icat --clear --silent
+      else
+        file="$2"
+        cols="$3"
+        rows="$4"
+        col="$5"
+        row="$6"
+
+        (( half = rows / 2 ))
+
+        tmp="$(mktemp --tmpdir vifm-music-viewer-XXXXXX.png)"
+
+        if ffmpeg -hide_banner -i "$file" -an -vcodec copy -frames:v 1 -y "$tmp" 2>/dev/null && [ -s "$tmp" ]
+        then
+          kitten icat \
+            --place "''${cols}x$half@''${col}x$row" \
+            --transfer-mode=memory \
+            "$tmp" \
+            </dev/tty >/dev/tty
+
+          printf '\e[0m' >/dev/tty
+
+          for (( i = 0 ; i < half + 1 ; i++ ))
+          do
+            echo
+          done
+        fi
+
+        rm "$tmp"
+
+        ffprobe -hide_banner -pretty "$file" 2>&1
       fi
     '';
   };
@@ -82,6 +124,8 @@ let
           "$tmp" \
           </dev/tty >/dev/tty
 
+        printf '\e[0m' >/dev/tty
+
         rm "$tmp"
 
         for (( i = 0 ; i < half + 1 ; i++ ))
@@ -89,7 +133,6 @@ let
           echo
         done
 
-        printf '\e[0m'
         echo "$output" | head -n -1
       fi
     '';
@@ -127,6 +170,7 @@ in {
     xz
     zip
     vifm-image-viewer
+    vifm-music-viewer
     vifm-epub-viewer
   ];
 
@@ -160,7 +204,10 @@ in {
 
       fileviewer *.pdf pdftotext -nopgbrk %c -
 
-      fileviewer *.flac soxi
+      fileviewer *.flac,*.mp3,*.ogg,*.opus,*.m4a,*.wma,*.aac,*.wav,*.ape,*.wv
+               \ vifm-music-viewer show %c %pw %ph %px %py %pu %N
+               \ %pc
+               \ vifm-music-viewer clear %N
 
       fileviewer *.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm,*.svg,*.image,*.webp,
                 \*.avi,*.mp[4g],*.wmv,*.ogv,*.mkv,*.mpeg,
