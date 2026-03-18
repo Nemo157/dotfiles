@@ -52,11 +52,6 @@ in {
       description = "Polling interval in seconds";
     };
 
-    hysteresis = lib.mkOption {
-      type = lib.types.int;
-      default = 2;
-      description = "Minimum brightness change to trigger update";
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -81,7 +76,6 @@ in {
           "BRIGHTNESS_MIN=${toString cfg.brightnessMin}"
           "BRIGHTNESS_MAX=${toString cfg.brightnessMax}"
           "INTERVAL=${toString cfg.interval}"
-          "HYSTERESIS=${toString cfg.hysteresis}"
           "PATH=${lib.makeBinPath [ pkgs.ddcutil pkgs.coreutils ]}"
         ];
         LoadCredential = "ha-token:${cfg.tokenFile}";

@@ -61,15 +61,14 @@ def main():
     brightness_min = int(os.environ["BRIGHTNESS_MIN"])
     brightness_max = int(os.environ["BRIGHTNESS_MAX"])
     interval = int(os.environ["INTERVAL"])
-    hysteresis = int(os.environ["HYSTERESIS"])
 
-    last = {}
+    current = {}
 
     while True:
         try:
             token = read_token()
             lux = get_lux(ha_url, sensor_entity_id, token)
-            brightness = log_map(
+            target = log_map(
                 lux, lux_min, lux_max, brightness_min, brightness_max,
             )
             displays = detect_displays()
@@ -78,19 +77,26 @@ def main():
                 print("No displays detected, skipping", file=sys.stderr)
             else:
                 for d in displays:
-                    prev = last.get(d)
-                    if prev is None or abs(brightness - prev) >= hysteresis:
+                    cur = current.get(d)
+                    if cur is None:
+                        cur = target
+                    elif cur < target:
+                        cur += 1
+                    elif cur > target:
+                        cur -= 1
+
+                    if cur != current.get(d):
                         print(
                             f"Display {d}: setting brightness to "
-                            f"{brightness} (lux={lux:.0f})",
+                            f"{cur} (target={target}, lux={lux:.0f})",
                             file=sys.stderr,
                         )
-                        set_brightness(d, brightness)
-                        last[d] = brightness
+                        set_brightness(d, cur)
+                        current[d] = cur
                     else:
                         print(
-                            f"Display {d}: within hysteresis "
-                            f"(current={brightness}, last={prev})",
+                            f"Display {d}: at target "
+                            f"(current={cur}, lux={lux:.0f})",
                             file=sys.stderr,
                         )
         except Exception as e:
