@@ -121,5 +121,6 @@
     enable = true;
     username = "Nemo157";
     deviceActivation = true;
+    notifyMissingCoverArt = true;
   };
 }
