@@ -5,6 +5,7 @@
     ./dircolors.nix
     ./gpg.nix
     ./lsd.nix
+    ./nvim
     ./ssh.nix
     ./ssh-agent.nix
     ./starship
