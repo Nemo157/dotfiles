@@ -43,8 +43,6 @@ in {
     settings = {
       autoupdate = false;
 
-      theme = "system";
-
       instructions = ["CONTRIBUTING.md"];
 
       enabled_providers = [
@@ -131,30 +129,6 @@ in {
         };
       };
 
-      keybinds = {
-        leader = "ctrl+t";
-
-        app_exit = "<leader>q";
-
-        session_export = "none";
-        session_new = "none";
-        session_list = "none";
-        session_timeline = "none";
-        session_compact = "none";
-
-        session_child_cycle = "<leader>l";
-        session_child_cycle_reverse = "<leader>h";
-
-        session_parent = "<leader>k";
-
-        messages_first = "ctrl+g";
-        messages_last = "ctrl+shift+g";
-        messages_half_page_up = "ctrl+u";
-        messages_half_page_down = "ctrl+d";
-
-        messages_toggle_conceal = "none";
-      };
-
       agent = {
         explore = {
           permission = {
@@ -223,6 +197,36 @@ in {
     package = pkgs.unstable.opencode;
     environmentFile = config.age.secrets.opencode-server-password.path;
     path = [ log-problem ];
+  };
+
+  xdg.configFile."opencode/tui.json".text = builtins.toJSON {
+    "$schema" = "https://opencode.ai/tui.json";
+
+    theme = "system";
+
+    keybinds = {
+      leader = "ctrl+t";
+
+      app_exit = "<leader>q";
+
+      session_export = "none";
+      session_new = "none";
+      session_list = "none";
+      session_timeline = "none";
+      session_compact = "none";
+
+      session_child_cycle = "<leader>l";
+      session_child_cycle_reverse = "<leader>h";
+
+      session_parent = "<leader>k";
+
+      messages_first = "ctrl+g";
+      messages_last = "ctrl+shift+g";
+      messages_half_page_up = "ctrl+u";
+      messages_half_page_down = "ctrl+d";
+
+      messages_toggle_conceal = "none";
+    };
   };
 
 }
