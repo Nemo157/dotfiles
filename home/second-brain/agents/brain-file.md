@@ -72,11 +72,17 @@ Description of what needs to be done.
 - YYYY-MM-DD: Created from daily note
 ```
 
-Valid statuses: `active`, `blocked`, `done`, `cancelled`
+Valid statuses: `active`, `review`, `blocked`, `done`, `cancelled`
 Valid priorities: `high`, `medium`, `low`
 Valid roles: `owner` (driving the work), `reviewer` (reviewing or consulting), `tracking` (someone else owns it, watching progress)
 The `role` field defaults to `tracking` when missing — only tasks explicitly marked `owner` appear as action items.
 The `linear`, `github`, `due`, and `role` fields are optional — only include when relevant.
+
+**Status transitions:**
+- `active` → `review`: when a PR is opened for the work (implementation committed but not yet merged)
+- `review` → `done`: when the PR is **merged** (not just when the code is written)
+- `active` → `done`: only for tasks without PRs (e.g. investigations, decisions, manual ops)
+- A task with an open/unmerged PR is **never** `done` — use `review` instead
 
 ## People Files
 
