@@ -77,6 +77,7 @@ in {
         execStart = "${lib.getExe cfg.package} serve --hostname ${cfg.hostname} --port ${toString cfg.port} --print-logs";
       in {
         Environment = [
+          "OPENCODE_DISABLE_AUTOUPDATE=true"
           "OPENCODE_EXPERIMENTAL_LSP_TOOL=true"
           "SSH_AUTH_SOCK=%t/ssh-agent.socket"
         ];

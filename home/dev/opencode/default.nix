@@ -194,7 +194,20 @@ in {
 
   services.opencode = {
     enable = true;
-    package = pkgs.unstable.opencode;
+    package = pkgs.unstable.opencode.overrideAttrs (finalAttrs: previousAttrs: {
+        version = "1.2.27";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "anomalyco";
+          repo = "opencode";
+          tag = "v${finalAttrs.version}";
+          hash = "sha256-JUlFfILzcUCME3mOxdxDbcCXphNVEfVGIKhwAwtJPl8=";
+        };
+
+        node_modules = previousAttrs.node_modules.overrideAttrs {
+          outputHash = "sha256-byKXLpfvidfKl8PshUsW0grrRYRoVAYYlid0N6/ke2c=";
+        };
+    });
     environmentFile = config.age.secrets.opencode-server-password.path;
     path = [ log-problem ];
   };
@@ -215,10 +228,10 @@ in {
       session_timeline = "none";
       session_compact = "none";
 
-      session_child_cycle = "<leader>l";
-      session_child_cycle_reverse = "<leader>h";
-
-      session_parent = "<leader>k";
+      session_child_first = "<leader>j";
+      session_child_cycle = "l";
+      session_child_cycle_reverse = "h";
+      session_parent = "k";
 
       messages_first = "ctrl+g";
       messages_last = "ctrl+shift+g";
@@ -226,6 +239,8 @@ in {
       messages_half_page_down = "ctrl+d";
 
       messages_toggle_conceal = "none";
+
+      variant_cycle = "none";
     };
   };
 
