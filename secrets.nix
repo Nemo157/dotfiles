@@ -9,7 +9,7 @@ let
   oak = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ0KsxqQllBb1Hy76Lrj52uZaLjqRNRyt60Qdecw8sER";
 in {
   "home/chill/music/listenbrainz-token.age".publicKeys = [ nemo157-mithril nemo157-zinc ];
-  "home/dev/claude/opencode-server-password.age".publicKeys = [ nemo157-mithril nemo157-zinc wim-oak ];
+  "home/dev/opencode/opencode-server-password.age".publicKeys = [ nemo157-mithril nemo157-zinc wim-oak ];
   "home/ha-token.age".publicKeys = [ nemo157-mithril ];
   "home/hf-token.age".publicKeys = [ nemo157-mithril ];
   "home/veecle/aws-credentials.age".publicKeys = [ nemo157-zinc wim-oak ];

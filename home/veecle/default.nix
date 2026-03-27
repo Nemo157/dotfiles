@@ -1,6 +1,7 @@
 { pkgs, ... }: {
   imports = [
     ./claude
+    ./opencode
     ./ssh.nix
     ./git.nix
     ./jujutsu.nix

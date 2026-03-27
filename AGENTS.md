@@ -12,7 +12,7 @@ This is a comprehensive Nix-based dotfiles repository managing system and user c
 
 ## Agent Configuration Management
 
-This repository is the single source of truth for all agent configuration (Claude, OpenCode, etc.). Both Claude and OpenCode configs are managed through the Nix module at `home/dev/claude/default.nix`, with profile-specific additions in other modules (e.g., `home/veecle/claude/` adds Veecle development practices and additional permissions via `lib.mkAfter`).
+This repository is the single source of truth for all agent configuration (Claude, OpenCode, etc.). Claude config is in `home/dev/claude/default.nix` and OpenCode config is in `home/dev/opencode/default.nix`, with profile-specific additions in other modules (e.g., `home/veecle/claude/` adds Veecle development practices and additional permissions via `lib.mkAfter`).
 
 **NEVER read or modify files under `~/.config/claude/` or `~/.config/opencode/`.** These are symlinked outputs managed by Nix. All changes must be made to the source files in this repository.
 
@@ -32,8 +32,9 @@ Source files in this repository:
 - `home/dev/claude/CLAUDE.md` - Shared agent rules (used by both Claude and OpenCode)
 - `home/dev/claude/agents/` - Claude subagent definitions
 - `home/dev/claude/imports/jj.md` - Jujutsu mappings
-- `home/dev/claude/commands/` - Slash commands
-- `home/dev/claude/default.nix` - Nix module configuring both Claude and OpenCode
+- `home/dev/claude/default.nix` - Nix module for Claude Code configuration
+- `home/dev/opencode/default.nix` - Nix module for OpenCode configuration
+- `home/dev/opencode/commands/` - OpenCode slash commands
 - `home/veecle/claude/default.nix` - Veecle-specific additions for both tools
 
 These get symlinked into `~/.config/claude/` and `~/.config/opencode/` by Nix. Never access the symlink targets directly.

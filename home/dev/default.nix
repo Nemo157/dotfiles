@@ -7,6 +7,7 @@
     ./rust
     ./yamllint.nix
     ./claude
+    ./opencode
   ];
 
   services.ollama = {
