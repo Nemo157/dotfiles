@@ -6,10 +6,6 @@
     firewall.interfaces."br+".allowedTCPPorts = [ 3000 ];
   };
 
-  services.tailscale = {
-    enable = true;
-  };
-
   systemd.network.networks = {
     "50-wlan" = {
       matchConfig = {
