@@ -77,7 +77,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.speaches-cli ];
+    home.packages = [
+      (pkgs.speaches-cli.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.makeWrapper ];
+        postFixup = (old.postFixup or "") + ''
+          wrapProgram $out/bin/speaches-cli \
+            --set SPEACHES_BASE_URL "http://${cfg.hostname}:${toString cfg.port}"
+        '';
+      }))
+    ];
 
     systemd.user.services.speaches = {
       Unit = {
