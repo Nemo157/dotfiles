@@ -12,26 +12,18 @@ then
   run exec rofi -show mpd -modes "mpd:bash $0"
 elif [ "$ROFI_RETV" = 0 ]
 then
-  # shellcheck disable=SC2016
-  run beet ls -a -f '$albumartists' | run sed $'s/\\\\\xe2\x90\x80/\\n/g' | sort -u
+  run beet export -fjsonlines -ialbumartists -a | jq -r '(.albumartists / "\\␀") .[]' | sort -u
 elif ! [[ -v ROFI_INFO ]]
 then
   albumartist="$1"
-  albums=("$(run beet ls -a -f $'$year\x1c$month\x1c$day\x1c$album\x1c$albumartist\x1c$artpath' "albumartists:$albumartist" | sort)")
+  albums=("$(run beet export -fjson -iyear,month,day,album,albumartist,artpath -a "albumartists:$albumartist")")
 
-  len=0
-  while IFS=$'\x1c' read -r _ _ _ _ albumartist _
-  do
-    if (( ${#albumartist} > len ))
-    then
-      len=${#albumartist}
-    fi
-  done <<<"${albums[*]}"
-
-  while IFS=$'\x1c' read -r year _ _ album albumartist artpath
-  do
-    run printf '%-*s  ¦  [%s] %s\0icon\x1f%s\x1finfo\x1f%s\x1c%s\n' "$len" "$albumartist" "$year" "$album" "$artpath" "$albumartist" "$album"
-  done <<<"${albums[*]}"
+  len="$(jq -r '[.[].albumartist | length] | max' <<<"$albums")"
+  jq --argjson len "$len" <<<"$albums" -r '
+    def rpad(n): tostring | . + (n - length) * " ";
+    sort_by([.year, .month, .day]) .[]
+      | "\(.albumartist | rpad($len)) ¦  [\(.year)] \(.album)\u0000icon\u001f\(.artpath)\u001finfo\u001f\(.albumartist)\u001c\(.album)"
+  '
 else
   IFS=$'\x1c' read -r albumartist album <<<"$ROFI_INFO"
 

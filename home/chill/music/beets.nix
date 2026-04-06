@@ -17,6 +17,7 @@
       plugins = [
         "convert"
         "embedart"
+        "export"
         "fetchart"
         "fromfilename"
         "info"
