@@ -55,58 +55,85 @@
         "slack_*" = false;
       };
 
-      agent.linear = {
-        mode = "subagent";
-        description = "Query Linear issues, projects, teams, and other data — use this for any Linear lookups";
-        prompt = ''
-          You are a Linear query agent. Your job is to fetch data from Linear and return concise, structured results.
+      agent = {
+        linear = {
+          mode = "subagent";
+          description = "Query Linear issues, projects, teams, and other data — use this for any Linear lookups";
+          prompt = ''
+            You are a Linear query agent. Your job is to fetch data from Linear and return concise, structured results.
 
-          ## Guidelines
-          - Linear MCP tools return large JSON responses — use jq via Bash to extract the specific fields callers need
-          - When fetching issues: extract id, identifier, title, state, assignee, priority, and description
-          - When fetching lists: extract the key identifying fields, not full objects
-          - Return results as compact structured text, not raw JSON dumps
-          - If a query returns no results, say so clearly
+            ## Guidelines
+            - Linear MCP tools return large JSON responses — use jq via Bash to extract the specific fields callers need
+            - When fetching issues: extract id, identifier, title, state, assignee, priority, and description
+            - When fetching lists: extract the key identifying fields, not full objects
+            - Return results as compact structured text, not raw JSON dumps
+            - If a query returns no results, say so clearly
 
-          ## Workflow
-          1. Use the appropriate `linear_*` MCP tool to fetch data
-          2. If the response is large, pipe it through `jq` to extract relevant fields
-          3. Return a concise summary to the caller
+            ## Workflow
+            1. Use the appropriate `linear_*` MCP tool to fetch data
+            2. If the response is large, pipe it through `jq` to extract relevant fields
+            3. Return a concise summary to the caller
 
-          ## Example jq patterns
-          - Issue summary: `jq '{id, identifier, title, state: .state.name, assignee: .assignee.name}' response.json`
-          - Issue list: `jq '[.[] | {identifier, title, state: .state.name}]' response.json`
-        '';
+            ## Example jq patterns
+            - Issue summary: `jq '{id, identifier, title, state: .state.name, assignee: .assignee.name}' response.json`
+            - Issue list: `jq '[.[] | {identifier, title, state: .state.name}]' response.json`
+          '';
 
-        tools = {
-          "linear_get_document" = true;
-          "linear_get_issue" = true;
-          "linear_get_issue_status" = true;
-          "linear_get_project" = true;
-          "linear_get_team" = true;
-          "linear_get_user" = true;
-          "linear_list_comments" = true;
-          "linear_list_cycles" = true;
-          "linear_list_documents" = true;
-          "linear_list_issue_labels" = true;
-          "linear_list_issue_statuses" = true;
-          "linear_list_issues" = true;
-          "linear_list_my_issues" = true;
-          "linear_list_project_labels" = true;
-          "linear_list_projects" = true;
-          "linear_list_teams" = true;
-          "linear_list_users" = true;
-          "linear_search_documentation" = true;
+          tools = {
+            "linear_get_document" = true;
+            "linear_get_issue" = true;
+            "linear_get_issue_status" = true;
+            "linear_get_project" = true;
+            "linear_get_team" = true;
+            "linear_get_user" = true;
+            "linear_list_comments" = true;
+            "linear_list_cycles" = true;
+            "linear_list_documents" = true;
+            "linear_list_issue_labels" = true;
+            "linear_list_issue_statuses" = true;
+            "linear_list_issues" = true;
+            "linear_list_my_issues" = true;
+            "linear_list_project_labels" = true;
+            "linear_list_projects" = true;
+            "linear_list_teams" = true;
+            "linear_list_users" = true;
+            "linear_search_documentation" = true;
+          };
+
+          permission = {
+            webfetch = "deny";
+            websearch = "deny";
+            codesearch = "deny";
+
+            todoread = "deny";
+            todowrite = "deny";
+
+            read = "deny";
+            glob = "deny";
+            grep = "deny";
+            list = "deny";
+            edit = "deny";
+
+            skill = "deny";
+            lsp = "deny";
+
+            task = "deny";
+            bash = "deny";
+          };
         };
 
-        permission = {
-          task = "deny";
+        general = {
+          permission = {
+            task = {
+              linear = "allow";
+            };
+          };
         };
       };
 
       permission = {
         task = {
-          "linear" = "allow";
+          linear = "allow";
         };
 
         webfetch = "allow";

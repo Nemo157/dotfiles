@@ -132,13 +132,17 @@ in {
       agent = {
         explore = {
           permission = {
-            task = "deny";
+            task = {
+              "*" = "deny";
+            };
           };
         };
 
         general = {
           permission = {
-            task = "deny";
+            task = {
+              "*" = "deny";
+            };
           };
         };
 
