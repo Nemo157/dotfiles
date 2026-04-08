@@ -43,7 +43,10 @@ in {
     settings = {
       autoupdate = false;
 
-      instructions = ["CONTRIBUTING.md"];
+      instructions = [
+        ".local/AGENTS.md"
+        "CONTRIBUTING.md"
+      ];
 
       enabled_providers = [
         "anthropic"
