@@ -47,12 +47,10 @@
             # redirectUri = "http://127.0.0.1:3118/mcp/oauth/callback;
           };
         };
-      };
-
-      tools = {
-        "google-calendar_*" = false;
-        "linear_*" = false;
-        "slack_*" = false;
+        vercel = {
+          type = "remote";
+          url = "https://mcp.vercel.com";
+        };
       };
 
       agent = {
@@ -80,46 +78,48 @@
             - Issue list: `jq '[.[] | {identifier, title, state: .state.name}]' response.json`
           '';
 
-          tools = {
-            "linear_get_document" = true;
-            "linear_get_issue" = true;
-            "linear_get_issue_status" = true;
-            "linear_get_project" = true;
-            "linear_get_team" = true;
-            "linear_get_user" = true;
-            "linear_list_comments" = true;
-            "linear_list_cycles" = true;
-            "linear_list_documents" = true;
-            "linear_list_issue_labels" = true;
-            "linear_list_issue_statuses" = true;
-            "linear_list_issues" = true;
-            "linear_list_my_issues" = true;
-            "linear_list_project_labels" = true;
-            "linear_list_projects" = true;
-            "linear_list_teams" = true;
-            "linear_list_users" = true;
-            "linear_search_documentation" = true;
-          };
-
           permission = {
-            webfetch = "deny";
-            websearch = "deny";
-            codesearch = "deny";
+            "*" = "deny";
 
-            todoread = "deny";
-            todowrite = "deny";
+            linear_get_document = "allow";
+            linear_get_issue = "allow";
+            linear_get_issue_status = "allow";
+            linear_get_project = "allow";
+            linear_get_team = "allow";
+            linear_get_user = "allow";
+            linear_list_comments = "allow";
+            linear_list_cycles = "allow";
+            linear_list_documents = "allow";
+            linear_list_issue_labels = "allow";
+            linear_list_issue_statuses = "allow";
+            linear_list_issues = "allow";
+            linear_list_my_issues = "allow";
+            linear_list_project_labels = "allow";
+            linear_list_projects = "allow";
+            linear_list_teams = "allow";
+            linear_list_users = "allow";
+            linear_search_documentation = "allow";
+          };
+        };
 
-            read = "deny";
-            glob = "deny";
-            grep = "deny";
-            list = "deny";
-            edit = "deny";
-
-            skill = "deny";
-            lsp = "deny";
-
-            task = "deny";
-            bash = "deny";
+        vercel = {
+          model = "anthropic/claude-sonnet-4-6";
+          mode = "subagent";
+          description = "Query Vercel data";
+          permission = {
+            "vercel_*" = "deny";
+            vercel_search_vercel_documentation = "allow";
+            vercel_list_projects = "allow";
+            vercel_get_project = "allow";
+            vercel_list_deployments = "allow";
+            vercel_get_deployment = "allow";
+            vercel_get_deployment_build_logs = "allow";
+            vercel_get_runtime_logs = "allow";
+            vercel_get_access_to_vercel_url = "allow";
+            vercel_web_fetch_vercel_url = "ask";
+            vercel_list_teams = "allow";
+            vercel_list_toolbar_threads = "allow";
+            vercel_get_toolbar_thread = "allow";
           };
         };
 
@@ -139,6 +139,11 @@
 
         webfetch = "allow";
         websearch = "allow";
+
+        "google-calendar_*" = "deny";
+        "linear_*" = "deny";
+        "slack_*" = "deny";
+        "vercel_*" = "deny";
       };
     };
   };

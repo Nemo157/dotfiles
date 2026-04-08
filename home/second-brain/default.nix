@@ -33,24 +33,18 @@ in {
         description = "File information into the second brain — daily journal entries, tasks, people, projects, and decision records";
         prompt = builtins.readFile ./agents/brain-file.md;
 
-        tools = {
-          lsp = false;
-          task = false;
-          skill = false;
-          webfetch = false;
-          question = false;
-          todoread = false;
-          todowrite = false;
-          edit = true;
-        };
-
         permission = {
+          "*" = "deny";
           question = "allow";
           bash = {
             "*" = "deny";
             "jj -R ~/.local/share/second-brain *" = "allow";
             "mkdir -p ~/.local/share/second-brain *" = "allow";
             "date *" = "allow";
+          };
+          edit = {
+            "*" = "deny";
+            "~/.local/share/second-brain/**" = "allow";
           };
         };
       };
