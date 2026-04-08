@@ -4,17 +4,30 @@ trap "echo -ne '\e[?1049l\e[?25h'" EXIT
 options=("$@")
 count=${#options[@]}
 selected=0
-max_url_width="$(
-for option in "${options[@]}"
-do
-  IFS=$'\x1f' read -r url name <<< "$option"
-  echo "${#url}"
-done | sort -rn | head -n1
-)"
 
 echo -ne '\e[?25l\e[?1049h'
 
 height=$(( $(tput lines) - 1 ))
+cols=$(tput cols)
+
+# 3 (left pad + marker) + 1 (space) + url + 5 (  │  ) + name = cols
+# Split available space in half for url and name columns
+available=$(( cols - 3 - 1 - 5 ))
+max_url_width=$(( available / 2 ))
+max_name_width=$(( available - max_url_width ))
+
+truncate() {
+  local str="$1" max="$2"
+  local len
+  if (( ${#str} > max )); then
+    str="${str:0:$(( max - 1 ))}…"
+    len=$max
+  else
+    len=${#str}
+  fi
+  local pad=$(( max - len ))
+  printf '%s%*s' "$str" "$pad" ""
+}
 
 while true
 do
@@ -48,14 +61,16 @@ do
       fi
 
       IFS=$'\x1f' read -r url name <<< "${options[$index]}"
+      turl="$(truncate "$url" "$max_url_width")"
+      tname="$(truncate "$name" "$max_name_width")"
       if (( index == selected ))
       then
-        printf ' %-*s  │  \e[95m%s\e[K\e[0m' "$max_url_width" "$url" "$name"
+        printf ' %s  │  \e[95m%s\e[K\e[0m' "$turl" "$tname"
       else
-        printf ' %-*s  │  %s\e[K\e[0m' "$max_url_width" "$url" "$name"
+        printf ' %s  │  %s\e[K\e[0m' "$turl" "$tname"
       fi
     else
-      printf '    %-*s  │\e[K' "$max_url_width" ""
+      printf '    %*s  │\e[K' "$max_url_width" ""
     fi
 
     echo
