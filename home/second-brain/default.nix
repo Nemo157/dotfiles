@@ -27,6 +27,7 @@ in {
 
     settings = {
       agent.brain-file = {
+        model = "anthropic/claude-sonnet-4-6";
         mode = "subagent";
         hidden = true;
         description = "File information into the second brain — daily journal entries, tasks, people, projects, and decision records";

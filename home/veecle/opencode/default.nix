@@ -57,6 +57,7 @@
 
       agent = {
         linear = {
+          model = "anthropic/claude-sonnet-4-6";
           mode = "subagent";
           description = "Query Linear issues, projects, teams, and other data — use this for any Linear lookups";
           prompt = ''

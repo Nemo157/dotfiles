@@ -134,6 +134,7 @@ in {
 
       agent = {
         explore = {
+          model = "anthropic/claude-sonnet-4-6";
           permission = {
             task = {
               "*" = "deny";
@@ -142,6 +143,7 @@ in {
         };
 
         general = {
+          model = "anthropic/claude-sonnet-4-6";
           permission = {
             task = {
               "*" = "deny";
