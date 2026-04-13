@@ -118,6 +118,11 @@
       aliases = {
         lo = ["log" "-r" "current"];
         f = ["git" "fetch" "--all-remotes"];
+        redundancy-reduction = ["util" "exec" "--" (lib.getExe (pkgs.writeShellApplication {
+          name = "jj-redundancy-reduction";
+          runtimeInputs = [ pkgs.jujutsu ];
+          text = ''jj rebase -s "exactly($1, 1)" -d "exactly($1, 1)-~::exactly($1, 1)--"'';
+        }))];
       };
 
       git = {
