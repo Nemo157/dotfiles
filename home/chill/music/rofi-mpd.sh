@@ -16,7 +16,7 @@ then
 elif ! [[ -v ROFI_INFO ]]
 then
   albumartist="$1"
-  albums=("$(run beet export -fjson -iyear,month,day,album,albumartist,artpath -a "albumartists:$albumartist")")
+  albums="$(run beet export -fjson -iyear,month,day,album,albumartist,artpath -a "albumartists:$albumartist")"
 
   len="$(jq -r '[.[].albumartist | length] | max' <<<"$albums")"
   jq --argjson len "$len" <<<"$albums" -r '
