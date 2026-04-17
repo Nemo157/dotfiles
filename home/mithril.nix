@@ -75,6 +75,7 @@
   };
 
   services.ollama = {
+    package = pkgs.unstable.ollama-rocm;
     host = ts.self.ip;
     environmentVariables = {
       OLLAMA_ORIGINS = "http://${ts.self.host}:8080";

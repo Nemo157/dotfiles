@@ -22,7 +22,7 @@
   ];
 
   services.ollama = {
-    package = lib.mkForce pkgs.unstable.ollama;
+    package = pkgs.unstable.ollama;
     environmentVariables = {
       OLLAMA_KEEP_ALIVE = "30m";
     };
