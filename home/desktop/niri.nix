@@ -95,6 +95,17 @@
       }
 
       window-rule {
+        match app-id="calibre-gui"
+        open-floating false
+        default-column-width { proportion 0.5; }
+      }
+
+      window-rule {
+        match app-id="calibre-gui" title="^calibre"
+        default-column-width { proportion 0.66667; }
+      }
+
+      window-rule {
           match is-floating=true
           focus-ring {
               on
