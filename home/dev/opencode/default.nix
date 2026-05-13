@@ -175,20 +175,7 @@ in {
 
   services.opencode = {
     enable = true;
-    package = pkgs.unstable.opencode.overrideAttrs (finalAttrs: previousAttrs: {
-        version = "1.2.27";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "anomalyco";
-          repo = "opencode";
-          tag = "v${finalAttrs.version}";
-          hash = "sha256-JUlFfILzcUCME3mOxdxDbcCXphNVEfVGIKhwAwtJPl8=";
-        };
-
-        node_modules = previousAttrs.node_modules.overrideAttrs {
-          outputHash = "sha256-byKXLpfvidfKl8PshUsW0grrRYRoVAYYlid0N6/ke2c=";
-        };
-    });
+    package = pkgs.unstable.opencode;
     environmentFile = config.age.secrets.opencode-server-password.path;
     path = [ log-problem ];
   };
