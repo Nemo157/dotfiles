@@ -1,15 +1,20 @@
-strip_unbalanced_parens() {
+strip_trailing_punctuation() {
   while IFS= read -r url
   do
-    while [[ "$url" == *')' ]]
+    while [[ "$url" =~ [.,\;:\!\?\)]$ ]]
     do
-      opens="${url//[^(]/}"
-      closes="${url//[^)]/}"
-      if (( ${#closes} > ${#opens} ))
+      if [[ "$url" == *')' ]]
       then
-        url="${url%')'}"
+        opens="${url//[^(]/}"
+        closes="${url//[^)]/}"
+        if (( ${#closes} > ${#opens} ))
+        then
+          url="${url%?}"
+        else
+          break
+        fi
       else
-        break
+        url="${url%?}"
       fi
     done
     echo "$url"
@@ -17,8 +22,8 @@ strip_unbalanced_parens() {
 }
 
 filter_bare() {
-  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?)' \
-    | strip_unbalanced_parens \
+  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?|localhost(:[0-9]+)?\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))' \
+    | strip_trailing_punctuation \
     || true
 }
 
