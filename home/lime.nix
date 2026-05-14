@@ -14,6 +14,8 @@
 
   home.stateVersion = "25.11";
 
+  programs.kitty.font.size = lib.mkForce 15.0;
+
   programs.claude-code = {
     configDirOverride = false;
 
