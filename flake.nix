@@ -117,19 +117,20 @@
     u2f-touch-detector,
     tangled,
     ennead,
+    flake-utils,
     ...
-  }: let
-    system = "x86_64-linux";
-
-    pkgs-unstable = import nixpkgs-unstable {
-      inherit system;
-      config.allowUnfree = true;
-    };
-
+  }: flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"] (system: let
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
       overlays = [
+        (final: prev: {
+          unstable = import nixpkgs-unstable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          home-manager = home-manager.packages.${system}.home-manager;
+        })
         agenix.overlays.default
         colmena.overlays.default
         nixur.overlays.default
@@ -143,6 +144,31 @@
       ];
     };
 
+    prefixAttrs = prefix: attrs:
+      nixpkgs.lib.mapAttrs'
+        (name: value: { name = "${prefix}-${name}"; inherit value; })
+        attrs;
+
+  in {
+    packages = import ./packages { inherit pkgs; };
+    legacyPackages = pkgs;
+
+    devShells = import ./shells { inherit pkgs; } // {
+      local = pkgs.mkShell {
+        buildInputs = [
+          pkgs.agenix
+        ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.home-manager
+        ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          pkgs.colmena
+        ];
+      };
+    };
+
+    checks =
+      (prefixAttrs "packages" self.outputs.packages.${system})
+      // (prefixAttrs "shells" self.outputs.devShells.${system});
+  }) // (let
     # pin nixpkgs to system nixpkgs for determinism
     pin-nixpkgs = {
       nix = {
@@ -189,7 +215,7 @@
         zinc = "100.71.97.27";
         slate = "100.104.56.100";
       };
-      hosts = pkgs.lib.mapAttrs (host: ip: {
+      hosts = nixpkgs.lib.mapAttrs (host: ip: {
         inherit ip;
         host = "${host}.${domain}";
       }) ips;
@@ -204,13 +230,7 @@
       zinc = "4OZ4P7V-7PTKETZ-NG4DVX7-5VABDM7-BY2XMW3-2PFOQV7-FRZCABK-VXA4PAT";
     };
 
-    prefixAttrs = prefix: attrs:
-      pkgs.lib.mapAttrs'
-        (name: value: { name = "${prefix}-${name}"; inherit value; })
-        attrs;
-
   in {
-
     maintainers = {
       nemo157 = {
         email = "nix@nemo157.com";
@@ -223,25 +243,31 @@
       };
     };
 
-    overlays.default = import ./overlays { inherit pkgs-unstable; inherit (self.outputs) maintainers; };
-
-    packages.${system} = import ./packages { inherit pkgs; };
-    legacyPackages.${system} = pkgs;
+    overlays.default = import ./overlays { inherit (self.outputs) maintainers; };
 
     homeManagerModules.default = import ./modules/home-manager;
 
-    devShells.${system} = import ./shells { inherit pkgs; } // {
-      local = pkgs.mkShell {
-        buildInputs = [
-          pkgs.agenix
-          pkgs.colmena
+    homeConfigurations = {
+      "nemo157@lime" = home-manager.lib.homeManagerConfiguration {
+        pkgs = self.outputs.legacyPackages."aarch64-darwin";
+
+        extraSpecialArgs = {
+          inherit nix-colors ts syncthing;
+        };
+
+        modules = [
+          agenix.homeManagerModules.default
+          u2f-touch-detector.homeManagerModules.default
+          self.homeManagerModules.default
+          ennead.homeManagerModules.default
+          ./home/lime.nix
         ];
       };
     };
 
     colmena = {
       meta = {
-        nixpkgs = pkgs;
+        nixpkgs = self.outputs.legacyPackages."x86_64-linux";
         specialArgs = {
           inherit ts syncthing;
           nixos-hardware = nixos-hardware.nixosModules;
@@ -300,8 +326,8 @@
           };
         };
         system.extraDependencies = [
-          self.devShells.${system}.rust
-          self.devShells.${system}.rust-unwrapped
+          self.devShells."x86_64-linux".rust
+          self.devShells."x86_64-linux".rust-unwrapped
         ];
       };
 
@@ -325,8 +351,8 @@
           };
         };
         system.extraDependencies = [
-          self.devShells.${system}.rust
-          self.devShells.${system}.rust-unwrapped
+          self.devShells."x86_64-linux".rust
+          self.devShells."x86_64-linux".rust-unwrapped
         ];
       };
 
@@ -347,8 +373,8 @@
           };
         };
         system.extraDependencies = [
-          self.devShells.${system}.rust
-          self.devShells.${system}.rust-unwrapped
+          self.devShells."x86_64-linux".rust
+          self.devShells."x86_64-linux".rust-unwrapped
         ];
       };
     };
@@ -359,8 +385,5 @@
       inherit (self.outputs.colmenaHive.nodes) contabo mithril zinc oak;
     };
 
-    checks.${system} =
-      (prefixAttrs "packages" self.outputs.packages.${system})
-      // (prefixAttrs "shells" self.outputs.devShells.${system});
-  };
+  });
 }

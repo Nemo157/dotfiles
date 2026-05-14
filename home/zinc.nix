@@ -1,13 +1,17 @@
 { lib, config, pkgs, ts, ... }: {
   imports = [
     ./cli
+    ./cli/nixos.nix
     ./dev
+    ./dev/nixos.nix
     ./chill
     ./desktop
+    ./desktop/nixos.nix
     ./xdg.nix
     ./age.nix
     ./wluma.nix
     ./personal
+    ./personal/nixos.nix
   ];
 
   home.stateVersion = "23.05";

@@ -1,6 +1,5 @@
-{ pkgs-unstable, maintainers }: final: prev: let
+{ maintainers }: final: prev: let
   args = {
-    inherit pkgs-unstable;
     # nix flake check doesn't like me renaming the function arguments,
     # so we have to alias here....
     pkgs-final = final;
@@ -10,7 +9,7 @@
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
 in {
-  freetube = pkgs-unstable.freetube;
+  freetube = final.unstable.freetube;
 
   maintainers = prev.maintainers // maintainers;
 
@@ -30,8 +29,6 @@ in {
     ];
   };
 
-  unstable = pkgs-unstable;
-
   cargo-llvm-cov = final.callPackage ({ rustPlatform }: rustPlatform.buildRustPackage rec {
     pname = "cargo-llvm-cov";
     version = "0.6.15";
@@ -43,7 +40,7 @@ in {
     doCheck = false;
   }) {};
 
-  jujutsu = pkgs-unstable.jujutsu;
+  jujutsu = final.unstable.jujutsu;
 
   ffmpeg-fdk-aac = prev.ffmpeg.override {
     withUnfree = true;

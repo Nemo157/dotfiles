@@ -13,8 +13,9 @@ in {
     autosuggestion.enable = true;
     enableVteIntegration = true;
     completionInit = ''
-      # instead of running compinit here, we need to load this plugin here so that it registers its
-      # hooks before autosuggestion's hooks
+      autoload -U compinit && compinit
+      # load this plugin here (before autosuggestion is sourced) so its precmd/chpwd hooks
+      # register before autosuggestion's; the plugin invokes compinit itself on fpath changes
       source "$HOME/.config/zsh/plugins/zsh-completion-sync/zsh-completion-sync.plugin.zsh"
     '';
     syntaxHighlighting.enable = true;

@@ -11,7 +11,6 @@
     ./starship
     ./tmux.nix
     ./vim
-    ./vifm.nix
     ./zsh.nix
   ];
 
@@ -33,6 +32,7 @@
 
   programs.direnv = {
     enable = true;
+    package = pkgs.unstable.direnv;
     nix-direnv.enable = true;
   };
 

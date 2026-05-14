@@ -90,15 +90,23 @@ These get symlinked into `~/.config/claude/` and `~/.config/opencode/` by Nix. N
 
 ## Testing Configuration Changes
 
-**Always use colmena to test NixOS and home-manager configuration changes:**
+**On NixOS hosts, use colmena** (validates both the NixOS system and home-manager):
 
 ```bash
 colmena build --on <hostname>
 ```
 
 - Faster than `nix flake check` which builds all hosts
-- Validates both NixOS system and home-manager configurations
 - Use current hostname (check with `hostname`) to test local changes
+
+**On macOS, there is no NixOS module / colmena entry — use home-manager directly:**
+
+```bash
+home-manager build --flake . --no-out-link
+```
+
+- Builds the `homeConfigurations."nemo157@<hostname>"` entry in `flake.nix`
+- `--no-out-link` avoids dropping a `result` symlink in the working tree
 
 **Note on jj and new files:**
 - jj automatically tracks new files through auto-snapshotting

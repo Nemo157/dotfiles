@@ -2,6 +2,10 @@
 let
   kitty-shell = pkgs.writeShellApplication {
     name = "kitty-tmux-session";
+    runtimeInputs = [
+      pkgs.zsh
+      pkgs.tmux
+    ];
     text = ''
         zsh --login -c "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
     '';
@@ -67,7 +71,7 @@ in {
       dim_opacity = "0.8";
 
       shell = lib.getExe kitty-shell;
-
+    } // lib.optionalAttrs pkgs.stdenv.isLinux {
       allow_remote_control = "socket-only";
       listen_on = "unix:$XDG_RUNTIME_DIR/kitty-{kitty_pid}.socket";
     };

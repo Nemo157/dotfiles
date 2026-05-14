@@ -5,10 +5,14 @@
     ./chill
     ./chill-server
     ./cli
+    ./cli/nixos.nix
     ./common.nix
     ./desktop
+    ./desktop/nixos.nix
     ./dev
+    ./dev/nixos.nix
     ./personal
+    ./personal/nixos.nix
     ./xdg.nix
   ];
 

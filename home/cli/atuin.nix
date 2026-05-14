@@ -16,6 +16,7 @@
       show_preview = true;
       search_mode = "prefix";
       keymap_mode = "auto";
+    } // lib.optionalAttrs pkgs.stdenv.isLinux {
       daemon = {
         enabled = true;
         socket_path = "/run/user/1000/atuin.socket";
@@ -53,7 +54,7 @@
     ZSH_AUTOSUGGEST_STRATEGY=(atuin_auto atuin_global)
   '';
 
-  systemd.user.services.atuin-daemon = {
+  systemd.user.services.atuin-daemon = lib.mkIf pkgs.stdenv.isLinux {
     Unit = {
       Description = "atuin shell history daemon";
       Requires = [ "atuin-daemon.socket" ];
@@ -71,7 +72,7 @@
     };
   };
 
-  systemd.user.sockets.atuin-daemon = {
+  systemd.user.sockets.atuin-daemon = lib.mkIf pkgs.stdenv.isLinux {
     Unit = {
       Description = "Unix socket activation for atuin shell history daemon";
     };

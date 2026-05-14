@@ -3,9 +3,12 @@
     ./age.nix
     ./audio.nix
     ./cli
+    ./cli/nixos.nix
     ./common.nix
     ./desktop
+    ./desktop/nixos.nix
     ./dev
+    ./dev/nixos.nix
     ./second-brain
     ./veecle
     ./wluma.nix
