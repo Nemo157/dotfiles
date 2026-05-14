@@ -13,4 +13,6 @@
   };
 
   home.stateVersion = "25.11";
+
+  programs.claude-code.configDirOverride = false;
 }

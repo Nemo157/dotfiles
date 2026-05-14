@@ -1,5 +1,6 @@
 { ... }: {
   imports = [
+    ./claude
     ./editorconfig.nix
     ./gh.nix
     ./git

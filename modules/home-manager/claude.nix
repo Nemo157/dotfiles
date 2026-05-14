@@ -175,15 +175,31 @@ let
       { inherit skillMd; extraFiles = skill.extraFiles; }
   ) cfg.skills;
 
-  claude-code = pkgs.runCommand unwrapped.name {
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-  } ''
-    makeWrapper "${lib.getExe unwrapped}" $out/bin/claude \
-      --set CLAUDE_CONFIG_DIR ${config.xdg.configHome}/claude
-  '';
+  claude-code = if cfg.configDirOverride then
+    pkgs.runCommand unwrapped.name {
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+    } ''
+      makeWrapper "${lib.getExe unwrapped}" $out/bin/claude \
+        --set CLAUDE_CONFIG_DIR ${config.xdg.configHome}/claude
+    ''
+  else
+    unwrapped;
+
+  configDir = if cfg.configDirOverride then ".config/claude" else ".claude";
 in {
   options.programs.claude-code = {
     enable = mkEnableOption "Claude Code CLI tool";
+
+    configDirOverride = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to override the Claude config directory via the
+        CLAUDE_CONFIG_DIR environment variable, placing config files
+        under $XDG_CONFIG_HOME/claude. When disabled, config files are
+        placed under ~/.claude (Claude Code's default location).
+      '';
+    };
 
     settings = mkOption {
       type = settingsType;
@@ -303,21 +319,21 @@ in {
   config = mkIf cfg.enable {
     home.packages = [ claude-code ];
 
-    xdg.configFile = {
-      "claude/settings.json".source = claude-code-settings;
-      "claude/CLAUDE.md".source = claude-md-file;
+    home.file = {
+      "${configDir}/settings.json".source = claude-code-settings;
+      "${configDir}/CLAUDE.md".source = claude-md-file;
     }
     // (lib.mapAttrs' (name: file: {
-      name = "claude/agents/${name}.md";
+      name = "${configDir}/agents/${name}.md";
       value.source = file;
     }) agentFiles)
     // (lib.foldl' (acc: name:
       acc
       // {
-        "claude/skills/${name}/SKILL.md".source = skillFiles.${name}.skillMd;
+        "${configDir}/skills/${name}/SKILL.md".source = skillFiles.${name}.skillMd;
       }
       // (lib.mapAttrs' (filename: path: {
-        name = "claude/skills/${name}/${filename}";
+        name = "${configDir}/skills/${name}/${filename}";
         value.source = path;
       }) skillFiles.${name}.extraFiles)
     ) {} (lib.attrNames skillFiles));
