@@ -17,7 +17,10 @@ in {
     enable = true;
 
     settings = {
+      # Opus 4.7 breaks thinking summaries in claude-code currently
+      model = "claude-opus-4-6";
       includeCoAuthoredBy = false;
+      showThinkingSummaries = true;
 
       env = {
         "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR" = "1";
