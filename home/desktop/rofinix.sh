@@ -65,16 +65,12 @@ else
           args=(
               --class rofinix-build
               --title "nix build pkgs#$pkg"
-              --command
-                bash -c '"'"'
-                  nix build --no-link --verbose "pkgs#$1" || sleep 60
-                '"'"' -- "$pkg"
+              bash -c '"'"'
+                nix build --no-link --verbose "pkgs#$1" || sleep 60
+              '"'"' -- "$pkg"
           )
-          alacritty "${args[@]}"
+          kitty "${args[@]}"
 
-          # alacritty doesnt return an exit code based on command completion,
-          # instead check whether the package now exists in the store (this is
-          # fast unless the `nix build` was canceled _very_ early).
           if nix path-info "pkgs#$pkg"
           then
             exec nix run "pkgs#$pkg" -- "$@"

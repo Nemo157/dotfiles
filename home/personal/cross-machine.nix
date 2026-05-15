@@ -18,8 +18,8 @@
       Type=Application
       Name=${name}
       Icon=${name}
-      TryExec=alacritty
-      Exec=alacritty --class ${name} --command ssh ${host} -t tmux -u new-session -s primary-$(hostname -s) -t primary -A
+      TryExec=kitty
+      Exec=kitty --class ${name} ssh ${host} -t tmux -u new-session -s primary-$(hostname -s) -t primary -A
       StartupWMClass=${name}
       SingleMainWindow=true
     '';
