@@ -4,6 +4,7 @@
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAINPdciLKw1xWMzKVeacAUOtqkfd8GyAfpSJTl/NodScKAAAABHNzaDo= nemo157@zinc"
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIP7NDZk2lJA+PejK0BiIgzRPX80THcMXzepuxHNiCNdlAAAABHNzaDo="
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIE5gbS2iAoFj4gbPQrvb/YIUN9WL91CKPPeT8brQ71omAAAABHNzaDo="
+    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIKg1UZY31YuMijgeRLu1Nx/v4EPcScIP3T3M5p36e6eOAAAABHNzaDo= nemo157@lime"
   ];
 in {
   programs = {
