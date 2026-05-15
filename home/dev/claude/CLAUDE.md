@@ -7,12 +7,13 @@
 - **Respect user modifications**: If file content differs from what you previously wrote/edited, assume the user changed it intentionally and preserve their intent - do not revert user modifications unless explicitly asked
 
 **Version Control - MANDATORY:**
-- **ALWAYS use `jj` instead of `git` - NO EXCEPTIONS**
+- **ALWAYS use `jj` instead of `git`** unless operating in a git worktree
 - NEVER use git commands directly - always translate to jj equivalents
 - This is a CORE REQUIREMENT, not a preference
 - When running `jj commit`/`jj describe`, ALWAYS use single quotes for the `-m` argument
   (double quotes allow zsh to interpret backticks and other special characters)
 - After every `jj commit`, trigger second-brain filing for the work context
+- **Git worktrees:** When the system context says "You are operating in a git worktree", use `git` instead of `jj` — jj does not support git worktrees
 
 **Task tracking:**
 - Use TodoWrite for multi-step tasks (3+ steps)
