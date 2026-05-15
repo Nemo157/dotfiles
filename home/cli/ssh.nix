@@ -1,5 +1,6 @@
-{ lib, ... }: {
+{ lib, pkgs, ... }: {
   programs.ssh = {
+    package = pkgs.openssh;
     enable = true;
     enableDefaultConfig = false;
 
