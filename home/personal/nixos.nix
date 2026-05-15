@@ -1,8 +1,4 @@
 { config, lib, pkgs, ... }: {
-  imports = [
-    ./cross-machine.nix
-  ];
-
   home.packages = with pkgs; [
     calibre
   ];
