@@ -9,7 +9,6 @@
     ./desktop/nixos.nix
     ./dev
     ./dev/nixos.nix
-    ./second-brain
     ./veecle
     ./wluma.nix
     ./xdg.nix
