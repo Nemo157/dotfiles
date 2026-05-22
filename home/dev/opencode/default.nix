@@ -80,6 +80,11 @@ in {
           "*" = "allow";
           ".jj" = "deny";
           ".git" = "deny";
+          "/run/user/1000/cargo-home/registry/src/**" = "deny";
+        };
+
+        external_directory = {
+          "/run/user/1000/cargo-home/registry/src/**" = "allow";
         };
 
         bash = {
@@ -124,6 +129,7 @@ in {
           "cargo check *" = "allow";
           "cargo clippy *" = "allow";
           "cargo test *" = "allow";
+          "cargo metadata *" = "allow";
 
           "yamllint *" = "allow";
           "shellcheck *" = "allow";
