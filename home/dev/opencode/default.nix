@@ -26,15 +26,11 @@ let
   };
 
 in {
-  age.secrets.opencode-server-password.file = ./opencode-server-password.age;
-
   programs.opencode = {
     enable = true;
+    package = pkgs.unstable.opencode;
 
-    rules = (builtins.readFile ../claude/CLAUDE.md) + ''
-      Most projects will have a `.envrc` providing project-specific tools, you need to use `direnv exec` to run these.
-      General system or broadly used development tools do not need this and should be available in the environment directly.
-    '';
+    rules = (builtins.readFile ../claude/CLAUDE.md);
 
     commands = {
       retrospective = builtins.readFile ./commands/retrospective.md;
@@ -177,13 +173,6 @@ in {
         };
       };
     };
-  };
-
-  services.opencode = {
-    enable = true;
-    package = pkgs.unstable.opencode;
-    environmentFile = config.age.secrets.opencode-server-password.path;
-    path = [ log-problem ];
   };
 
   xdg.configFile."opencode/tui.json".text = builtins.toJSON {

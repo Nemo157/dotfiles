@@ -6,7 +6,6 @@
     ./f5-tts-server.nix
     ./colors.nix
     ./mcp-proxy.nix
-    ./opencode.nix
     ./kokoro-fastapi.nix
     ./speaches.nix
     ./md-tui.nix
