@@ -44,7 +44,8 @@ function! ale_linters#rust#cargo_rubber#GetCommand(buffer, version) abort
         endif
     endif
 
-    return 'cargo rubber '
+    return ale#Env('SQLX_OFFLINE', 'true')
+    \   . 'cargo rubber '
     \   . l:subcommand
     \   . (l:use_all_targets ? ' --all-targets' : '')
     \   . (l:use_examples ? ' --examples' : '')
