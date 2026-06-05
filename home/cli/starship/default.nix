@@ -122,13 +122,6 @@ in
         style_user = "green";
         show_always = true;
       };
-
-      custom.jj_summary = {
-        command = lib.getExe jj-ai-branch-summary;
-        when = "jj root";
-        symbol = " ";
-        style = "yellow";
-      };
     };
   };
 }
