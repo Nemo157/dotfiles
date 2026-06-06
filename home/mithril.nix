@@ -59,6 +59,7 @@
     enable = true;
     hostname = ts.self.ip;
     environment = {
+      MODEL_IDLE_TIMEOUT = "120";
       HSA_ENABLE_INTERRUPT = "1";
     };
   };
