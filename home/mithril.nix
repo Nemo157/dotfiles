@@ -58,6 +58,9 @@
   services.f5-tts-server = {
     enable = true;
     hostname = ts.self.ip;
+    environment = {
+      HSA_ENABLE_INTERRUPT = "1";
+    };
   };
 
   services.kokoro-fastapi = {
