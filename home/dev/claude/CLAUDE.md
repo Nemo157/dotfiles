@@ -58,6 +58,16 @@
 - NEVER run `cargo clean` - it's rarely necessary and wastes time rebuilding
 - Only check modified packages, not entire workspace
 
+**Exploring dependency source code:**
+- Use `cargo metadata` to find the source path of a dependency:
+  ```bash
+  cargo metadata --format-version=1 | jq -r '.packages[] | select(.name == "CRATE_NAME") | .manifest_path'
+  ```
+- The manifest path points to the crate's `Cargo.toml`; the source files are in the same directory
+- For git dependencies, source is under `$CARGO_HOME/git/checkouts/`
+- For registry dependencies, source is under `$CARGO_HOME/registry/src/`
+- Read the dependency source directly to understand APIs, types, and behavior
+
 **Rust coding patterns:**
 - Prefer `T::from_str()` over `.parse()` variants - more explicit about type construction and import dependencies
   ```rust

@@ -82,6 +82,11 @@ in {
           "Bash(shellcheck:*)"
         ];
       };
+
+      additionalDirectories = [
+        "/run/user/1000/cargo-home/registry/src"
+        "/run/user/1000/cargo-home/git/checkouts"
+      ];
     };
 
     memory = builtins.readFile ./CLAUDE.md;
