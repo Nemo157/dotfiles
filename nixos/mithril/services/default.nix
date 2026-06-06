@@ -6,6 +6,7 @@
     ./influxdb.nix
     ./nix-serve.nix
     ./samba.nix
+    ./sunshine.nix
     ./telegraf.nix
     ./restic.nix
   ];
