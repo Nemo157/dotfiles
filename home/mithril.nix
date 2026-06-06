@@ -93,8 +93,6 @@
     OLLAMA_HOST = "${config.services.ollama.host}:${toString config.services.ollama.port}";
   };
 
-  services.opencode.hostname = ts.ips.mithril;
-
   programs.opencode = {
     settings = {
       model = "openrouter/z-ai/glm-5";
