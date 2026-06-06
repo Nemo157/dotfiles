@@ -26,7 +26,7 @@
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
-    nixpkgs-unstable.url = "github:nixos/nixpkgs";
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     nixur = {
       url = "github:nix-community/NUR";
@@ -122,7 +122,12 @@
   }: flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"] (system: let
     pkgs = import nixpkgs {
       inherit system;
-      config.allowUnfree = true;
+      config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+          "python3.13-beets-2.5.1" # It's got a CVE in the webui which I don't use.
+        ];
+      };
       overlays = [
         (final: prev: {
           unstable = import nixpkgs-unstable {
