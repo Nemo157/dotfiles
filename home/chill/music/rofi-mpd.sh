@@ -12,7 +12,7 @@ then
   run exec rofi -show mpd -modes "mpd:bash $0"
 elif [ "$ROFI_RETV" = 0 ]
 then
-  run beet export -fjsonlines -ialbumartists -a | jq -r '(.albumartists / "\\␀") .[]' | sort -u
+  run beet export -fjsonlines -ialbumartists -a | jq -r '(.albumartists / "; ") .[]' | sort -u
 elif ! [[ -v ROFI_INFO ]]
 then
   albumartist="$1"
