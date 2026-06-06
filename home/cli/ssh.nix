@@ -4,22 +4,20 @@
     enable = true;
     enableDefaultConfig = false;
 
-    matchBlocks = {
-      "*" = {
-        forwardAgent = false;
-        addKeysToAgent = "1d";
-        compression = false;
-        serverAliveInterval = 0;
-        serverAliveCountMax = 3;
-        hashKnownHosts = false;
-        controlPath = "~/.ssh/control/%r@%n:%p";
-        controlMaster = "auto";
-        controlPersist = "1m";
-        userKnownHostsFile = "~/.ssh/known_hosts.new ~/.ssh/known_hosts";
-        extraOptions = {
-          StrictHostKeyChecking = "ask";
-          UpdateHostKeys = "ask";
-        };
+    settings = {
+      "Host *" = {
+        ForwardAgent = false;
+        AddKeysToAgent = "1d";
+        Compression = false;
+        ServerAliveInterval = 0;
+        ServerAliveCountMax = 3;
+        HashKnownHosts = false;
+        ControlPath = "~/.ssh/control/%r@%n:%p";
+        ControlMaster = "auto";
+        ControlPersist = "1m";
+        UserKnownHostsFile = "~/.ssh/known_hosts.new ~/.ssh/known_hosts";
+        StrictHostKeyChecking = "ask";
+        UpdateHostKeys = "ask";
       };
     };
   };

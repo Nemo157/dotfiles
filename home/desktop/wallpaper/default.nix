@@ -2,7 +2,7 @@
 let
   set-wallpaper = pkgs.writeShellApplication {
     name = "set-wallpaper";
-    runtimeInputs = with pkgs; [ coreutils swww niri jq imagemagick ];
+    runtimeInputs = with pkgs; [ coreutils awww niri jq imagemagick ];
     text = lib.readFile ./set-wallpaper.sh;
   };
 
@@ -26,7 +26,7 @@ in {
 
   systemd.user = {
     timers = {
-      swww-change-wallpaper = {
+      change-wallpaper = {
         Unit = {
           After = "graphical-session.target";
           PartOf = "graphical-session.target";
@@ -40,10 +40,10 @@ in {
     };
 
     services = {
-      swww-change-wallpaper = {
+      change-wallpaper = {
         Unit = {
-          After = [ "swww-daemon.service" "xdg-desktop-portal.service" ];
-          Requires = [ "swww-daemon.service" "xdg-desktop-portal.service" ];
+          After = [ "awww-daemon.service" "xdg-desktop-portal.service" ];
+          Requires = [ "awww-daemon.service" "xdg-desktop-portal.service" ];
         };
         Service = {
           Type = "oneshot";
@@ -52,7 +52,7 @@ in {
         };
       };
 
-      swww-change-wallpaper-ac = {
+      change-wallpaper-ac = {
         Unit.PartOf = "ac.target";
         Service = {
           Type = "oneshot";
@@ -61,8 +61,8 @@ in {
             name = "sww-change-wallpapers-ac-on";
             runtimeInputs = with pkgs; [ coreutils systemd ];
             text = ''
-              mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.{timer,service}.d
-              echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
+              mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.{timer,service}.d
+              echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
               systemctl --user daemon-reload
             '';
           });
@@ -70,8 +70,8 @@ in {
             name = "sww-change-wallpapers-ac-off";
             runtimeInputs = with pkgs; [ coreutils systemd ];
             text = ''
-              rm "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.timer.d/ac-override.conf
-              rm "$XDG_RUNTIME_DIR"/systemd/user/swww-change-wallpaper.service.d/ac-override.conf
+              rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
+              rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.service.d/ac-override.conf
               systemctl --user daemon-reload
             '';
           });
@@ -79,14 +79,14 @@ in {
         Install.WantedBy = [ "ac.target" ];
       };
 
-      swww-daemon = {
+      awww-daemon = {
         Unit = {
           After = "graphical-session.target";
           PartOf = "graphical-session.target";
-          Wants = "swww-change-wallpaper.service";
+          Wants = "change-wallpaper.service";
         };
         Service = {
-          ExecStart = "${lib.getExe' pkgs.swww "swww-daemon"} --no-cache";
+          ExecStart = "${lib.getExe' pkgs.awww "awww-daemon"} --no-cache";
           Restart = "on-failure";
           RestartSteps = 5;
           RestartMaxDelaySec = 10;
@@ -97,15 +97,15 @@ in {
   };
 
   xdg.dataFile = let
-    trigger-swww-change-wallpaper = pkgs.writeShellApplication {
-      name = "trigger-swww-change-wallpapers";
+    trigger-change-wallpaper = pkgs.writeShellApplication {
+      name = "trigger-change-wallpapers";
       runtimeInputs = with pkgs; [ systemd ];
       text = ''
-        systemctl --user start --no-block swww-change-wallpaper
+        systemctl --user start --no-block change-wallpaper
       '';
     };
   in {
-    "light-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpaper;
-    "dark-mode.d/trigger-swww-change-wallpapers".source = lib.getExe trigger-swww-change-wallpaper;
+    "light-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
+    "dark-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
   };
 }

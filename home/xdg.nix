@@ -2,6 +2,7 @@
   xdg.userDirs = {
     enable = true;
     music = "${config.home.homeDirectory}/Music/Library";
+    setSessionVariables = false;
   };
   xdg.systemDirs.data = [
     # shouldn't this be in there already?

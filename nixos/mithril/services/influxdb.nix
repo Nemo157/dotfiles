@@ -1,7 +1,7 @@
 { name, ts, ... }: {
   services.influxdb = {
     enable = true;
-    extraConfig = {
+    settings = {
       http = {
         bind-address = "${ts.ips.${name}}:8086";
       };

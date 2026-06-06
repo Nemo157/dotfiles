@@ -3,40 +3,40 @@ let
   entryBefore = lib.hm.dag.entryBefore;
 in {
   programs.ssh = {
-    matchBlocks = {
+    settings = {
       "*.infra.rust-lang.org" = {
-        proxyJump = "bastion.infra.rust-lang.org";
-        identityFile = "~/.ssh/id_ed25519.infra.rust-lang.org";
+        ProxyJump = "bastion.infra.rust-lang.org";
+        IdentityFile = "~/.ssh/id_ed25519.infra.rust-lang.org";
       };
 
       "bastion.infra.rust-lang.org" = entryBefore ["*.infra.rust-lang.org"] {
-        user = "nemo157";
-        proxyJump = "contabo";
+        User = "nemo157";
+        ProxyJump = "contabo";
       };
 
       "docsrs.infra.rust-lang.org" = {
-        user = "ubuntu";
+        User = "ubuntu";
       };
 
       contabo = {
-        user = "nemo157";
-        port = 59127;
+        User = "nemo157";
+        Port = 59127;
       };
 
       slate = {
-        user = "overflow";
-        port = 44247;
-        setEnv = {
+        User = "overflow";
+        Port = 44247;
+        SetEnv = {
           TERM = "ansi";
         };
       };
 
       "victor.nemo157.com" = {
-        port = 59127;
+        Port = 59127;
       };
 
       mithril = {
-        forwardAgent = true;
+        ForwardAgent = true;
       };
     };
   };

@@ -9,6 +9,11 @@ let
 in {
   programs.firefox = {
     enable = true;
+
+    # TODO: move to new default:
+    # configPath = "${config.xdg.configHome}/mozilla/firefox";
+    configPath = ".mozilla/firefox";
+
     profiles.default = {
       path = "njgb2g6v.default";
 

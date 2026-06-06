@@ -123,7 +123,7 @@
       }
 
       layer-rule {
-        match namespace="^swww-daemon$"
+        match namespace="^awww-daemon$"
         place-within-backdrop true
       }
 
@@ -250,9 +250,9 @@ in {
   services = {
     swayidle = {
       enable = true;
-      events = [
-        { event = "lock"; command = "${lib.getExe pkgs.swaylock} -fF"; }
-      ];
+      events = {
+        lock = "${lib.getExe pkgs.swaylock} -fF";
+      };
     };
   };
 }

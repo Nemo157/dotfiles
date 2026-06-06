@@ -27,7 +27,7 @@ open-taskbars() {
         echo "opening failed, retrying in 1 sec" >&2
         sleep 1
       done
-      systemctl --user start --no-block swww-change-wallpaper
+      systemctl --user start --no-block change-wallpaper
     fi
   done
 }

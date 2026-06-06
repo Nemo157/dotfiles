@@ -37,7 +37,7 @@
     (label :class "hostname" :text hostname)
     (workspaces :screen screen)
     (wm-buttons)
-    (eventbox :vexpand true :onclick "systemctl --user start --no-block swww-change-wallpaper"
+    (eventbox :vexpand true :onclick "systemctl --user start --no-block change-wallpaper"
       (security-key)
     )
     ; (listenbrainz)

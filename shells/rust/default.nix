@@ -79,7 +79,7 @@ in pkgs.mkShell {
   shellHook = if custom then ''
     rustflags=(
       "--cap-lints=warn"
-      "-Clink-arg=-fuse-ld=${lib.getExe pkgs.mold-wrapped}"
+      "-Clink-arg=-fuse-ld=${lib.getExe pkgs.mold}"
       "-Zunstable-options"
       "-Ctarget-cpu=native"
       "-Zrandomize-layout"

@@ -17,7 +17,6 @@
   home.packages = with pkgs; [
     cbor-diag-rs
     comma
-    dogdns
     fd
     gping
     htop-vim

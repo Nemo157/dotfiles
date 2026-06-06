@@ -9,6 +9,9 @@ in {
   programs.neovim = {
     enable = true;
 
+    withRuby = false;
+    withPython3 = false;
+
     plugins = [
       plugins.vim-gitgutter
       plugins.vim-easymotion
@@ -179,7 +182,7 @@ in {
       command! Tov winc t | winc H | winc b | winc L | winc t
     '';
 
-    extraLuaConfig = ''
+    initLua = ''
       vim.lsp.enable({
         "terraformls",
         "ts_ls",

@@ -13,7 +13,7 @@
           allowDiscards = true;
           keyFileSize = 4096;
           keyFile = "/dev/disk/by-id/usb-Intenso_Micro_Line_E405AC7369FC94-0:0";
-          fallbackToPassword = true;
+          keyFileTimeout = 5;
         };
       };
     };
@@ -23,10 +23,20 @@
     extraModprobeConfig = ''
       options zfs zfs_arc_max=17179869184
     '';
+
+    zfs = {
+      forceImportRoot = false;
+    };
   };
 
   fileSystems = {
-    "/" = { device = "rpool/nixos/root"; fsType = "zfs"; };
+    "/" = {
+      device = "rpool/nixos/root";
+      fsType = "zfs";
+      options = [
+        "x-systemd.device-timeout=infinity"
+      ];
+    };
     "/home" = { device = "rpool/nixos/home"; fsType = "zfs"; };
     "/home/nemo157/sources" = { device = "rpool/nixos/home/nemo157/sources"; fsType = "zfs"; };
     "/home/nemo157/.local/share/atuin" = { device = "rpool/nixos/home/nemo157/.local-share-atuin"; fsType = "zfs"; };

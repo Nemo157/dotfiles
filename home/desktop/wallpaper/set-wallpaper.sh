@@ -64,7 +64,7 @@ show() {
   else
     args+=(none --resize=no)
   fi
-  run swww img "${args[@]}" "$1"
+  run awww img "${args[@]}" "$1"
 }
 
 if [ "${WALLPAPER_DUMB:-0}" -eq 1 ] || [ "$frames" -gt 1 ]
@@ -331,6 +331,6 @@ then
 fi
 
 
-# Run the pipeline and send it to swww
+# Run the pipeline and send it to awww
 
 run magick "${args[@]}" - | show -

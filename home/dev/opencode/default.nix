@@ -30,7 +30,7 @@ in {
     enable = true;
     package = pkgs.unstable.opencode;
 
-    rules = (builtins.readFile ../claude/CLAUDE.md);
+    context = (builtins.readFile ../claude/CLAUDE.md);
 
     commands = {
       retrospective = builtins.readFile ./commands/retrospective.md;
