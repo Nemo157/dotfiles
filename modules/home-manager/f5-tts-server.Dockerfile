@@ -10,8 +10,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-RUN git clone https://github.com/Nemo157/F5-TTS-Server.git .
-
 # Install torch ecosystem from the platform-specific wheel index so all
 # torch packages have matching version strings
 RUN if [ "$GPU" = "rocm" ]; then \
@@ -22,14 +20,16 @@ RUN if [ "$GPU" = "rocm" ]; then \
             --index-url https://download.pytorch.org/whl/cu124; \
     fi
 
-RUN pip install --no-cache-dir torchcodec
-
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir torchcodec huggingface-hub
 
 # Pre-download model weights so the container works fully offline
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('SWivid/F5-TTS', allow_patterns=['F5TTS_v1_Base/*'])"
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('charactr/vocos-mel-24khz')"
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('openai/whisper-large-v3-turbo')"
+
+RUN git clone https://github.com/Satelles157/F5-TTS-Server.git --depth 1 .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir -p output
 
