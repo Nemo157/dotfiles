@@ -51,7 +51,7 @@
   };
 
   services.chatterbox-tts = {
-    enable = true;
+    # enable = true;
     environmentFile = config.age.secrets.hf-token.path;
   };
 
@@ -65,7 +65,7 @@
   };
 
   services.kokoro-fastapi = {
-    enable = true;
+    # enable = true;
     hostname = ts.self.ip;
 
     environment = {
@@ -74,7 +74,7 @@
   };
 
   services.speaches = {
-    enable = true;
+    # enable = true;
     hostname = ts.self.ip;
 
     environment = {
