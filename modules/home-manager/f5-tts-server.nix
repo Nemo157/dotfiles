@@ -31,6 +31,7 @@ let
       --name f5-tts-server \
       --replace \
       --rm \
+      --log-driver=none \
       --cap-drop=ALL \
       --security-opt=no-new-privileges \
       --network=pasta:--no-map-gw \
@@ -91,6 +92,7 @@ in {
         ExecStart = toString execStart;
         ExecStop = "${pkgs.podman}/bin/podman stop f5-tts-server";
         ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i f5-tts-server";
+        SyslogIdentifier = "f5-tts-server";
         Type = "simple";
         Restart = "on-failure";
         RestartSteps = 5;

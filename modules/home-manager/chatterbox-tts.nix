@@ -25,6 +25,7 @@ let
       --name chatterbox-tts \
       --replace \
       --rm \
+      --log-driver=none \
       --cap-drop=ALL \
       --security-opt=no-new-privileges \
       --publish ${cfg.hostname}:${toString cfg.port}:8000 \
@@ -91,6 +92,7 @@ in {
         ExecStart = toString execStart;
         ExecStop = "${pkgs.podman}/bin/podman stop chatterbox-tts";
         ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i chatterbox-tts";
+        SyslogIdentifier = "chatterbox-tts";
         Type = "simple";
         Restart = "on-failure";
         RestartSteps = 5;

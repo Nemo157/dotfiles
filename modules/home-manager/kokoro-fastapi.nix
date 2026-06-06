@@ -20,6 +20,7 @@ let
       --name kokoro-fastapi \
       --replace \
       --rm \
+      --log-driver=none \
       --userns=keep-id \
       --cap-drop=ALL \
       --security-opt=no-new-privileges \
@@ -77,6 +78,7 @@ in {
         ExecStart = toString execStart;
         ExecStop = "${pkgs.podman}/bin/podman stop kokoro-fastapi";
         ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i kokoro-fastapi";
+        SyslogIdentifier = "kokoro-fastapi";
         Type = "simple";
         Restart = "on-failure";
         RestartSteps = 5;

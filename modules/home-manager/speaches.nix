@@ -25,6 +25,7 @@ let
       --name speaches \
       --replace \
       --rm \
+      --log-driver=none \
       --userns=keep-id \
       --cap-drop=ALL \
       --security-opt=no-new-privileges \
@@ -98,6 +99,7 @@ in {
         ExecStart = toString execStart;
         ExecStop = "${pkgs.podman}/bin/podman stop speaches";
         ExecStopPost = "${pkgs.podman}/bin/podman rm -f -i speaches";
+        SyslogIdentifier = "speaches";
         Type = "simple";
         Restart = "on-failure";
         RestartSteps = 5;
