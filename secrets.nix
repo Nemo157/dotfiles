@@ -15,7 +15,7 @@ in {
   "home/veecle/gcal-oauth-credentials.age".publicKeys = [ wim-oak ];
   "home/veecle/ssh-config.age".publicKeys = [ nemo157-zinc wim-oak ];
   "home/veecle/known-hosts.age".publicKeys = [ nemo157-zinc wim-oak ];
-  "nixos/laptop/wpa_supplicant.conf.age".publicKeys = [ nemo157-zinc wim-oak zinc oak ];
+  "nixos/laptop/wpa_supplicant.conf.age".publicKeys = [ nemo157-mithril nemo157-zinc wim-oak zinc oak ];
   "nixos/common/services/grafana/admin-password.age".publicKeys = [ wim-oak nemo157-mithril oak mithril ];
   "nixos/contabo/services/pds-environment.age".publicKeys = [ nemo157-mithril contabo ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];

@@ -30,6 +30,7 @@
       "wireshark"
       "kvm"
       "i2c"
+      "wpa_supplicant"
     ];
     shell = pkgs.zsh;
   };

@@ -3,8 +3,6 @@
     ./battery-events.nix
   ];
 
-  programs.light.enable = true;
-
   services = {
     automatic-timezoned.enable = true;
 
@@ -37,9 +35,11 @@
 
   age.secrets."wpa_supplicant.conf" = lib.mkIf config.networking.wireless.enable {
     file = ./wpa_supplicant.conf.age;
-    path = "/etc/wpa_supplicant.conf";
     mode = "0400";
-    owner = "root";
-    group = "root";
+    owner = "wpa_supplicant";
+    group = "wpa_supplicant";
   };
+  networking.wireless.extraConfigFiles = lib.mkIf config.networking.wireless.enable [
+    config.age.secrets."wpa_supplicant.conf".path
+  ];
 }

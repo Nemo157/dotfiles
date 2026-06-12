@@ -16,7 +16,7 @@
   };
 
   programs.opencode = {
-    rules = lib.mkAfter ("\n\n" + builtins.readFile ../claude/CLAUDE.md);
+    context = lib.mkAfter ("\n\n" + builtins.readFile ../claude/CLAUDE.md);
 
     commands.brain-sync = lib.mkAfter ''
 

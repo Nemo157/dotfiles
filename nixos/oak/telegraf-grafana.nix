@@ -59,10 +59,11 @@ in
 
   services.influxdb = {
     enable = true;
-    extraConfig = {
+    settings = {
       http = {
         bind-address = "127.0.0.1:8086";
       };
+      reporting-disabled = true;
     };
   };
 
