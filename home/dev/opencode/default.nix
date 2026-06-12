@@ -68,10 +68,6 @@ in {
         skill = "allow";
         lsp = "allow";
 
-        task = {
-          "explore" = "allow";
-        };
-
         edit = {
           "*" = "allow";
           ".jj" = "deny";
@@ -137,6 +133,13 @@ in {
       agent = {
         explore = {
           model = "anthropic/claude-sonnet-4-6";
+          description = ''
+            Fast agent specialized for exploring codebases.
+            Before using this perform initial searches directly, if the results are concise or obviously relevant enough prefer to read them directly instead of using this agent.
+            Use this when you need to filter a larger result to find files by patterns (eg. "src/components/**/*.tsx"), search code for keywords (eg. "API endpoints"), or answer questions about the codebase (eg. "how do API endpoints work?").
+            When calling this agent, specify the desired thoroughness level: "quick" for basic searches, "medium" for moderate exploration, or "very thorough" for comprehensive analysis across multiple locations and naming conventions.
+            Do not ask this subagent for file content, instead it should provide a summary of what files (with relevant line numbers) you should consult directly.
+          '';
           permission = {
             task = {
               "*" = "deny";
@@ -157,7 +160,8 @@ in {
           description = "Readonly agent for answering codebase questions";
           mode = "primary";
           prompt = ''
-            You are a codebase exploration assistant. Your role is to answer questions about the codebase succinctly and accurately.
+            You are a codebase exploration assistant.
+            Your role is to answer questions about the codebase succinctly and accurately.
 
             ## Guidelines
             - Search and read code to understand the codebase structure and implementation
