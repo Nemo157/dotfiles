@@ -36,6 +36,8 @@
 
   main-user = "wim";
 
+  nix.settings.trusted-users = ["root" "wim"];
+
   hardware.enableRedistributableFirmware = true;
 
   hardware = {
