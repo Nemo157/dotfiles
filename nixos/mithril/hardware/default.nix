@@ -6,9 +6,4 @@
     ./kernel.nix
     ./steam.nix
   ];
-
-  hardware.openrazer = {
-    enable = true;
-    users = ["nemo157"];
-  };
 }
