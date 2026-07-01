@@ -55,7 +55,7 @@
 
       agent = {
         linear = {
-          model = "anthropic/claude-sonnet-4-6";
+          model = "anthropic/claude-sonnet-5";
           mode = "subagent";
           description = "Query Linear issues, projects, teams, and other data — use this for any Linear lookups";
           prompt = ''
@@ -103,7 +103,7 @@
         };
 
         vercel = {
-          model = "anthropic/claude-sonnet-4-6";
+          model = "anthropic/claude-sonnet-5";
           mode = "subagent";
           description = "Query Vercel data";
           permission = {

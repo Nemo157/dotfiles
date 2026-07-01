@@ -132,7 +132,7 @@ in {
 
       agent = {
         explore = {
-          model = "anthropic/claude-sonnet-4-6";
+          model = "anthropic/claude-sonnet-5";
           description = ''
             Fast agent specialized for exploring codebases.
             Before using this perform initial searches directly, if the results are concise or obviously relevant enough prefer to read them directly instead of using this agent.
@@ -148,7 +148,7 @@ in {
         };
 
         general = {
-          model = "anthropic/claude-sonnet-4-6";
+          model = "anthropic/claude-sonnet-5";
           permission = {
             task = {
               "*" = "deny";
