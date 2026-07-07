@@ -85,6 +85,10 @@
 # Tool Preferences
 
 - Use `rg` instead of `grep`
+- In `rg`, `-r` means `--replace`, not `--recursive` like in `grep` (rg recurses by default) -
+  don't reach for `-r` out of `grep` muscle memory. Bundling it into short-flag groups (e.g.
+  `-rln`) is parsed as `--replace ln`, silently rewriting every match to `ln` instead of behaving
+  like `-l -n`. Only use `-r` when a replacement is actually intended.
 - Use `fd` instead of `find`
 - For non-standard tools not installed locally, use `nix run pkgs#<package>` (e.g., `nix run pkgs#hexyl`)
 
