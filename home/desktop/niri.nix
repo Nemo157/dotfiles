@@ -141,7 +141,7 @@
             proportion 1.0
         }
 
-        default-column-width { proportion 1.0; }
+        default-column-width { proportion 0.66667; }
 
         background-color "transparent"
         focus-ring {
