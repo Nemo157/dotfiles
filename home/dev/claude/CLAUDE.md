@@ -94,35 +94,6 @@
 
 **Note:** Version control tool preference is covered in Core Overrides as a mandatory requirement.
 
-# Problem Tracking
-
-When you encounter a problem during a session, log it for later review using `log-problem`. This captures issues that could be prevented by config or rules improvements.
-
-**When to log:**
-- You get corrected by the user (wrong tool, wrong approach, wrong assumption)
-- You have to retry or redo something due to a mistake
-- A permission issue slows you down (had to ask when it should have been auto-allowed)
-- You make a wrong assumption about tooling, project structure, or conventions
-- Something the rules should have covered but didn't
-
-**Timing:** Log problems IMMEDIATELY when they occur (right after the retry or workaround), not at the end of a task. Deferring leads to forgetting. If inside a subagent, include problems in the response for the parent to log on return.
-
-**How to log:**
-```bash
-log-problem <project-name> "<what went wrong and what was attempted>"
-```
-
-Use the project directory name (e.g. `dotfiles`, `my-app`). The description should briefly cover what went wrong and what you tried or how you recovered.
-
-**Do not log:**
-- Normal exploratory steps (searching, reading code)
-- User-requested changes in direction
-- External failures (network issues, flaky tests)
-
-**Subagents:**
-- When spawning subagents via the Task tool, instruct them to report any problems they encounter in their response
-- Log problems on behalf of subagents based on what they report back
-
 # Claude configuration changes
 
 **When asked to modify global Claude configuration (the main CLAUDE.md, agents, etc.) from outside the dotfiles repository**: Remind the user to navigate to their dotfiles repository where the local AGENTS.md provides the proper configuration management workflow. Do not attempt to process global configuration changes from other contexts.

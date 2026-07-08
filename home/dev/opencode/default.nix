@@ -1,31 +1,4 @@
-{ config, lib, pkgs, ... }:
-let
-  log-problem = pkgs.writeShellApplication {
-    name = "log-problem";
-    runtimeInputs = [ pkgs.coreutils ];
-    text = ''
-      if [ $# -lt 2 ]; then
-        echo "Usage: log-problem <project> <description>" >&2
-        exit 1
-      fi
-
-      project="$1"
-      shift
-      description="$*"
-
-      log_file="''${XDG_DATA_HOME:-$HOME/.local/share}/opencode/problems.md"
-      mkdir -p "$(dirname "$log_file")"
-
-      {
-        echo ""
-        echo "## $(date --iso-8601=seconds) — $project"
-        echo ""
-        echo "$description"
-      } >> "$log_file"
-    '';
-  };
-
-in {
+{ config, lib, pkgs, ... }: {
   programs.opencode = {
     enable = true;
     package = pkgs.unstable.opencode;
@@ -125,8 +98,6 @@ in {
 
           "yamllint *" = "allow";
           "shellcheck *" = "allow";
-
-          "log-problem *" = "allow";
         };
       };
 
