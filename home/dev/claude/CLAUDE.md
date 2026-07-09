@@ -92,6 +92,13 @@
 - Use `fd` instead of `find`
 - For non-standard tools not installed locally, use `nix run pkgs#<package>` (e.g., `nix run pkgs#hexyl`)
 
+**Exploring flake input source code:**
+- Use `nix flake archive` to get the store paths of flake inputs:
+  ```bash
+  nix flake archive --json | jq -r '.inputs.nixpkgs.path'
+  ```
+- Replace `nixpkgs` with the desired input name to read its source directly
+
 **Note:** Version control tool preference is covered in Core Overrides as a mandatory requirement.
 
 # Claude configuration changes
