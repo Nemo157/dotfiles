@@ -13,6 +13,7 @@
       enableMpris = false;
       enableMqttClient = false;
       enableDbus = false;
+      enableSoxr = false;
       enableLibdaemon = false;
     };
 
@@ -37,7 +38,7 @@
         Description = pkgs.shairport-sync.meta.description;
       };
       Service = {
-        ExecStart = "${lib.getExe shairport-sync} -c ${config} -v -o pw";
+        ExecStart = "${lib.getExe shairport-sync} -c ${config} -v -o pipewire";
         RuntimeDirectory = "shairport-sync";
         Restart = "on-failure";
         RestartSteps = 5;
