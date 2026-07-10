@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ config, pkgs, ... }: {
   imports = [
     ./services
     ./network.nix
@@ -15,12 +15,18 @@
 
     gc = {
       automatic = true;
-      options = "--delete-older-than 30d";
     };
 
     optimise = {
       automatic = true;
     };
+  };
+
+  systemd.services.nix-gen-gc = {
+    description = "NixOS Generation Garbage Collector";
+    script = "exec ${config.nix.package.out}/bin/nix-env -vvvv --profile /nix/var/nix/profiles/system --delete-generations +10";
+    wantedBy = ["nix-gc.service"];
+    serviceConfig.Type = "oneshot";
   };
 
   environment.systemPackages = with pkgs; [
