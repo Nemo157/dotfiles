@@ -14,7 +14,7 @@
               xkb {
                   layout "us,us"
                   variant ",dvp"
-                  options "caps:escape,compose:ralt,grp:win_space_toggle"
+                  options "caps:escape,compose:ralt,grp:rctrl_rshift_toggle"
               }
 
               numlock
@@ -176,63 +176,63 @@
       }
 
       binds {
-          Alt+Shift+Slash { show-hotkey-overlay; }
+          Mod+Shift+Slash { show-hotkey-overlay; }
 
-          Alt+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
-          Alt+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
+          Mod+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
+          Mod+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
 
           XF86AudioPlay { spawn "playerctl" "play"; }
           XF86AudioPause { spawn "playerctl" "pause"; }
           XF86AudioNext { spawn "playerctl" "next"; }
           XF86AudioPrev { spawn "playerctl" "previous"; }
 
-          Alt+O repeat=false { toggle-window-rule-opacity; }
+          Mod+O repeat=false { toggle-window-rule-opacity; }
 
-          Alt+W repeat=false { close-window; }
+          Mod+W repeat=false { close-window; }
 
-          Alt+H { focus-column-left; }
-          Alt+J { focus-window-or-workspace-down; }
-          Alt+K { focus-window-or-workspace-up; }
-          Alt+L { focus-column-right; }
+          Mod+H { focus-column-left; }
+          Mod+J { focus-window-or-workspace-down; }
+          Mod+K { focus-window-or-workspace-up; }
+          Mod+L { focus-column-right; }
 
-          Alt+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
-          Alt+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
-          Alt+WheelScrollRight cooldown-ms=150 { focus-column-right; }
-          Alt+WheelScrollLeft cooldown-ms=150 { focus-column-left; }
+          Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+          Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+          Mod+WheelScrollRight cooldown-ms=150 { focus-column-right; }
+          Mod+WheelScrollLeft cooldown-ms=150 { focus-column-left; }
 
-          Alt+Shift+H { consume-or-expel-window-left; }
-          Alt+Shift+J { move-window-down-or-to-workspace-down; }
-          Alt+Shift+K { move-window-up-or-to-workspace-up; }
-          Alt+Shift+L { consume-or-expel-window-right; }
+          Mod+Shift+H { consume-or-expel-window-left; }
+          Mod+Shift+J { move-window-down-or-to-workspace-down; }
+          Mod+Shift+K { move-window-up-or-to-workspace-up; }
+          Mod+Shift+L { consume-or-expel-window-right; }
 
-          Alt+Ampersand { focus-workspace 1; }
-          Alt+BracketLeft { focus-workspace 2; }
-          Alt+BraceLeft { focus-workspace 3; }
-          Alt+BraceRight { focus-workspace 4; }
-          Alt+ParenLeft { focus-workspace 5; }
+          Mod+Ampersand { focus-workspace 1; }
+          Mod+BracketLeft { focus-workspace 2; }
+          Mod+BraceLeft { focus-workspace 3; }
+          Mod+BraceRight { focus-workspace 4; }
+          Mod+ParenLeft { focus-workspace 5; }
 
-          Alt+Shift+Ampersand { move-column-to-workspace 1; }
-          Alt+Shift+BracketLeft { move-column-to-workspace 2; }
-          Alt+Shift+BraceLeft { move-column-to-workspace 3; }
-          Alt+Shift+BraceRight { move-column-to-workspace 4; }
-          Alt+Shift+ParenLeft { move-column-to-workspace 5; }
+          Mod+Shift+Ampersand { move-column-to-workspace 1; }
+          Mod+Shift+BracketLeft { move-column-to-workspace 2; }
+          Mod+Shift+BraceLeft { move-column-to-workspace 3; }
+          Mod+Shift+BraceRight { move-column-to-workspace 4; }
+          Mod+Shift+ParenLeft { move-column-to-workspace 5; }
 
-          Alt+R { switch-preset-column-width; }
+          Mod+R { switch-preset-column-width; }
 
-          Alt+F { maximize-window-to-edges; }
-          Alt+Shift+F { fullscreen-window; }
-          Alt+Shift+Ctrl+F { toggle-windowed-fullscreen; }
-          Alt+Ctrl+F { toggle-window-floating; }
+          Mod+F { maximize-window-to-edges; }
+          Mod+Shift+F { fullscreen-window; }
+          Mod+Shift+Ctrl+F { toggle-windowed-fullscreen; }
+          Mod+Ctrl+F { toggle-window-floating; }
 
-          Alt+S { screenshot; }
-          Alt+Shift+S { screenshot-screen; }
-          Alt+Ctrl+S { screenshot-window; }
+          Mod+S { screenshot; }
+          Mod+Shift+S { screenshot-screen; }
+          Mod+Ctrl+S { screenshot-window; }
 
-          Alt+P hotkey-overlay-title="Dynamic Cast: Window" { set-dynamic-cast-window; }
-          Alt+Shift+P hotkey-overlay-title="Dynamic Cast: Monitor" { set-dynamic-cast-monitor; }
-          Alt+Ctrl+P hotkey-overlay-title="Dynamic Cast: Clear" { clear-dynamic-cast-target; }
+          Mod+P hotkey-overlay-title="Dynamic Cast: Window" { set-dynamic-cast-window; }
+          Mod+Shift+P hotkey-overlay-title="Dynamic Cast: Monitor" { set-dynamic-cast-monitor; }
+          Mod+Ctrl+P hotkey-overlay-title="Dynamic Cast: Clear" { clear-dynamic-cast-target; }
 
-          Alt+Ctrl+Shift+E { quit; }
+          Mod+Ctrl+Shift+E { quit; }
       }
     '';
   };
