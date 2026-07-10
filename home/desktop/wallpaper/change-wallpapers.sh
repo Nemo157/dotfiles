@@ -4,7 +4,7 @@ op="$([ "$scheme" = "dark" ] && echo -le || echo -ge)"
 echo "color-scheme $scheme => op $op" >&2
 
 wallpaper() {
-  fd -Ltf . ~/Wallpapers | shuf -n10 | while read -r img
+  fd -Ltf . "${WALLPAPER_DIR:-$HOME/Wallpapers}" | shuf -n10 | while read -r img
   do
     echo "$img" >&2
     median="$(magick "$img"'[0]' -format '%[fx:trunc(median * 100)]' info:)"
@@ -28,8 +28,13 @@ do
   if [[ "$solitary" == "false" ]]
   then
     img="$(wallpaper)"
-    echo "selected $img for $monitor" >&2
-    set-wallpaper "$monitor" "$img"
+    if [ -n "$img" ]
+    then
+      echo "selected $img for $monitor" >&2
+      set-wallpaper "$monitor" "$img"
+    else
+      echo "failed to select image for $monitor" >&2
+    fi
   else
     echo "skipping $monitor with solitary client $solitary" >&2
   fi
