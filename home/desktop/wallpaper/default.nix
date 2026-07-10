@@ -49,6 +49,14 @@ in {
           Type = "oneshot";
           ExecStart = lib.getExe change-wallpapers;
           Nice = 5;
+          Environment = [
+            "WALLPAPER_DIR=%h/Wallpapers"
+            "FLOP_CHANCE=50"
+            "GRAYSCALE_CHANCE=50"
+            "FILTER_CHANCE=50"
+            "PAINT_CHANCE=50"
+            "WALLPAPER_DUMB=0"
+          ];
         };
       };
 
