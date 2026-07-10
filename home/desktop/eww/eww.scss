@@ -134,6 +134,21 @@ tooltip {
     .secondary { color: $base0; }
     .tertiary { color: $base1; }
   }
+
+  .appearance-toggle {
+    .toggle-track {
+      border-color: $base1;
+      background-color: $base3;
+    }
+    .light-side {
+      background-color: $yellow;
+      color: $base03;
+      border-radius: 8px;
+    }
+    .dark-side {
+      color: $base1;
+    }
+  }
 }
 
 .dark {
@@ -249,6 +264,21 @@ tooltip {
     .secondary { color: $base00; }
     .tertiary { color: $base01; }
   }
+
+  .appearance-toggle {
+    .toggle-track {
+      border-color: $base01;
+      background-color: $base03;
+    }
+    .light-side {
+      color: $base01;
+    }
+    .dark-side {
+      background-color: $blue;
+      color: $base03;
+      border-radius: 8px;
+    }
+  }
 }
 
 tooltip {
@@ -321,6 +351,20 @@ progress {
     margin: 0.2rem;
   }
   font-size: 1.4rem;
+}
+
+.appearance-toggle {
+  margin-top: 0.3rem;
+  font-size: 1.4rem;
+  .toggle-track {
+    border-radius: 10px;
+    border: 1px solid;
+    padding: 0.1rem;
+  }
+  .toggle-side {
+    padding: 0 0.3rem;
+    transition: background-color 0.2s, color 0.2s;
+  }
 }
 
 @keyframes pulse {

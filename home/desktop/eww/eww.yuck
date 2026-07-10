@@ -37,6 +37,7 @@
     (label :class "hostname" :text hostname)
     (workspaces :screen screen)
     (wm-buttons)
+    (appearance-toggle)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block change-wallpaper"
       (security-key)
     )
@@ -136,6 +137,18 @@
     (btn :icon "󰊓" :onclick "eww-wm-maximize")
     (box :hexpand true)
     (btn :icon "" :onclick "eww-wm-close-window")
+  )
+)
+
+(defwidget appearance-toggle []
+  (eventbox
+    :class "appearance-toggle ${appearance.color-scheme}"
+    :onclick "darkman toggle"
+    :cursor "pointer"
+    (box :class "toggle-track" :orientation "h" :halign "center"
+      (label :class "toggle-side light-side" :text "")
+      (label :class "toggle-side dark-side" :text "")
+    )
   )
 )
 
