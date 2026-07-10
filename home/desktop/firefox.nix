@@ -9,6 +9,7 @@ let
 in {
   programs.firefox = {
     enable = true;
+    package = pkgs.firefox-esr;
 
     # TODO: move to new default:
     # configPath = "${config.xdg.configHome}/mozilla/firefox";
