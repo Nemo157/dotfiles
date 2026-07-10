@@ -82,17 +82,6 @@
     };
   };
 
-  services.ollama = {
-    package = pkgs.unstable.ollama-rocm;
-    host = ts.self.ip;
-    environmentVariables = {
-      OLLAMA_ORIGINS = "http://${ts.self.host}:8080";
-    };
-  };
-  home.sessionVariables = {
-    OLLAMA_HOST = "${config.services.ollama.host}:${toString config.services.ollama.port}";
-  };
-
   programs.opencode = {
     settings = {
       model = "openrouter/z-ai/glm-5";

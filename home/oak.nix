@@ -23,13 +23,6 @@
     wluma
   ];
 
-  services.ollama = {
-    package = pkgs.unstable.ollama;
-    environmentVariables = {
-      OLLAMA_KEEP_ALIVE = "30m";
-    };
-  };
-
   xdg.configFile = {
     "pipewire/pipewire.conf.d/92-j55-mono.conf".text = ''
       context.modules = [
@@ -66,22 +59,5 @@
         }
       ]
     '';
-  };
-
-  programs.opencode = {
-    settings = {
-      provider = {
-        ollama = {
-          npm = "@ai-sdk/openai-compatible";
-          name = "Ollama (local)";
-          options = {
-            baseURL = "http://localhost:11434/v1";
-          };
-          models = {
-            "llama3.2:1b-16k".name = "llama 3.2 (1b, 16k)";
-          };
-        };
-      };
-    };
   };
 }
