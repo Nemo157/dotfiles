@@ -33,8 +33,8 @@
 (defpoll hostname :interval "1s" :run-while false `hostnamectl hostname`)
 
 (defwidget taskbar [screen]
-  (v-box :class "bar" :vexpand true
-    (label :class "hostname" :text hostname)
+  (v-box :class "bar ${appearance.color-scheme}" :vexpand true
+    (label :class "hostname ${appearance.color-scheme}" :text hostname)
     (workspaces :screen screen)
     (wm-buttons)
     (appearance-toggle)
@@ -56,18 +56,18 @@
   "eww-wm-info")
 
 (defwidget workspaces [screen]
-  (box :orientation "v" :class "workspaces" :space-evenly false
+  (box :orientation "v" :class "workspaces ${appearance.color-scheme}" :space-evenly false
     (for workspace in {jq(wm-info?.workspaces ?: [], '[.[] | select((.monitor == "${screen}") or .virtual)]')}
       (box :orientation "v" :space-evenly false
         (eventbox
-          :class "workspace ${workspace.active ? "active" : ""} ${workspace.virtual ? "virtual" : ""}"
+          :class "workspace ${workspace.active ? "active" : ""} ${workspace.virtual ? "virtual" : ""} ${appearance.color-scheme}"
           :cursor {workspace.active ? "default" : "pointer"}
           :onclick {workspace.active ? "true" : "eww-wm-focus-workspace ${workspace.idx}"}
           (label :class "name" :text "${workspace.name}")
         )
         (for window in {workspace.windows ?: []}
           (eventbox
-            :class "window ${window.active ? "active" : ""}"
+            :class "window ${window.active ? "active" : ""} ${appearance.color-scheme}"
             :cursor {window.active ? "default" : "pointer"}
             :onclick {window.active ? "true" : "eww-wm-focus-window ${window.id}"}
             (v-box
@@ -123,7 +123,7 @@
 )
 
 (defwidget btn [onclick icon]
-  (eventbox :class "button"
+  (eventbox :class "button ${appearance.color-scheme}"
     :onclick {onclick}
     :cursor "pointer"
     (label :text {icon})
@@ -145,9 +145,9 @@
     :class "appearance-toggle ${appearance.color-scheme}"
     :onclick "darkman toggle"
     :cursor "pointer"
-    (box :class "toggle-track" :orientation "h" :halign "center"
-      (label :class "toggle-side light-side" :text "")
-      (label :class "toggle-side dark-side" :text "")
+    (box :class "toggle-track" :orientation "h" :halign "center" :spacing 4
+      (label :class "toggle-side light-side" :halign "center" :text "")
+      (label :class "toggle-side dark-side" :halign "center" :text "")
     )
   )
 )
@@ -157,7 +157,7 @@
   "eww-u2f-touch-detector")
 
 (defwidget security-key []
-  (label :class 'security-key'
+  (label :class "security-key ${appearance.color-scheme}"
     :visible {u2f-touch-detector.requested ?: false}
     :text "  "
     :vexpand true
@@ -175,21 +175,21 @@
 ; )
 
 (defwidget music []
-  (v-box :class 'music ${music-status.state}'
+  (v-box :class "music ${music-status.state} ${appearance.color-scheme}"
     (dynamic-label :class "album" :text {music-metadata.album})
     (dynamic-label :class "albumartist" :text {music-metadata.albumartist})
     (eventbox :onclick "playerctl -p mpd play-pause" :cursor {music-status.state == "stopped" ?  "default" : "pointer"}
       (overlay
         (image :class "albumart" :image-width 89 :path {music-metadata.albumart ?: no-album-png})
-        (label :class "play-button" :text "")
-        (label :class "pause-button" :text "")
+        (label :class "play-button ${appearance.color-scheme}" :text "")
+        (label :class "pause-button ${appearance.color-scheme}" :text "")
       )
     )
     (dynamic-label :class "title" :text {music-metadata.title})
     (dynamic-label :class "artist" :text {music-metadata.artist} :visible {music-metadata.artist != music-metadata.albumartist})
     (v-box :visible {music-queue.position != 0}
       (label :class "queue" :text "${music-queue.position} of ${music-queue.length}")
-      (progress :class "progress" :value {music-status.position / music-metadata.duration * 100})
+      (progress :class "progress ${appearance.color-scheme}" :value {music-status.position / music-metadata.duration * 100})
       (h-box :class "time"
         (duration :value {music-status.position})
         (box :hexpand true)
@@ -207,7 +207,7 @@
 )
 
 (defwidget tray []
-  (v-box :class "tray"
+  (v-box :class "tray ${appearance.color-scheme}"
     (systray :halign "center")
   )
 )
@@ -222,13 +222,13 @@
   (circular-progress
       :tooltip {tooltip}
       :value {value}
-      :class "pie v${round(value / 10, 0)}0 ${class}"
+      :class "pie v${round(value / 10, 0)}0 ${class} ${appearance.color-scheme}"
       :thickness 4
       :start-at 75
       :clockwise {clockwise ?: true}
       :visible {visible ?: true}
     (overlay
-      (label :class "pie-overlay" :text "")
+      (label :class "pie-overlay ${appearance.color-scheme}" :text "")
       (label :text {icon})
     )
   )
@@ -242,7 +242,7 @@
 )
 
 (defwidget cpu-pies []
-  (h-box :class "pies" :halign "fill" :space-evenly true
+  (h-box :class "pies ${appearance.color-scheme}" :halign "fill" :space-evenly true
     (data-pie :icon "M"
       :used {EWW_RAM.used_mem}
       :total {EWW_RAM.total_mem}
@@ -259,7 +259,7 @@
 )
 
 (defwidget other-pies []
-  (h-box :class "pies" :halign "fill" :space-evenly true
+  (h-box :class "pies ${appearance.color-scheme}" :halign "fill" :space-evenly true
     (pie :class "inverse" :clockwise false
       :icon "${
         EWW_BATTERY == ""
@@ -278,7 +278,7 @@
 )
 
 (defwidget gpu-pies [device]
-  (h-box :class "pies" :halign "fill" :space-evenly true
+  (h-box :class "pies ${appearance.color-scheme}" :halign "fill" :space-evenly true
     (data-pie :icon "G"
       :used {device.VRAM["Total GTT Usage"].value * 1024 * 1024}
       :total {device.VRAM["Total GTT"].value * 1024 * 1024}
@@ -319,20 +319,20 @@
 )
 
 (defwidget time []
-  (v-box :class "clock"
+  (v-box :class "clock ${appearance.color-scheme}"
     (h-box
       (label :text {formattime(EWW_TIME, "%Y")})
-      (label :class "tertiary" :text "-")
+      (label :class "tertiary ${appearance.color-scheme}" :text "-")
       (label :text {formattime(EWW_TIME, "%m")})
-      (label :class "tertiary" :text "-")
+      (label :class "tertiary ${appearance.color-scheme}" :text "-")
       (label :text {formattime(EWW_TIME, "%d")})
     )
     (h-box
       (label :text {formattime(EWW_TIME, "%H")})
-      (label :class "tertiary" :markup {EWW_TIME % 2 == 1 ? ":" : " "})
+      (label :class "tertiary ${appearance.color-scheme}" :markup {EWW_TIME % 2 == 1 ? ":" : " "})
       (label :text {formattime(EWW_TIME, "%M")})
-      (label :class "tertiary" :text " ")
-      (label :class "secondary" :text {formattime(EWW_TIME, "%z")})
+      (label :class "tertiary ${appearance.color-scheme}" :text " ")
+      (label :class "secondary ${appearance.color-scheme}" :text {formattime(EWW_TIME, "%z")})
     )
   )
 )

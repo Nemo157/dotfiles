@@ -17,271 +17,14 @@ $green:     #859900;
 
 * {
   all: unset;
-  font-family: "FiraCode Nerd Font"
+  font-family: "FiraCode Nerd Font";
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 tooltip {
   background-color: $base02;
   color: $base0;
   border-color: $base0;
-}
-
-.light {
-  .bar {
-    color: $base00;
-    background-color: $base3;
-  }
-
-  progress {
-    background-color: $base00;
-  }
-  progressbar {
-    background-color: $base2;
-    border-color: $base00;
-  }
-
-  .hostname {
-    color: $blue;
-    background-color: $base2;
-  }
-
-  .workspaces {
-    .workspace, .window {
-      color: $base1;
-      background-color: $base3;
-      border-color: $base1;
-
-      &.virtual {
-        color: $base2;
-        border-color: $base2;
-      }
-
-      &.active {
-        color: $base01;
-        background-color: $base2;
-        border-color: $base01;
-      }
-
-      &:not(.active):hover {
-        background-color: $base1;
-        .name, .class {
-          color: $base02;
-        }
-      }
-    }
-  }
-
-  .security-key {
-    color: $base3;
-  }
-
-  .music {
-    &.paused {
-      color: $base1;
-      progress {
-        background-color: $base1;
-      }
-      progressbar {
-        border-color: $base1;
-      }
-    }
-
-    .play-button, .pause-button {
-      color: $base03;
-      background-color: $base3;
-    }
-  }
-
-  .button {
-    color: $base0;
-    background-color: $base3;
-    border-color: $base0;
-    &:hover {
-      color: $base01;
-      border-color: $base01;
-    }
-  }
-
-  .tray {
-    background-color: $base2;
-    window {
-      color: $base00;
-      border-color: $base1;
-      background-color: $base3;
-    }
-    menuitem {
-      &:hover {
-        color: $yellow;
-      }
-      arrow {
-        border-color: $base01;
-      }
-    }
-  }
-
-  .pies {
-    background-color: $base2;
-  }
-
-  .pie {
-    background-color: $base3;
-    .pie-overlay { color: $base3; }
-  }
-
-  .clock {
-    color: $base01;
-    background-color: $base2;
-    .secondary { color: $base0; }
-    .tertiary { color: $base1; }
-  }
-
-  .appearance-toggle {
-    .toggle-track {
-      border-color: $base1;
-      background-color: $base3;
-    }
-    .light-side {
-      background-color: $yellow;
-      color: $base03;
-      border-radius: 8px;
-    }
-    .dark-side {
-      color: $base1;
-    }
-  }
-}
-
-.dark {
-  .bar {
-    color: $base0;
-    background-color: $base03;
-  }
-
-  progress {
-    background-color: $base0;
-  }
-  progressbar {
-    background-color: $base02;
-    border-color: $base0;
-  }
-
-  .hostname {
-    color: $blue;
-    background-color: $base02;
-  }
-
-  .workspaces {
-    .workspace, .window {
-      color: $base01;
-      background-color: $base03;
-      border-color: $base01;
-
-      &.virtual {
-        color: $base02;
-        border-color: $base02;
-      }
-
-      &.active {
-        color: $base1;
-        background-color: $base02;
-        border-color: $base1;
-      }
-
-      &:not(.active):hover {
-        background-color: $base01;
-        .name, .class {
-          color: $base2;
-        }
-      }
-    }
-  }
-
-  .security-key {
-    color: $base03;
-  }
-
-  .music {
-    &.paused {
-      color: $base01;
-      progress {
-        background-color: $base01;
-      }
-      progressbar {
-        border-color: $base01;
-      }
-    }
-
-    .play-button, .pause-button {
-      color: $base3;
-      background-color: $base03;
-    }
-  }
-
-  .button {
-    color: $base00;
-    background-color: $base03;
-    border-color: $base00;
-    &:hover {
-      color: $base1;
-      border-color: $base1;
-    }
-  }
-
-  .tray {
-    background-color: $base02;
-    window {
-      color: $base0;
-      border-color: $base01;
-      background-color: $base03;
-    }
-    menuitem {
-      &:hover {
-        color: $yellow;
-      }
-      arrow {
-        border-color: $base1;
-      }
-    }
-  }
-
-  .pies {
-    background-color: $base02;
-  }
-
-  .pie {
-    background-color: $base03;
-
-    &.mem { color: $yellow; }
-    &.cpu { color: $cyan; }
-    &.disk { color: $green; }
-
-    .pie-overlay { color: $base03; }
-  }
-
-  .clock {
-    color: $base1;
-    background-color: $base02;
-    .secondary { color: $base00; }
-    .tertiary { color: $base01; }
-  }
-
-  .appearance-toggle {
-    .toggle-track {
-      border-color: $base01;
-      background-color: $base03;
-    }
-    .light-side {
-      color: $base01;
-    }
-    .dark-side {
-      background-color: $blue;
-      color: $base03;
-      border-radius: 8px;
-    }
-  }
-}
-
-tooltip {
   border-radius: 5px;
   border: 2px solid;
   padding: 0.2rem 0.4rem;
@@ -305,17 +48,20 @@ progress {
   > * {
     padding: 0.2rem 0.4rem;
   }
+  &.light { color: $base00; background-color: $base3; }
+  &.dark { color: $base0; background-color: $base03; }
 }
 
 .hostname {
   padding: 0;
   margin-bottom: 0.2rem;
+  &.light { color: $blue; background-color: $base2; }
+  &.dark { color: $blue; background-color: $base02; }
 }
 
 .workspaces {
   .workspace {
     border: 1px solid;
-
     .name {
       padding: 0.4rem 0.2rem;
       font-weight: bold;
@@ -327,12 +73,10 @@ progress {
   .window {
     border: 1px solid;
     border-top: 0px;
-
     .class {
       padding: 0.4rem 0.2rem;
       font-weight: bold;
     }
-
     .icon {
       padding: 0.4rem 0.2rem;
     }
@@ -343,6 +87,50 @@ progress {
   }
   > *:last-child {
     margin-bottom: 0;
+  }
+}
+
+.workspace, .window {
+  &.light {
+    color: $base1;
+    background-color: $base3;
+    border-color: $base1;
+  }
+  &.light.virtual {
+    color: $base2;
+    border-color: $base2;
+  }
+  &.light.active {
+    color: $base01;
+    background-color: $base2;
+    border-color: $base01;
+  }
+  &.light:not(.active):hover {
+    background-color: $base1;
+    .name, .class {
+      color: $base02;
+    }
+  }
+
+  &.dark {
+    color: $base01;
+    background-color: $base03;
+    border-color: $base01;
+  }
+  &.dark.virtual {
+    color: $base02;
+    border-color: $base02;
+  }
+  &.dark.active {
+    color: $base1;
+    background-color: $base02;
+    border-color: $base1;
+  }
+  &.dark:not(.active):hover {
+    background-color: $base01;
+    .name, .class {
+      color: $base2;
+    }
   }
 }
 
@@ -357,13 +145,46 @@ progress {
   margin-top: 0.3rem;
   font-size: 1.4rem;
   .toggle-track {
-    border-radius: 10px;
+    border-radius: 9999px;
     border: 1px solid;
-    padding: 0.1rem;
+    padding: 0.1rem 0.2rem;
   }
   .toggle-side {
-    padding: 0 0.3rem;
-    transition: background-color 0.2s, color 0.2s;
+    padding: 0 0.4rem;
+    min-width: 1.5rem;
+    border-radius: 9999px;
+  }
+  .light-side {
+    // GTK miscounts the sun icon's text width, offset padding to visually center it
+    padding: 0 0.55rem 0 0.25rem;
+  }
+  &.light {
+    .toggle-track {
+      border-color: $base1;
+      background-color: $base3;
+    }
+    .light-side {
+      background-color: $yellow;
+      color: $base03;
+    }
+    .dark-side {
+      color: $base1;
+      background-color: transparent;
+    }
+  }
+  &.dark {
+    .toggle-track {
+      border-color: $base01;
+      background-color: $base03;
+    }
+    .light-side {
+      color: $base01;
+      background-color: transparent;
+    }
+    .dark-side {
+      background-color: $blue;
+      color: $base03;
+    }
   }
 }
 
@@ -386,6 +207,8 @@ progress {
   animation-timing-function: linear;
   font-size: 3rem;
   margin: 5px 0;
+  &.light { color: $base3; }
+  &.dark { color: $base03; }
 }
 
 .music {
@@ -415,11 +238,6 @@ progress {
     }
   }
 
-  .play-button, .pause-button {
-    opacity: 0;
-    font-size: 1.5rem;
-  }
-
   .album {
     font-weight: bold;
   }
@@ -439,6 +257,54 @@ progress {
   .button {
     font-size: 1.2rem;
   }
+
+  &.light {
+    progress {
+      background-color: $base00;
+    }
+    progressbar {
+      background-color: $base2;
+      border-color: $base00;
+    }
+    &.paused {
+      color: $base1;
+      progress { background-color: $base1; }
+      progressbar { border-color: $base1; }
+    }
+  }
+
+  &.dark {
+    progress {
+      background-color: $base0;
+    }
+    progressbar {
+      background-color: $base02;
+      border-color: $base0;
+    }
+    &.paused {
+      color: $base01;
+      progress { background-color: $base01; }
+      progressbar { border-color: $base01; }
+    }
+  }
+}
+
+.play-button, .pause-button {
+  opacity: 0;
+  font-size: 1.5rem;
+  &.light {
+    color: $base03;
+    background-color: $base3;
+  }
+  &.dark {
+    color: $base3;
+    background-color: $base03;
+  }
+}
+
+progress {
+  &.light { background-color: $base00; }
+  &.dark { background-color: $base0; }
 }
 
 .button {
@@ -446,6 +312,24 @@ progress {
   border-radius: 2px;
   label {
     padding: 0 0.5rem;
+  }
+  &.light {
+    color: $base0;
+    background-color: $base3;
+    border-color: $base0;
+    &:hover {
+      color: $base01;
+      border-color: $base01;
+    }
+  }
+  &.dark {
+    color: $base00;
+    background-color: $base03;
+    border-color: $base00;
+    &:hover {
+      color: $base1;
+      border-color: $base1;
+    }
   }
 }
 
@@ -467,11 +351,46 @@ progress {
   menuitem > box > label:first-child {
     margin-left: 20px;
   }
+  &.light {
+    background-color: $base2;
+    window {
+      color: $base00;
+      border-color: $base1;
+      background-color: $base3;
+    }
+    menuitem {
+      &:hover {
+        color: $yellow;
+      }
+      arrow {
+        border-color: $base01;
+      }
+    }
+  }
+  &.dark {
+    background-color: $base02;
+    window {
+      color: $base0;
+      border-color: $base01;
+      background-color: $base03;
+    }
+    menuitem {
+      &:hover {
+        color: $yellow;
+      }
+      arrow {
+        border-color: $base1;
+      }
+    }
+  }
+}
+
+.pies {
+  &.light { background-color: $base2; }
+  &.dark { background-color: $base02; }
 }
 
 .pie {
-  .pie-overlay { font-size: 2.5rem; }
-
   &.v100, &.v90, &.v80, &.v70 { color: $red; }
   &.v60 { color: $orange; }
   &.v50 { color: $yellow; }
@@ -487,4 +406,38 @@ progress {
     &.v40 { color: $orange; }
     &.v30, &.v20, &.v10, &.v00 { color: $red; }
   }
+
+  &.light {
+    background-color: $base3;
+  }
+  &.dark {
+    background-color: $base03;
+  }
+}
+
+.pie-overlay {
+  font-size: 2.5rem;
+  &.light { color: $base3; }
+  &.dark { color: $base03; }
+}
+
+.clock {
+  &.light {
+    color: $base01;
+    background-color: $base2;
+  }
+  &.dark {
+    color: $base1;
+    background-color: $base02;
+  }
+}
+
+.secondary {
+  &.light { color: $base0; }
+  &.dark { color: $base00; }
+}
+
+.tertiary {
+  &.light { color: $base1; }
+  &.dark { color: $base01; }
 }
