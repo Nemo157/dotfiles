@@ -1,0 +1,379 @@
+import type { AgentToolResult } from "@earendil-works/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
+import { Type } from "typebox";
+import {
+  type CliRenderResult,
+  type CliToolDetails,
+  defaultRenderResult,
+  expandTilde,
+  type StructuredCliToolDef,
+} from "./shared";
+
+const rgParams = Type.Object({
+  pattern: Type.String({
+    description:
+      "Regex (or literal, with fixedStrings=true) to search for. Required.",
+  }),
+  path: Type.Optional(
+    Type.String({
+      description:
+        "File or directory to search. Defaults to the current working " +
+        "directory. Passed after `--` so it is never parsed as a flag.",
+    }),
+  ),
+  fixedStrings: Type.Optional(
+    Type.Boolean({ description: "Treat pattern as a literal string (-F)." }),
+  ),
+  ignoreCase: Type.Optional(
+    Type.Boolean({ description: "Case-insensitive matching (-i)." }),
+  ),
+  wordRegexp: Type.Optional(
+    Type.Boolean({ description: "Match whole words only (-w)." }),
+  ),
+  multiline: Type.Optional(
+    Type.Boolean({
+      description: "Enable multiline matching (-U). Implies --multiline-dotall.",
+    }),
+  ),
+  context: Type.Optional(
+    Type.Integer({
+      minimum: 0,
+      maximum: 20,
+      description: "Lines of context around each match (-C).",
+    }),
+  ),
+  glob: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Include/exclude globs (rg -g). Prefix with `!` to exclude, e.g. `!*.lock`.",
+    }),
+  ),
+  type: Type.Optional(
+    Type.Array(Type.String(), {
+      description: "Restrict to file types (rg -t), e.g. `[\"rust\", \"nix\"]`.",
+    }),
+  ),
+  filesWithMatches: Type.Optional(
+    Type.Boolean({
+      description: "List only file paths that contain a match (-l).",
+    }),
+  ),
+  hidden: Type.Optional(
+    Type.Boolean({ description: "Search hidden files/dirs (--hidden)." }),
+  ),
+  noIgnore: Type.Optional(
+    Type.Boolean({
+      description: "Do not respect .gitignore/.ignore (--no-ignore).",
+    }),
+  ),
+  maxCount: Type.Optional(
+    Type.Integer({
+      minimum: 1,
+      maximum: 10_000,
+      description: "Max matches per file (-m). Default 200.",
+    }),
+  ),
+});
+
+// --- rg --json parsing ---------------------------------------------------
+
+interface RgMatch {
+  lineNumber: number;
+  /** Line contents with trailing newline stripped. May be truncated. */
+  text: string;
+}
+
+interface RgFile {
+  path: string;
+  matches: RgMatch[];
+}
+
+/**
+ * Extra details attached under `details.rg` for the renderResult hook.
+ */
+export interface RgExtraDetails {
+  rg: {
+    matchCount: number;
+    fileCount: number;
+    /** True if `-l` was requested (no per-line match data expected). */
+    filesWithMatchesOnly: boolean;
+    files: RgFile[];
+    /** True if we hit the display truncation limit while parsing. */
+    truncated: boolean;
+  };
+}
+
+type RgDetails = CliToolDetails & RgExtraDetails;
+
+// Cap how much we retain in memory / show to the LLM. rg itself is bounded
+// by --max-count per file but a wide search can still hit thousands of files.
+const MAX_FILES = 500;
+const MAX_MATCHES_PER_FILE = 200;
+// Trim absurdly long match lines (minified files, generated code).
+const MAX_LINE_LEN = 400;
+
+function truncateLine(text: string): string {
+  const trimmed = text.replace(/\r?\n$/, "");
+  if (trimmed.length <= MAX_LINE_LEN) return trimmed;
+  return trimmed.slice(0, MAX_LINE_LEN - 1) + "…";
+}
+
+function extractPath(node: unknown): string | undefined {
+  if (typeof node !== "object" || node === null) return undefined;
+  const path = (node as { path?: { text?: unknown } }).path;
+  if (path && typeof path === "object" && typeof path.text === "string") {
+    return path.text;
+  }
+  return undefined;
+}
+
+// --- postProcess: rg --json -> RgDetails + LLM text ---------------------
+
+function formatRgOutput(
+  raw: {
+    stdout: string;
+    stderr: string;
+    exitCode: number | null;
+    timedOut: boolean;
+  },
+  filesWithMatchesOnly: boolean,
+): { content: string; details: RgExtraDetails; isError: boolean } {
+  if (raw.timedOut) {
+    return {
+      content: "rg timed out",
+      details: {
+        rg: {
+          matchCount: 0,
+          fileCount: 0,
+          filesWithMatchesOnly,
+          files: [],
+          truncated: false,
+        },
+      },
+      isError: true,
+    };
+  }
+
+  // rg exit codes: 0 = matches, 1 = no matches, 2 = error.
+  if (raw.exitCode !== 0 && raw.exitCode !== 1) {
+    const stderr = raw.stderr.trim();
+    return {
+      content: stderr.length > 0 ? stderr : `rg failed (exit ${raw.exitCode})`,
+      details: {
+        rg: {
+          matchCount: 0,
+          fileCount: 0,
+          filesWithMatchesOnly,
+          files: [],
+          truncated: false,
+        },
+      },
+      isError: true,
+    };
+  }
+
+  const filesByPath = new Map<string, RgFile>();
+  let truncated = false;
+
+  for (const line of raw.stdout.split("\n")) {
+    if (line.length === 0) continue;
+    let evt: unknown;
+    try {
+      evt = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    if (typeof evt !== "object" || evt === null) continue;
+    const type = (evt as { type?: unknown }).type;
+    const data = (evt as { data?: unknown }).data;
+
+    if (type === "begin") {
+      const path = extractPath(data);
+      if (typeof path === "string" && !filesByPath.has(path)) {
+        if (filesByPath.size >= MAX_FILES) {
+          truncated = true;
+          continue;
+        }
+        filesByPath.set(path, { path, matches: [] });
+      }
+    } else if (type === "match") {
+      const path = extractPath(data);
+      if (typeof path !== "string") continue;
+      let file = filesByPath.get(path);
+      if (!file) {
+        if (filesByPath.size >= MAX_FILES) {
+          truncated = true;
+          continue;
+        }
+        file = { path, matches: [] };
+        filesByPath.set(path, file);
+      }
+      if (file.matches.length >= MAX_MATCHES_PER_FILE) {
+        truncated = true;
+        continue;
+      }
+      const lineNumber = Number(
+        (data as { line_number?: unknown } | undefined)?.line_number ?? 0,
+      );
+      const lineText = (data as { lines?: { text?: unknown } } | undefined)
+        ?.lines?.text;
+      file.matches.push({
+        lineNumber,
+        text: typeof lineText === "string" ? truncateLine(lineText) : "",
+      });
+    }
+    // Ignore `context`, `end`, `summary`. We could surface elapsed time later.
+  }
+
+  const files = [...filesByPath.values()];
+  const matchCount = files.reduce((n, f) => n + f.matches.length, 0);
+
+  let content: string;
+  if (files.length === 0) {
+    content = "No matches.";
+  } else if (filesWithMatchesOnly) {
+    content = files.map((f) => f.path).join("\n");
+  } else {
+    const blocks: string[] = [];
+    for (const file of files) {
+      const lines: string[] = [`${file.path}:`];
+      for (const m of file.matches) {
+        lines.push(`  ${m.lineNumber}: ${m.text}`);
+      }
+      blocks.push(lines.join("\n"));
+    }
+    content = blocks.join("\n\n");
+  }
+
+  if (truncated) {
+    content += `\n\n[output truncated: showing at most ${MAX_FILES} files and ${MAX_MATCHES_PER_FILE} matches per file]`;
+  }
+
+  return {
+    content,
+    details: {
+      rg: {
+        matchCount,
+        fileCount: files.length,
+        filesWithMatchesOnly,
+        files,
+        truncated,
+      },
+    },
+    isError: false,
+  };
+}
+
+// --- renderResult: compact summary + expanded matches -------------------
+
+const renderResult: CliRenderResult<RgDetails> = (
+  result,
+  { expanded, isPartial },
+  theme,
+  context,
+) => {
+  if (isPartial) return new Text(theme.fg("warning", "Searching…"), 0, 0);
+
+  const details = result.details as RgDetails | undefined;
+  const rg = details?.rg;
+
+  // If parsing produced nothing usable (unexpected exit, no rg block), fall
+  // back to the shared default renderer so we don't silently hide errors.
+  if (!rg) {
+    return defaultRenderResult(
+      result as AgentToolResult<CliToolDetails>,
+      { expanded, isPartial },
+      theme,
+      context,
+    );
+  }
+
+  let text: string;
+  if (rg.matchCount === 0 && rg.fileCount === 0) {
+    text = theme.fg("dim", "no matches");
+  } else if (rg.filesWithMatchesOnly) {
+    text = theme.fg(
+      "success",
+      `${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
+    );
+  } else {
+    text = theme.fg(
+      "success",
+      `${rg.matchCount} match${rg.matchCount === 1 ? "" : "es"}`,
+    );
+    text += theme.fg(
+      "dim",
+      ` across ${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
+    );
+  }
+  if (rg.truncated) text += theme.fg("warning", " (truncated)");
+
+  if (expanded) {
+    const EXPAND_LIMIT = 300;
+    let shown = 0;
+    for (const file of rg.files) {
+      if (shown >= EXPAND_LIMIT) break;
+      text += `\n${theme.fg("accent", file.path)}`;
+      shown++;
+      if (rg.filesWithMatchesOnly) continue;
+      for (const m of file.matches) {
+        if (shown >= EXPAND_LIMIT) break;
+        const gutter = String(m.lineNumber).padStart(5);
+        text += `\n${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`;
+        shown++;
+      }
+    }
+    const total = rg.filesWithMatchesOnly
+      ? rg.fileCount
+      : rg.matchCount + rg.fileCount;
+    if (shown < total) {
+      text += `\n${theme.fg("muted", `… ${total - shown} more line(s)`)}`;
+    }
+  }
+
+  return new Text(text, 0, 0);
+};
+
+// --- tool definition -----------------------------------------------------
+
+export const rgTool: StructuredCliToolDef<typeof rgParams> = {
+  name: "rg",
+  label: "rg (ripgrep)",
+  command: "rg",
+  description:
+    "Search file contents with ripgrep. Provide a `pattern` plus optional " +
+    "typed flags and `path`. Respects .gitignore by default. Read-only.",
+  promptSnippet:
+    "Use rg to search file contents by regex/literal; prefer it over ad-hoc grep.",
+  promptGuidelines: [
+    "Use rg to search file contents. Prefer fixedStrings=true for literal text.",
+  ],
+  parameters: rgParams,
+  buildArgs(p) {
+    // Always emit --json; we re-format output for the LLM and TUI in
+    // postProcess/renderResult. --json makes rg ignore human-oriented output
+    // flags, so we skip --line-number / --max-columns here.
+    const args: string[] = ["--json", `--max-count=${p.maxCount ?? 200}`];
+    if (p.fixedStrings) args.push("-F");
+    if (p.ignoreCase) args.push("-i");
+    if (p.wordRegexp) args.push("-w");
+    if (p.multiline) args.push("-U", "--multiline-dotall");
+    if (p.filesWithMatches) args.push("-l");
+    if (p.hidden) args.push("--hidden");
+    if (p.noIgnore) args.push("--no-ignore");
+    if (p.context !== undefined) args.push(`-C${p.context}`);
+    for (const g of p.glob ?? []) args.push("-g", g);
+    for (const t of p.type ?? []) args.push("-t", t);
+    // -e so a pattern starting with `-` is still safe.
+    args.push("-e", p.pattern);
+    args.push("--");
+    if (p.path !== undefined) args.push(expandTilde(p.path));
+    return args;
+  },
+  postProcess(raw) {
+    // `filesWithMatches` isn't visible in raw output; reconstruct from argv.
+    const filesWithMatchesOnly = raw.args.includes("-l");
+    return formatRgOutput(raw, filesWithMatchesOnly);
+  },
+  renderResult,
+};
