@@ -1,5 +1,25 @@
-{ config, lib, pkgs, ... }:
-{
+{ config, lib, pkgs, ... }: let
+  linearReadOnly = {
+    linear_get_document = "allow";
+    linear_get_issue = "allow";
+    linear_get_issue_status = "allow";
+    linear_get_project = "allow";
+    linear_get_team = "allow";
+    linear_get_user = "allow";
+    linear_list_comments = "allow";
+    linear_list_cycles = "allow";
+    linear_list_documents = "allow";
+    linear_list_issue_labels = "allow";
+    linear_list_issue_statuses = "allow";
+    linear_list_issues = "allow";
+    linear_list_my_issues = "allow";
+    linear_list_project_labels = "allow";
+    linear_list_projects = "allow";
+    linear_list_teams = "allow";
+    linear_list_users = "allow";
+    linear_search_documentation = "allow";
+  };
+in {
   age.secrets.gcal-oauth-credentials.file = ../gcal-oauth-credentials.age;
 
   services.mcp-proxy = {
@@ -78,27 +98,16 @@
             - Issue list: `jq '[.[] | {identifier, title, state: .state.name}]' response.json`
           '';
 
-          permission = {
+          permission = linearReadOnly // {
             "*" = "deny";
+          };
+        };
 
-            linear_get_document = "allow";
-            linear_get_issue = "allow";
-            linear_get_issue_status = "allow";
-            linear_get_project = "allow";
-            linear_get_team = "allow";
-            linear_get_user = "allow";
-            linear_list_comments = "allow";
-            linear_list_cycles = "allow";
-            linear_list_documents = "allow";
-            linear_list_issue_labels = "allow";
-            linear_list_issue_statuses = "allow";
-            linear_list_issues = "allow";
-            linear_list_my_issues = "allow";
-            linear_list_project_labels = "allow";
-            linear_list_projects = "allow";
-            linear_list_teams = "allow";
-            linear_list_users = "allow";
-            linear_search_documentation = "allow";
+        issues = {
+          description = "Create/edit Linear issues";
+          mode = "primary";
+          permission = linearReadOnly // {
+            "*" = "ask";
           };
         };
 
