@@ -76,8 +76,11 @@ in {
       listen_on = "unix:$XDG_RUNTIME_DIR/kitty-{kitty_pid}.socket";
     };
 
+    # Kitty→tmux handling of extended keys is buggy,
+    # force it to send what tmux expects no matter the state
     keybindings = {
-      "shift+enter" = "send_text all \\x1b\\x0a";
+      "shift+enter" = "send_text all \\x1b[13;2u";
+      "ctrl+enter" = "send_text all \\x1b[13;5u";
     };
 
     extraConfig = ''

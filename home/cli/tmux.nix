@@ -89,6 +89,11 @@ in {
 
       set -g default-terminal tmux-256color
 
+      # Pass through modified keys (Shift/Ctrl+Enter, etc.) to inner programs
+      set -g extended-keys on
+      set -g extended-keys-format csi-u
+      set -as terminal-features 'xterm*:extkeys'
+
       set -g allow-rename on
 
       bind-key u run-shell "${lib.getExe tmux-urlview}"
