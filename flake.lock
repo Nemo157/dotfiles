@@ -99,11 +99,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1762034856,
-        "narHash": "sha256-QVey3iP3UEoiFVXgypyjTvCrsIlA4ecx6Acaz5C8/PQ=",
+        "lastModified": 1784448989,
+        "narHash": "sha256-XC0OkWCiTM91msCp0o7zfM+iBv06mLlCzFxkP8vf+ac=",
         "owner": "zhaofengli",
         "repo": "colmena",
-        "rev": "349b035a5027f23d88eeb3bc41085d7ee29f18ed",
+        "rev": "e5eda626e459f7043868fd2e3b3bf8ce0d1992e6",
         "type": "github"
       },
       "original": {
@@ -208,6 +208,27 @@
         "type": "github"
       }
     },
+    "fetch-tangled": {
+      "inputs": {
+        "nixpkgs": [
+          "tangled",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779479671,
+        "narHash": "sha256-8PR9nZnK0Fn4gDOikz+3sLdsEJYnKC3gaunBs4N+V9Q=",
+        "ref": "refs/heads/main",
+        "rev": "2e3744d31b990248f277d16a11ef81753b366f0f",
+        "revCount": 22,
+        "type": "git",
+        "url": "https://tangled.org/isabelroses.com/fetch-tangled"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://tangled.org/isabelroses.com/fetch-tangled"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -303,6 +324,18 @@
         "type": "github"
       }
     },
+    "hls-src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-mmxgaQRXXWzRG6/OlOn5efV+NmzhvmXTQaFbODqh0b8=",
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -310,11 +343,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780361225,
-        "narHash": "sha256-wnV9ttf4fPWNonBIQmvlrSlNpQYgx5HgWWd007mwIFA=",
+        "lastModified": 1784350909,
+        "narHash": "sha256-ZWyzLbS1yKUTeFJLmdVuWNnHttL333/ldJbEE+KzCrM=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "e28654b71096e08c019d4861ca26acb646f583d8",
+        "rev": "4ce190229c73d44536caa7072f6308fb2d8feeb3",
         "type": "github"
       },
       "original": {
@@ -351,14 +384,14 @@
     "ibm-plex-mono-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1731402378,
+        "lastModified": 1731402384,
         "narHash": "sha256-OwUmrPfEehLDz0fl2ChYLK8FQM2p0G1+EMrGsYEq+6g=",
         "type": "tarball",
-        "url": "https://github.com/IBM/plex/releases/download/@ibm/plex-mono@1.1.0/ibm-plex-mono.zip"
+        "url": "https://github.com/IBM/plex/releases/download/@ibm%2Fplex-mono@1.1.0/ibm-plex-mono.zip"
       },
       "original": {
         "type": "tarball",
-        "url": "https://github.com/IBM/plex/releases/download/@ibm/plex-mono@1.1.0/ibm-plex-mono.zip"
+        "url": "https://github.com/IBM/plex/releases/download/@ibm%2Fplex-mono@1.1.0/ibm-plex-mono.zip"
       }
     },
     "indigo": {
@@ -440,6 +473,18 @@
         "url": "https://github.com/lucide-icons/lucide/releases/download/0.536.0/lucide-icons-0.536.0.zip"
       }
     },
+    "mathjax-src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-eqg25bKfiDzynRMR2RfeWNfo0EefHF/eRRFafl9RnNI=",
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/mathjax@4.1.2/tex-svg.js"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/mathjax@4.1.2/tex-svg.js"
+      }
+    },
     "mermaid-src": {
       "flake": false,
       "locked": {
@@ -450,6 +495,28 @@
       "original": {
         "type": "file",
         "url": "https://cdn.jsdelivr.net/npm/mermaid@11.12.3/dist/mermaid.min.js"
+      }
+    },
+    "microvm": {
+      "inputs": {
+        "nixpkgs": [
+          "tangled",
+          "nixpkgs"
+        ],
+        "spectrum": "spectrum"
+      },
+      "locked": {
+        "lastModified": 1779970379,
+        "narHash": "sha256-ZHsxoYXXnfJtMVh1/yY+1Eh9hHcPBhE28Qvinauh+BQ=",
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "rev": "0d49083ba2d7419b22908ac392777c16df9a032e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "type": "github"
       }
     },
     "nix-colors": {
@@ -479,11 +546,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1729742964,
-        "narHash": "sha256-B4mzTcQ0FZHdpeWcpDYPERtyjJd/NIuaQ9+BV1h+MpA=",
+        "lastModified": 1737420293,
+        "narHash": "sha256-F1G5ifvqTpJq7fdkT34e/Jy9VCyzd5XfJ9TO8fHhJWE=",
         "owner": "nix-community",
         "repo": "nix-github-actions",
-        "rev": "e04df33f62cdcf93d73e9a04142464753a16db67",
+        "rev": "f4158fa080ef4503c8f4c820967d946c2af31ec9",
         "type": "github"
       },
       "original": {
@@ -497,11 +564,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1780310866,
-        "narHash": "sha256-fPBRVf6A5xlACYcOI59shGrjURuvwu0lRsDoSCEXt/I=",
+        "lastModified": 1784310968,
+        "narHash": "sha256-rkSPTePrKqs4dg+i7ZFCq93+HrClac6oSwXX927SVjA=",
         "owner": "nixos",
         "repo": "nixos-hardware",
-        "rev": "4ed851c979641e28597a05086332d75cdc9e395f",
+        "rev": "779c32a00155994c86cde8213a8dd4df139d4355",
         "type": "github"
       },
       "original": {
@@ -540,11 +607,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1780243769,
-        "narHash": "sha256-x5UQuRsH3MqI0U9afaXSNqzTPSeZlRLvFAav2Ux1pNw=",
+        "lastModified": 1784497964,
+        "narHash": "sha256-vlHUuqAcbcH2RKmHbPiuQzbv1pnzzavXnI62RD0bqCU=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "331800de5053fcebacf6813adb5db9c9dca22a0c",
+        "rev": "241313f4e8e508cb9b13278c2b0fa25b9ca27163",
         "type": "github"
       },
       "original": {
@@ -556,11 +623,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1780453794,
-        "narHash": "sha256-bXMRa9VTsHSPXL4Cw8R6JJLQeY3Y/IP4+YJCYVmQ7FY=",
+        "lastModified": 1784432872,
+        "narHash": "sha256-n3gKTBIV4ZA5VQpUakffBe3KGu4+mhPoA34rrqS0GkA=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "6b316287bae2ee04c9b93c8c858d930fd07d7338",
+        "rev": "fd1462031fdee08f65fd0b4c6b64e22239a77870",
         "type": "github"
       },
       "original": {
@@ -578,11 +645,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780734074,
-        "narHash": "sha256-spvK3Cy+96ORm8jAm4G1S7UH30oud+Q/nrosZjrLsTY=",
+        "lastModified": 1784718333,
+        "narHash": "sha256-4TNJBborY1P06/CXP6N2FH8233TlJBZbYQ924kJf+P4=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "119292ffbe9a936788ff114e4c71f7eb744563fe",
+        "rev": "98c5d85f4c6ce78f076c30d17bb1ff65254cca54",
         "type": "github"
       },
       "original": {
@@ -638,17 +705,33 @@
         ]
       },
       "locked": {
-        "lastModified": 1780715792,
-        "narHash": "sha256-4+8gPeiPeud89mjo865RwpqmKwa1MThRsq2SvRxo7mg=",
+        "lastModified": 1784697913,
+        "narHash": "sha256-DK+AmC9SQ9hmOFNIMu1l05gJtsmKyYsfJnuFtt1TnAU=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "27b7e78c6935293ee868469cc4172e9b8b17823b",
+        "rev": "47759faaddf38fadaf172151ca9df8adae9c0b2e",
         "type": "github"
       },
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
         "type": "github"
+      }
+    },
+    "spectrum": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778940603,
+        "narHash": "sha256-voSM8dZNlaOWN3kbYFky+FNY6fFQOEw0xF+ZMpZKkCQ=",
+        "ref": "refs/heads/main",
+        "rev": "367dd227f539267eae2b62770b4c17b88ac8c1f1",
+        "revCount": 1265,
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
       }
     },
     "sqlite-lib-src": {
@@ -679,34 +762,52 @@
         "type": "github"
       }
     },
+    "tailwindcss-animated-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 499162500,
+        "narHash": "sha256-l3esIcsAwj0PHOhnHBLWiLzzRiOo1yOk9VYEGpn6fyQ=",
+        "type": "tarball",
+        "url": "https://registry.npmjs.org/tailwindcss-animated/-/tailwindcss-animated-1.1.2.tgz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://registry.npmjs.org/tailwindcss-animated/-/tailwindcss-animated-1.1.2.tgz"
+      }
+    },
     "tangled": {
       "inputs": {
         "actor-typeahead-src": "actor-typeahead-src",
         "fenix": "fenix",
+        "fetch-tangled": "fetch-tangled",
         "flake-compat": [
           "flake-compat"
         ],
         "gomod2nix": [
           "gomod2nix"
         ],
+        "hls-src": "hls-src",
         "htmx-src": "htmx-src",
         "htmx-ws-src": "htmx-ws-src",
         "ibm-plex-mono-src": "ibm-plex-mono-src",
         "indigo": "indigo",
         "inter-fonts-src": "inter-fonts-src",
         "lucide-src": "lucide-src",
+        "mathjax-src": "mathjax-src",
         "mermaid-src": "mermaid-src",
+        "microvm": "microvm",
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "sqlite-lib-src": "sqlite-lib-src"
+        "sqlite-lib-src": "sqlite-lib-src",
+        "tailwindcss-animated-src": "tailwindcss-animated-src"
       },
       "locked": {
-        "lastModified": 1780425595,
-        "narHash": "sha256-iqGE8cR8VwA11+6GgaklFxJCgq7sL8kJIOwyqhZgCTs=",
+        "lastModified": 1784715612,
+        "narHash": "sha256-L1eSLF5iLvKUp7OHQYgV0fQhXzu5UGivlNEGNYtb/N0=",
         "ref": "refs/heads/master",
-        "rev": "9f6b95dcbec8d2699fd437dd8e7ae6ae2e4a53ba",
-        "revCount": 2588,
+        "rev": "16beabbe2b0f642fa4c3193baa7676d8449e779f",
+        "revCount": 2971,
         "type": "git",
         "url": "https://tangled.org/@tangled.org/core"
       },
