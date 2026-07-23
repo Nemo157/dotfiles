@@ -76,7 +76,7 @@ in {
       set -g window-status-activity-style 'fg=terminal bg=colour18'
       set -g window-status-bell-style 'fg=terminal bg=colour18'
 
-      set -g window-status-current-style 'fg=colour17 bg=colour18'
+      set -g window-status-current-style 'fg=colour15 bg=colour19'
 
       set -g window-status-current-format ' #{?window_bell_flag,🛎️,}#I #W '
       set -g window-status-format ' #{?window_bell_flag,🛎️,}#{?window_activity_flag,⏩,}#{?window_silence_flag,🔇,}#I #W '
