@@ -1,10 +1,10 @@
-import type { AgentToolResult } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import {
+  buildDefaultSpec,
   type CliRenderResult,
+  type CliRenderSpec,
   type CliToolDetails,
-  defaultRenderResult,
   expandTilde,
   type StructuredCliToolDef,
 } from "./shared";
@@ -266,72 +266,79 @@ function formatRgOutput(
 
 // --- renderResult: compact summary + expanded matches -------------------
 
+const EXPAND_LIMIT = 300;
+
 const renderResult: CliRenderResult<RgDetails> = (
   result,
-  { expanded, isPartial },
+  opts,
   theme,
   context,
 ) => {
-  if (isPartial) return new Text(theme.fg("warning", "Searching…"), 0, 0);
-
   const details = result.details as RgDetails | undefined;
   const rg = details?.rg;
 
   // If parsing produced nothing usable (unexpected exit, no rg block), fall
-  // back to the shared default renderer so we don't silently hide errors.
+  // back to the shared default spec so we don't silently hide errors.
   if (!rg) {
-    return defaultRenderResult(
-      result as AgentToolResult<CliToolDetails>,
-      { expanded, isPartial },
+    return buildDefaultSpec(
+      result as unknown as Parameters<typeof buildDefaultSpec>[0],
+      opts,
       theme,
       context,
     );
   }
 
-  let text: string;
-  if (rg.matchCount === 0 && rg.fileCount === 0) {
-    text = theme.fg("dim", "no matches");
-  } else if (rg.filesWithMatchesOnly) {
-    text = theme.fg(
-      "success",
-      `${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
-    );
-  } else {
-    text = theme.fg(
-      "success",
-      `${rg.matchCount} match${rg.matchCount === 1 ? "" : "es"}`,
-    );
-    text += theme.fg(
-      "dim",
-      ` across ${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
-    );
-  }
-  if (rg.truncated) text += theme.fg("warning", " (truncated)");
+  const summary =
+    rg.matchCount === 0 && rg.fileCount === 0
+      ? theme.fg("dim", "no matches")
+      : rg.filesWithMatchesOnly
+        ? theme.fg(
+            "success",
+            `${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
+          )
+        : theme.fg(
+            "success",
+            `${rg.matchCount} match${rg.matchCount === 1 ? "" : "es"}`,
+          ) +
+          theme.fg(
+            "dim",
+            ` across ${rg.fileCount} file${rg.fileCount === 1 ? "" : "s"}`,
+          );
 
-  if (expanded) {
-    const EXPAND_LIMIT = 300;
-    let shown = 0;
-    for (const file of rg.files) {
-      if (shown >= EXPAND_LIMIT) break;
-      text += `\n${theme.fg("accent", file.path)}`;
-      shown++;
-      if (rg.filesWithMatchesOnly) continue;
-      for (const m of file.matches) {
-        if (shown >= EXPAND_LIMIT) break;
-        const gutter = String(m.lineNumber).padStart(5);
-        text += `\n${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`;
-        shown++;
-      }
-    }
-    const total = rg.filesWithMatchesOnly
-      ? rg.fileCount
-      : rg.matchCount + rg.fileCount;
-    if (shown < total) {
-      text += `\n${theme.fg("muted", `… ${total - shown} more line(s)`)}`;
+  const totalOutputLines = rg.filesWithMatchesOnly
+    ? rg.fileCount
+    : rg.matchCount + rg.fileCount;
+
+  // Build the listing up to EXPAND_LIMIT; the shared layer decides whether
+  // to actually show it based on expanded / outputLines.
+  const outLines: string[] = [];
+  outer: for (const file of rg.files) {
+    if (outLines.length >= EXPAND_LIMIT) break;
+    outLines.push(theme.fg("accent", file.path));
+    if (rg.filesWithMatchesOnly) continue;
+    for (const m of file.matches) {
+      if (outLines.length >= EXPAND_LIMIT) break outer;
+      const gutter = String(m.lineNumber).padStart(5);
+      outLines.push(
+        `${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`,
+      );
     }
   }
+  if (outLines.length < totalOutputLines) {
+    outLines.push(
+      theme.fg("muted", `… ${totalOutputLines - outLines.length} more line(s)`),
+    );
+  }
 
-  return new Text(text, 0, 0);
+  const output =
+    outLines.length > 0 ? new Text(outLines.join("\n"), 0, 0) : undefined;
+  const spec: CliRenderSpec = {
+    summary,
+    output,
+    outputLines: outLines.length,
+  };
+  if (rg.truncated) spec.trailer = theme.fg("warning", "(truncated)");
+  return spec;
 };
 
 // --- tool definition -----------------------------------------------------
@@ -340,6 +347,7 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
   name: "rg",
   label: "rg (ripgrep)",
   command: "rg",
+  partialLabel: "Searching…",
   description:
     "Search file contents with ripgrep. Provide a `pattern` plus optional " +
     "typed flags and `path`. Respects .gitignore by default. Read-only.",

@@ -8,7 +8,7 @@ import type {
   AgentToolResult,
   ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
-import { type Component, Text } from "@earendil-works/pi-tui";
+import { type Component, Container, Spacer, Text } from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
 import { spawn } from "node:child_process";
 import { homedir } from "node:os";
@@ -30,6 +30,8 @@ export function expandTilde(p: string): string {
 const HEADER_MAX_LEN = 200;
 // How many output lines to show when the tool row is expanded.
 const EXPANDED_MAX_LINES = 200;
+// When collapsed, show the full output inline if it's at most this many lines.
+export const COLLAPSED_INLINE_MAX_LINES = 6;
 
 /**
  * Structured details attached to every cli-tool result. Custom `renderResult`
@@ -48,13 +50,41 @@ export interface CliToolDetails {
 // Extract the exact signature pi uses so extension code stays in sync with
 // its private `Theme` / `ToolRenderContext` types without importing them.
 type RegisterToolArg = Parameters<ExtensionAPI["registerTool"]>[0];
-type RenderResultFn = NonNullable<RegisterToolArg["renderResult"]>;
+type PiRenderResultFn = NonNullable<RegisterToolArg["renderResult"]>;
+
+/**
+ * A tool's renderer returns one of these instead of building a `Component`
+ * itself. `registerCliTool` handles layout: it decides whether to show the
+ * one-line summary or expand the output block, adds separators, etc. This
+ * keeps the collapse/expand/inline-short-output policy in one place so every
+ * cli-tool behaves consistently.
+ */
+export interface CliRenderSpec {
+  /** One-line description shown when the row is collapsed and the output
+   *  isn't being inlined. Should already be styled with `theme.fg(...)`. */
+  summary: string;
+  /** Always-visible prefix (e.g. "exit 1", "timed out", "blocked: …"). Shown
+   *  inline with the summary when collapsed, or as its own line above the
+   *  output when the row shows the output. */
+  status?: string;
+  /** Component to render when the row shows output (expanded, or short
+   *  enough to inline while collapsed). */
+  output?: Component;
+  /** Rendered line count of `output`. Only used to decide whether a collapsed
+   *  row is short enough to inline the output; if omitted or too large the
+   *  collapsed row stays on the summary line. */
+  outputLines?: number;
+  /** Trailer such as "(truncated)". Rendered inline after the summary when
+   *  collapsed, or as its own line below the output when the row shows it. */
+  trailer?: string;
+}
+
 export type CliRenderResult<TDetails = CliToolDetails> = (
   result: AgentToolResult<TDetails>,
-  options: Parameters<RenderResultFn>[1],
-  theme: Parameters<RenderResultFn>[2],
-  context: Parameters<RenderResultFn>[3],
-) => Component;
+  options: Parameters<PiRenderResultFn>[1],
+  theme: Parameters<PiRenderResultFn>[2],
+  context: Parameters<PiRenderResultFn>[3],
+) => CliRenderSpec;
 
 /**
  * Raw output from the subprocess handed to `postProcess` hooks.
@@ -120,10 +150,14 @@ export interface BaseCliToolFields {
    */
   postProcess?: (raw: RawCommandResult) => PostProcessResult;
   /**
-   * Optional override for the result row. Falls back to `defaultRenderResult`
-   * (compact "N lines of output" summary + expanded output) if not provided.
+   * Optional override for the result row. Returns a {@link CliRenderSpec};
+   * `registerCliTool` handles the collapse/expand layout. Falls back to
+   * {@link buildDefaultSpec} (stdout/stderr + "N lines of output" summary)
+   * when not provided.
    */
   renderResult?: CliRenderResult<any>;
+  /** Label shown while the call is streaming. Defaults to "Running…". */
+  partialLabel?: string;
 }
 
 /**
@@ -243,18 +277,59 @@ function countNonEmptyLines(text: string): number {
 }
 
 /**
- * Default result renderer: one-line status ("done" / "exit N") plus "N lines
- * of output", and when the row is expanded, the actual stdout/stderr. Any
- * tool can override this via `renderResult` on its def.
+ * Turn a {@link CliRenderSpec} into the final `Component`. Applies the shared
+ * collapse / expand / inline-short-output policy:
+ *
+ *   - collapsed + no output (or too many lines): render `status? summary trailer?`
+ *     on a single line.
+ *   - collapsed + output ≤ {@link COLLAPSED_INLINE_MAX_LINES}: render `status?`,
+ *     a blank spacer, `output`, and `trailer?` stacked.
+ *   - expanded: same as inline case, but without the size cap.
  */
-export const defaultRenderResult: CliRenderResult = (
+function renderSpec(
+  spec: CliRenderSpec,
+  expanded: boolean,
+): Component {
+  const size = spec.outputLines ?? 0;
+  const inline =
+    !expanded &&
+    spec.output !== undefined &&
+    size > 0 &&
+    size <= COLLAPSED_INLINE_MAX_LINES;
+  const showOutput = (expanded && spec.output !== undefined) || inline;
+
+  if (!showOutput) {
+    let head = spec.status ?? "";
+    if (spec.summary) {
+      if (head) head += " ";
+      head += spec.summary;
+    }
+    if (spec.trailer) {
+      if (head) head += " ";
+      head += spec.trailer;
+    }
+    return new Text(head, 0, 0);
+  }
+
+  const c = new Container();
+  if (spec.status) c.addChild(new Text(spec.status, 0, 0));
+  // Blank line between the invocation header (or status) and the output.
+  c.addChild(new Spacer(1));
+  c.addChild(spec.output!);
+  if (spec.trailer) c.addChild(new Text(spec.trailer, 0, 0));
+  return c;
+}
+
+/**
+ * Default spec builder: turns stdout/stderr into a colored `Text` output and
+ * derives `status` / `summary` from exit code, timeout, and blocked state.
+ */
+export const buildDefaultSpec: CliRenderResult = (
   result,
-  { expanded, isPartial },
+  _opts,
   theme,
   _context,
 ) => {
-  if (isPartial) return new Text(theme.fg("warning", "Running…"), 0, 0);
-
   const details = result.details as CliToolDetails | undefined;
   const stdout = details?.stdout ?? "";
   const stderr = details?.stderr ?? "";
@@ -266,76 +341,109 @@ export const defaultRenderResult: CliRenderResult = (
   // that case, so detect it by the absence of the fields we always set.
   const notRun = !details || details.command === undefined;
 
-  // Collect any text content the caller (or an upstream blocker like the
-  // permission system) attached to the result. Used for both the inline
-  // "blocked: <reason>" summary and the expanded view when notRun.
+  // Text content attached to the result (used for the blocker message).
   const contentText = (result.content ?? [])
     .filter((p): p is { type: "text"; text: string } => p.type === "text")
     .map((p) => p.text)
     .join("\n")
     .trim();
 
-  let text = "";
   if (timedOut) {
-    text += theme.fg("error", "timed out");
-  } else if (notRun) {
-    text += theme.fg("error", "blocked");
-    // Inline the first line of the blocker's message so the collapsed row
-    // still conveys *why* the call didn't run.
-    const firstLine = contentText.split("\n", 1)[0] ?? "";
-    if (firstLine.length > 0) {
-      const HEADLINE_MAX = 120;
-      const trimmed =
-        firstLine.length > HEADLINE_MAX
-          ? firstLine.slice(0, HEADLINE_MAX - 1) + "…"
-          : firstLine;
-      text += theme.fg("dim", `: ${trimmed}`);
-    }
-  } else if (exitCode === 0 || exitCode === null) {
-    text += theme.fg("success", "done");
-  } else {
-    text += theme.fg("error", `exit ${exitCode}`);
+    return { summary: "", status: theme.fg("error", "timed out") };
   }
 
-  const stdoutLines = countNonEmptyLines(stdout);
-  const stderrLines = countNonEmptyLines(stderr);
-  const totalLines = stdoutLines + stderrLines;
-  if (!notRun && !timedOut) {
-    text += theme.fg(
-      "dim",
-      ` (${totalLines} line${totalLines === 1 ? "" : "s"} of output)`,
-    );
+  if (notRun) {
+    const lines = contentText.length > 0 ? contentText.split("\n") : [];
+    const firstLine = lines[0] ?? "";
+    const HEADLINE_MAX = 120;
+    const headline =
+      firstLine.length > HEADLINE_MAX
+        ? firstLine.slice(0, HEADLINE_MAX - 1) + "…"
+        : firstLine;
+    let status = theme.fg("error", "blocked");
+    if (headline.length > 0) status += theme.fg("dim", `: ${headline}`);
+    const output =
+      lines.length > 0
+        ? new Text(lines.map((l) => theme.fg("error", l)).join("\n"), 0, 0)
+        : undefined;
+    return {
+      summary: "",
+      status,
+      output,
+      outputLines: lines.length,
+    };
   }
 
-  if (expanded && notRun && contentText.length > 0) {
-    for (const line of contentText.split("\n")) {
-      text += `\n${theme.fg("error", line)}`;
+  const stdoutTrimmed = stdout.replace(/\s+$/, "");
+  const stderrTrimmed = stderr.replace(/\s+$/, "");
+  const stdoutRawLines = stdoutTrimmed.length > 0 ? stdoutTrimmed.split("\n") : [];
+  const stderrRawLines = stderrTrimmed.length > 0 ? stderrTrimmed.split("\n") : [];
+  const totalRawLines = stdoutRawLines.length + stderrRawLines.length;
+  const totalNonEmpty =
+    countNonEmptyLines(stdout) + countNonEmptyLines(stderr);
+
+  // Build the output component: stdout in dim, then "--- stderr ---" divider
+  // and stderr in error, each capped at EXPANDED_MAX_LINES with a "… N more"
+  // tail.
+  const chunks: string[] = [];
+  let extraTailLines = 0;
+  if (stdoutRawLines.length > 0) {
+    const shown = stdoutRawLines.slice(0, EXPANDED_MAX_LINES);
+    for (const line of shown) chunks.push(theme.fg("dim", line));
+    if (stdoutRawLines.length > EXPANDED_MAX_LINES) {
+      chunks.push(
+        theme.fg(
+          "muted",
+          `… ${stdoutRawLines.length - EXPANDED_MAX_LINES} more line(s)`,
+        ),
+      );
+      extraTailLines++;
     }
   }
-
-  if (expanded && !notRun) {
-    const stdoutTrimmed = stdout.replace(/\s+$/, "");
-    if (stdoutTrimmed.length > 0) {
-      const lines = stdoutTrimmed.split("\n");
-      const shown = lines.slice(0, EXPANDED_MAX_LINES);
-      for (const line of shown) text += `\n${theme.fg("dim", line)}`;
-      if (lines.length > EXPANDED_MAX_LINES) {
-        text += `\n${theme.fg("muted", `… ${lines.length - EXPANDED_MAX_LINES} more line(s)`)}`;
-      }
-    }
-    const stderrTrimmed = stderr.replace(/\s+$/, "");
-    if (stderrTrimmed.length > 0) {
-      text += `\n${theme.fg("muted", "--- stderr ---")}`;
-      const lines = stderrTrimmed.split("\n");
-      const shown = lines.slice(0, EXPANDED_MAX_LINES);
-      for (const line of shown) text += `\n${theme.fg("error", line)}`;
-      if (lines.length > EXPANDED_MAX_LINES) {
-        text += `\n${theme.fg("muted", `… ${lines.length - EXPANDED_MAX_LINES} more line(s)`)}`;
-      }
+  if (stderrRawLines.length > 0) {
+    chunks.push(theme.fg("muted", "--- stderr ---"));
+    extraTailLines++;
+    const shown = stderrRawLines.slice(0, EXPANDED_MAX_LINES);
+    for (const line of shown) chunks.push(theme.fg("error", line));
+    if (stderrRawLines.length > EXPANDED_MAX_LINES) {
+      chunks.push(
+        theme.fg(
+          "muted",
+          `… ${stderrRawLines.length - EXPANDED_MAX_LINES} more line(s)`,
+        ),
+      );
+      extraTailLines++;
     }
   }
+  const output =
+    chunks.length > 0 ? new Text(chunks.join("\n"), 0, 0) : undefined;
+  // outputLines is used only to decide inline vs. summary while collapsed.
+  // Count the raw output lines plus any dividers/tails we injected.
+  const outputLines = totalRawLines + extraTailLines;
 
-  return new Text(text, 0, 0);
+  const status =
+    exitCode === 0 || exitCode === null
+      ? undefined
+      : theme.fg("error", `exit ${exitCode}`);
+  const summaryBase =
+    exitCode === 0 || exitCode === null
+      ? theme.fg("success", "done")
+      : "";
+  const summary =
+    totalNonEmpty > 0
+      ? (summaryBase
+          ? summaryBase +
+            theme.fg(
+              "dim",
+              ` (${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
+            )
+          : theme.fg(
+              "dim",
+              `(${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
+            ))
+      : summaryBase;
+
+  return { summary, status, output, outputLines };
 };
 
 export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
@@ -403,6 +511,21 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       return new Text(text, 0, 0);
     },
 
-    renderResult: def.renderResult ?? defaultRenderResult,
+    renderResult(result, opts, theme, ctx) {
+      if (opts.isPartial) {
+        return new Text(
+          theme.fg("warning", def.partialLabel ?? "Running…"),
+          0,
+          0,
+        );
+      }
+      const spec = (def.renderResult ?? buildDefaultSpec)(
+        result,
+        opts,
+        theme,
+        ctx,
+      );
+      return renderSpec(spec, opts.expanded);
+    },
   });
 }
