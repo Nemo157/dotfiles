@@ -134,4 +134,127 @@ const jjLog: StructuredCliToolDef<typeof jjLogParams> = {
   },
 };
 
-export const jjTools = [jjStatus, jjDiff, jjLog];
+// jj-describe -----------------------------------------------------------
+
+const jjDescribeParams = Type.Object({
+  message: Type.String({
+    description: "Description to set on the revision (-m <message>).",
+  }),
+  revision: Type.Optional(
+    Type.String({
+      description:
+        "Revision to describe (-r <rev>). Defaults to the working-copy " +
+        "revision (@).",
+    }),
+  ),
+});
+
+const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
+  name: "jj-describe",
+  label: "jj describe",
+  command: "jj",
+  description:
+    "Set the description (commit message) of a jj revision. Defaults to " +
+    "the working copy (@) when `revision` is omitted.",
+  parameters: jjDescribeParams,
+  buildArgs(p) {
+    // `-m` on its own keeps jj non-interactive; `--no-edit` is a separate
+    // mode that preserves the existing description and is incompatible
+    // with `-m`.
+    const args: string[] = ["describe", "-m", p.message];
+    if (p.revision !== undefined) args.push("-r", p.revision);
+    return args;
+  },
+};
+
+// jj-commit -------------------------------------------------------------
+
+const jjCommitParams = Type.Object({
+  message: Type.String({
+    description: "Description for the committed revision (-m <message>).",
+  }),
+});
+
+const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
+  name: "jj-commit",
+  label: "jj commit",
+  command: "jj",
+  description:
+    "Finalise the current working-copy change with the given description " +
+    "and start a new empty working-copy commit on top.",
+  parameters: jjCommitParams,
+  buildArgs(p) {
+    return ["commit", "-m", p.message];
+  },
+};
+
+// jj-squash -------------------------------------------------------------
+
+const jjSquashParams = Type.Object({
+  revision: Type.Optional(
+    Type.String({
+      description:
+        "Revision to squash into its parent (-r <rev>). Mutually " +
+        "exclusive with `from`/`into`.",
+    }),
+  ),
+  from: Type.Optional(
+    Type.String({
+      description: "Source revision to squash from (--from <rev>).",
+    }),
+  ),
+  into: Type.Optional(
+    Type.String({
+      description: "Destination revision to squash into (--into <rev>).",
+    }),
+  ),
+  message: Type.Optional(
+    Type.String({
+      description:
+        "Description to set on the destination revision (-m <message>). " +
+        "When omitted, the source and destination descriptions are " +
+        "combined via --no-edit.",
+    }),
+  ),
+  useDestinationMessage: Type.Optional(
+    Type.Boolean({
+      description:
+        "Keep the destination revision's existing description " +
+        "(--use-destination-message / -u).",
+    }),
+  ),
+  keepEmptied: Type.Optional(
+    Type.Boolean({
+      description:
+        "Do not abandon the source revision if it becomes empty " +
+        "(--keep-emptied).",
+    }),
+  ),
+});
+
+const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
+  name: "jj-squash",
+  label: "jj squash",
+  command: "jj",
+  description:
+    "Squash changes from one revision into another. Defaults to squashing " +
+    "the working copy into its parent; narrow with `revision` or " +
+    "`from`/`into`.",
+  parameters: jjSquashParams,
+  buildArgs(p) {
+    const args: string[] = ["squash"];
+    if (p.revision !== undefined) args.push("-r", p.revision);
+    if (p.from !== undefined) args.push("--from", p.from);
+    if (p.into !== undefined) args.push("--into", p.into);
+    if (p.message !== undefined) {
+      args.push("-m", p.message);
+    } else {
+      args.push("--no-edit");
+    }
+    if (p.useDestinationMessage) args.push("--use-destination-message");
+    if (p.keepEmptied) args.push("--keep-emptied");
+    return args;
+  },
+};
+
+export const jjTools = [jjStatus, jjDiff, jjLog, jjDescribe, jjCommit, jjSquash];
