@@ -26,8 +26,6 @@ export function expandTilde(p: string): string {
   return p;
 }
 
-// Cap the rendered command line so long argv doesn't blow up the header.
-const HEADER_MAX_LEN = 200;
 // How many output lines to show when the tool row is expanded.
 const EXPANDED_MAX_LINES = 200;
 // When collapsed, show the full output inline if it's at most this many lines.
@@ -117,9 +115,7 @@ function shellQuote(arg: string): string {
 }
 
 function buildInvocation(command: string, args: string[]): string {
-  const parts = [command, ...args.map(shellQuote)].join(" ");
-  if (parts.length <= HEADER_MAX_LEN) return parts;
-  return parts.slice(0, HEADER_MAX_LEN - 1) + "…";
+  return [command, ...args.map(shellQuote)].join(" ");
 }
 
 function computeArgs(def: CliToolDef, params: unknown): string[] {
