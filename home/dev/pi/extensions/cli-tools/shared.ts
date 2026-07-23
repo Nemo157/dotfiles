@@ -9,7 +9,7 @@ import type {
   ExtensionAPI,
 } from "@earendil-works/pi-coding-agent";
 import { type Component, Text } from "@earendil-works/pi-tui";
-import { Type, type Static, type TSchema } from "typebox";
+import type { Static, TSchema } from "typebox";
 import { spawn } from "node:child_process";
 import { homedir } from "node:os";
 
@@ -93,13 +93,7 @@ function buildInvocation(command: string, args: string[]): string {
 }
 
 function computeArgs(def: CliToolDef, params: unknown): string[] {
-  if (isStructured(def)) {
-    return def.buildArgs(params as Static<typeof def.parameters>);
-  }
-  const extra = def.acceptArgs
-    ? ((params as { args?: string[] } | undefined)?.args ?? [])
-    : [];
-  return [...(def.baseArgs ?? []), ...extra];
+  return def.buildArgs(params as Static<typeof def.parameters>);
 }
 
 export interface BaseCliToolFields {
@@ -133,18 +127,6 @@ export interface BaseCliToolFields {
 }
 
 /**
- * Simple wrapper: fixed `baseArgs`, plus optional freeform `acceptArgs` for
- * cases where a small amount of extra flexibility is safe and needed. Use
- * this for read-only inspection commands.
- */
-export interface SimpleCliToolDef extends BaseCliToolFields {
-  baseArgs?: string[];
-  acceptArgs?: boolean;
-  parameters?: undefined;
-  buildArgs?: undefined;
-}
-
-/**
  * Structured wrapper: explicit `parameters` schema and a `buildArgs` function
  * that maps typed params to argv. `buildArgs` is responsible for placing a
  * `--` separator before any user-supplied paths.
@@ -163,7 +145,7 @@ export interface StructuredCliToolDef<T extends TSchema = TSchema>
   buildArgs: (params: Static<T>) => string[];
 }
 
-export type CliToolDef = SimpleCliToolDef | StructuredCliToolDef;
+export type CliToolDef = StructuredCliToolDef;
 
 interface RunResult {
   stdout: string;
@@ -356,31 +338,14 @@ export const defaultRenderResult: CliRenderResult = (
   return new Text(text, 0, 0);
 };
 
-function isStructured(def: CliToolDef): def is StructuredCliToolDef {
-  return typeof (def as StructuredCliToolDef).buildArgs === "function";
-}
-
 export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
-  const parameters: TSchema = isStructured(def)
-    ? def.parameters
-    : def.acceptArgs
-      ? Type.Object({
-          args: Type.Optional(
-            Type.Array(Type.String(), {
-              description:
-                "Additional positional arguments appended to the base command.",
-            }),
-          ),
-        })
-      : Type.Object({});
-
   pi.registerTool({
     name: def.name,
     label: def.label,
     description: def.description,
     promptSnippet: def.promptSnippet,
     promptGuidelines: def.promptGuidelines,
-    parameters,
+    parameters: def.parameters,
     async execute(_toolCallId, params, signal, _onUpdate, ctx) {
       const args = computeArgs(def, params);
       const result = await runCommand(def.command, args, {

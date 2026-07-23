@@ -4,13 +4,11 @@
 // letting the agent shell out freely we register one purpose-built tool per
 // common task. Individual tools live in sibling files and are collected here.
 //
-// Two flavours of tool definition are supported (see shared.ts):
-//   * Simple wrappers (jj/git): fixed `baseArgs`, plus optional freeform
-//     `acceptArgs`. Read-only inspection only.
-//   * Structured wrappers (rg, fd): explicit `parameters` schema and a
-//     `buildArgs` function that maps typed params to argv. User-supplied
-//     paths are appended after a `--` separator so they cannot be
-//     misinterpreted as flags.
+// Every wrapper is structured (see shared.ts): an explicit `parameters`
+// schema plus a `buildArgs` function that maps typed params to argv. This
+// keeps the exposed surface read-only (no freeform passthrough args) and
+// appends any user-supplied path after a `--` separator so it cannot be
+// misinterpreted as a flag.
 //
 // Keep wrappers small and read-only where possible; anything that mutates
 // repo/system state should go through `ask` semantics (see the
