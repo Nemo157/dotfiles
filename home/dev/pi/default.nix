@@ -5,9 +5,30 @@ let
 
   pi-coding-agent = pkgs.unstable.pi-coding-agent;
 
-  extensions = {
-    pi-permission-system = pkgs.callPackage ./extensions/pi-permission-system { };
+  settings = {
+    defaultProvider = "anthropic";
+    defaultModel = "claude-opus-4-7";
+    defaultThinkingLevel = "medium";
+
+    quietStartup = true;
+    enableInstallTelemetry = false;
+
+    theme = "base24-ansi";
+    themes = [ "${./themes}" ];
+
+    packages = [
+      (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
+    ];
+
+    extensions = [
+      "${./extensions/cli-tools}/index.ts"
+    ];
   };
+
+  referenceDirs =
+    [ "${pi-coding-agent}/lib/node_modules/pi-monorepo" ]
+    ++ settings.packages
+    ++ map (builtins.dirOf) settings.extensions;
 
   pi-wrapped = pkgs.symlinkJoin {
     pname = "pi-coding-agent-wrapped";
@@ -28,25 +49,24 @@ in
   home.packages = [ pi-wrapped ];
 
   xdg.configFile = {
-    "pi/settings.json".text = builtins.toJSON {
-      defaultProvider = "anthropic";
-      defaultModel = "claude-opus-4-7";
-      defaultThinkingLevel = "medium";
+    "pi/settings.json".text = builtins.toJSON settings;
 
-      quietStartup = true;
-      enableInstallTelemetry = false;
+    "pi/APPEND_SYSTEM.md".text = ''
 
-      theme = "base24-ansi";
-      themes = [ "${./themes}" ];
+      ## Pi Setup Notes
 
-      packages = [
-        "${extensions.pi-permission-system.packageRoot}"
-      ];
+      You do not have direct bash/shell access in this pi setup. The `bash`
+      tool is denied; instead, a curated set of local CLI wrappers is exposed
+      as individual tools (e.g. `read`, `edit`, `write`, `rg`, `fd`,
+      `jj-status`, `jj-diff`, `jj-log`, `git-status`, `git-diff`, `git-log`).
 
-      extensions = [
-        "${./extensions/cli-tools}/index.ts"
-      ];
-    };
+      If you need a command that isn't available as a registered tool, do not
+      try to work around it or fabricate output. Stop and ask the user to add
+      the missing tool to the `cli-tools` extension.
+
+      Self-reference directories readable outside the working tree:
+      ${lib.concatMapStringsSep "\n" (p: "- ${p}") referenceDirs}
+    '';
 
     "pi/extensions/pi-permission-system/config.json".text = builtins.toJSON {
       permission = {
@@ -84,7 +104,18 @@ in
         rg = "allow";
         fd = "allow";
 
-        external_directory = "ask";
+        external_directory = {
+          "*" = "ask";
+        } // lib.listToAttrs (lib.concatMap (d: [
+          {
+            name = builtins.unsafeDiscardStringContext d;
+            value = "allow";
+          }
+          {
+            name = builtins.unsafeDiscardStringContext "${d}/*";
+            value = "allow";
+          }
+        ]) referenceDirs);
       };
     };
 
