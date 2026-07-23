@@ -36,6 +36,9 @@ in
       quietStartup = true;
       enableInstallTelemetry = false;
 
+      theme = "base24-ansi";
+      themes = [ "${./themes}" ];
+
       packages = [
         "${extensions.pi-permission-system.packageRoot}"
       ];
