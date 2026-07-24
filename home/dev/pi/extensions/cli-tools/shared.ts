@@ -188,7 +188,15 @@ interface RunResult {
 function runCommand(
   command: string,
   args: string[],
-  opts: { cwd: string; signal?: AbortSignal; timeoutMs: number },
+  opts: {
+    cwd: string;
+    signal?: AbortSignal;
+    timeoutMs: number;
+    /** Called after each stdout chunk with the full accumulated buffer. */
+    onStdout?: (buf: string) => void;
+    /** Called after each stderr chunk with the full accumulated buffer. */
+    onStderr?: (buf: string) => void;
+  },
 ): Promise<RunResult> {
   return new Promise((resolve) => {
     const child = spawn(command, args, {
@@ -205,9 +213,11 @@ function runCommand(
     child.stderr.setEncoding("utf8");
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
+      opts.onStdout?.(stdout);
     });
     child.stderr.on("data", (chunk) => {
       stderr += chunk;
+      opts.onStderr?.(stderr);
     });
 
     const timer = setTimeout(() => {
@@ -313,6 +323,65 @@ function renderSpec(
   c.addChild(new Spacer(1));
   c.addChild(spec.output!);
   if (spec.trailer) c.addChild(new Text(spec.trailer, 0, 0));
+  return c;
+}
+
+// Tail size shown while streaming a partial result when the row is
+// collapsed. Matches COLLAPSED_INLINE_MAX_LINES so a short-output tool
+// transitions smoothly from streaming into its final inline render.
+const STREAMING_TAIL_LINES = COLLAPSED_INLINE_MAX_LINES;
+
+/**
+ * Render a live tail of stdout/stderr while the subprocess is still running.
+ * Layout (collapsed):
+ *   ⋮ N earlier line(s)      (only if > STREAMING_TAIL_LINES lines so far)
+ *   … last STREAMING_TAIL_LINES lines…
+ *   ⋮ <partialLabel>          ("Linting…", "Testing…", etc.)
+ *
+ * When expanded we show the same layout but cap the tail at
+ * EXPANDED_MAX_LINES instead. If nothing has streamed yet, fall back to a
+ * plain one-line label.
+ */
+function renderStreamingTail(
+  details: CliToolDetails | undefined,
+  partialLabel: string,
+  theme: Parameters<PiRenderResultFn>[2],
+  expanded: boolean,
+): Component {
+  const stdout = details?.stdout ?? "";
+  const stderr = details?.stderr ?? "";
+  // stdout / stderr arrive on separate Node streams so we don't have true
+  // interleaving. For a streaming tail this is fine — users just want to
+  // see "what's happening". Concatenate with stderr after stdout.
+  const joined =
+    stdout.length > 0 && stderr.length > 0
+      ? stdout + (stdout.endsWith("\n") ? "" : "\n") + stderr
+      : stdout + stderr;
+  const trimmed = joined.replace(/\r?\n$/, "");
+
+  if (trimmed.length === 0) {
+    return new Text(theme.fg("warning", `⋮ ${partialLabel}`), 0, 0);
+  }
+
+  const lines = trimmed.split("\n");
+  const tailN = expanded ? EXPANDED_MAX_LINES : STREAMING_TAIL_LINES;
+  const hidden = Math.max(0, lines.length - tailN);
+  const tail = lines.slice(-tailN);
+
+  const c = new Container();
+  if (hidden > 0) {
+    c.addChild(
+      new Text(
+        theme.fg("muted", `⋮ ${hidden} earlier line${hidden === 1 ? "" : "s"}`),
+        0,
+        0,
+      ),
+    );
+  }
+  for (const line of tail) {
+    c.addChild(new Text(theme.fg("dim", line), 0, 0));
+  }
+  c.addChild(new Text(theme.fg("warning", `⋮ ${partialLabel}`), 0, 0));
   return c;
 }
 
@@ -450,13 +519,64 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     promptSnippet: def.promptSnippet,
     promptGuidelines: def.promptGuidelines,
     parameters: def.parameters,
-    async execute(_toolCallId, params, signal, _onUpdate, ctx) {
+    async execute(_toolCallId, params, signal, onUpdate, ctx) {
       const args = computeArgs(def, params);
+
+      // Streaming: for tools without a postProcess hook, forward partial
+      // stdout/stderr to pi as the subprocess runs so the TUI can show a
+      // live tail. postProcess tools (e.g. rg --json) buffer structured
+      // output that only makes sense after the fact, so we skip streaming
+      // for them. Partial updates carry empty text content — the LLM only
+      // ever sees the final result.
+      const shouldStream = onUpdate !== undefined && def.postProcess === undefined;
+      let pending: NodeJS.Timeout | null = null;
+      let latestStdout = "";
+      let latestStderr = "";
+      const flush = () => {
+        pending = null;
+        if (!onUpdate) return;
+        onUpdate({
+          content: [{ type: "text", text: "" }],
+          details: {
+            command: def.command,
+            args,
+            stdout: latestStdout,
+            stderr: latestStderr,
+            exitCode: null,
+            signal: null,
+            timedOut: false,
+          },
+          isError: false,
+        });
+      };
+      const scheduleFlush = () => {
+        if (!shouldStream || pending) return;
+        // ~60ms coalescing window: fast enough to feel live, slow enough
+        // that a chatty subprocess doesn't flood pi with re-renders.
+        pending = setTimeout(flush, 60);
+      };
+
       const result = await runCommand(def.command, args, {
         cwd: ctx.cwd,
         signal,
         timeoutMs: def.timeoutMs ?? 30_000,
+        onStdout: shouldStream
+          ? (buf) => {
+              latestStdout = buf;
+              scheduleFlush();
+            }
+          : undefined,
+        onStderr: shouldStream
+          ? (buf) => {
+              latestStderr = buf;
+              scheduleFlush();
+            }
+          : undefined,
       });
+      if (pending) {
+        clearTimeout(pending);
+        pending = null;
+      }
       const baseDetails: CliToolDetails = {
         command: def.command,
         args,
@@ -509,10 +629,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
 
     renderResult(result, opts, theme, ctx) {
       if (opts.isPartial) {
-        return new Text(
-          theme.fg("warning", def.partialLabel ?? "Running…"),
-          0,
-          0,
+        return renderStreamingTail(
+          result.details as CliToolDetails | undefined,
+          def.partialLabel ?? "Running…",
+          theme,
+          opts.expanded,
         );
       }
       const spec = (def.renderResult ?? buildDefaultSpec)(
