@@ -154,8 +154,13 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
   label: "jj describe",
   command: "jj",
   description:
-    "Set the description (commit message) of a jj revision. Defaults to " +
-    "the working copy (@) when `revision` is omitted.",
+    "Set the description (commit message) of a jj revision without " +
+    "closing it off. Defaults to the working copy (@) when `revision` is " +
+    "omitted. Prefer `jj-commit` for the working copy: `jj-describe` " +
+    "leaves @ open, so any further edits in the same session pile onto " +
+    "the same revision. Use `jj-describe` only when retitling an existing " +
+    "non-@ revision, or when you are certain no further edits will " +
+    "follow.",
   parameters: jjDescribeParams,
   buildArgs(p) {
     // `-m` on its own keeps jj non-interactive; `--no-edit` is a separate
@@ -181,7 +186,11 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
   command: "jj",
   description:
     "Finalise the current working-copy change with the given description " +
-    "and start a new empty working-copy commit on top.",
+    "and start a new empty working-copy commit on top. This is the " +
+    "correct tool for 'commit what I just did' \u2014 use it whenever any " +
+    "further edits might follow, because it seals the described revision " +
+    "so subsequent changes land in a fresh @. Prefer `jj-commit` over " +
+    "`jj-describe` for the working copy.",
   parameters: jjCommitParams,
   buildArgs(p) {
     return ["commit", "-m", p.message];
