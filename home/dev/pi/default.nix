@@ -22,6 +22,7 @@ let
 
     extensions = [
       "${./extensions/cli-tools}/index.ts"
+      "${./extensions/edit-toggle}/index.ts"
     ];
   };
 
@@ -69,6 +70,12 @@ in
     '';
 
     "pi/extensions/pi-permission-system/config.json".text = builtins.toJSON {
+      # Live-authority chain: our local `edit-toggle` extension registers a
+      # link with this name via registerAuthorizer. Naming it here is the
+      # opt-in activation — without this entry the link would be inert.
+      # See home/dev/pi/extensions/edit-toggle/index.ts.
+      authorizerChain = [ "edit-toggle" ];
+
       permission = {
         "*" = "ask";
 
