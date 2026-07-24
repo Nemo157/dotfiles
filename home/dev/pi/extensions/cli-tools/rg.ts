@@ -1,5 +1,5 @@
 import { Text } from "@earendil-works/pi-tui";
-import { Type } from "typebox";
+import { type Static, Type } from "typebox";
 import {
   buildDefaultSpec,
   type CliRenderResult,
@@ -374,7 +374,8 @@ function renderRgPartial(
   theme: Parameters<CliRenderResult>[2],
   _expanded: boolean,
 ): CliRenderSpec {
-  const filesWithMatchesOnly = details.args.includes("-l");
+  const params = details.params as Static<typeof rgParams> | undefined;
+  const filesWithMatchesOnly = params?.filesWithMatches === true;
   const parsed = parseRgJsonl(details.stdout);
   const totalMatches = parsed.matchCount;
   const totalFiles = parsed.files.length;
@@ -466,12 +467,18 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     // Always emit --json; we re-format output for the LLM and TUI in
     // postProcess/renderResult. --json makes rg ignore human-oriented output
     // flags, so we skip --line-number / --max-columns here.
-    const args: string[] = ["--json", `--max-count=${p.maxCount ?? 200}`];
+    //
+    // Note: we don't pass `-l` even when `filesWithMatches` is set. rg's
+    // `-l` interacts badly with `--json` (the plain file list is emitted
+    // as bare lines, not JSON events), so the postProcessor never sees any
+    // matches. Instead we force `--max-count=1` so rg stops reading each
+    // file after the first hit, then reduce to a file list in postProcess.
+    const maxCount = p.filesWithMatches ? 1 : (p.maxCount ?? 200);
+    const args: string[] = ["--json", `--max-count=${maxCount}`];
     if (p.fixedStrings) args.push("-F");
     if (p.ignoreCase) args.push("-i");
     if (p.wordRegexp) args.push("-w");
     if (p.multiline) args.push("-U", "--multiline-dotall");
-    if (p.filesWithMatches) args.push("-l");
     if (p.hidden) args.push("--hidden");
     if (p.noIgnore) args.push("--no-ignore");
     if (p.context !== undefined) args.push(`-C${p.context}`);
@@ -484,9 +491,8 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     return args;
   },
   postProcess(raw) {
-    // `filesWithMatches` isn't visible in raw output; reconstruct from argv.
-    const filesWithMatchesOnly = raw.args.includes("-l");
-    return formatRgOutput(raw, filesWithMatchesOnly);
+    const params = raw.params as Static<typeof rgParams> | undefined;
+    return formatRgOutput(raw, params?.filesWithMatches === true);
   },
   renderPartial: renderRgPartial,
   renderResult,

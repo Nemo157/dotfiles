@@ -56,6 +56,14 @@ export interface CliToolDetails {
    * identical and re-renders would be deduped).
    */
   updatedAt?: number;
+  /**
+   * The original, validated params object the tool was invoked with.
+   * Threaded through so `renderPartial` (which only sees details at render
+   * time) can consult the model's typed intent instead of reverse-
+   * engineering it from argv. Tool code should cast this to its own
+   * `Static<typeof params>` type.
+   */
+  params?: unknown;
 }
 
 // Extract the exact signature pi uses so extension code stays in sync with
@@ -108,6 +116,12 @@ export interface RawCommandResult {
   exitCode: number | null;
   signal: NodeJS.Signals | null;
   timedOut: boolean;
+  /**
+   * The original, validated params object. See
+   * {@link CliToolDetails.params}; tools should cast to their
+   * `Static<typeof params>` type.
+   */
+  params: unknown;
 }
 
 /**
@@ -605,6 +619,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             timedOut: false,
             startedAt,
             updatedAt: Date.now(),
+            params,
           },
           isError: false,
         });
@@ -658,10 +673,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         timedOut: result.timedOut,
         startedAt,
         updatedAt: Date.now(),
+        params,
       };
 
       if (def.postProcess) {
-        const pp = def.postProcess({ ...baseDetails });
+        const pp = def.postProcess({ ...baseDetails, params });
         const details = { ...baseDetails, ...(pp.details ?? {}) };
         const inferredError =
           result.timedOut ||
