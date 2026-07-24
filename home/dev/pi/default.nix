@@ -23,6 +23,7 @@ let
     extensions = [
       "${./extensions/cli-tools}/index.ts"
       "${./extensions/edit-toggle}/index.ts"
+      "${./extensions/cache-ttl}/index.ts"
     ];
   };
 
