@@ -6,6 +6,7 @@ import {
   type CliRenderSpec,
   type CliToolDetails,
   expandTilde,
+  formatElapsed,
   type StructuredCliToolDef,
 } from "./shared";
 
@@ -127,55 +128,26 @@ function extractPath(node: unknown): string | undefined {
   return undefined;
 }
 
-// --- postProcess: rg --json -> RgDetails + LLM text ---------------------
+// --- rg --json parser ---------------------------------------------------
 
-function formatRgOutput(
-  raw: {
-    stdout: string;
-    stderr: string;
-    exitCode: number | null;
-    timedOut: boolean;
-  },
-  filesWithMatchesOnly: boolean,
-): { content: string; details: RgExtraDetails; isError: boolean } {
-  if (raw.timedOut) {
-    return {
-      content: "rg timed out",
-      details: {
-        rg: {
-          matchCount: 0,
-          fileCount: 0,
-          filesWithMatchesOnly,
-          files: [],
-          truncated: false,
-        },
-      },
-      isError: true,
-    };
-  }
+interface ParsedRg {
+  files: RgFile[];
+  matchCount: number;
+  truncated: boolean;
+}
 
-  // rg exit codes: 0 = matches, 1 = no matches, 2 = error.
-  if (raw.exitCode !== 0 && raw.exitCode !== 1) {
-    const stderr = raw.stderr.trim();
-    return {
-      content: stderr.length > 0 ? stderr : `rg failed (exit ${raw.exitCode})`,
-      details: {
-        rg: {
-          matchCount: 0,
-          fileCount: 0,
-          filesWithMatchesOnly,
-          files: [],
-          truncated: false,
-        },
-      },
-      isError: true,
-    };
-  }
-
+/**
+ * Parse rg's JSONL stream. Safe to call on a partial buffer: a trailing
+ * incomplete line is skipped rather than logged as a parse error.
+ */
+function parseRgJsonl(stdout: string): ParsedRg {
   const filesByPath = new Map<string, RgFile>();
   let truncated = false;
+  // Only the segments before the final `\n` are guaranteed complete.
+  const lastNl = stdout.lastIndexOf("\n");
+  const complete = lastNl === -1 ? "" : stdout.slice(0, lastNl);
 
-  for (const line of raw.stdout.split("\n")) {
+  for (const line of complete.split("\n")) {
     if (line.length === 0) continue;
     let evt: unknown;
     try {
@@ -227,6 +199,55 @@ function formatRgOutput(
 
   const files = [...filesByPath.values()];
   const matchCount = files.reduce((n, f) => n + f.matches.length, 0);
+  return { files, matchCount, truncated };
+}
+
+// --- postProcess: rg --json -> RgDetails + LLM text ---------------------
+
+function formatRgOutput(
+  raw: {
+    stdout: string;
+    stderr: string;
+    exitCode: number | null;
+    timedOut: boolean;
+  },
+  filesWithMatchesOnly: boolean,
+): { content: string; details: RgExtraDetails; isError: boolean } {
+  if (raw.timedOut) {
+    return {
+      content: "rg timed out",
+      details: {
+        rg: {
+          matchCount: 0,
+          fileCount: 0,
+          filesWithMatchesOnly,
+          files: [],
+          truncated: false,
+        },
+      },
+      isError: true,
+    };
+  }
+
+  // rg exit codes: 0 = matches, 1 = no matches, 2 = error.
+  if (raw.exitCode !== 0 && raw.exitCode !== 1) {
+    const stderr = raw.stderr.trim();
+    return {
+      content: stderr.length > 0 ? stderr : `rg failed (exit ${raw.exitCode})`,
+      details: {
+        rg: {
+          matchCount: 0,
+          fileCount: 0,
+          filesWithMatchesOnly,
+          files: [],
+          truncated: false,
+        },
+      },
+      isError: true,
+    };
+  }
+
+  const { files, matchCount, truncated } = parseRgJsonl(raw.stdout);
 
   let content: string;
   if (files.length === 0) {
@@ -341,6 +362,90 @@ const renderResult: CliRenderResult<RgDetails> = (
   return spec;
 };
 
+// --- renderPartial: incremental summary from streamed JSONL --------------
+
+// Tail of most-recent matches to show while streaming, keyed off the same
+// budget as the collapsed inline view so the transition to the final render
+// is smooth.
+const PARTIAL_TAIL_MATCHES = 5;
+
+function renderRgPartial(
+  details: CliToolDetails,
+  theme: Parameters<CliRenderResult>[2],
+  _expanded: boolean,
+): CliRenderSpec {
+  const filesWithMatchesOnly = details.args.includes("-l");
+  const parsed = parseRgJsonl(details.stdout);
+  const totalMatches = parsed.matchCount;
+  const totalFiles = parsed.files.length;
+  const elapsed =
+    details.startedAt !== undefined
+      ? formatElapsed(
+          (details.updatedAt ?? Date.now()) - details.startedAt,
+        )
+      : undefined;
+  const elapsedBadge = elapsed ? theme.fg("muted", ` · ${elapsed}`) : "";
+
+  const summaryBody =
+    (totalMatches === 0 && totalFiles === 0
+      ? theme.fg("dim", "searching…")
+      : filesWithMatchesOnly
+        ? theme.fg(
+            "success",
+            `${totalFiles} file${totalFiles === 1 ? "" : "s"}`,
+          ) + theme.fg("dim", " so far…")
+        : theme.fg(
+            "success",
+            `${totalMatches} match${totalMatches === 1 ? "" : "es"}`,
+          ) +
+          theme.fg(
+            "dim",
+            ` across ${totalFiles} file${totalFiles === 1 ? "" : "s"} so far…`,
+          )) + elapsedBadge;
+
+  // Build a short tail of the most recent matches (or file paths) so the
+  // user can see rg making progress, not just a growing counter.
+  const tailLines: string[] = [];
+  if (filesWithMatchesOnly) {
+    const recent = parsed.files.slice(-PARTIAL_TAIL_MATCHES);
+    for (const f of recent) tailLines.push(theme.fg("accent", f.path));
+  } else {
+    // Walk files in reverse to grab the most recent matches without
+    // materialising a giant list.
+    const recent: { path: string; m: RgMatch }[] = [];
+    for (let i = parsed.files.length - 1; i >= 0; i--) {
+      const file = parsed.files[i]!;
+      for (let j = file.matches.length - 1; j >= 0; j--) {
+        recent.push({ path: file.path, m: file.matches[j]! });
+        if (recent.length >= PARTIAL_TAIL_MATCHES) break;
+      }
+      if (recent.length >= PARTIAL_TAIL_MATCHES) break;
+    }
+    recent.reverse();
+    let lastPath: string | undefined;
+    for (const { path, m } of recent) {
+      if (path !== lastPath) {
+        tailLines.push(theme.fg("accent", path));
+        lastPath = path;
+      }
+      const gutter = String(m.lineNumber).padStart(5);
+      tailLines.push(
+        `${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`,
+      );
+    }
+  }
+  tailLines.push(
+    theme.fg("warning", `⋮ Searching…${elapsed ? ` (${elapsed})` : ""}`),
+  );
+
+  const output = new Text(tailLines.join("\n"), 0, 0);
+  return {
+    summary: summaryBody,
+    output,
+    outputLines: tailLines.length,
+  };
+}
+
 // --- tool definition -----------------------------------------------------
 
 export const rgTool: StructuredCliToolDef<typeof rgParams> = {
@@ -383,5 +488,6 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     const filesWithMatchesOnly = raw.args.includes("-l");
     return formatRgOutput(raw, filesWithMatchesOnly);
   },
+  renderPartial: renderRgPartial,
   renderResult,
 };

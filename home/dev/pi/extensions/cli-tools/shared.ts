@@ -43,6 +43,19 @@ export interface CliToolDetails {
   exitCode: number | null;
   signal: NodeJS.Signals | null;
   timedOut: boolean;
+  /**
+   * Wall-clock time (ms since epoch) when the subprocess was spawned.
+   * Populated during streaming so `renderPartial` can show elapsed time,
+   * and preserved in the final details for consistency.
+   */
+  startedAt?: number;
+  /**
+   * Wall-clock time (ms since epoch) of the last streaming update. Bumped
+   * on every chunk flush and on every heartbeat tick, so pi treats each
+   * heartbeat as a fresh update (otherwise the payload would be byte-
+   * identical and re-renders would be deduped).
+   */
+  updatedAt?: number;
 }
 
 // Extract the exact signature pi uses so extension code stays in sync with
@@ -152,6 +165,21 @@ export interface BaseCliToolFields {
    * when not provided.
    */
   renderResult?: CliRenderResult<any>;
+  /**
+   * Optional override for the streaming (partial) row. Called with the
+   * accumulated stdout/stderr so far and should return a
+   * {@link CliRenderSpec}; `registerCliTool` handles layout the same way it
+   * does for the final result. Providing this hook enables streaming even
+   * for tools with a `postProcess` hook — useful for tools whose raw output
+   * is structured (e.g. `--json`) and needs incremental parsing to be
+   * legible mid-run. Falls back to a simple tail-of-stdout renderer when
+   * not provided.
+   */
+  renderPartial?: (
+    details: CliToolDetails,
+    theme: Parameters<PiRenderResultFn>[2],
+    expanded: boolean,
+  ) => CliRenderSpec;
   /** Label shown while the call is streaming. Defaults to "Running…". */
   partialLabel?: string;
 }
@@ -342,6 +370,18 @@ const STREAMING_TAIL_LINES = COLLAPSED_INLINE_MAX_LINES;
  * EXPANDED_MAX_LINES instead. If nothing has streamed yet, fall back to a
  * plain one-line label.
  */
+/**
+ * Format a millisecond duration as `Ns` / `Nm Ss` for compact elapsed-time
+ * badges in streaming UIs.
+ */
+export function formatElapsed(ms: number): string {
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return `${m}m ${rem}s`;
+}
+
 function renderStreamingTail(
   details: CliToolDetails | undefined,
   partialLabel: string,
@@ -350,6 +390,10 @@ function renderStreamingTail(
 ): Component {
   const stdout = details?.stdout ?? "";
   const stderr = details?.stderr ?? "";
+  const elapsedSuffix =
+    details?.startedAt !== undefined
+      ? ` (${formatElapsed((details.updatedAt ?? Date.now()) - details.startedAt)})`
+      : "";
   // stdout / stderr arrive on separate Node streams so we don't have true
   // interleaving. For a streaming tail this is fine — users just want to
   // see "what's happening". Concatenate with stderr after stdout.
@@ -360,7 +404,11 @@ function renderStreamingTail(
   const trimmed = joined.replace(/\r?\n$/, "");
 
   if (trimmed.length === 0) {
-    return new Text(theme.fg("warning", `⋮ ${partialLabel}`), 0, 0);
+    return new Text(
+      theme.fg("warning", `⋮ ${partialLabel}${elapsedSuffix}`),
+      0,
+      0,
+    );
   }
 
   const lines = trimmed.split("\n");
@@ -381,7 +429,9 @@ function renderStreamingTail(
   for (const line of tail) {
     c.addChild(new Text(theme.fg("dim", line), 0, 0));
   }
-  c.addChild(new Text(theme.fg("warning", `⋮ ${partialLabel}`), 0, 0));
+  c.addChild(
+    new Text(theme.fg("warning", `⋮ ${partialLabel}${elapsedSuffix}`), 0, 0),
+  );
   return c;
 }
 
@@ -528,7 +578,15 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       // output that only makes sense after the fact, so we skip streaming
       // for them. Partial updates carry empty text content — the LLM only
       // ever sees the final result.
-      const shouldStream = onUpdate !== undefined && def.postProcess === undefined;
+      // Stream partial output when pi is listening. For tools with a
+      // postProcess hook the raw stdout is typically structured (e.g.
+      // JSONL) and unhelpful as a tail, so we only stream in that case if
+      // the tool also provided a renderPartial hook that knows how to
+      // present it.
+      const shouldStream =
+        onUpdate !== undefined &&
+        (def.postProcess === undefined || def.renderPartial !== undefined);
+      const startedAt = Date.now();
       let pending: NodeJS.Timeout | null = null;
       let latestStdout = "";
       let latestStderr = "";
@@ -545,6 +603,8 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             exitCode: null,
             signal: null,
             timedOut: false,
+            startedAt,
+            updatedAt: Date.now(),
           },
           isError: false,
         });
@@ -555,6 +615,16 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         // that a chatty subprocess doesn't flood pi with re-renders.
         pending = setTimeout(flush, 60);
       };
+      // Heartbeat: even when the subprocess is quiet (e.g. rg walking a
+      // huge tree before hitting any match), refire onUpdate every 500ms
+      // so `renderPartial` can update an elapsed-time counter and the row
+      // doesn't feel frozen.
+      const heartbeat: NodeJS.Timeout | null = shouldStream
+        ? setInterval(() => {
+            if (pending) return; // coalesce with a pending chunk flush
+            flush();
+          }, 500)
+        : null;
 
       const result = await runCommand(def.command, args, {
         cwd: ctx.cwd,
@@ -577,6 +647,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         clearTimeout(pending);
         pending = null;
       }
+      if (heartbeat) clearInterval(heartbeat);
       const baseDetails: CliToolDetails = {
         command: def.command,
         args,
@@ -585,6 +656,8 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         exitCode: result.code,
         signal: result.signal,
         timedOut: result.timedOut,
+        startedAt,
+        updatedAt: Date.now(),
       };
 
       if (def.postProcess) {
@@ -629,8 +702,15 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
 
     renderResult(result, opts, theme, ctx) {
       if (opts.isPartial) {
+        const details = result.details as CliToolDetails | undefined;
+        if (def.renderPartial && details) {
+          return renderSpec(
+            def.renderPartial(details, theme, opts.expanded),
+            opts.expanded,
+          );
+        }
         return renderStreamingTail(
-          result.details as CliToolDetails | undefined,
+          details,
           def.partialLabel ?? "Running…",
           theme,
           opts.expanded,
