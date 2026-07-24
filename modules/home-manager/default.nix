@@ -9,6 +9,7 @@
     ./kokoro-fastapi.nix
     ./speaches.nix
     ./md-tui.nix
+    ./pi.nix
     ./scripts.nix
   ];
 
