@@ -18,8 +18,9 @@ in
 
     settings = {
       defaultProvider = "anthropic";
-      defaultModel = "claude-opus-4-7";
+      defaultModel = "claude-opus-4-8";
       defaultThinkingLevel = "medium";
+      enabledModels = [ "claude-sonnet-5" "claude-opus-4-8" ];
 
       quietStartup = true;
       enableInstallTelemetry = false;
