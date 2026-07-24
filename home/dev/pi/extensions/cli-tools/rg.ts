@@ -496,20 +496,21 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
   },
   displayArgs(p) {
     // Present the user's intent, not the JSON/--max-count=1 mechanics we
-    // use under the hood. Mirrors the flag surface exposed via `params`.
+    // use under the hood. Mirrors the flag surface exposed via `params`,
+    // preferring long forms for readability.
     const args: string[] = [];
-    if (p.fixedStrings) args.push("-F");
-    if (p.ignoreCase) args.push("-i");
-    if (p.wordRegexp) args.push("-w");
-    if (p.multiline) args.push("-U");
-    if (p.filesWithMatches) args.push("-l");
+    if (p.fixedStrings) args.push("--fixed-strings");
+    if (p.ignoreCase) args.push("--ignore-case");
+    if (p.wordRegexp) args.push("--word-regexp");
+    if (p.multiline) args.push("--multiline");
+    if (p.filesWithMatches) args.push("--files-with-matches");
     if (p.hidden) args.push("--hidden");
     if (p.noIgnore) args.push("--no-ignore");
-    if (p.context !== undefined) args.push(`-C${p.context}`);
-    if (p.maxCount !== undefined) args.push(`-m${p.maxCount}`);
-    for (const g of p.glob ?? []) args.push("-g", g);
-    for (const t of p.type ?? []) args.push("-t", t);
-    args.push("-e", p.pattern);
+    if (p.context !== undefined) args.push(`--context=${p.context}`);
+    if (p.maxCount !== undefined) args.push(`--max-count=${p.maxCount}`);
+    for (const g of p.glob ?? []) args.push("--glob", g);
+    for (const t of p.type ?? []) args.push("--type", t);
+    args.push("--regexp", p.pattern);
     if (p.path !== undefined) args.push("--", expandTilde(p.path));
     return args;
   },
