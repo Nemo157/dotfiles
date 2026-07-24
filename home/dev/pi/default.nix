@@ -17,11 +17,6 @@ in
     package = pkgs.unstable.pi-coding-agent;
 
     settings = {
-      defaultProvider = "anthropic";
-      defaultModel = "claude-opus-4-8";
-      defaultThinkingLevel = "medium";
-      enabledModels = [ "claude-sonnet-5" "claude-opus-4-8" ];
-
       quietStartup = true;
       enableInstallTelemetry = false;
 
