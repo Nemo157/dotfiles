@@ -20,9 +20,16 @@ import { jjTools } from "./jj";
 import { gitTools } from "./git";
 import { rgTool } from "./rg";
 import { fdTool } from "./fd";
+import { getCargoTools } from "./cargo";
 
 export default function (pi: ExtensionAPI) {
-  const tools: CliToolDef[] = [...jjTools, ...gitTools, rgTool, fdTool];
+  const tools: CliToolDef[] = [
+    ...jjTools,
+    ...gitTools,
+    rgTool,
+    fdTool,
+    ...getCargoTools(),
+  ];
   for (const def of tools) {
     registerCliTool(pi, def);
   }
