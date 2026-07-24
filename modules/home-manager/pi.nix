@@ -105,6 +105,8 @@ in
 
       "pi/auth.json".source =
         config.lib.file.mkOutOfStoreSymlink "${stateDir}/auth.json";
+      "pi/models-store.json".source =
+        config.lib.file.mkOutOfStoreSymlink "${stateDir}/models-store.json";
       "pi/sessions".source =
         config.lib.file.mkOutOfStoreSymlink "${stateDir}/sessions";
     } // extensionConfigFiles;

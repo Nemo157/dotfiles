@@ -1,5 +1,17 @@
 { config, lib, pkgs, ... }:
+let
+  permissionSystemLogs =
+    "${config.xdg.stateHome}/pi/extensions/pi-permission-system/logs";
+in
 {
+  xdg.configFile."pi/extensions/pi-permission-system/logs".source =
+    config.lib.file.mkOutOfStoreSymlink permissionSystemLogs;
+
+  home.activation.piPermissionSystemLogs =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run mkdir -p ${lib.escapeShellArg permissionSystemLogs}
+    '';
+
   programs.pi = {
     enable = true;
     package = pkgs.unstable.pi-coding-agent;
