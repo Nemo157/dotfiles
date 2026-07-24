@@ -149,6 +149,11 @@ function computeArgs(def: CliToolDef, params: unknown): string[] {
   return def.buildArgs(params as Static<typeof def.parameters>);
 }
 
+function computeDisplayArgs(def: CliToolDef, params: unknown): string[] {
+  const fn = def.displayArgs ?? def.buildArgs;
+  return fn(params as Static<typeof def.parameters>);
+}
+
 export interface BaseCliToolFields {
   /** Tool name exposed to the LLM. Kebab-case for multi-word names. */
   name: string;
@@ -215,6 +220,15 @@ export interface StructuredCliToolDef<T extends TSchema = TSchema>
   extends BaseCliToolFields {
   parameters: T;
   buildArgs: (params: Static<T>) => string[];
+  /**
+   * Optional argv used purely for the header line rendered in the TUI. Lets
+   * a tool present the user's *intent* (e.g. `rg -l pattern`) instead of
+   * the actual argv used to spawn the subprocess (which may include
+   * machine-oriented flags like `--json` or workarounds like
+   * `--max-count=1` that stand in for a mode flag). Falls back to
+   * `buildArgs` when omitted.
+   */
+  displayArgs?: (params: Static<T>) => string[];
 }
 
 export type CliToolDef = StructuredCliToolDef;
@@ -705,7 +719,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     renderCall(args, theme, _context) {
       let invocation: string;
       try {
-        const argv = computeArgs(def, args);
+        const argv = computeDisplayArgs(def, args);
         invocation = buildInvocation(def.command, argv);
       } catch {
         invocation = def.command;

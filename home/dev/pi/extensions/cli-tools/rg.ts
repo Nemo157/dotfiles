@@ -494,6 +494,25 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     const params = raw.params as Static<typeof rgParams> | undefined;
     return formatRgOutput(raw, params?.filesWithMatches === true);
   },
+  displayArgs(p) {
+    // Present the user's intent, not the JSON/--max-count=1 mechanics we
+    // use under the hood. Mirrors the flag surface exposed via `params`.
+    const args: string[] = [];
+    if (p.fixedStrings) args.push("-F");
+    if (p.ignoreCase) args.push("-i");
+    if (p.wordRegexp) args.push("-w");
+    if (p.multiline) args.push("-U");
+    if (p.filesWithMatches) args.push("-l");
+    if (p.hidden) args.push("--hidden");
+    if (p.noIgnore) args.push("--no-ignore");
+    if (p.context !== undefined) args.push(`-C${p.context}`);
+    if (p.maxCount !== undefined) args.push(`-m${p.maxCount}`);
+    for (const g of p.glob ?? []) args.push("-g", g);
+    for (const t of p.type ?? []) args.push("-t", t);
+    args.push("-e", p.pattern);
+    if (p.path !== undefined) args.push("--", expandTilde(p.path));
+    return args;
+  },
   renderPartial: renderRgPartial,
   renderResult,
 };
