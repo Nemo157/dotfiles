@@ -15,8 +15,17 @@
       port = 59819;
     };
     options = {
-      calibreLibrary = "/home/nemo157/Calibre";
+      calibreLibrary = "/bind/Calibre";
     };
+  };
+
+  systemd.services.calibre-web.serviceConfig = {
+    TemporaryFileSystem = [
+      "/bind:ro"
+    ];
+    BindReadOnlyPaths = [
+      "/home/nemo157/Calibre:/bind/Calibre"
+    ];
   };
 
   networking.firewall.interfaces.enp39s0.allowedTCPPorts = [
