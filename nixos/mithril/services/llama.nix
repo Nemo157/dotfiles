@@ -27,7 +27,7 @@ in
         "--no-mmap"
         "--cache-type-k" "q8_0"
         "--cache-type-v" "f16"
-        "--cache-ram" "1024"
+        "--cache-ram" "0"
         "--threads-http" "1"
       ];
 
