@@ -62,6 +62,12 @@ in {
     settings = {
       enable_audio_bell = false;
 
+      # Disable kitty's auto config-reload: Home Manager swaps the kitty.conf
+      # symlink every apply, which triggers a reload by default.
+      # Kitty's auto-theme (`.auto.conf`) re-application on a config reload is buggy
+      # (kovidgoyal/kitty#8203, #8354, #8530, #8448).
+      auto_reload_config = -1;
+
       window_border_width = 0;
       window_padding_width = "0 2";
       placement_strategy = "top-left";
@@ -92,6 +98,11 @@ in {
     "kitty/dark-theme.auto.conf".text = mkTheme config.colorSchemes.dark.palette;
     "kitty/light-theme.auto.conf".text = mkTheme config.colorSchemes.light.palette;
     "kitty/no-preference-theme.auto.conf".text = mkTheme config.colorSchemes.dark.palette;
+
+    # Default sends SIGUSR1 to every running kitty window whenever kitty.conf is regenerated.
+    # This is supposed to do a config reload, but that's buggy as above, and also it seems to kill
+    # the window instead.
+    "kitty/kitty.conf".onChange = lib.mkForce "";
   };
 }
 
