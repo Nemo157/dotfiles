@@ -2,7 +2,6 @@
   services.grafana = {
     enable = true;
     settings = {
-      server.http_addr = ts.ips.${name};
       analytics = {
         enabled = false;
         reporting_enabled = false;
@@ -24,5 +23,12 @@
         }
       ];
     };
+  };
+
+  services.caddy.virtualHosts."https://grafana.${ts.domain}" = {
+    extraConfig = ''
+      import tailscale "grafana"
+      reverse_proxy ${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
+    '';
   };
 }

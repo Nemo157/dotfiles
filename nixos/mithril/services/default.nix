@@ -1,6 +1,7 @@
 {
   imports = [
     ./atuin.nix
+    ./caddy.nix
     ./calibre-web.nix
     ./grafana.nix
     ./influxdb.nix

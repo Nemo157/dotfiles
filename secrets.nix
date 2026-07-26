@@ -19,6 +19,7 @@ in {
   "nixos/common/services/grafana/admin-password.age".publicKeys = [ wim-oak nemo157-mithril oak mithril ];
   "nixos/mithril/services/restic-b2-key.age".publicKeys = [ mithril ];
   "nixos/mithril/services/restic-b2-password.age".publicKeys = [ mithril ];
+  "nixos/mithril/services/tailscale-auth-key.age".publicKeys = [ mithril ];
   "nixos/zinc/services/restic-b2-key.age".publicKeys = [ zinc ];
   "nixos/zinc/services/restic-b2-password.age".publicKeys = [ zinc ];
 }
