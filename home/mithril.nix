@@ -105,12 +105,18 @@
 
         openrouter = {
           models = {
-            "z-ai/glm-5" = {};
-            "minimax/minimax-m2.5" = {};
+            "z-ai/glm-5.2" = {};
           };
         };
       };
     };
+  };
+
+  programs.pi.settings = {
+    defaultProvider = "openrouter";
+    defaultModel = "glm-5.2";
+    defaultThinkingLevel = "medium";
+    enabledModels = [ "glm-5.2" ];
   };
 
   services."ἐννεάς-listenbrainz-watcher" = {
