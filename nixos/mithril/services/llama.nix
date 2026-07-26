@@ -9,7 +9,7 @@ in
 {
   services.llama-swap = {
     enable = true;
-    listenAddress = ts.ips.${name};
+    listenAddress = "127.0.0.1";
     port = 8083;
 
     settings = let
@@ -54,9 +54,12 @@ in
     };
   };
 
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
-    config.services.llama-swap.port
-  ];
+  services.caddy.virtualHosts."https://llama.${ts.domain}" = {
+    extraConfig = ''
+      import tailscale "llama"
+      reverse_proxy 127.0.0.1:${toString config.services.llama-swap.port}
+    '';
+  };
 
   systemd.services.llama-swap-unload = {
     description = "Unload llama-swap models before sleep";
