@@ -125,6 +125,7 @@
         "interesting_heads" = "visible_heads() ~ remote_bookmarks() | bookmarks()";
         "trunk" = "trunk()";
         "all" = "all()";
+        "private()" = "description('private:*')";
       };
 
       aliases = {
@@ -139,6 +140,7 @@
 
       git = {
         fetch = ["origin" "upstream"];
+        private-commits = "private()";
       };
 
       fix.tools = {
