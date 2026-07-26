@@ -34,6 +34,7 @@
 
   systemd.services.caddy = {
     serviceConfig = {
+      RefreshOnReload = "yes";
       LoadCredential = [
         "tailscale-auth-key:${config.age.secrets.tailscale-auth-key.path}"
       ];
