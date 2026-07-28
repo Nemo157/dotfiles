@@ -18,11 +18,16 @@
 
   programs.home-manager.enable = true;
 
-  programs.pi.settings = {
-    defaultProvider = "anthropic";
-    defaultModel = "claude-opus-4-8";
-    defaultThinkingLevel = "medium";
-    enabledModels = [ "claude-sonnet-5" "claude-opus-4-8" ];
+  programs.pi = {
+    settings = {
+      defaultProvider = "anthropic";
+      defaultModel = "claude-opus-4-8";
+      defaultThinkingLevel = "medium";
+      enabledModels = [ "claude-sonnet-5" "claude-opus-4-8" ];
+    };
+
+    # Small model backing the web-fetch extension's optional `prompt` query.
+    extensionSettings.web-fetch.model = "anthropic/claude-sonnet-5";
   };
 
   home.packages = with pkgs; [

@@ -2,6 +2,12 @@
 let
   permissionSystemLogs =
     "${config.xdg.stateHome}/pi/extensions/pi-permission-system/logs";
+
+  # Cache root for the web-fetch extension. Must stay in sync with the
+  # extension's own default (XDG_CACHE_HOME/pi/web-fetch, see
+  # extensions/web-fetch/config.ts); it is passed to the extension explicitly
+  # and granted read access via piInfrastructureReadPaths below.
+  webFetchCacheDir = "${config.xdg.cacheHome}/pi/web-fetch";
 in
 {
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
@@ -25,6 +31,7 @@ in
 
       packages = [
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
+        (pkgs.callPackage ./extensions/web-fetch { }).packageRoot
       ];
 
       extensions = [
@@ -48,12 +55,26 @@ in
       the missing tool to the `cli-tools` extension.
     '';
 
+    extensionSettings.web-fetch = {
+      cacheDir = webFetchCacheDir;
+      # To enable the optional `prompt` parameter, set a small model here,
+      # e.g. model = "anthropic/claude-haiku-4-5"; (there is no default).
+    };
+
     extensionSettings.pi-permission-system = {
       # Live-authority chain: our local `edit-toggle` extension registers a
       # link with this name via registerAuthorizer. Naming it here is the
       # opt-in activation — without this entry the link would be inert.
       # See home/dev/pi/extensions/edit-toggle/index.ts.
       authorizerChain = [ "edit-toggle" ];
+
+      # The web-fetch extension writes downloads / extractions / prompt
+      # answers here and hands the agent cache paths to read. Auto-allow
+      # read-only tools on that directory so those follow-up reads don't
+      # trigger an external_directory approval prompt. (A dynamic per-path
+      # grant is not possible: the live-authority chain downgrades any allow
+      # on the external_directory/path surfaces to defer.)
+      piInfrastructureReadPaths = [ webFetchCacheDir ];
 
       permission = {
         "*" = "ask";
@@ -76,6 +97,9 @@ in
 
         write = "ask";
         edit = "ask";
+
+        # Network egress via the web-fetch extension: gate each call.
+        web-fetch = "ask";
 
         # No direct bash access, instead specific local tools registered by the cli-tools extension
         bash = "deny";
