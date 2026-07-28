@@ -178,6 +178,15 @@ const jjCommitParams = Type.Object({
   message: Type.String({
     description: "Description for the committed revision (-m <message>).",
   }),
+  paths: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Optional list of paths (relative to the working directory) to " +
+        "commit. When provided, only changes to these paths are committed " +
+        "and other working-copy changes are left behind in @. Omit to " +
+        "commit all changes.",
+    }),
+  ),
 });
 
 const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
@@ -190,10 +199,15 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
     "correct tool for 'commit what I just did' \u2014 use it whenever any " +
     "further edits might follow, because it seals the described revision " +
     "so subsequent changes land in a fresh @. Prefer `jj-commit` over " +
-    "`jj-describe` for the working copy.",
+    "`jj-describe` for the working copy. Pass `paths` to commit only a " +
+    "subset of changes and leave any extra changes behind in @.",
   parameters: jjCommitParams,
   buildArgs(p) {
-    return ["commit", "-m", p.message];
+    const args: string[] = ["commit", "-m", p.message];
+    if (p.paths !== undefined && p.paths.length > 0) {
+      args.push("--", ...p.paths);
+    }
+    return args;
   },
 };
 
