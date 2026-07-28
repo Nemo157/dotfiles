@@ -5,9 +5,10 @@
 //   ask    → transparent; normal `ask` prompts still surface as usual.
 //            (default; this extension does nothing beyond showing the state)
 //   allow  → auto-approve edit/write invocations for the rest of the session.
-//   deny   → auto-deny edit/write invocations, and inject a per-turn note
-//            (via the `context` event, not persisted) telling the model
-//            those tools are disabled.
+//   deny   → auto-deny edit/write invocations.
+//
+// "allowed" means ask/allow; "denied" means deny. Before the first turn
+// the agent is assumed to be in the allowed state.
 //
 // How it works
 // ------------
@@ -26,14 +27,24 @@
 //     would hide it from the model before the chain ever runs. Not the
 //     case for us: `ask` keeps the tool exposed and we decide per call.
 //
+// State persistence
+// -----------------
+// The toggle state is recorded to the session with `pi.appendEntry` at
+// the start of an assistant turn (`before_agent_start`) whenever it
+// differs from the last recorded state, and restored on `session_start`.
+// This lets the policy survive /reload and session resume without writing
+// an entry on every keypress.
+//
 // Cache-friendly notification
 // ---------------------------
-// Instead of mutating the system prompt (which would invalidate every
-// provider prefix cache), we append a transient tail user-role note in
-// the `context` event whenever state === "deny". The note is only in the
-// outgoing LLM payload — it is never stored in the session entries — so
-// it disappears the moment the state flips back to ask/allow, and every
-// earlier turn's bytes stay unchanged.
+// Rather than re-injecting a note on every LLM call, we inject a single
+// persistent message at the start of an assistant turn (via
+// `before_agent_start`) only when the edit capability has flipped between
+// allowed (ask/allow) and denied (deny) since the previously recorded
+// state. The previous "allowed vs denied" category is derived from that
+// last persisted state — no separate flag is stored. Because the note is
+// injected once per transition (not per call), earlier turns' bytes stay
+// unchanged and the provider prefix cache stays warm.
 
 import type {
   ExtensionAPI,
@@ -53,12 +64,26 @@ const NEXT_STATE: Record<ToggleState, ToggleState> = {
   deny: "ask",
 };
 
-// Tail note appended to the LLM payload whenever state === "deny". Not
-// persisted; only added per-call via the `context` event handler below.
+// Persistent notes injected once, at turn start, when the edit capability
+// flips. See `before_agent_start` below.
 const DENY_NOTE =
-  "[user] Edit tools (edit, write) are currently DISABLED for this session. " +
-  "Do not attempt to call them; if a task requires file modifications, " +
-  "describe what you would do and ask the user to re-enable them.";
+  "<system-reminder>Editing (edit, write) is disabled, so the user likely " +
+  "wants to plan or discuss rather than change files. Don't call these " +
+  "tools; describe what you would do instead. The user knows editing is " +
+  "off, so don't ask them to re-enable it — unless they clearly expect you " +
+  "to be editing, in which case note that it's disabled.</system-reminder>";
+
+const ENABLE_NOTE =
+  "<system-reminder>Editing (edit, write) is enabled again; use these tools " +
+  "as needed.</system-reminder>";
+
+// customType used for the persisted state entry.
+const STATE_ENTRY = "edit-toggle";
+
+// allowed = ask/allow; denied = deny.
+function isAllowed(s: ToggleState): boolean {
+  return s !== "deny";
+}
 
 // Symbol.for-backed accessor for the permission service (see
 // pi-permission-system docs/cross-extension-api.md). Using the raw symbol
@@ -105,6 +130,9 @@ function statusFor(state: ToggleState, ctx: ExtensionContext): string {
 
 export default function editToggleExtension(pi: ExtensionAPI): void {
   let state: ToggleState = "ask";
+  // State as of the last agent turn start (mirrors the last persisted
+  // entry). Defaults to "ask" — i.e. allowed — before the first turn.
+  let lastTurnState: ToggleState = "ask";
   let dispose: (() => void) | undefined;
 
   function refreshStatus(ctx: ExtensionContext): void {
@@ -147,6 +175,21 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
     // publish (permissions:ready would still fire, but this keeps a single
     // path for the initial status paint).
     registerLink();
+
+    // Restore the last persisted state (recorded at a previous turn start).
+    const entries = ctx.sessionManager.getEntries();
+    const last = entries
+      .filter(
+        (e: { type: string; customType?: string }) =>
+          e.type === "custom" && e.customType === STATE_ENTRY,
+      )
+      .pop() as { data?: { state?: ToggleState } } | undefined;
+    const restored = last?.data?.state;
+    if (restored === "ask" || restored === "allow" || restored === "deny") {
+      state = restored;
+      lastTurnState = restored;
+    }
+
     refreshStatus(ctx);
   });
 
@@ -155,22 +198,24 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
     dispose = undefined;
   });
 
-  // Cache-friendly injection: append a transient tail note when state is
-  // "deny". This runs on every `context` event (once per LLM call) but
-  // the appended message is not stored in the session, so prior turns'
-  // bytes stay identical and the provider prefix cache stays warm up to
-  // the tail.
-  pi.on("context", async (event) => {
-    if (state !== "deny") return;
+  // At the start of each assistant turn, record the current state if it
+  // changed since the last turn, and — if the allowed/denied category
+  // flipped — inject a single persistent message telling the agent.
+  pi.on("before_agent_start", async () => {
+    const current = state;
+    if (current === lastTurnState) return;
+
+    const flipped = isAllowed(current) !== isAllowed(lastTurnState);
+    lastTurnState = current;
+    pi.appendEntry(STATE_ENTRY, { state: current });
+
+    if (!flipped) return;
     return {
-      messages: [
-        ...event.messages,
-        {
-          role: "user",
-          content: DENY_NOTE,
-          timestamp: Date.now(),
-        },
-      ],
+      message: {
+        customType: "edit-toggle-note",
+        content: isAllowed(current) ? ENABLE_NOTE : DENY_NOTE,
+        display: false,
+      },
     };
   });
 
