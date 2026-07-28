@@ -13,6 +13,22 @@ in
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
     config.lib.file.mkOutOfStoreSymlink permissionSystemLogs;
 
+  # Global MCP server config read by the pi-mcp-adapter extension
+  # (~/.config/mcp/mcp.json is its user-global shared source).
+  xdg.configFile."mcp/mcp.json".text = builtins.toJSON {
+    mcpServers = {
+      # Exa remote MCP. No API key for now; add one later via e.g.
+      # url = "https://mcp.exa.ai/mcp?exaApiKey=..."; (agenix secret).
+      exa = {
+        url = "https://mcp.exa.ai/mcp";
+        # Register the web search tool as a first-class Pi tool instead of
+        # only exposing it through the mcp proxy. Uses the original MCP
+        # tool name (unprefixed).
+        directTools = [ "web_search_exa" ];
+      };
+    };
+  };
+
   home.activation.piPermissionSystemLogs =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       run mkdir -p ${lib.escapeShellArg permissionSystemLogs}
