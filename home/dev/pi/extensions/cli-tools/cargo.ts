@@ -7,24 +7,8 @@
 // No `path` param on these tools — cargo runs in `ctx.cwd`. If we later
 // need out-of-tree invocation, add `--manifest-path` support then.
 
-import { spawnSync } from "node:child_process";
 import { Type } from "typebox";
-import type { CliToolDef, StructuredCliToolDef } from "./shared";
-
-/**
- * Check whether a subprocess invocation succeeds (exit 0). Used at
- * registration time to gate tool availability on the underlying binary.
- * `stdio: "ignore"` keeps the check silent even if the command prints to
- * stdout/stderr.
- */
-function commandOk(command: string, args: string[]): boolean {
-  try {
-    const r = spawnSync(command, args, { stdio: "ignore" });
-    return r.status === 0;
-  } catch {
-    return false;
-  }
-}
+import { commandOk, type CliToolDef, type StructuredCliToolDef } from "./shared";
 
 const packageSelection = {
   package: Type.Optional(

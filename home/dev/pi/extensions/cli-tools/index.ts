@@ -21,6 +21,7 @@ import { gitTools } from "./git";
 import { rgTool } from "./rg";
 import { fdTool } from "./fd";
 import { getCargoTools } from "./cargo";
+import { getNixTools } from "./nix";
 
 export default function (pi: ExtensionAPI) {
   const tools: CliToolDef[] = [
@@ -29,6 +30,7 @@ export default function (pi: ExtensionAPI) {
     rgTool,
     fdTool,
     ...getCargoTools(),
+    ...getNixTools(),
   ];
   for (const def of tools) {
     registerCliTool(pi, def);

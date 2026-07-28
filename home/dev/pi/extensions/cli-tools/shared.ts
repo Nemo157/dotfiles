@@ -10,8 +10,23 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { type Component, Container, Spacer, Text } from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { homedir } from "node:os";
+
+/**
+ * Check whether a subprocess invocation succeeds (exit 0). Used at
+ * registration time to gate tool availability on the underlying binary.
+ * `stdio: "ignore"` keeps the check silent even if the command prints to
+ * stdout/stderr.
+ */
+export function commandOk(command: string, args: string[]): boolean {
+  try {
+    const r = spawnSync(command, args, { stdio: "ignore" });
+    return r.status === 0;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Expand a leading `~` (`~` or `~/…`) to the user's home directory. We spawn

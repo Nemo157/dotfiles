@@ -130,6 +130,7 @@ in
         git-log = "allow";
         rg = "allow";
         fd = "allow";
+        nix-flake-info = "allow";
 
         external_directory = {
           "*" = "ask";
