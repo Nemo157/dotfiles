@@ -32,6 +32,7 @@ in
       packages = [
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
         (pkgs.callPackage ./extensions/web-fetch { }).packageRoot
+        (pkgs.callPackage ./extensions/pi-mcp-adapter { }).packageRoot
       ];
 
       extensions = [
