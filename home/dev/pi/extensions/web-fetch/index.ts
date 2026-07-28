@@ -7,6 +7,13 @@
 //                       linkedom DOM); other textual types pass through.
 //   raw               — return the body verbatim.
 //
+// TUI display: the tool renders a custom header (`renderCall`) showing the
+// URL, mode, refresh, and prompt, and a custom result view (`renderResult`)
+// with a compact status/type/size summary that expands to the final URL and
+// cache artifact paths. While running it uses pi's partial rendering to stream
+// live progress — download bytes/percentage during fetch, then the extract and
+// model-query phases.
+//
 // An optional `prompt` parameter runs the fetched content through a small,
 // separately-configured model to answer a specific question. The parameter is
 // only exposed when `web-fetch.model` is set in the extension config — there is
@@ -27,7 +34,9 @@
 // is the supported mechanism and is what we use.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { keyHint } from "@earendil-works/pi-coding-agent";
 import { StringEnum } from "@earendil-works/pi-ai";
+import { Text } from "@earendil-works/pi-tui";
 import { Type, type TSchema } from "typebox";
 import { basename } from "node:path";
 
@@ -42,6 +51,8 @@ import {
 } from "./web";
 import { runPrompt } from "./model";
 
+type Phase = "fetching" | "extracting" | "querying";
+
 interface WebFetchDetails {
   url: string;
   finalUrl: string;
@@ -55,6 +66,26 @@ interface WebFetchDetails {
   title?: string;
   inlined: boolean;
   fromCache: boolean;
+}
+
+/** Details attached to partial (streaming) updates, driving renderResult. */
+interface WebFetchProgress {
+  url: string;
+  mode: "extract" | "raw";
+  phase: Phase;
+  startedAt: number;
+  receivedBytes?: number;
+  totalBytes?: number;
+}
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function elapsedSuffix(startedAt: number): string {
+  return ` (${((Date.now() - startedAt) / 1000).toFixed(1)}s)`;
 }
 
 function textResult(text: string, details: WebFetchDetails, isError = false) {
@@ -125,7 +156,14 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     promptSnippet:
       "Fetch a URL as readable text (extract) or raw; large results come back as a cache path to read.",
     parameters: Type.Object(properties),
-    async execute(_toolCallId, params, signal, _onUpdate, _ctx) {
+    async execute(_toolCallId, params, signal, onUpdate, _ctx) {
+      const startedAt = Date.now();
+      const emitProgress = (progress: WebFetchProgress) => {
+        onUpdate?.({
+          content: [{ type: "text" as const, text: progress.phase }],
+          details: progress,
+        });
+      };
       const rawUrl = String((params as { url?: unknown }).url ?? "").trim();
       let parsedUrl: URL;
       try {
@@ -163,11 +201,27 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
 
       if (!meta || !rawBody) {
         let fetched;
+        // Throttle progress updates so a chatty stream doesn't flood pi with
+        // re-renders; always let the first (0-byte) tick through.
+        let lastEmit = 0;
         try {
           fetched = await fetchUrl(rawUrl, {
             timeoutMs: config.timeoutMs,
             userAgent: config.userAgent,
             signal,
+            onProgress: (received, total) => {
+              const now = Date.now();
+              if (received !== 0 && now - lastEmit < 100) return;
+              lastEmit = now;
+              emitProgress({
+                url: rawUrl,
+                mode,
+                phase: "fetching",
+                startedAt,
+                receivedBytes: received,
+                totalBytes: total,
+              });
+            },
           });
         } catch (err) {
           return errorResult(
@@ -232,6 +286,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             ? cache.readText(key, meta.extractFile)
             : undefined;
           if (cachedExtract === undefined) {
+            emitProgress({ url: rawUrl, mode, phase: "extracting", startedAt });
             const extraction = extractHtml(rawBody.toString("utf8"), meta.finalUrl);
             const extractFile = "extract.txt";
             const header = extraction.title ? `# ${extraction.title}\n\n` : "";
@@ -262,6 +317,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       // ── Optional prompt query over the content ───────────────────────────
       if (question) {
         try {
+          emitProgress({ url: rawUrl, mode, phase: "querying", startedAt });
           const result = await runPrompt({
             modelSpec: config.model!,
             url: meta.finalUrl,
@@ -312,6 +368,101 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         (details.title ? ` — ${details.title}` : "") +
         `\n[${payloadKind}, ${bytes} bytes; cached at ${basename(pathForContent)}]\n\n`;
       return textResult(heading + primaryText, details);
+    },
+
+    // ── Custom TUI display ───────────────────────────────────────────────
+    renderCall(args, theme, context) {
+      const text =
+        (context.lastComponent as Text | undefined) ?? new Text("", 0, 0);
+      const a = args as {
+        url?: string;
+        mode?: string;
+        refresh?: boolean;
+        prompt?: string;
+      };
+      let s = theme.fg("toolTitle", theme.bold("web-fetch "));
+      s += theme.fg("accent", a.url ?? "…");
+      if (a.mode === "raw") s += " " + theme.fg("muted", "[raw]");
+      if (a.refresh) s += " " + theme.fg("warning", "[refresh]");
+      if (a.prompt && a.prompt.trim().length > 0) {
+        s += "\n" + theme.fg("dim", `? ${a.prompt.trim()}`);
+      }
+      text.setText(s);
+      return text;
+    },
+
+    renderResult(result, opts, theme, _context) {
+      // ── Streaming: show phase + download progress ──────────────────────
+      if (opts.isPartial) {
+        const p = result.details as WebFetchProgress | undefined;
+        if (!p) return new Text(theme.fg("warning", "⋮ Fetching…"), 0, 0);
+        if (p.phase === "fetching") {
+          const got = p.receivedBytes ?? 0;
+          let body: string;
+          if (p.totalBytes && p.totalBytes > 0) {
+            const pct = Math.min(100, Math.round((got / p.totalBytes) * 100));
+            body = `${formatBytes(got)} / ${formatBytes(p.totalBytes)} (${pct}%)`;
+          } else {
+            body = `${formatBytes(got)} downloaded`;
+          }
+          return new Text(
+            theme.fg("warning", `⋮ Fetching ${body}${elapsedSuffix(p.startedAt)}`),
+            0,
+            0,
+          );
+        }
+        const label = p.phase === "extracting" ? "Extracting…" : "Querying model…";
+        return new Text(
+          theme.fg("warning", `⋮ ${label}${elapsedSuffix(p.startedAt)}`),
+          0,
+          0,
+        );
+      }
+
+      const d = result.details as WebFetchDetails | undefined;
+
+      // ── Errors / missing details: fall back to the textual content ─────
+      if (result.isError || !d || typeof d.status !== "number") {
+        const first = result.content?.[0];
+        const msg =
+          first && first.type === "text" ? first.text : "web-fetch: error";
+        return new Text(theme.fg(result.isError ? "error" : "dim", msg), 0, 0);
+      }
+
+      const statusColor =
+        d.status >= 400 ? "error" : d.status >= 300 ? "warning" : "success";
+      let summary = theme.fg(statusColor, `HTTP ${d.status}`);
+      summary += theme.fg(
+        "dim",
+        ` · ${d.contentType} · ${formatBytes(d.rawBytes)}`,
+      );
+      summary += theme.fg("muted", d.fromCache ? " · cached" : " · fetched");
+      if (d.title) summary += "\n" + theme.fg("accent", d.title);
+
+      if (!opts.expanded) {
+        const hint = theme.fg(
+          "dim",
+          ` — ${keyHint("app.tools.expand", "to expand")}`,
+        );
+        return new Text(summary + hint, 0, 0);
+      }
+
+      // ── Expanded: URLs, mode, and cache artifact paths ─────────────────
+      const lines: string[] = [summary];
+      if (d.finalUrl && d.finalUrl !== d.url) {
+        lines.push(theme.fg("dim", `url:     ${d.url}`));
+        lines.push(theme.fg("muted", `final:   ${d.finalUrl}`));
+      } else {
+        lines.push(theme.fg("muted", `url:     ${d.finalUrl || d.url}`));
+      }
+      lines.push(theme.fg("dim", `mode:    ${d.mode}`));
+      if (d.extractPath) lines.push(theme.fg("dim", `extract: ${d.extractPath}`));
+      lines.push(theme.fg("dim", `raw:     ${d.rawPath}`));
+      if (d.promptPath) lines.push(theme.fg("dim", `answer:  ${d.promptPath}`));
+      if (!d.inlined) {
+        lines.push(theme.fg("warning", "content not inlined — read the cached file"));
+      }
+      return new Text(lines.join("\n"), 0, 0);
     },
   });
 }

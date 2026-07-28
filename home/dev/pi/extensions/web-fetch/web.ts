@@ -16,7 +16,16 @@ export interface FetchResult {
  */
 export async function fetchUrl(
   url: string,
-  opts: { timeoutMs: number; userAgent: string; signal?: AbortSignal },
+  opts: {
+    timeoutMs: number;
+    userAgent: string;
+    signal?: AbortSignal;
+    /**
+     * Called as the response body streams in. `total` is the
+     * Content-Length when the server advertises one, otherwise undefined.
+     */
+    onProgress?: (received: number, total?: number) => void;
+  },
 ): Promise<FetchResult> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeoutMs);
@@ -29,17 +38,50 @@ export async function fetchUrl(
       headers: { "user-agent": opts.userAgent, accept: "*/*" },
       signal: controller.signal,
     });
-    const body = Buffer.from(await res.arrayBuffer());
+    const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
+    const lenHeader = res.headers.get("content-length");
+    const total = lenHeader ? Number(lenHeader) || undefined : undefined;
+
+    const body = res.body
+      ? await drainStream(res.body, total, opts.onProgress)
+      : Buffer.from(await res.arrayBuffer());
+
     return {
       finalUrl: res.url || url,
       status: res.status,
-      contentType: (res.headers.get("content-type") ?? "").toLowerCase(),
+      contentType,
       body,
     };
   } finally {
     clearTimeout(timer);
     opts.signal?.removeEventListener("abort", onAbort);
   }
+}
+
+/** Read a web ReadableStream to completion, reporting cumulative bytes. */
+async function drainStream(
+  stream: ReadableStream<Uint8Array>,
+  total: number | undefined,
+  onProgress?: (received: number, total?: number) => void,
+): Promise<Buffer> {
+  const reader = stream.getReader();
+  const chunks: Buffer[] = [];
+  let received = 0;
+  onProgress?.(0, total);
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value && value.byteLength > 0) {
+        chunks.push(Buffer.from(value));
+        received += value.byteLength;
+        onProgress?.(received, total);
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return Buffer.concat(chunks);
 }
 
 const TEXTUAL = [
