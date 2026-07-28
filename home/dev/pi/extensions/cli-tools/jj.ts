@@ -235,15 +235,14 @@ const jjSquashParams = Type.Object({
     Type.String({
       description:
         "Description to set on the destination revision (-m <message>). " +
-        "When omitted, the source and destination descriptions are " +
-        "combined via --no-edit.",
+        "Provide this or `useDestinationMessage`.",
     }),
   ),
   useDestinationMessage: Type.Optional(
     Type.Boolean({
       description:
         "Keep the destination revision's existing description " +
-        "(--use-destination-message / -u).",
+        "(--use-destination-message / -u). Provide this or `message`.",
     }),
   ),
   keepEmptied: Type.Optional(
@@ -262,19 +261,25 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
   description:
     "Squash changes from one revision into another. Defaults to squashing " +
     "the working copy into its parent; narrow with `revision` or " +
-    "`from`/`into`.",
+    "`from`/`into`. Set exactly one of `message` or " +
+    "`useDestinationMessage`.",
   parameters: jjSquashParams,
   buildArgs(p) {
     const args: string[] = ["squash"];
     if (p.revision !== undefined) args.push("-r", p.revision);
     if (p.from !== undefined) args.push("--from", p.from);
     if (p.into !== undefined) args.push("--into", p.into);
+    if ((p.message !== undefined) === Boolean(p.useDestinationMessage)) {
+      throw new Error(
+        "jj-squash: set exactly one of `message` or " +
+          "`useDestinationMessage`.",
+      );
+    }
     if (p.message !== undefined) {
       args.push("-m", p.message);
     } else {
-      args.push("--no-edit");
+      args.push("--use-destination-message");
     }
-    if (p.useDestinationMessage) args.push("--use-destination-message");
     if (p.keepEmptied) args.push("--keep-emptied");
     return args;
   },
