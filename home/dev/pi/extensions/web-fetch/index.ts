@@ -49,7 +49,12 @@ import {
   isTextual,
   rawExtension,
 } from "./web";
-import { runPrompt } from "./model";
+import { runPrompt, summarizeAnswer } from "./model";
+
+// Show inlined content in the expanded row when it is small enough. Inlined
+// content is already bounded by config.maxInlineBytes; this just guards the
+// pathological single-giant-line case.
+const MAX_PREVIEW_CHARS = 8_000;
 
 type Phase = "fetching" | "extracting" | "querying";
 
@@ -66,6 +71,8 @@ interface WebFetchDetails {
   title?: string;
   inlined: boolean;
   fromCache: boolean;
+  /** One-line condensation of the prompt answer, for the collapsed view. */
+  answerSummary?: string;
 }
 
 /** Details attached to partial (streaming) updates, driving renderResult. */
@@ -334,6 +341,16 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           );
           details.promptPath = promptPath;
           details.inlined = true;
+          try {
+            details.answerSummary = await summarizeAnswer({
+              modelSpec: config.model!,
+              question,
+              answer: result.answer,
+              signal,
+            });
+          } catch {
+            // Summary is best-effort; the collapsed view falls back without it.
+          }
           const note = result.truncated
             ? "\n\n(Note: the document was truncated before querying.)"
             : "";
@@ -438,6 +455,8 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       );
       summary += theme.fg("muted", d.fromCache ? " · cached" : " · fetched");
       if (d.title) summary += "\n" + theme.fg("accent", d.title);
+      // Condensed prompt answer, shown in both collapsed and expanded views.
+      if (d.answerSummary) summary += "\n" + theme.fg("text", d.answerSummary);
 
       if (!opts.expanded) {
         const hint = theme.fg(
@@ -461,6 +480,18 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       if (d.promptPath) lines.push(theme.fg("dim", `answer:  ${d.promptPath}`));
       if (!d.inlined) {
         lines.push(theme.fg("warning", "content not inlined — read the cached file"));
+      }
+
+      // Show the inlined payload (as sent to the agent) when it is small
+      // enough. No separate preview is stored: we read result.content.
+      if (d.inlined) {
+        const first = result.content?.[0];
+        const payload =
+          first && first.type === "text" ? first.text : undefined;
+        if (payload && payload.length <= MAX_PREVIEW_CHARS) {
+          lines.push(theme.fg("dim", "───"));
+          lines.push(payload.trimEnd());
+        }
       }
       return new Text(lines.join("\n"), 0, 0);
     },

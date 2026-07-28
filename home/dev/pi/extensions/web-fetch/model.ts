@@ -56,6 +56,23 @@ const SYSTEM_PROMPT =
   "text provided; do not use outside knowledge. If the answer is not present " +
   "in the document, say so plainly. Be concise and quote the relevant details.";
 
+const SUMMARY_SYSTEM_PROMPT =
+  "You are given a question and an assistant's answer to it. Condense the " +
+  "answer into a single plain-text line (no more than ~20 words) phrased as a " +
+  "direct summarized answer to that question. Omit preamble, markdown, and " +
+  "quotes. Reply with the one-line summary and nothing else.";
+
+/** Collect the text parts of a completion message into a trimmed string. */
+function messageText(message: {
+  content: { type: string }[];
+}): string {
+  return (message.content as { type: string; text?: string }[])
+    .filter((c): c is { type: "text"; text: string } => c.type === "text")
+    .map((c) => c.text)
+    .join("")
+    .trim();
+}
+
 export interface PromptResult {
   answer: string;
   truncated: boolean;
@@ -114,11 +131,50 @@ export async function runPrompt(opts: {
     throw new Error(message.errorMessage ?? "small model returned an error");
   }
 
-  const answer = message.content
-    .filter((c): c is { type: "text"; text: string } => c.type === "text")
-    .map((c) => c.text)
-    .join("")
-    .trim();
+  return { answer: messageText(message), truncated };
+}
 
-  return { answer, truncated };
+/**
+ * Reduce a longer answer to a single-line summary using the same small model.
+ * Used only for the collapsed TUI summary; never sent to the agent.
+ */
+export async function summarizeAnswer(opts: {
+  modelSpec: string;
+  question: string;
+  answer: string;
+  signal?: AbortSignal;
+}): Promise<string> {
+  const parsed = parseModelSpec(opts.modelSpec);
+  if (!parsed) {
+    throw new Error(`Invalid web-fetch model spec: '${opts.modelSpec}'`);
+  }
+
+  const runtime = await getRuntime();
+  const model = runtime.getModel(parsed.provider, parsed.id);
+  if (!model) {
+    throw new Error(`web-fetch model not found: '${opts.modelSpec}'`);
+  }
+
+  const reasoning: ThinkingLevel | undefined =
+    parsed.thinking && parsed.thinking !== "off" ? parsed.thinking : undefined;
+
+  const user =
+    `Question: ${opts.question}\n\n` +
+    `Answer:\n${opts.answer}`;
+
+  const message = await runtime.completeSimple(
+    model,
+    {
+      systemPrompt: SUMMARY_SYSTEM_PROMPT,
+      messages: [{ role: "user", content: user, timestamp: Date.now() }],
+    },
+    { signal: opts.signal, reasoning },
+  );
+
+  if (message.stopReason === "error") {
+    throw new Error(message.errorMessage ?? "small model returned an error");
+  }
+
+  // Collapse any stray newlines the model may emit into a single line.
+  return messageText(message).replace(/\s*\n\s*/g, " ").trim();
 }
