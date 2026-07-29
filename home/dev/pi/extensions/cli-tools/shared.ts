@@ -29,6 +29,25 @@ export function commandOk(command: string, args: string[]): boolean {
 }
 
 /**
+ * Run a command and capture its trimmed stdout, or `null` if it fails to
+ * spawn or exits nonzero. Used at registration time to probe environment
+ * facts (e.g. the current Nix system) that a tool's `buildArgs` needs to
+ * close over. `stderr` is ignored.
+ */
+export function commandOutput(command: string, args: string[]): string | null {
+  try {
+    const r = spawnSync(command, args, {
+      stdio: ["ignore", "pipe", "ignore"],
+      encoding: "utf8",
+    });
+    if (r.status !== 0 || typeof r.stdout !== "string") return null;
+    return r.stdout.trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Expand a leading `~` (`~` or `~/…`) to the user's home directory. We spawn
  * child processes without a shell, so shell tilde expansion doesn't happen
  * for free — pass user-supplied paths through this before appending them to

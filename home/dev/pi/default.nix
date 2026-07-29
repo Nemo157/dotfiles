@@ -131,6 +131,7 @@ in
         rg = "allow";
         fd = "allow";
         nix-flake-info = "allow";
+        nix-log = "allow";
 
         external_directory = {
           "*" = "ask";
