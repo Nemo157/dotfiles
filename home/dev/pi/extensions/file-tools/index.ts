@@ -16,15 +16,27 @@
 //     which a naive fs.rename would get wrong.
 //
 // Permission model (see ../../default.nix):
-//   - Every tool exposes its primary target as `input.path`, which the
+//   - `rm`/`mkdir` expose their single target as `input.path`, which the
 //     permission system extracts automatically. So the shared `path` deny
 //     globs (*.age, **/.ssh/**, …) protect the target for free, and — since
 //     these tool names are NOT in the `allow` list — each call falls through
 //     to the `"*" = "ask"` default and is confirmed by the user.
-//   - `mv`/`cp` take a second path (`dest`) that the built-in extractor
-//     cannot see. We defend that surface ourselves by asking the permission
-//     service whether the resolved destination is a denied `path` before
-//     touching the filesystem.
+//   - `mv`/`cp` instead name their two paths `source` and `dest`. The default
+//     `input.path` extractor cannot see either, so we register a
+//     `registerToolAccessExtractor` that points the shared `path` +
+//     `external_directory` gates at `dest`: copying/moving into an external
+//     directory raises a real approval prompt (even under edit-toggle=allow,
+//     since `external_directory` is a bounded-delegation-excluded surface),
+//     and the `path` deny globs cover the destination.
+//   - The gate has only one path slot per tool, so re-aiming it at `dest`
+//     leaves the SOURCE ungated. Each tool's run() compensates: it re-checks
+//     the precise basename-joined destination against the `path` deny globs (a
+//     synchronous extractor can't stat `dest` to know whether a basename is
+//     appended), and guards the source itself — `path` deny globs, plus
+//     blocking an EXTERNAL source outright. The source block is a deny, not a
+//     prompt: we can't raise an interactive prompt from execute(), and without
+//     it an auto-approved (edit-toggle=allow) call could read a file from
+//     outside the working directory with no confirmation at all.
 //   - The tools are also registered with the `edit-toggle` extension's
 //     governed set, so flipping edits to "deny" disables them too.
 
@@ -43,8 +55,15 @@ const SERVICE_KEY = Symbol.for("@gotgenes/pi-permission-system:service");
 interface PermissionCheckResult {
   state: "allow" | "deny" | "ask";
 }
+type ToolAccessExtractor = (
+  input: Record<string, unknown>,
+) => string | undefined;
 interface PermissionsService {
   checkPermission(surface: string, value?: string): PermissionCheckResult;
+  registerToolAccessExtractor(
+    toolName: string,
+    extractor: ToolAccessExtractor,
+  ): () => void;
 }
 
 function getPermissionsService(): PermissionsService | undefined {
@@ -54,24 +73,58 @@ function getPermissionsService(): PermissionsService | undefined {
 }
 
 /**
- * Refuse a destination the permission policy denies on the `path` surface.
- * The built-in access-intent extractor only sees `input.path` (the source),
- * so mv/cp destinations would otherwise bypass the deny globs. Returns an
- * error string when the destination is denied, or `undefined` to proceed.
- * Fails open only when the service is unavailable (mirrors the graceful
- * degradation the cross-extension API prescribes).
+ * Whether the permission policy denies `resolved` on the `path` surface — the
+ * deny globs (*.age, **\/.ssh/**, …). Used to guard both the source (whose
+ * gate coverage we trade away by re-aiming the access extractor at `dest`)
+ * and the precise basename-joined destination. Fails open only when the
+ * service is unavailable (mirrors the graceful degradation the
+ * cross-extension API prescribes).
  */
-function destinationDenied(dest: string): string | undefined {
+function pathPolicyDenies(resolved: string): boolean {
   try {
     const svc = getPermissionsService();
-    if (!svc) return undefined;
-    if (svc.checkPermission("path", dest).state === "deny") {
-      return `Destination is blocked by the permission policy: ${dest}`;
-    }
+    if (!svc) return false;
+    return svc.checkPermission("path", resolved).state === "deny";
   } catch {
     // Never let a policy-check failure crash the tool.
+    return false;
   }
-  return undefined;
+}
+
+/** Lexical (non-symlink-resolved) outside-cwd test, matching displayPath. */
+function isOutsideWorkingDirectory(cwd: string, resolved: string): boolean {
+  const rel = path.relative(cwd, resolved);
+  return (
+    rel !== "" &&
+    (rel === ".." || rel.startsWith(`..${path.sep}`) || path.isAbsolute(rel))
+  );
+}
+
+/**
+ * Whether an EXTERNAL source path must be blocked outright.
+ *
+ * The built-in gates evaluate a single path per tool, and we point them at
+ * `dest` (which therefore gets a real external-directory prompt). That leaves
+ * the mv/cp SOURCE ungated: with edit-toggle=allow auto-approving the tool
+ * call, `cp /elsewhere/secret .` would otherwise read an external file with no
+ * prompt at all. We cannot raise an interactive prompt from inside execute(),
+ * so treat anything the `external_directory` policy would not explicitly
+ * `allow` (i.e. `ask` or `deny`) as blocked when the source is outside the
+ * working directory. Paths inside the cwd, and external paths covered by an
+ * `allow` rule (reference dirs), pass through. Fails open only when the
+ * service is unavailable (the gates are off then too).
+ */
+function externalSourceBlocked(cwd: string, resolved: string): boolean {
+  if (!isOutsideWorkingDirectory(cwd, resolved)) return false;
+  try {
+    const svc = getPermissionsService();
+    if (!svc) return false;
+    return (
+      svc.checkPermission("external_directory", resolved).state !== "allow"
+    );
+  } catch {
+    return false;
+  }
 }
 
 // ── path helpers ────────────────────────────────────────────────────────
@@ -198,9 +251,20 @@ const pathParam = Type.String({
     "directory; a leading ~ expands to your home directory.",
 });
 
+// mv/cp name their source `source` rather than `path`: the built-in access
+// extractor's `input.path` convention no longer applies to them (we register a
+// custom `dest` extractor — see registerDestinationGating), so `path` would
+// only mislead. rm/mkdir keep `path` because they still rely on that
+// convention to auto-gate their single target.
+const sourceParam = Type.String({
+  description:
+    "Source path. Relative paths resolve against the session working " +
+    "directory; a leading ~ expands to your home directory.",
+});
+
 // ── mv ────────────────────────────────────────────────────────────────────
 const mvParams = Type.Object({
-  path: pathParam,
+  source: sourceParam,
   dest: Type.String({
     description:
       "Destination path. If it names an existing directory, the source is " +
@@ -217,7 +281,7 @@ const mvTool: FileToolDef<typeof mvParams> = {
   promptSnippet: "Use mv to move/rename a file or directory.",
   parameters: mvParams,
   header(args, theme) {
-    const src = typeof args.path === "string" ? args.path : "…";
+    const src = typeof args.source === "string" ? args.source : "…";
     const dest = typeof args.dest === "string" ? args.dest : "…";
     return (
       theme.fg("accent", src) +
@@ -226,15 +290,22 @@ const mvTool: FileToolDef<typeof mvParams> = {
     );
   },
   async run(params, ctx) {
-    const rawSrc = String(params.path ?? "");
+    const rawSrc = String(params.source ?? "");
     const rawDest = String(params.dest ?? "");
-    if (!rawSrc || !rawDest) return { line: "mv: path and dest are required", isError: true };
+    if (!rawSrc || !rawDest) return { line: "mv: source and dest are required", isError: true };
     const src = resolvePath(ctx.cwd, rawSrc);
     let dest = resolvePath(ctx.cwd, rawDest);
     if (await isDirectory(dest)) dest = path.join(dest, path.basename(src));
 
-    const denied = destinationDenied(dest);
-    if (denied) return { line: `mv: ${denied}`, isError: true };
+    // The gates now evaluate `dest` (see registerDestinationGating), so guard
+    // the source ourselves: deny globs, plus block an external source outright
+    // (we cannot prompt from here, unlike the gated destination).
+    if (pathPolicyDenies(src))
+      return { line: `mv: source is blocked by the permission policy: ${src}`, isError: true };
+    if (externalSourceBlocked(ctx.cwd, src))
+      return { line: `mv: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
+    if (pathPolicyDenies(dest))
+      return { line: `mv: destination is blocked by the permission policy: ${dest}`, isError: true };
     if (!(await exists(src))) return { line: `mv: no such file: ${rawSrc}`, isError: true };
 
     try {
@@ -310,7 +381,7 @@ const rmTool: FileToolDef<typeof rmParams> = {
 
 // ── cp ────────────────────────────────────────────────────────────────────
 const cpParams = Type.Object({
-  path: pathParam,
+  source: sourceParam,
   dest: Type.String({
     description:
       "Destination path. If it names an existing directory, the source is " +
@@ -334,7 +405,7 @@ const cpTool: FileToolDef<typeof cpParams> = {
     "Use cp to copy a file or directory (set recursive to copy a folder).",
   parameters: cpParams,
   header(args, theme) {
-    const src = typeof args.path === "string" ? args.path : "…";
+    const src = typeof args.source === "string" ? args.source : "…";
     const dest = typeof args.dest === "string" ? args.dest : "…";
     const flags = args.recursive === true ? theme.fg("muted", " -r") : "";
     return (
@@ -345,15 +416,22 @@ const cpTool: FileToolDef<typeof cpParams> = {
     );
   },
   async run(params, ctx) {
-    const rawSrc = String(params.path ?? "");
+    const rawSrc = String(params.source ?? "");
     const rawDest = String(params.dest ?? "");
-    if (!rawSrc || !rawDest) return { line: "cp: path and dest are required", isError: true };
+    if (!rawSrc || !rawDest) return { line: "cp: source and dest are required", isError: true };
     const src = resolvePath(ctx.cwd, rawSrc);
     let dest = resolvePath(ctx.cwd, rawDest);
     if (await isDirectory(dest)) dest = path.join(dest, path.basename(src));
 
-    const denied = destinationDenied(dest);
-    if (denied) return { line: `cp: ${denied}`, isError: true };
+    // The gates now evaluate `dest` (see registerDestinationGating), so guard
+    // the source ourselves: deny globs, plus block an external source outright
+    // (we cannot prompt from here, unlike the gated destination).
+    if (pathPolicyDenies(src))
+      return { line: `cp: source is blocked by the permission policy: ${src}`, isError: true };
+    if (externalSourceBlocked(ctx.cwd, src))
+      return { line: `cp: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
+    if (pathPolicyDenies(dest))
+      return { line: `cp: destination is blocked by the permission policy: ${dest}`, isError: true };
     if (!(await exists(src))) return { line: `cp: no such file: ${rawSrc}`, isError: true };
     if (!(params.recursive === true) && (await isDirectory(src))) {
       return {
@@ -407,9 +485,63 @@ const mkdirTool: FileToolDef<typeof mkdirParams> = {
   },
 };
 
+// ── destination gating ──────────────────────────────────────────────────
+// Re-aim the shared `path` + `external_directory` gates at the WRITE TARGET.
+//
+// The gates extract one path per tool from `input.path` by default. mv/cp name
+// their paths `source`/`dest`, so without help the gates would see neither.
+// Register a `dest` extractor so the destination is the gated path: an
+// external-directory destination then raises a real approval prompt (parity
+// with `write`), and the `path` deny globs cover the destination directory.
+// The source keeps its deny-glob protection via the explicit `pathPolicyDenies`
+// checks in each tool's run().
+function registerDestinationGating(pi: ExtensionAPI): void {
+  const disposers: Array<() => void> = [];
+
+  const register = (): void => {
+    if (disposers.length) return; // already registered this generation
+    const svc = getPermissionsService();
+    if (typeof svc?.registerToolAccessExtractor !== "function") return;
+    for (const tool of ["mv", "cp"]) {
+      try {
+        disposers.push(
+          svc.registerToolAccessExtractor(tool, (input) => {
+            const dest = input.dest;
+            // Return the raw string; the gate resolves it against the session
+            // cwd and expands `~`, at parity with the `input.path` convention.
+            return typeof dest === "string" && dest.length > 0
+              ? dest
+              : undefined;
+          }),
+        );
+      } catch {
+        // Name already claimed (e.g. a racing re-register) — leave it be.
+      }
+    }
+  };
+
+  // The service publishes at session_start; the ready broadcast fires just
+  // after. Register on both for load-order robustness, guarded against the
+  // double-registration throw above.
+  pi.events.on("permissions:ready", register);
+  pi.on("session_start", () => register());
+
+  pi.on("session_shutdown", () => {
+    for (const dispose of disposers.splice(0)) {
+      try {
+        dispose();
+      } catch {
+        // best-effort teardown
+      }
+    }
+  });
+}
+
 export default function fileToolsExtension(pi: ExtensionAPI): void {
   registerFileTool(pi, mvTool);
   registerFileTool(pi, rmTool);
   registerFileTool(pi, cpTool);
   registerFileTool(pi, mkdirTool);
+
+  registerDestinationGating(pi);
 }
