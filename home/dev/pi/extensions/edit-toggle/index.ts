@@ -54,9 +54,11 @@ import { Key } from "@earendil-works/pi-tui";
 
 type ToggleState = "ask" | "allow" | "deny";
 
-// Tools this toggle governs. Matches the "edit tools" concept the user
-// asked about. If new mutating built-in tools appear, add them here.
-const TARGET_TOOLS = new Set(["edit", "write"]);
+// Tools this toggle governs. Covers the built-in edit/write tools plus the
+// filesystem-mutation tools registered by the `file-tools` extension, so
+// flipping to "deny" locks down all file changes. If new mutating tools
+// appear, add them here.
+const TARGET_TOOLS = new Set(["edit", "write", "mv", "rm", "cp", "mkdir"]);
 
 const NEXT_STATE: Record<ToggleState, ToggleState> = {
   ask: "allow",
@@ -67,15 +69,16 @@ const NEXT_STATE: Record<ToggleState, ToggleState> = {
 // Persistent notes injected once, at turn start, when the edit capability
 // flips. See `before_agent_start` below.
 const DENY_NOTE =
-  "<system-reminder>Editing (edit, write) is disabled, so the user likely " +
+  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir file " +
+  "tools) is disabled, so the user likely " +
   "wants to plan or discuss rather than change files. Don't call these " +
   "tools; describe what you would do instead. The user knows editing is " +
   "off, so don't ask them to re-enable it — unless they clearly expect you " +
   "to be editing, in which case note that it's disabled.</system-reminder>";
 
 const ENABLE_NOTE =
-  "<system-reminder>Editing (edit, write) is enabled again; use these tools " +
-  "as needed.</system-reminder>";
+  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir file " +
+  "tools) is enabled again; use these tools as needed.</system-reminder>";
 
 // customType used for the persisted state entry.
 const STATE_ENTRY = "edit-toggle";

@@ -53,6 +53,7 @@ in
 
       extensions = [
         "${./extensions/cli-tools}/index.ts"
+        "${./extensions/file-tools}/index.ts"
         "${./extensions/edit-toggle}/index.ts"
         "${./extensions/cache-ttl}/index.ts"
       ];
@@ -65,7 +66,8 @@ in
       You do not have direct bash/shell access in this pi setup. The `bash`
       tool is denied; instead, a curated set of local CLI wrappers is exposed
       as individual tools (e.g. `read`, `edit`, `write`, `rg`, `fd`,
-      `jj-status`, `jj-diff`, `jj-log`, `git-status`, `git-diff`, `git-log`).
+      `jj-status`, `jj-diff`, `jj-log`, `git-status`, `git-diff`, `git-log`,
+      `mv`, `rm`, `cp`, `mkdir`).
 
       If you need a command that isn't available as a registered tool, do not
       try to work around it or fabricate output. Stop and ask the user to add
