@@ -215,15 +215,27 @@ function actorDisplay(loginName?: string | null, name?: string | null): string {
   return name ?? "someone";
 }
 
+/** A single dated entry in the unified timeline. `at` is epoch ms for
+ *  sorting; `block` is the already-formatted markdown for the entry. */
+interface TimelineEntry {
+  at: number;
+  block: string;
+}
+
+function ts(iso: string | null | undefined): number {
+  const n = iso ? Date.parse(iso) : NaN;
+  return Number.isNaN(n) ? 0 : n;
+}
+
 /**
- * Reconstruct branch push activity from the GraphQL timeline. Consecutive
- * `PullRequestCommit` nodes are collapsed into a single "pushed N commits"
- * entry (GitHub doesn't expose push grouping directly, so adjacency is the
- * best available heuristic); force-push events are rendered with their
- * before/after commits like the web UI.
+ * Reconstruct branch push activity from the GraphQL timeline as dated
+ * timeline entries. Consecutive `PullRequestCommit` nodes are collapsed into
+ * a single "pushed N commits" entry (GitHub doesn't expose push grouping
+ * directly, so adjacency is the best available heuristic); force-push events
+ * are rendered with their before/after commits like the web UI.
  */
-function buildActivity(nodes: TimelineNode[]): string[] {
-  const lines: string[] = [];
+function buildActivity(nodes: TimelineNode[]): TimelineEntry[] {
+  const entries: TimelineEntry[] = [];
   let run: CommitNode[] = [];
   const flush = () => {
     if (run.length === 0) return;
@@ -233,10 +245,13 @@ function buildActivity(nodes: TimelineNode[]): string[] {
       last.commit.author?.user?.login,
       last.commit.author?.name,
     );
-    lines.push(
-      `- ${who} pushed ${n} commit${n === 1 ? "" : "s"} → ` +
+    const at = ts(last.commit.committedDate);
+    entries.push({
+      at,
+      block:
+        `⇡ ${who} pushed ${n} commit${n === 1 ? "" : "s"} → ` +
         `\`${last.commit.abbreviatedOid}\` (${fmtDate(last.commit.committedDate)})`,
-    );
+    });
     run = [];
   };
   for (const node of nodes) {
@@ -247,14 +262,16 @@ function buildActivity(nodes: TimelineNode[]): string[] {
       const fp = node as ForcePushNode;
       const before = fp.beforeCommit?.abbreviatedOid ?? "?";
       const after = fp.afterCommit?.abbreviatedOid ?? "?";
-      lines.push(
-        `- ${actorDisplay(fp.actor?.login)} force-pushed ` +
+      entries.push({
+        at: ts(fp.createdAt),
+        block:
+          `⇡ ${actorDisplay(fp.actor?.login)} force-pushed ` +
           `\`${before}\` → \`${after}\` (${fmtDate(fp.createdAt)})`,
-      );
+      });
     }
   }
   flush();
-  return lines;
+  return entries;
 }
 
 interface Review {
@@ -277,6 +294,7 @@ interface ReviewComment {
   body: string;
   diff_hunk: string | null;
   in_reply_to_id: number | null;
+  created_at: string;
   line: number | null;
   original_line: number | null;
 }
@@ -315,7 +333,7 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
       .then((r) =>
         buildActivity(r.data?.repository?.pullRequest?.timelineItems?.nodes ?? []),
       )
-      .catch(() => [] as string[]),
+      .catch(() => [] as TimelineEntry[]),
   ]);
 
   const out: string[] = [];
@@ -329,35 +347,7 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
   );
   out.push(meta.html_url);
 
-  // Submitted reviews. Skip empty COMMENTED shells (their inline comments are
-  // rendered below); keep approvals / change-requests even when body-less.
-  const meaningful = (reviews ?? []).filter(
-    (r) => (r.body ?? "").trim().length > 0 || r.state !== "COMMENTED",
-  );
-  if (meaningful.length > 0) {
-    out.push("\n## Reviews");
-    for (const r of meaningful) {
-      out.push(`\n**@${login(r.user)}** ${reviewStateLabel(r.state)}:`);
-      if ((r.body ?? "").trim().length > 0) out.push(blockquote(r.body));
-    }
-  }
-
-  // Conversation timeline (issue comments).
-  if ((issueComments ?? []).length > 0) {
-    out.push("\n## Conversation");
-    for (const c of issueComments) {
-      out.push(`\n**@${login(c.user)}** commented:`);
-      out.push(blockquote(c.body));
-    }
-  }
-
-  // Branch activity: pushes and force-pushes, like the web UI timeline.
-  if (activity.length > 0) {
-    out.push("\n## Branch activity");
-    out.push(activity.join("\n"));
-  }
-
-  // Inline review comments, grouped by file, threaded by in_reply_to_id.
+  // Thread replies keyed by their root inline comment id.
   const roots = (inline ?? []).filter((c) => c.in_reply_to_id == null);
   const repliesByRoot = new Map<number, ReviewComment[]>();
   for (const c of inline ?? []) {
@@ -367,40 +357,62 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
     repliesByRoot.set(c.in_reply_to_id, list);
   }
 
-  if (roots.length > 0) {
-    out.push("\n## Inline comments");
-    // Preserve API order but group consecutive comments per file under one
-    // heading.
-    const byFile = new Map<string, ReviewComment[]>();
-    for (const c of roots) {
-      const list = byFile.get(c.path) ?? [];
-      list.push(c);
-      byFile.set(c.path, list);
-    }
-    for (const [path, comments] of byFile) {
-      out.push(`\n### ${path}`);
-      for (const c of comments) {
-        if (c.diff_hunk && c.diff_hunk.trim().length > 0) {
-          out.push("```diff\n" + c.diff_hunk.replace(/\s+$/, "") + "\n```");
-        }
-        out.push(`**@${login(c.user)}** commented:`);
-        out.push(blockquote(c.body));
-        const replies = repliesByRoot.get(c.id) ?? [];
-        for (const rep of replies) {
-          out.push(`  ↳ **@${login(rep.user)}** replied:`);
-          out.push(blockquote(rep.body, "  "));
-        }
-        out.push("---");
-      }
-    }
+  // Unified, chronologically-sorted timeline: branch pushes, submitted
+  // reviews, conversation comments and inline review threads interleaved,
+  // each timestamped so it is clear whether changes were pushed after a
+  // given review or comment. Each inline thread appears at the point its
+  // first (root) comment was created, carrying its whole reply chain.
+  const events: TimelineEntry[] = [...activity];
+
+  // Submitted reviews (overall approve / request-changes / comment summaries).
+  // Skip empty COMMENTED shells whose only content is inline comments — those
+  // inline threads are shown as their own timeline entries below.
+  for (const r of reviews ?? []) {
+    const body = (r.body ?? "").trim();
+    if (body.length === 0 && r.state === "COMMENTED") continue;
+    const parts = [
+      `**@${login(r.user)}** ${reviewStateLabel(r.state)}` +
+        ` (${fmtDate(r.submitted_at ?? "")}):`,
+    ];
+    if (body.length > 0) parts.push(blockquote(r.body));
+    events.push({ at: ts(r.submitted_at), block: parts.join("\n") });
   }
 
-  if (
-    meaningful.length === 0 &&
-    (issueComments ?? []).length === 0 &&
-    roots.length === 0 &&
-    activity.length === 0
-  ) {
+  // Conversation (issue) comments.
+  for (const c of issueComments ?? []) {
+    events.push({
+      at: ts(c.created_at),
+      block:
+        `**@${login(c.user)}** commented (${fmtDate(c.created_at)}):\n` +
+        blockquote(c.body),
+    });
+  }
+
+  // Inline review threads, placed at the root comment's creation time with
+  // the full thread (diff context + replies) shown together.
+  for (const c of roots) {
+    const parts = [
+      `**@${login(c.user)}** commented on \`${c.path}\`` +
+        ` (${fmtDate(c.created_at)}):`,
+    ];
+    if (c.diff_hunk && c.diff_hunk.trim().length > 0) {
+      parts.push("```diff\n" + c.diff_hunk.replace(/\s+$/, "") + "\n```");
+    }
+    parts.push(blockquote(c.body));
+    for (const rep of repliesByRoot.get(c.id) ?? []) {
+      parts.push(
+        `  ↳ **@${login(rep.user)}** replied (${fmtDate(rep.created_at)}):`,
+      );
+      parts.push(blockquote(rep.body, "  "));
+    }
+    events.push({ at: ts(c.created_at), block: parts.join("\n") });
+  }
+
+  if (events.length > 0) {
+    events.sort((a, b) => a.at - b.at);
+    out.push("\n## Timeline");
+    for (const e of events) out.push(`\n${e.block}`);
+  } else {
     out.push("\n_No reviews or comments yet._");
   }
 
@@ -441,12 +453,14 @@ const ghPrComments: CustomCliToolDef<typeof params> = {
   label: "gh pr comments",
   command: "gh",
   description:
-    "Show the GitHub PR review for the current changes: PR metadata, " +
-    "submitted reviews (approvals / change requests / comment bodies), the " +
-    "conversation timeline, and the inline code-review comments grouped by " +
-    "file with diff context and threaded replies. Like `gh pr view " +
-    "--comments` but also includes inline review comments. Pass `pr` to " +
-    "target a specific PR number.",
+    "Show the GitHub PR review for the current changes: PR metadata, then a " +
+    "single timestamped timeline interleaving submitted reviews (approvals / " +
+    "change requests / comment bodies), conversation comments, branch " +
+    "pushes/force-pushes and inline code-review threads (each with diff " +
+    "context and replies), so it is clear whether changes were pushed after a " +
+    "given review or comment. Like `gh pr view --comments` but also includes " +
+    "inline review comments and push activity. Pass `pr` to target a specific " +
+    "PR number.",
   parameters: params,
   displayArgs(p) {
     return p.pr !== undefined
