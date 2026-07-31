@@ -8,6 +8,21 @@ let
   # extensions/web-fetch/config.ts); it is passed to the extension explicitly
   # and granted read access via piInfrastructureReadPaths below.
   webFetchCacheDir = "${config.xdg.cacheHome}/pi/web-fetch";
+
+  # Cargo stores dependency source under CARGO_HOME (relocated to
+  # $XDG_RUNTIME_DIR/cargo-home and symlinked to $XDG_RUNTIME_DIR/cargo by
+  # home/dev/rust/cargo.nix): registry crates under registry/src and git deps
+  # under git/checkouts. Allow read-only access so the cargo-dependency-path
+  # tool's returned paths (and follow-up `read`s) don't trip an
+  # external_directory prompt. Patterns cover both the CARGO_HOME symlink
+  # alias and its resolved target; XDG_RUNTIME_DIR (`/run/user/<uid>`) is
+  # matched with a wildcard since the uid isn't known at eval time.
+  cargoSourceDirs = [
+    "/run/user/*/cargo-home/registry/src"
+    "/run/user/*/cargo-home/git/checkouts"
+    "/run/user/*/cargo/registry/src"
+    "/run/user/*/cargo/git/checkouts"
+  ];
 in
 {
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
@@ -131,6 +146,7 @@ in
         git-diff = "allow";
         git-log = "allow";
         rg = "allow";
+        cargo-dependency-path = "allow";
         fd = "allow";
         nix-flake-info = "allow";
         nix-log = "allow";
@@ -146,7 +162,7 @@ in
             name = builtins.unsafeDiscardStringContext "${d}/*";
             value = "allow";
           }
-        ]) config.programs.pi.referenceDirs);
+        ]) (config.programs.pi.referenceDirs ++ cargoSourceDirs));
       };
     };
   };
