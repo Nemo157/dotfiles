@@ -47,6 +47,23 @@ async function ghApi<T>(endpoint: string, ctx: GhContext, paginate = false): Pro
   return JSON.parse(out || "null") as T;
 }
 
+/** Run a `gh api graphql` query with string/number variables and parse it. */
+async function ghGraphql<T>(
+  query: string,
+  vars: { strings?: Record<string, string>; ints?: Record<string, number> },
+  ctx: GhContext,
+): Promise<T> {
+  const args = ["api", "graphql", "-f", `query=${query}`];
+  for (const [k, v] of Object.entries(vars.strings ?? {})) {
+    args.push("-f", `${k}=${v}`);
+  }
+  for (const [k, v] of Object.entries(vars.ints ?? {})) {
+    args.push("-F", `${k}=${v}`);
+  }
+  const out = await gh(args, ctx);
+  return JSON.parse(out || "null") as T;
+}
+
 interface Pull {
   number: number;
   state: string;
@@ -129,7 +146,115 @@ interface PrMeta {
   html_url: string;
   user: { login: string } | null;
   head: { ref: string };
-  base: { ref: string };
+  base: { ref: string; repo: { name: string; owner: { login: string } } };
+}
+
+// GraphQL timeline nodes used to reconstruct branch push activity.
+interface ForcePushNode {
+  __typename: "HeadRefForcePushedEvent";
+  actor: { login: string } | null;
+  createdAt: string;
+  beforeCommit: { abbreviatedOid: string } | null;
+  afterCommit: { abbreviatedOid: string } | null;
+}
+interface CommitNode {
+  __typename: "PullRequestCommit";
+  commit: {
+    abbreviatedOid: string;
+    committedDate: string;
+    author: { user: { login: string } | null; name: string | null } | null;
+  };
+}
+type TimelineNode = ForcePushNode | CommitNode | { __typename: string };
+
+interface TimelineResponse {
+  data?: {
+    repository?: {
+      pullRequest?: { timelineItems?: { nodes?: TimelineNode[] } } | null;
+    } | null;
+  };
+}
+
+const TIMELINE_QUERY = `query($owner:String!,$name:String!,$number:Int!){
+  repository(owner:$owner,name:$name){
+    pullRequest(number:$number){
+      timelineItems(first:250,itemTypes:[PULL_REQUEST_COMMIT,HEAD_REF_FORCE_PUSHED_EVENT]){
+        nodes{
+          __typename
+          ... on HeadRefForcePushedEvent{
+            actor{login}
+            createdAt
+            beforeCommit{abbreviatedOid}
+            afterCommit{abbreviatedOid}
+          }
+          ... on PullRequestCommit{
+            commit{
+              abbreviatedOid
+              committedDate
+              author{user{login} name}
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ` +
+    `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}Z`
+  );
+}
+
+function actorDisplay(loginName?: string | null, name?: string | null): string {
+  if (loginName) return `@${loginName}`;
+  return name ?? "someone";
+}
+
+/**
+ * Reconstruct branch push activity from the GraphQL timeline. Consecutive
+ * `PullRequestCommit` nodes are collapsed into a single "pushed N commits"
+ * entry (GitHub doesn't expose push grouping directly, so adjacency is the
+ * best available heuristic); force-push events are rendered with their
+ * before/after commits like the web UI.
+ */
+function buildActivity(nodes: TimelineNode[]): string[] {
+  const lines: string[] = [];
+  let run: CommitNode[] = [];
+  const flush = () => {
+    if (run.length === 0) return;
+    const last = run[run.length - 1];
+    const n = run.length;
+    const who = actorDisplay(
+      last.commit.author?.user?.login,
+      last.commit.author?.name,
+    );
+    lines.push(
+      `- ${who} pushed ${n} commit${n === 1 ? "" : "s"} → ` +
+        `\`${last.commit.abbreviatedOid}\` (${fmtDate(last.commit.committedDate)})`,
+    );
+    run = [];
+  };
+  for (const node of nodes) {
+    if (node.__typename === "PullRequestCommit") {
+      run.push(node as CommitNode);
+    } else if (node.__typename === "HeadRefForcePushedEvent") {
+      flush();
+      const fp = node as ForcePushNode;
+      const before = fp.beforeCommit?.abbreviatedOid ?? "?";
+      const after = fp.afterCommit?.abbreviatedOid ?? "?";
+      lines.push(
+        `- ${actorDisplay(fp.actor?.login)} force-pushed ` +
+          `\`${before}\` → \`${after}\` (${fmtDate(fp.createdAt)})`,
+      );
+    }
+  }
+  flush();
+  return lines;
 }
 
 interface Review {
@@ -171,14 +296,26 @@ interface Report {
 }
 
 async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
-  const [meta, decision, reviews, issueComments, inline] = await Promise.all([
-    ghApi<PrMeta>(`repos/{owner}/{repo}/pulls/${pr}`, ctx),
+  const meta = await ghApi<PrMeta>(`repos/{owner}/{repo}/pulls/${pr}`, ctx);
+  const [decision, reviews, issueComments, inline, activity] = await Promise.all([
     gh(["pr", "view", String(pr), "--json", "reviewDecision"], ctx)
       .then((o) => (JSON.parse(o || "{}") as ReviewDecision).reviewDecision ?? "")
       .catch(() => ""),
     ghApi<Review[]>(`repos/{owner}/{repo}/pulls/${pr}/reviews`, ctx, true),
     ghApi<IssueComment[]>(`repos/{owner}/{repo}/issues/${pr}/comments`, ctx, true),
     ghApi<ReviewComment[]>(`repos/{owner}/{repo}/pulls/${pr}/comments`, ctx, true),
+    ghGraphql<TimelineResponse>(
+      TIMELINE_QUERY,
+      {
+        strings: { owner: meta.base.repo.owner.login, name: meta.base.repo.name },
+        ints: { number: pr },
+      },
+      ctx,
+    )
+      .then((r) =>
+        buildActivity(r.data?.repository?.pullRequest?.timelineItems?.nodes ?? []),
+      )
+      .catch(() => [] as string[]),
   ]);
 
   const out: string[] = [];
@@ -212,6 +349,12 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
       out.push(`\n**@${login(c.user)}** commented:`);
       out.push(blockquote(c.body));
     }
+  }
+
+  // Branch activity: pushes and force-pushes, like the web UI timeline.
+  if (activity.length > 0) {
+    out.push("\n## Branch activity");
+    out.push(activity.join("\n"));
   }
 
   // Inline review comments, grouped by file, threaded by in_reply_to_id.
@@ -255,7 +398,8 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
   if (
     meaningful.length === 0 &&
     (issueComments ?? []).length === 0 &&
-    roots.length === 0
+    roots.length === 0 &&
+    activity.length === 0
   ) {
     out.push("\n_No reviews or comments yet._");
   }
