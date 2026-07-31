@@ -289,6 +289,9 @@ export interface CustomRunResult {
   content: string;
   stdout?: string;
   isError?: boolean;
+  /** Extra structured fields merged into {@link CliToolDetails}, so a
+   *  `renderResult` hook can drive the collapsed summary from them. */
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -693,6 +696,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             startedAt,
             updatedAt: Date.now(),
             params,
+            ...(res.details ?? {}),
           };
           return {
             content: [{ type: "text", text: res.content }],

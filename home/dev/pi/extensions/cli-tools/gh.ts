@@ -1,6 +1,8 @@
 import { Type } from "typebox";
 import {
+  buildDefaultSpec,
   runCommand,
+  type CliToolDetails,
   type CustomCliToolDef,
   type CustomRunContext,
 } from "./shared";
@@ -158,9 +160,22 @@ function login(u: { login: string } | null): string {
   return u?.login ?? "unknown";
 }
 
-async function buildReport(pr: number, ctx: GhContext): Promise<string> {
-  const [meta, reviews, issueComments, inline] = await Promise.all([
+interface ReviewDecision {
+  reviewDecision: string | null;
+}
+
+interface Report {
+  text: string;
+  reviewDecision: string;
+  commentCount: number;
+}
+
+async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
+  const [meta, decision, reviews, issueComments, inline] = await Promise.all([
     ghApi<PrMeta>(`repos/{owner}/{repo}/pulls/${pr}`, ctx),
+    gh(["pr", "view", String(pr), "--json", "reviewDecision"], ctx)
+      .then((o) => (JSON.parse(o || "{}") as ReviewDecision).reviewDecision ?? "")
+      .catch(() => ""),
     ghApi<Review[]>(`repos/{owner}/{repo}/pulls/${pr}/reviews`, ctx, true),
     ghApi<IssueComment[]>(`repos/{owner}/{repo}/issues/${pr}/comments`, ctx, true),
     ghApi<ReviewComment[]>(`repos/{owner}/{repo}/pulls/${pr}/comments`, ctx, true),
@@ -245,7 +260,25 @@ async function buildReport(pr: number, ctx: GhContext): Promise<string> {
     out.push("\n_No reviews or comments yet._");
   }
 
-  return out.join("\n");
+  return {
+    text: out.join("\n"),
+    reviewDecision: decision,
+    commentCount: (issueComments ?? []).length + (inline ?? []).length,
+  };
+}
+
+/** Human label for GitHub's `reviewDecision`; empty string when none. */
+function reviewDecisionLabel(decision: string): string {
+  switch (decision) {
+    case "APPROVED":
+      return "approved";
+    case "CHANGES_REQUESTED":
+      return "changes requested";
+    case "REVIEW_REQUIRED":
+      return "review required";
+    default:
+      return "";
+  }
 }
 
 const params = Type.Object({
@@ -278,7 +311,37 @@ const ghPrComments: CustomCliToolDef<typeof params> = {
   },
   async run(p, ctx) {
     const pr = p.pr ?? (await detectPr(ctx));
-    return { content: await buildReport(pr, ctx) };
+    const report = await buildReport(pr, ctx);
+    return {
+      content: report.text,
+      details: {
+        reviewDecision: report.reviewDecision,
+        commentCount: report.commentCount,
+      },
+    };
+  },
+  renderResult(result, opts, theme, ctx) {
+    const spec = buildDefaultSpec(result, opts, theme, ctx);
+    const details = result.details as
+      | (CliToolDetails & { reviewDecision?: string; commentCount?: number })
+      | undefined;
+    if (details?.commentCount !== undefined) {
+      const parts: string[] = [];
+      const label = reviewDecisionLabel(details.reviewDecision ?? "");
+      if (label) {
+        const color =
+          details.reviewDecision === "CHANGES_REQUESTED"
+            ? "error"
+            : details.reviewDecision === "APPROVED"
+              ? "success"
+              : "warning";
+        parts.push(theme.fg(color, label));
+      }
+      const n = details.commentCount;
+      parts.push(theme.fg("dim", `${n} comment${n === 1 ? "" : "s"}`));
+      spec.summary = parts.join(theme.fg("dim", " · "));
+    }
+    return spec;
   },
 };
 
