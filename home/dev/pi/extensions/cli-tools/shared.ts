@@ -179,13 +179,21 @@ function buildInvocation(command: string, args: string[]): string {
   return [command, ...args.map(shellQuote)].join(" ");
 }
 
-function computeArgs(def: CliToolDef, params: unknown): string[] {
+function computeArgs(def: StructuredCliToolDef, params: unknown): string[] {
   return def.buildArgs(params as Static<typeof def.parameters>);
 }
 
 function computeDisplayArgs(def: CliToolDef, params: unknown): string[] {
-  const fn = def.displayArgs ?? def.buildArgs;
-  return fn(params as Static<typeof def.parameters>);
+  const typed = params as Static<typeof def.parameters>;
+  if (def.displayArgs) return def.displayArgs(typed);
+  if ("buildArgs" in def) return def.buildArgs(typed);
+  return [];
+}
+
+/** Discriminate the two tool variants: structured (single command) vs. custom
+ *  (arbitrary async implementation). */
+function isCustom(def: CliToolDef): def is CustomCliToolDef {
+  return "run" in def;
 }
 
 export interface BaseCliToolFields {
@@ -265,9 +273,41 @@ export interface StructuredCliToolDef<T extends TSchema = TSchema>
   displayArgs?: (params: Static<T>) => string[];
 }
 
-export type CliToolDef = StructuredCliToolDef;
+/**
+ * Context handed to a {@link CustomCliToolDef.run} implementation.
+ */
+export interface CustomRunContext {
+  cwd: string;
+  signal?: AbortSignal;
+}
 
-interface RunResult {
+/**
+ * Result of a custom tool's `run`. `content` is the LLM-facing text; `stdout`
+ * (defaulting to `content`) is what the TUI shows in its output block.
+ */
+export interface CustomRunResult {
+  content: string;
+  stdout?: string;
+  isError?: boolean;
+}
+
+/**
+ * Custom wrapper: instead of mapping params to a single argv, the tool
+ * provides an async `run` that may spawn several helper subprocesses and
+ * assemble its own output (e.g. multiple `gh api` calls + formatting). It
+ * still renders through the shared spec builders; `displayArgs` supplies the
+ * `$ <command> <args>` header line shown in the TUI.
+ */
+export interface CustomCliToolDef<T extends TSchema = TSchema>
+  extends BaseCliToolFields {
+  parameters: T;
+  displayArgs?: (params: Static<T>) => string[];
+  run: (params: Static<T>, ctx: CustomRunContext) => Promise<CustomRunResult>;
+}
+
+export type CliToolDef = StructuredCliToolDef | CustomCliToolDef;
+
+export interface RunResult {
   stdout: string;
   stderr: string;
   code: number | null;
@@ -275,7 +315,7 @@ interface RunResult {
   timedOut: boolean;
 }
 
-function runCommand(
+export function runCommand(
   command: string,
   args: string[],
   opts: {
@@ -632,6 +672,55 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     promptGuidelines: def.promptGuidelines,
     parameters: def.parameters,
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
+      // Custom tools run their own async implementation and reuse the shared
+      // rendering by populating a CliToolDetails from the returned text.
+      if (isCustom(def)) {
+        const startedAt = Date.now();
+        const displayArgs = computeDisplayArgs(def, params);
+        try {
+          const res = await def.run(params as Static<typeof def.parameters>, {
+            cwd: ctx.cwd,
+            signal,
+          });
+          const details: CliToolDetails = {
+            command: def.command,
+            args: displayArgs,
+            stdout: res.stdout ?? res.content,
+            stderr: "",
+            exitCode: res.isError ? 1 : 0,
+            signal: null,
+            timedOut: false,
+            startedAt,
+            updatedAt: Date.now(),
+            params,
+          };
+          return {
+            content: [{ type: "text", text: res.content }],
+            details,
+            isError: res.isError ?? false,
+          };
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          const details: CliToolDetails = {
+            command: def.command,
+            args: displayArgs,
+            stdout: "",
+            stderr: msg,
+            exitCode: 1,
+            signal: null,
+            timedOut: false,
+            startedAt,
+            updatedAt: Date.now(),
+            params,
+          };
+          return {
+            content: [{ type: "text", text: msg }],
+            details,
+            isError: true,
+          };
+        }
+      }
+
       const args = computeArgs(def, params);
 
       // Streaming: for tools without a postProcess hook, forward partial

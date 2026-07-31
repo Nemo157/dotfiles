@@ -18,6 +18,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerCliTool, type CliToolDef } from "./shared";
 import { jjTools } from "./jj";
 import { gitTools } from "./git";
+import { ghTools } from "./gh";
 import { rgTool } from "./rg";
 import { fdTool } from "./fd";
 import { getCargoTools } from "./cargo";
@@ -27,6 +28,7 @@ export default function (pi: ExtensionAPI) {
   const tools: CliToolDef[] = [
     ...jjTools,
     ...gitTools,
+    ...ghTools,
     rgTool,
     fdTool,
     ...getCargoTools(),

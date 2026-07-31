@@ -145,6 +145,8 @@ in
         git-status = "allow";
         git-diff = "allow";
         git-log = "allow";
+        # Read-only GitHub PR review view (network egress, but read-only).
+        gh-pr-comments = "allow";
         rg = "allow";
         cargo-dependency-path = "allow";
         fd = "allow";
