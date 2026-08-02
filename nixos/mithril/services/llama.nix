@@ -13,7 +13,7 @@ in
     port = 8083;
 
     settings = let
-      llama-cpp = pkgs.llama-cpp.override { rocmSupport = true; };
+      llama-cpp = pkgs.unstable.llama-cpp.override { rocmSupport = true; };
       llama-server = lib.getExe' llama-cpp "llama-server";
 
       defaultArgs = [
@@ -36,6 +36,14 @@ in
           repo = "unsloth/gemma-4-12B-it-qat-GGUF";
           rev = "7102bdea62863acff919c945405ef29973113d66";
           hash = "sha256-zJ/wcuCoIDQp7YVOZmLBemwrweXcpbR13Uc2yqrLwWU=";
+          mtp = "mtp-gemma-4-12B-it.gguf";
+          mtpHash = "sha256-xQyRw18EkDgVsuiTDLuMjFvuDhqgB0jDCnuP8F0jELQ=";
+        };
+
+        "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL" = {
+          repo = "unsloth/gemma-4-26B-A4B-it-qat-GGUF";
+          rev = "c1f25db7cf31985b52caa1db777eb72d17ca1c7c";
+          hash = "sha256-3PF5qRFT46fs55LkjvhyGA2dbvm3Z38KC9PoPP5iTV4=";
         };
       };
     in
@@ -46,8 +54,19 @@ in
       sendLoadingState = false;
 
       models = lib.mapAttrs (name: attrs: let
-        gguf = fetchHF ({ file = if attrs ? file then attrs.file else "${name}.gguf"; } // attrs);
-        args = defaultArgs ++ ["--model" gguf] ++ (if attrs ? args then attrs.args else []);
+        gguf = fetchHF ({
+          inherit (attrs) repo rev hash;
+          file = if attrs ? file then attrs.file else "${name}.gguf";
+        });
+        mtp = if attrs ? mtp then fetchHF ({
+          inherit (attrs) repo rev;
+          file = attrs.mtp;
+          hash = attrs.mtpHash;
+        }) else null;
+        args = defaultArgs
+          ++ ["--model" gguf]
+          ++ (if attrs ? args then attrs.args else [])
+          ++ (if attrs ? mtp then ["-md" mtp "--spec-type" "draft-mtp" "--spec-draft-n-max" "2"] else []);
       in {
         cmd = lib.escapeShellArgs args;
       }) models;
