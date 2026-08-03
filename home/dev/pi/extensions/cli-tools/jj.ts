@@ -1,5 +1,9 @@
 import { Type } from "typebox";
-import { expandTilde, type StructuredCliToolDef } from "./shared";
+import {
+  asStringArray,
+  expandTilde,
+  type StructuredCliToolDef,
+} from "./shared";
 
 // jj-status --------------------------------------------------------------
 
@@ -232,8 +236,9 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
   parameters: jjCommitParams,
   buildArgs(p) {
     const args: string[] = ["commit", "-m", p.message];
-    if (p.paths !== undefined && p.paths.length > 0) {
-      args.push("--", ...p.paths);
+    const paths = asStringArray(p.paths);
+    if (paths.length > 0) {
+      args.push("--", ...paths);
     }
     return args;
   },

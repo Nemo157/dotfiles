@@ -19,6 +19,17 @@ import { homedir } from "node:os";
  * `stdio: "ignore"` keeps the check silent even if the command prints to
  * stdout/stderr.
  */
+/**
+ * Tolerate models passing a scalar where an array-of-string parameter was
+ * declared. Tool-call arguments are not validated against the TypeBox
+ * schema before `execute`, so a string like "Cargo.toml" would otherwise
+ * be iterated character-by-character by `for...of` / spread.
+ */
+export function asStringArray(v: unknown): string[] {
+  if (v === undefined || v === null) return [];
+  return Array.isArray(v) ? v.map(String) : [String(v)];
+}
+
 export function commandOk(command: string, args: string[]): boolean {
   try {
     const r = spawnSync(command, args, { stdio: "ignore" });

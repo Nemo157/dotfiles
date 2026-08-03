@@ -1,5 +1,9 @@
 import { Type } from "typebox";
-import { expandTilde, type StructuredCliToolDef } from "./shared";
+import {
+  asStringArray,
+  expandTilde,
+  type StructuredCliToolDef,
+} from "./shared";
 
 const fdParams = Type.Object({
   pattern: Type.Optional(
@@ -87,7 +91,7 @@ export const fdTool: StructuredCliToolDef<typeof fdParams> = {
     if (p.caseSensitive) args.push("-s");
     if (p.fullPath) args.push("-p");
     if (p.type) args.push("-t", p.type);
-    for (const ext of p.extension ?? []) args.push("-e", ext);
+    for (const ext of asStringArray(p.extension)) args.push("-e", ext);
     if (p.maxDepth !== undefined) args.push("--max-depth", String(p.maxDepth));
     // Pattern is positional; use empty string if omitted so `--` still
     // delimits the paths that follow. fd treats an empty pattern as "match

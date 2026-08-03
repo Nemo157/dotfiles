@@ -1,6 +1,7 @@
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "typebox";
 import {
+  asStringArray,
   buildDefaultSpec,
   type CliRenderResult,
   type CliRenderSpec,
@@ -482,8 +483,8 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     if (p.hidden) args.push("--hidden");
     if (p.noIgnore) args.push("--no-ignore");
     if (p.context !== undefined) args.push(`-C${p.context}`);
-    for (const g of p.glob ?? []) args.push("-g", g);
-    for (const t of p.type ?? []) args.push("-t", t);
+    for (const g of asStringArray(p.glob)) args.push("-g", g);
+    for (const t of asStringArray(p.type)) args.push("-t", t);
     // -e so a pattern starting with `-` is still safe.
     args.push("-e", p.pattern);
     args.push("--");
@@ -508,8 +509,8 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     if (p.noIgnore) args.push("--no-ignore");
     if (p.context !== undefined) args.push(`--context=${p.context}`);
     if (p.maxCount !== undefined) args.push(`--max-count=${p.maxCount}`);
-    for (const g of p.glob ?? []) args.push("--glob", g);
-    for (const t of p.type ?? []) args.push("--type", t);
+    for (const g of asStringArray(p.glob)) args.push("--glob", g);
+    for (const t of asStringArray(p.type)) args.push("--type", t);
     args.push("--regexp", p.pattern);
     if (p.path !== undefined) args.push("--", expandTilde(p.path));
     return args;
