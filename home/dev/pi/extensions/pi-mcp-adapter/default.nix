@@ -73,6 +73,23 @@ buildNpmPackage (finalAttrs: {
   # Nothing to compile: pi loads index.ts directly.
   dontNpmBuild = true;
 
+  # The bundled @modelcontextprotocol/client SDK enforces SEP-2207: OAuth
+  # token endpoints must be https unless the host is loopback. Its loopback
+  # check only matches the exact string "localhost", so an IdP served at a
+  # subdomain like `idp.localhost` is rejected even though RFC 6761 guarantees
+  # `*.localhost` resolves to loopback. Extend the check to accept any
+  # `.localhost` host so local OIDC dev setups work over plain http.
+  postInstall = ''
+    for f in \
+      node_modules/@modelcontextprotocol/client/dist/index.mjs \
+      node_modules/@modelcontextprotocol/client/dist/index.cjs; do
+      substituteInPlace "$out/lib/node_modules/pi-mcp-adapter/$f" \
+        --replace-fail \
+          'hostname === "::1";' \
+          '(hostname === "::1" || hostname.endsWith(".localhost"));'
+    done
+  '';
+
   nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     autoPatchelfHook
   ];
