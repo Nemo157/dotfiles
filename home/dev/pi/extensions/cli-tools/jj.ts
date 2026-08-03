@@ -134,6 +134,31 @@ const jjLog: StructuredCliToolDef<typeof jjLogParams> = {
   },
 };
 
+// jj-show ---------------------------------------------------------------
+
+const jjShowParams = Type.Object({
+  revision: Type.Optional(
+    Type.String({
+      description:
+        "Revision whose description to show (-r <rev>). Defaults to the " +
+        "working-copy revision (@).",
+    }),
+  ),
+});
+
+const jjShow: StructuredCliToolDef<typeof jjShowParams> = {
+  name: "jj-show",
+  label: "jj show",
+  command: "jj",
+  description:
+    "Show a commit's full, untruncated description. Use this to read a " +
+    "complete multi-line commit message that jj-log summarises to one line.",
+  parameters: jjShowParams,
+  buildArgs(p) {
+    return ["log", "--no-graph", "-T", "description", "-r", p.revision ?? "@"];
+  },
+};
+
 // jj-describe -----------------------------------------------------------
 
 const jjDescribeParams = Type.Object({
@@ -288,4 +313,12 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
   },
 };
 
-export const jjTools = [jjStatus, jjDiff, jjLog, jjDescribe, jjCommit, jjSquash];
+export const jjTools = [
+  jjStatus,
+  jjDiff,
+  jjLog,
+  jjShow,
+  jjDescribe,
+  jjCommit,
+  jjSquash,
+];
