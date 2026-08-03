@@ -20,14 +20,17 @@
 
   programs.pi = {
     settings = {
-      defaultProvider = "anthropic";
-      defaultModel = "claude-opus-4-8";
-      defaultThinkingLevel = "medium";
-      enabledModels = [ "claude-sonnet-5" "claude-opus-4-8" ];
+      enabledModels = [
+        "claude-opus-4-8"
+        "claude-opus-5"
+        "claude-sonnet-5"
+        "deepseek/deepseek-v4-flash-latest"
+        "moonshotai/kimi-k3"
+      ];
     };
 
     # Small model backing the web-fetch extension's optional `prompt` query.
-    extensionSettings.web-fetch.model = "anthropic/claude-sonnet-5";
+    extensionSettings.web-fetch.model = "openrouter/deepseek/deepseek-v4-flash-0731";
   };
 
   home.packages = with pkgs; [
