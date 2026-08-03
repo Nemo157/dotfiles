@@ -164,7 +164,9 @@ in
             name = builtins.unsafeDiscardStringContext "${d}/*";
             value = "allow";
           }
-        ]) (config.programs.pi.referenceDirs ++ cargoSourceDirs));
+        ]) (config.programs.pi.referenceDirs
+          ++ [ config.programs.pi.referenceLinkDir ]
+          ++ cargoSourceDirs));
       };
     };
   };

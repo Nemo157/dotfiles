@@ -10,10 +10,26 @@ let
     ++ (cfg.settings.packages or [ ])
     ++ map builtins.dirOf (cfg.settings.extensions or [ ]);
 
+  # Stable, versionless symlinks into the store so the injected context can
+  # reference short paths (e.g. ~/.config/pi/reference/pi-mcp-adapter) instead
+  # of hashed, version-suffixed store paths that are easy to mistranscribe.
+  # Keyed by the leaf directory name; collisions would silently drop an entry,
+  # so assert the names stay unique.
+  referenceLinkNames = map (dir: baseNameOf (builtins.unsafeDiscardStringContext dir)) referenceDirs;
+  referenceLinks = lib.listToAttrs
+    (lib.zipListsWith lib.nameValuePair referenceLinkNames referenceDirs);
+  referenceLinksUnique =
+    assert lib.assertMsg
+      (lib.length (lib.unique referenceLinkNames) == lib.length referenceDirs)
+      "programs.pi reference symlinks have colliding leaf names: ${lib.concatStringsSep ", " referenceLinkNames}";
+    referenceLinks;
+
   refDirsBlock = ''
 
     Self-reference directories readable outside the working tree:
-    ${lib.concatMapStringsSep "\n" (p: "- ${p}") referenceDirs}
+    ${lib.concatMapStringsSep "\n"
+      (name: "- ${configDir}/reference/${name}")
+      (lib.attrNames referenceLinksUnique)}
   '';
 
   pi-wrapped = pkgs.symlinkJoin {
@@ -60,9 +76,11 @@ in
       default = "";
       description = ''
         Prose written to pi/APPEND_SYSTEM.md. The module automatically
-        appends a "Self-reference directories" section listing the bundled
+        appends a "Self-reference directories" section. To keep the injected
+        context free of hashed, version-suffixed store paths, it lists stable
+        symlinks under pi/reference/<leaf-name> (created from the bundled
         pi-monorepo, settings.packages, and the parent directories of
-        settings.extensions.
+        settings.extensions) rather than the raw store paths.
       '';
     };
 
@@ -74,6 +92,19 @@ in
         written to pi/extensions/<name>/config.json as JSON, assuming the
         extension follows the convention of reading its config from that
         path.
+      '';
+    };
+
+    referenceLinkDir = lib.mkOption {
+      type = lib.types.str;
+      readOnly = true;
+      default = "${configDir}/reference";
+      description = ''
+        Directory of stable, versionless symlinks into the store that the
+        injected context points at instead of raw store paths. Exposed so
+        permission rules can allow-list it: the permission layer matches on
+        the lexical (non-symlink-resolved) path, so this directory must be
+        allowed in addition to `referenceDirs`.
       '';
     };
 
@@ -102,6 +133,9 @@ in
       "pi/settings.json".text = builtins.toJSON cfg.settings;
 
       "pi/APPEND_SYSTEM.md".text = cfg.appendSystem + refDirsBlock;
+    } // (lib.mapAttrs'
+      (name: path: lib.nameValuePair "pi/reference/${name}" { source = path; })
+      referenceLinksUnique) // {
 
       "pi/auth.json".source =
         config.lib.file.mkOutOfStoreSymlink "${stateDir}/auth.json";
