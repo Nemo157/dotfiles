@@ -176,7 +176,10 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
 
 const jjCommitParams = Type.Object({
   message: Type.String({
-    description: "Description for the committed revision (-m <message>).",
+    description:
+      "Description for the committed revision (-m <message>). Use " +
+      "markdown formatting, including inline code, in both the title " +
+      "and body of the message.",
   }),
   paths: Type.Optional(
     Type.Array(Type.String(), {
