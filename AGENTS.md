@@ -99,6 +99,14 @@ colmena build --on <hostname>
 - Faster than `nix flake check` which builds all hosts
 - Use current hostname (check with `hostname`) to test local changes
 
+**Per-host flake checks:** each colmena node is also exposed as a flake
+check named `colmena-<hostname>` (filtered to the node's system), so the
+current host can be built directly:
+
+```bash
+nix build .#checks.x86_64-linux.colmena-<hostname>
+```
+
 **On macOS, there is no NixOS module / colmena entry — use home-manager directly:**
 
 ```bash

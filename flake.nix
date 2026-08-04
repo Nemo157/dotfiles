@@ -159,7 +159,12 @@
 
     checks =
       (prefixAttrs "packages" self.outputs.packages.${system})
-      // (prefixAttrs "shells" self.outputs.devShells.${system});
+      // (prefixAttrs "shells" self.outputs.devShells.${system})
+      // (prefixAttrs "colmena" (nixpkgs.lib.mapAttrs
+           (name: node: node.config.system.build.toplevel)
+           (nixpkgs.lib.filterAttrs
+             (name: node: node.pkgs.stdenv.hostPlatform.system == system)
+             self.outputs.colmenaHive.nodes)));
   }) // (let
     # pin nixpkgs to system nixpkgs for determinism
     pin-nixpkgs = {
