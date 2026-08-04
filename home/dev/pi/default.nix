@@ -148,6 +148,7 @@ in
         jj-status = "allow";
         jj-diff = "allow";
         jj-log = "allow";
+        jj-show = "allow";
         git-status = "allow";
         git-diff = "allow";
         git-log = "allow";
