@@ -77,6 +77,7 @@ in
         "${./extensions/cache-ttl}/index.ts"
         "${./extensions/local-agents}/index.ts"
         "${./extensions/system-details}/index.ts"
+        "${./extensions/continue-turn}/index.ts"
       ];
     };
 
