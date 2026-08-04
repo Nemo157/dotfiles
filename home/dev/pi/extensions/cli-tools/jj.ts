@@ -252,13 +252,6 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
 // jj-squash -------------------------------------------------------------
 
 const jjSquashParams = Type.Object({
-  revision: Type.Optional(
-    Type.String({
-      description:
-        "Revision to squash into its parent (-r <rev>). Mutually " +
-        "exclusive with `from`/`into`.",
-    }),
-  ),
   from: Type.Optional(
     Type.String({
       description: "Source revision to squash from (--from <rev>).",
@@ -298,13 +291,11 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
   command: "jj",
   description:
     "Squash changes from one revision into another. Defaults to squashing " +
-    "the working copy into its parent; narrow with `revision` or " +
-    "`from`/`into`. Set exactly one of `message` or " +
-    "`useDestinationMessage`.",
+    "the working copy into its parent; narrow with `from`/`into`. " +
+    "Set exactly one of `message` or `useDestinationMessage`.",
   parameters: jjSquashParams,
   buildArgs(p) {
     const args: string[] = ["squash"];
-    if (p.revision !== undefined) args.push("-r", p.revision);
     if (p.from !== undefined) args.push("--from", p.from);
     if (p.into !== undefined) args.push("--into", p.into);
     if ((p.message !== undefined) === Boolean(p.useDestinationMessage)) {
