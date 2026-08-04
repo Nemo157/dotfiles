@@ -13,8 +13,13 @@ const jjStatus: StructuredCliToolDef<typeof jjStatusParams> = {
   name: "jj-status",
   label: "jj status",
   command: "jj",
-  description: "Show working copy status via jj (jujutsu).",
-  promptSnippet: "Use jj-status to see the current jj working copy state.",
+  description:
+    "Show working copy status via jj (jujutsu). Snapshotting the working " +
+    "copy also auto-tracks new files into the colocated git tree, making " +
+    "them visible to nix flake evaluation (checks / colmena).",
+  promptSnippet:
+    "Use jj-status to see the current jj working copy state; it also " +
+    "auto-tracks new files into git.",
   parameters: jjStatusParams,
   buildArgs() {
     return ["status"];
