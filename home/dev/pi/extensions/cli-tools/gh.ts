@@ -297,6 +297,33 @@ interface ReviewComment {
   created_at: string;
   line: number | null;
   original_line: number | null;
+  start_line: number | null;
+  original_start_line: number | null;
+}
+
+/**
+ * Reduce a GitHub `diff_hunk` to just the commented segment plus a little
+ * context. GitHub returns the entire hunk from the `@@` header down to the
+ * anchor line, which is far more than the reviewer selected. The commented
+ * region is the last `line - start_line + 1` lines (or the single last line
+ * for a single-line comment); we keep that plus up to `CONTEXT` preceding
+ * lines and drop the `@@` header.
+ */
+const DIFF_CONTEXT_LINES = 3;
+
+function trimDiffHunk(c: ReviewComment): string | null {
+  if (!c.diff_hunk || c.diff_hunk.trim().length === 0) return null;
+  const lines = c.diff_hunk
+    .replace(/\s+$/, "")
+    .split("\n")
+    .filter((l) => !l.startsWith("@@"));
+  if (lines.length === 0) return null;
+  const end = c.line ?? c.original_line;
+  const start = c.start_line ?? c.original_start_line;
+  const selected =
+    end != null && start != null ? Math.max(1, end - start + 1) : 1;
+  const keep = Math.min(lines.length, selected + DIFF_CONTEXT_LINES);
+  return lines.slice(lines.length - keep).join("\n");
 }
 
 function login(u: { login: string } | null): string {
@@ -395,8 +422,9 @@ async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
       `**@${login(c.user)}** commented on \`${c.path}\`` +
         ` (${fmtDate(c.created_at)}):`,
     ];
-    if (c.diff_hunk && c.diff_hunk.trim().length > 0) {
-      parts.push("```diff\n" + c.diff_hunk.replace(/\s+$/, "") + "\n```");
+    const hunk = trimDiffHunk(c);
+    if (hunk) {
+      parts.push("```diff\n" + hunk + "\n```");
     }
     parts.push(blockquote(c.body));
     for (const rep of repliesByRoot.get(c.id) ?? []) {
