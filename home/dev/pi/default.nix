@@ -60,6 +60,10 @@ in
       theme = "base24-ansi";
       themes = [ "${./themes}" ];
 
+      compaction = {
+        enabled = false;
+      };
+
       packages = [
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
         (pkgs.callPackage ./extensions/web-fetch { }).packageRoot
