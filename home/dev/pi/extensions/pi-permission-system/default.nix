@@ -1,9 +1,9 @@
-{ lib, buildNpmPackage, fetchurl, jq }:
+{ lib, buildNpmPackage, fetchurl }:
 
 # Pi extension packaged from npm. The npm tarball ships without a lock file,
 # so we keep our own `package-lock.json` next to this derivation (generated
 # with `npm install --package-lock-only --omit=dev --ignore-scripts`, then
-# stripped of dev entries via jq) and feed it to buildNpmPackage. That gives
+# stripped of dev entries via node) and feed it to buildNpmPackage. That gives
 # us a fully pinned dependency closure.
 #
 # Runtime deps: tree-sitter-bash, web-tree-sitter, zod (plus two transitive
@@ -21,15 +21,26 @@ buildNpmPackage (finalAttrs: {
     hash = "sha512-7jWdwzfwIYper9jeYkb3f74mPGZp/hYvzHYHgf6WFoSnAPq3nr4a/NeuBSCKax3Kv0r8EwScxNWQ5y25JcOJQg==";
   };
 
-  nativeBuildInputs = [ jq ];
-
   # Drop devDependencies from package.json in lockstep with the pruned
   # lock file — otherwise `npm ci` still tries to resolve them against the
   # (empty) offline npm cache even with `--omit=dev`.
+  #
+  # buildNpmPackage runs postPatch in two separate derivations: the npmDeps
+  # fetcher and the main build. Neither `jq` nor `node` is available in the
+  # fetcher, but the fetcher only consumes the (already pruned) vendored
+  # `package-lock.json`, so we guard the `node`-based package.json rewrite on
+  # `node` being present — it runs in the main build (where buildNpmPackage
+  # provides nodejs) and is harmlessly skipped in the fetcher.
   postPatch = ''
     cp ${./package-lock.json} package-lock.json
-    jq 'del(.devDependencies)' package.json > package.json.new
-    mv package.json.new package.json
+    if command -v node >/dev/null 2>&1; then
+      node -e '
+        const fs = require("fs");
+        const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+        delete pkg.devDependencies;
+        fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+      '
+    fi
   '';
 
   npmDepsHash = "sha256-9iiLVTSgEBk9C3WqgzcKB9b/fjQ2Tbuwzel6qbkIfQo=";
