@@ -75,6 +75,7 @@ in
         "${./extensions/file-tools}/index.ts"
         "${./extensions/edit-toggle}/index.ts"
         "${./extensions/cache-ttl}/index.ts"
+        "${./extensions/local-agents}/index.ts"
       ];
     };
 
