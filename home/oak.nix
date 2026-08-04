@@ -21,8 +21,8 @@
   programs.pi = {
     settings = {
       enabledModels = [
-        "claude-opus-4-8"
         "claude-opus-5"
+        "claude-opus-4-8"
         "claude-sonnet-5"
         "deepseek/deepseek-v4-flash-latest"
         "moonshotai/kimi-k3"
