@@ -73,6 +73,7 @@ in
       extensions = [
         "${./extensions/cli-tools}/index.ts"
         "${./extensions/file-tools}/index.ts"
+        "${./extensions/file-upload}/index.ts"
         "${./extensions/edit-toggle}/index.ts"
         "${./extensions/cache-ttl}/index.ts"
         "${./extensions/local-agents}/index.ts"
@@ -141,6 +142,9 @@ in
 
         # Network egress via the web-fetch extension: gate each call.
         web-fetch = "ask";
+
+        # Outbound file/data upload (exfiltration channel): always confirm.
+        upload = "ask";
 
         # No direct bash access, instead specific local tools registered by the cli-tools extension
         bash = "deny";
