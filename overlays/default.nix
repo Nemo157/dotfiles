@@ -43,6 +43,7 @@ in {
   jujutsu = final.unstable.jujutsu;
 
   ffmpeg-fdk-aac = prev.ffmpeg.override {
+    ffmpegVariant = "headless";
     withUnfree = true;
     withFdkAac = true;
   };
