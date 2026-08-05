@@ -54,6 +54,11 @@
     source = ./eww-auto-open-taskbars.sh;
   };
 
+  scripts.eww-llama-swap = {
+    runtimeInputs = with pkgs; [ curl jq coreutils ];
+    source = ./eww-llama-swap.sh;
+  };
+
   scripts.eww-listenbrainz = {
     runtimeInputs = with pkgs; [ curl jq ];
     source = ./eww-listenbrainz.sh;

@@ -20,6 +20,7 @@
           "${pkgs.systemd}/bin"
           "${pkgs.appearance-watcher}/bin"
           "${pkgs.darkman}/bin"
+          "${pkgs.curl}/bin"
           "${pkgs.amdgpu_top}/bin"
         ];
         ExecStart = "eww daemon --no-daemonize";

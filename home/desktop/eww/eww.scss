@@ -141,6 +141,18 @@ progress {
   font-size: 1.4rem;
 }
 
+.llama-swap {
+  margin-top: 0.3rem;
+  font-size: 1.4rem;
+  label {
+    border-radius: 9999px;
+    padding: 0.1rem 0.2rem;
+  }
+  &.running label {
+    background-color: $green;
+  }
+}
+
 .appearance-toggle {
   margin-top: 0.3rem;
   font-size: 1.4rem;

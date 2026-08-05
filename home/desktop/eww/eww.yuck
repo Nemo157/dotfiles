@@ -38,6 +38,7 @@
     (workspaces :screen screen)
     (wm-buttons)
     (appearance-toggle)
+    (llama-swap-indicator)
     (eventbox :vexpand true :onclick "systemctl --user start --no-block change-wallpaper"
       (security-key)
     )
@@ -137,6 +138,22 @@
     (btn :icon "󰊓" :onclick "eww-wm-maximize")
     (box :hexpand true)
     (btn :icon "" :onclick "eww-wm-close-window")
+  )
+)
+
+(deflisten llama-swap
+  :initial '{"available":false,"running":false,"model":null}'
+  "eww-llama-swap")
+
+(defwidget llama-swap-indicator []
+  (eventbox :class "llama-swap ${llama-swap.running ? "running" : ""} ${appearance.color-scheme}"
+    :visible {llama-swap.available ?: false}
+    :onclick "curl -sf -X POST http://127.0.0.1:8083/api/models/unload"
+    :cursor "pointer"
+    (h-box :halign "center"
+      (label :text "🦙"
+        :tooltip {llama-swap.running ? "running: ${llama-swap.model}" : "no model running"})
+    )
   )
 )
 
