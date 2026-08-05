@@ -79,11 +79,6 @@
       }
 
       window-rule {
-          match app-id="^steam_app_(1977170)$"
-          open-fullscreen true
-      }
-
-      window-rule {
           match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
           default-floating-position x=10 y=10 relative-to="bottom-right"
           opacity 1.0
@@ -120,6 +115,11 @@
               active-gradient from="#dc322f" to="#cb4b16" angle=45
               inactive-gradient from="#dc322f" to="#cb4b16" angle=45
           }
+      }
+
+      window-rule {
+          match app-id="^steam_app_.*"
+          open-fullscreen true
       }
 
       layer-rule {
