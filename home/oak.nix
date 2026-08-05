@@ -24,13 +24,13 @@
         "claude-opus-5"
         "claude-opus-4-8"
         "claude-sonnet-5"
-        "deepseek/deepseek-v4-flash-latest"
+        "deepseek/deepseek-v4-flash"
         "moonshotai/kimi-k3"
       ];
     };
 
     # Small model backing the web-fetch extension's optional `prompt` query.
-    extensionSettings.web-fetch.model = "openrouter/deepseek/deepseek-v4-flash-0731";
+    extensionSettings.web-fetch.model = "openrouter/deepseek/deepseek-v4-flash";
   };
 
   home.packages = with pkgs; [
