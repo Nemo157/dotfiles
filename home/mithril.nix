@@ -114,9 +114,13 @@
 
   programs.pi.settings = {
     defaultProvider = "openrouter";
-    defaultModel = "glm-5.2";
     defaultThinkingLevel = "medium";
-    enabledModels = [ "glm-5.2" ];
+    # The first entry is the startup model; order matters (defaultModel is
+    # only consulted when enabledModels is empty, so we don't set it).
+    enabledModels = [
+        "moonshotai/kimi-k3"
+        "z-ai/glm-5.2"
+    ];
   };
 
   services."ἐννεάς-listenbrainz-watcher" = {
