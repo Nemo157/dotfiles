@@ -89,8 +89,12 @@ in
       You do not have direct bash/shell access in this pi setup. The `bash`
       tool is denied; instead, a curated set of local CLI wrappers is exposed
       as individual tools (e.g. `read`, `edit`, `write`, `rg`, `fd`,
-      `jj-status`, `jj-diff`, `jj-log`, `git-status`, `git-diff`, `git-log`,
-      `mv`, `rm`, `cp`, `mkdir`).
+      `mv`, `rm`, `cp`, `mkdir`, plus version-control wrappers).
+
+      Which tools exist depends on the environment: the version-control
+      wrappers are either the `jj-*` set (in a jj workspace, including
+      colocated repos) or the `git-*` set (in a plain git repo), never both.
+      Use whichever is listed in Available tools.
 
       If you need a command that isn't available as a registered tool, do not
       try to work around it or fabricate output. Stop and ask the user to add

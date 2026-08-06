@@ -13,11 +13,14 @@
 // Keep wrappers small and read-only where possible; anything that mutates
 // repo/system state should go through `ask` semantics (see the
 // permission-system config in ../../default.nix).
+//
+// Some groups are registered conditionally based on the environment: cargo
+// and nix tools require their binaries, and the VCS tools resolve to jj
+// *or* git depending on the working directory (see vcs.ts).
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerCliTool, type CliToolDef } from "./shared";
-import { jjTools } from "./jj";
-import { gitTools } from "./git";
+import { getVcsTools } from "./vcs";
 import { ghTools } from "./gh";
 import { rgTool } from "./rg";
 import { fdTool } from "./fd";
@@ -26,8 +29,7 @@ import { getNixTools } from "./nix";
 
 export default function (pi: ExtensionAPI) {
   const tools: CliToolDef[] = [
-    ...jjTools,
-    ...gitTools,
+    ...getVcsTools(),
     ...ghTools,
     rgTool,
     fdTool,
