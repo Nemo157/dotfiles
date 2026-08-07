@@ -54,7 +54,12 @@ in
     package = pkgs.unstable.pi-coding-agent;
 
     settings = {
-      quietStartup = true;
+      # Must stay false: pi-contextimate (pine-of-glass) anchors its panel on the
+      # startup resource listing (`[Context]`/`[Skills]`/... rows), which
+      # `showLoadedResources` skips entirely when quietStartup is set — the panel
+      # then never installs and silently disappears. The listing is largely
+      # subsumed by contextimate's own panel anyway.
+      quietStartup = false;
       enableInstallTelemetry = false;
 
       theme = "base24-ansi";
