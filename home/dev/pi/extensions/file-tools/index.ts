@@ -182,7 +182,6 @@ interface FileToolDef<T extends TSchema> {
   name: string;
   label: string;
   description: string;
-  promptSnippet: string;
   parameters: T;
   /** Styled header fragment for renderCall (already themed). */
   header: (args: Record<string, unknown>, theme: RenderTheme) => string;
@@ -207,7 +206,6 @@ function registerFileTool<T extends TSchema>(
     name: def.name,
     label: def.label,
     description: def.description,
-    promptSnippet: def.promptSnippet,
     parameters: def.parameters,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       let result: RunResult;
@@ -246,9 +244,7 @@ function registerFileTool<T extends TSchema>(
 
 // ── parameter fragments ─────────────────────────────────────────────────
 const pathParam = Type.String({
-  description:
-    "Filesystem path. Relative paths resolve against the session working " +
-    "directory; a leading ~ expands to your home directory.",
+  description: "Filesystem path; relative to cwd, `~` expands to $HOME.",
 });
 
 // mv/cp name their source `source` rather than `path`: the built-in access
@@ -257,9 +253,7 @@ const pathParam = Type.String({
 // only mislead. rm/mkdir keep `path` because they still rely on that
 // convention to auto-gate their single target.
 const sourceParam = Type.String({
-  description:
-    "Source path. Relative paths resolve against the session working " +
-    "directory; a leading ~ expands to your home directory.",
+  description: "Source path; relative to cwd, `~` expands to $HOME.",
 });
 
 // ── mv ────────────────────────────────────────────────────────────────────
@@ -267,8 +261,7 @@ const mvParams = Type.Object({
   source: sourceParam,
   dest: Type.String({
     description:
-      "Destination path. If it names an existing directory, the source is " +
-      "moved inside it (keeping its basename), matching `mv` semantics.",
+      "Destination path. An existing directory means 'move inside it'.",
   }),
 });
 
@@ -276,9 +269,7 @@ const mvTool: FileToolDef<typeof mvParams> = {
   name: "mv",
   label: "move",
   description:
-    "Move or rename a file or directory. If the destination is an existing " +
-    "directory the source is moved inside it. Works across filesystems.",
-  promptSnippet: "Use mv to move/rename a file or directory.",
+    "Move or rename a file or directory. Works across filesystems.",
   parameters: mvParams,
   header(args, theme) {
     const src = typeof args.source === "string" ? args.source : "…";
@@ -330,14 +321,12 @@ const rmParams = Type.Object({
   path: pathParam,
   recursive: Type.Optional(
     Type.Boolean({
-      description:
-        "Remove directories and their contents recursively. Required to " +
-        "delete a non-empty directory.",
+      description: "Remove a directory and its contents recursively.",
     }),
   ),
   force: Type.Optional(
     Type.Boolean({
-      description: "Ignore nonexistent paths and never error on missing files.",
+      description: "Ignore nonexistent paths.",
     }),
   ),
 });
@@ -346,10 +335,7 @@ const rmTool: FileToolDef<typeof rmParams> = {
   name: "rm",
   label: "remove",
   description:
-    "Delete a file or directory. Deleting a directory requires " +
-    "`recursive: true`. Use `force: true` to ignore missing paths.",
-  promptSnippet:
-    "Use rm to delete a file or directory (set recursive to remove a folder).",
+    "Delete a file or directory (directories need `recursive: true`).",
   parameters: rmParams,
   header(args, theme) {
     const p = typeof args.path === "string" ? args.path : "…";
@@ -384,13 +370,10 @@ const cpParams = Type.Object({
   source: sourceParam,
   dest: Type.String({
     description:
-      "Destination path. If it names an existing directory, the source is " +
-      "copied inside it (keeping its basename), matching `cp` semantics.",
+      "Destination path. An existing directory means 'copy inside it'.",
   }),
   recursive: Type.Optional(
-    Type.Boolean({
-      description: "Copy directories recursively. Required to copy a folder.",
-    }),
+    Type.Boolean({ description: "Copy directories recursively." }),
   ),
 });
 
@@ -398,11 +381,7 @@ const cpTool: FileToolDef<typeof cpParams> = {
   name: "cp",
   label: "copy",
   description:
-    "Copy a file or directory. Copying a directory requires " +
-    "`recursive: true`. If the destination is an existing directory the " +
-    "source is copied inside it.",
-  promptSnippet:
-    "Use cp to copy a file or directory (set recursive to copy a folder).",
+    "Copy a file or directory (directories need `recursive: true`).",
   parameters: cpParams,
   header(args, theme) {
     const src = typeof args.source === "string" ? args.source : "…";
@@ -452,9 +431,7 @@ const mkdirParams = Type.Object({
   path: pathParam,
   parents: Type.Optional(
     Type.Boolean({
-      description:
-        "Create parent directories as needed and don't error if the target " +
-        "already exists (like `mkdir -p`). Defaults to true.",
+      description: "Like `mkdir -p`. Defaults to true.",
     }),
   ),
 });
@@ -463,9 +440,8 @@ const mkdirTool: FileToolDef<typeof mkdirParams> = {
   name: "mkdir",
   label: "make dir",
   description:
-    "Create a directory. By default (`parents: true`) intermediate " +
-    "directories are created and an existing target is not an error.",
-  promptSnippet: "Use mkdir to create a directory (parents created by default).",
+    "Create a directory. By default parents are created and an existing " +
+    "target is not an error.",
   parameters: mkdirParams,
   header(args, theme) {
     const p = typeof args.path === "string" ? args.path : "…";

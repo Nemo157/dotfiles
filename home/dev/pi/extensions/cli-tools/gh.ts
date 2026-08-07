@@ -469,9 +469,7 @@ const params = Type.Object({
   pr: Type.Optional(
     Type.Integer({
       minimum: 1,
-      description:
-        "PR number to show. When omitted, the PR for the current changes is " +
-        "used.",
+      description: "PR number. Defaults to the PR for the current changes.",
     }),
   ),
 });
@@ -481,14 +479,10 @@ const ghPrComments: CustomCliToolDef<typeof params> = {
   label: "gh pr comments",
   command: "gh",
   description:
-    "Show the GitHub PR review for the current changes: PR metadata, then a " +
-    "single timestamped timeline interleaving submitted reviews (approvals / " +
-    "change requests / comment bodies), conversation comments, branch " +
-    "pushes/force-pushes and inline code-review threads (each with diff " +
-    "context and replies), so it is clear whether changes were pushed after a " +
-    "given review or comment. Like `gh pr view --comments` but also includes " +
-    "inline review comments and push activity. Pass `pr` to target a specific " +
-    "PR number.",
+    "Show a GitHub PR's review activity: metadata plus one timestamped " +
+    "timeline of submitted reviews, conversation comments, branch " +
+    "pushes/force-pushes and inline review threads (with diff context and " +
+    "replies), so it is clear what was pushed after which review.",
   parameters: params,
   displayArgs(p) {
     return p.pr !== undefined

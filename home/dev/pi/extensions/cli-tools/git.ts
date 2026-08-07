@@ -6,9 +6,7 @@ import { expandTilde, type StructuredCliToolDef } from "./shared";
 const gitStatusParams = Type.Object({
   path: Type.Optional(
     Type.String({
-      description:
-        "Restrict status to this path. Passed after `--` so it is never " +
-        "parsed as a flag.",
+      description: "Restrict status to this path.",
     }),
   ),
   short: Type.Optional(
@@ -53,9 +51,7 @@ const gitDiffParams = Type.Object({
   ),
   path: Type.Optional(
     Type.String({
-      description:
-        "Restrict diff to this path. Passed after `--` so it is never " +
-        "parsed as a flag.",
+      description: "Restrict diff to this path.",
     }),
   ),
   stat: Type.Optional(
@@ -120,8 +116,7 @@ const gitLogParams = Type.Object({
   ),
   path: Type.Optional(
     Type.String({
-      description:
-        "Restrict log to commits touching this path. Passed after `--`.",
+      description: "Restrict log to commits touching this path.",
     }),
   ),
   oneline: Type.Optional(

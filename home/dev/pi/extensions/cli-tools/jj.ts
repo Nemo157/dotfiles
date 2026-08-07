@@ -14,12 +14,9 @@ const jjStatus: StructuredCliToolDef<typeof jjStatusParams> = {
   label: "jj status",
   command: "jj",
   description:
-    "Show working copy status via jj (jujutsu). Snapshotting the working " +
-    "copy also auto-tracks new files into the colocated git tree, making " +
-    "them visible to nix flake evaluation (checks / colmena).",
-  promptSnippet:
-    "Use jj-status to see the current jj working copy state; it also " +
-    "auto-tracks new files into git.",
+    "Show jj (jujutsu) working copy status. Also snapshots the working " +
+    "copy, which auto-tracks new files into the colocated git tree so nix " +
+    "flake evaluation can see them.",
   parameters: jjStatusParams,
   buildArgs() {
     return ["status"];
@@ -45,11 +42,7 @@ const jjDiffParams = Type.Object({
     }),
   ),
   path: Type.Optional(
-    Type.String({
-      description:
-        "Restrict diff to this path. Passed after `--` so it is never " +
-        "parsed as a flag.",
-    }),
+    Type.String({ description: "Restrict diff to this path." }),
   ),
   stat: Type.Optional(
     Type.Boolean({ description: "Summarise as a diffstat (--stat)." }),
@@ -73,7 +66,6 @@ const jjDiff: StructuredCliToolDef<typeof jjDiffParams> = {
   description:
     "Show a jj diff. Defaults to the current working copy; narrow with " +
     "`revision` or `from`/`to`, and/or `path`.",
-  promptSnippet: "Use jj-diff to inspect current jj changes.",
   parameters: jjDiffParams,
   buildArgs(p) {
     const args: string[] = ["diff"];
@@ -108,8 +100,7 @@ const jjLogParams = Type.Object({
   ),
   path: Type.Optional(
     Type.String({
-      description:
-        "Restrict log to commits touching this path. Passed after `--`.",
+      description: "Restrict log to commits touching this path.",
     }),
   ),
   reversed: Type.Optional(
@@ -148,9 +139,7 @@ const jjLog: StructuredCliToolDef<typeof jjLogParams> = {
 const jjShowParams = Type.Object({
   revision: Type.Optional(
     Type.String({
-      description:
-        "Revision whose description to show (-r <rev>). Defaults to the " +
-        "working-copy revision (@).",
+      description: "Revision to show (-r <rev>). Defaults to `@`.",
     }),
   ),
 });
@@ -160,8 +149,8 @@ const jjShow: StructuredCliToolDef<typeof jjShowParams> = {
   label: "jj show",
   command: "jj",
   description:
-    "Show a commit's full, untruncated description. Use this to read a " +
-    "complete multi-line commit message that jj-log summarises to one line.",
+    "Show a commit's full, untruncated description (jj-log truncates it to " +
+    "one line).",
   parameters: jjShowParams,
   buildArgs(p) {
     return ["log", "--no-graph", "-T", "description", "-r", p.revision ?? "@"];
@@ -176,9 +165,7 @@ const jjDescribeParams = Type.Object({
   }),
   revision: Type.Optional(
     Type.String({
-      description:
-        "Revision to describe (-r <rev>). Defaults to the working-copy " +
-        "revision (@).",
+      description: "Revision to describe (-r <rev>). Defaults to `@`.",
     }),
   ),
 });
@@ -188,13 +175,10 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
   label: "jj describe",
   command: "jj",
   description:
-    "Set the description (commit message) of a jj revision without " +
-    "closing it off. Defaults to the working copy (@) when `revision` is " +
-    "omitted. Prefer `jj-commit` for the working copy: `jj-describe` " +
-    "leaves @ open, so any further edits in the same session pile onto " +
-    "the same revision. Use `jj-describe` only when retitling an existing " +
-    "non-@ revision, or when you are certain no further edits will " +
-    "follow.",
+    "Set a revision's description without closing it off; defaults to `@`. " +
+    "Use only to retitle a non-@ revision \u2014 prefer `jj-commit` for the " +
+    "working copy, since `jj-describe` leaves `@` open and later edits pile " +
+    "onto it.",
   parameters: jjDescribeParams,
   buildArgs(p) {
     // `-m` on its own keeps jj non-interactive; `--no-edit` is a separate
@@ -211,17 +195,14 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
 const jjCommitParams = Type.Object({
   message: Type.String({
     description:
-      "Description for the committed revision (-m <message>). Use " +
-      "markdown formatting, including inline code, in both the title " +
-      "and body of the message.",
+      "Description for the committed revision (-m <message>). Use markdown, " +
+      "including inline code, in the title and body.",
   }),
   paths: Type.Optional(
     Type.Array(Type.String(), {
       description:
-        "Optional list of paths (relative to the working directory) to " +
-        "commit. When provided, only changes to these paths are committed " +
-        "and other working-copy changes are left behind in @. Omit to " +
-        "commit all changes.",
+        "Paths to commit (relative to the working directory); other changes " +
+        "are left behind in `@`. Omit to commit everything.",
     }),
   ),
 });
@@ -231,13 +212,9 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
   label: "jj commit",
   command: "jj",
   description:
-    "Finalise the current working-copy change with the given description " +
-    "and start a new empty working-copy commit on top. This is the " +
-    "correct tool for 'commit what I just did' \u2014 use it whenever any " +
-    "further edits might follow, because it seals the described revision " +
-    "so subsequent changes land in a fresh @. Prefer `jj-commit` over " +
-    "`jj-describe` for the working copy. Pass `paths` to commit only a " +
-    "subset of changes and leave any extra changes behind in @.",
+    "Commit the working copy with the given description and start a fresh " +
+    "empty `@` on top. The default tool for 'commit what I just did': it " +
+    "seals the revision so later edits land in a new one.",
   parameters: jjCommitParams,
   buildArgs(p) {
     const args: string[] = ["commit", "-m", p.message];
@@ -265,22 +242,20 @@ const jjSquashParams = Type.Object({
   message: Type.Optional(
     Type.String({
       description:
-        "Description to set on the destination revision (-m <message>). " +
-        "Provide this or `useDestinationMessage`.",
+        "Description for the destination revision (-m). Set this or " +
+        "`useDestinationMessage`.",
     }),
   ),
   useDestinationMessage: Type.Optional(
     Type.Boolean({
       description:
-        "Keep the destination revision's existing description " +
-        "(--use-destination-message / -u). Provide this or `message`.",
+        "Keep the destination's existing description (-u). Set this or " +
+        "`message`.",
     }),
   ),
   keepEmptied: Type.Optional(
     Type.Boolean({
-      description:
-        "Do not abandon the source revision if it becomes empty " +
-        "(--keep-emptied).",
+      description: "Keep the source revision even if it becomes empty.",
     }),
   ),
 });

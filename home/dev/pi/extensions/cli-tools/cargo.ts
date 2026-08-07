@@ -43,7 +43,6 @@ export const cargoClippyTool: StructuredCliToolDef<typeof clippyParams> = {
   command: "cargo",
   partialLabel: "Linting…",
   description: "Lint and type-check a Rust crate or workspace with clippy.",
-  promptSnippet: "Lint and type-check Rust code.",
   timeoutMs: 120_000,
   parameters: clippyParams,
   buildArgs(p) {
@@ -104,11 +103,9 @@ export const cargoDependencyPathTool: StructuredCliToolDef<
   command: "cargo",
   partialLabel: "Resolving…",
   description:
-    "Locate the on-disk source directory of a dependency crate so you can " +
-    "read its source. Runs `cargo metadata` and returns the crate directory " +
-    "(the one containing Cargo.toml) for every version of the named package " +
-    "in the dependency graph.",
-  promptSnippet: "Find a Rust dependency's source directory to read its code.",
+    "Locate a dependency crate's on-disk source directory (the one holding " +
+    "its Cargo.toml) so you can read its source, for every version in the " +
+    "dependency graph.",
   timeoutMs: 60_000,
   parameters: dependencyPathParams,
   buildArgs() {
@@ -214,7 +211,6 @@ export const cargoNextestTool: StructuredCliToolDef<typeof nextestParams> = {
   command: "cargo",
   partialLabel: "Testing…",
   description: "Run the test suite for a Rust crate or workspace.",
-  promptSnippet: "Run Rust tests.",
   timeoutMs: 180_000,
   parameters: nextestParams,
   buildArgs(p) {

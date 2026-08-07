@@ -73,6 +73,66 @@ export function expandTilde(p: string): string {
 
 // How many output lines to show when the tool row is expanded.
 const EXPANDED_MAX_LINES = 200;
+
+// Budget for the text handed to the LLM. Subprocess output is unbounded
+// (a wide `jj log --stat`, a failing test run, …) and every byte of it
+// stays in the transcript for the rest of the session, so clamp it: keep
+// the head (where the useful summary usually is) and the tail (where
+// errors land) and drop the middle.
+const LLM_MAX_LINES = 300;
+const LLM_MAX_CHARS = 24_000;
+const LLM_HEAD_FRACTION = 0.6;
+
+/**
+ * Clamp `text` to {@link LLM_MAX_LINES} / {@link LLM_MAX_CHARS}, replacing
+ * the elided middle with a one-line marker. Returns the input untouched when
+ * it already fits.
+ */
+export function clampForLlm(text: string): string {
+  const lines = text.split("\n");
+  if (text.length <= LLM_MAX_CHARS && lines.length <= LLM_MAX_LINES) {
+    return text;
+  }
+
+  const headCharBudget = Math.floor(LLM_MAX_CHARS * LLM_HEAD_FRACTION);
+  const tailCharBudget = LLM_MAX_CHARS - headCharBudget;
+  const headLineBudget = Math.floor(LLM_MAX_LINES * LLM_HEAD_FRACTION);
+  const tailLineBudget = LLM_MAX_LINES - headLineBudget;
+
+  const head: string[] = [];
+  let used = 0;
+  for (const line of lines.slice(0, headLineBudget)) {
+    used += line.length + 1;
+    if (used > headCharBudget) break;
+    head.push(line);
+  }
+
+  const tail: string[] = [];
+  used = 0;
+  for (
+    let i = lines.length - 1;
+    i >= head.length && tail.length < tailLineBudget;
+    i--
+  ) {
+    const line = lines[i]!;
+    used += line.length + 1;
+    if (used > tailCharBudget) break;
+    tail.unshift(line);
+  }
+
+  const omitted = lines.length - head.length - tail.length;
+  if (omitted > 0 && head.length + tail.length > 0) {
+    return [...head, `… [${omitted} line(s) omitted] …`, ...tail].join("\n");
+  }
+
+  // Pathological input (e.g. one enormous line): slice on characters.
+  const dropped = text.length - LLM_MAX_CHARS;
+  return (
+    text.slice(0, headCharBudget) +
+    `\n… [${dropped} character(s) omitted] …\n` +
+    text.slice(text.length - tailCharBudget)
+  );
+}
 // When collapsed, show the full output inline if it's at most this many lines.
 export const COLLAPSED_INLINE_MAX_LINES = 6;
 
@@ -401,9 +461,11 @@ function formatResult(
 ): { text: string; isError: boolean } {
   const invocation = buildInvocation(def.command, args);
   const parts: string[] = [`$ ${invocation}`];
-  if (result.stdout.trim().length > 0) parts.push(result.stdout.trimEnd());
+  if (result.stdout.trim().length > 0) {
+    parts.push(clampForLlm(result.stdout.trimEnd()));
+  }
   if (result.stderr.trim().length > 0) {
-    parts.push(`--- stderr ---\n${result.stderr.trimEnd()}`);
+    parts.push(`--- stderr ---\n${clampForLlm(result.stderr.trimEnd())}`);
   }
 
   let isError = false;
@@ -710,7 +772,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             ...(res.details ?? {}),
           };
           return {
-            content: [{ type: "text", text: res.content }],
+            content: [{ type: "text", text: clampForLlm(res.content) }],
             details,
             isError: res.isError ?? false,
           };
@@ -836,7 +898,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
           result.signal !== null ||
           (result.code !== null && result.code !== 0);
         return {
-          content: [{ type: "text", text: pp.content }],
+          content: [{ type: "text", text: clampForLlm(pp.content) }],
           details,
           isError: pp.isError ?? inferredError,
         };

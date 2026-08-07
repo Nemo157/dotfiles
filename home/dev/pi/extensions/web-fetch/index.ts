@@ -123,14 +123,13 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     mode: Type.Optional(
       StringEnum(["extract", "raw"], {
         description:
-          "Content mode. 'extract' (default) converts the page to readable " +
-          "text (HTML via Readability). 'raw' returns the body verbatim.",
+          "'extract' (default) converts the page to readable text; 'raw' " +
+          "returns the body verbatim.",
       }),
     ),
     refresh: Type.Optional(
       Type.Boolean({
-        description:
-          "Re-download even if a cached copy exists (default false).",
+        description: "Re-download even if a cached copy exists.",
       }),
     ),
   };
@@ -139,19 +138,16 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     properties.prompt = Type.Optional(
       Type.String({
         description:
-          "Optional question to answer using only the fetched content, via a " +
-          "small model. When set, the tool returns the model's answer.",
+          "Question to answer from the fetched content; a small model " +
+          "answers and the tool returns that answer instead.",
       }),
     );
   }
 
   const description = [
     "Fetch a web page and return its content.",
-    "Modes: 'extract' (default) converts to readable text; 'raw' returns the body verbatim.",
-    promptEnabled
-      ? "Set 'prompt' to ask a specific question about the page; a small model answers using only the fetched content."
-      : "",
-    "Large or binary results are cached and returned as a file path to read instead of inline content.",
+    promptEnabled ? "Set 'prompt' to ask a question about the page." : "",
+    "Large or binary results come back as a cache file path to read.",
   ]
     .filter(Boolean)
     .join(" ");
@@ -160,8 +156,6 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     name: "web-fetch",
     label: "Web Fetch",
     description,
-    promptSnippet:
-      "Fetch a URL as readable text (extract) or raw; large results come back as a cache path to read.",
     parameters: Type.Object(properties),
     async execute(_toolCallId, params, signal, onUpdate, _ctx) {
       const startedAt = Date.now();

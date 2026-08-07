@@ -143,10 +143,8 @@ const nixFlakeInfoTool: StructuredCliToolDef<typeof params> = {
   label: "nix flake info",
   command: "nix",
   description:
-    "Show metadata about the flake in the current directory. Currently " +
-    "reports each top-level input's store path (fetching/copying inputs " +
-    "into the store as needed). Read-oriented.",
-  promptSnippet: "Use nix-flake-info to inspect the current flake's inputs.",
+    "Show each top-level input's store path for the flake in the current " +
+    "directory (fetching inputs into the store as needed).",
   // Fetching inputs into the store can be slow on a cold cache.
   timeoutMs: 120_000,
   parameters: params,
@@ -276,12 +274,9 @@ function makeFlakeCheckTool(
     command: "nix",
     partialLabel: "Checking…",
     description:
-      "List or run the flake's checks. Omit `check` to list available " +
-      "check names; pass a name to build/run that check. On failure the " +
-      "tail of the build log is returned (it contains the failing derivation " +
-      "path, which you can pass to nix-log for the full log). On success the " +
-      "check's derivation and output store paths are returned.",
-    promptSnippet: "List or run the flake's checks.",
+      "List or run the flake's checks. Omit `check` to list check names. On " +
+      "failure returns the tail of the build log (with the failing drv path " +
+      "for nix-log); on success the drv and out store paths.",
     // Checks may compile/build; allow plenty of time.
     timeoutMs: 600_000,
     parameters: flakeCheckParams,
@@ -423,9 +418,7 @@ function makeFlakeCheckTool(
 
 const nixLogParams = Type.Object({
   drvPath: Type.String({
-    description:
-      "Derivation or store path to fetch the build log for (e.g. a drvPath " +
-      "surfaced by nix-flake-check).",
+    description: "Derivation or store path to fetch the build log for.",
   }),
 });
 
@@ -434,9 +427,8 @@ const nixLogTool: StructuredCliToolDef<typeof nixLogParams> = {
   label: "nix log",
   command: "nix",
   description:
-    "Show the build log for a derivation or store path. Useful after a " +
-    "failed nix-flake-check to read the full log via the reported drvPath.",
-  promptSnippet: "Show the build log for a derivation (nix-log).",
+    "Show the build log for a derivation or store path, e.g. the drvPath " +
+    "reported by a failed nix-flake-check.",
   timeoutMs: 60_000,
   parameters: nixLogParams,
   buildArgs(p) {

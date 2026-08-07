@@ -149,67 +149,58 @@ const parameters = Type.Object({
   path: Type.Optional(
     Type.String({
       description:
-        "Local file whose bytes are uploaded. Relative paths resolve against " +
-        "the session working directory; a leading ~ expands to your home " +
-        "directory. Mutually exclusive with `body`.",
+        "Local file to upload; relative to cwd, `~` expands to $HOME. " +
+        "Mutually exclusive with `body`.",
     }),
   ),
   body: Type.Optional(
     Type.String({
       description:
-        "Inline payload to upload instead of a file. Mutually exclusive with " +
-        "`path`. Set `encoding: \"base64\"` to upload decoded binary data.",
+        "Inline payload instead of a file. Mutually exclusive with `path`.",
     }),
   ),
   encoding: Type.Optional(
     Type.Union([Type.Literal("utf8"), Type.Literal("base64")], {
       description:
-        "How to interpret `body`: 'utf8' (default) sends the text as-is, " +
-        "'base64' decodes it to binary first.",
+        "How to interpret `body`: 'utf8' (default) or 'base64' (decoded to " +
+        "binary first).",
     }),
   ),
   form: Type.Optional(
     Type.Boolean({
       description:
         "Send as multipart/form-data with the payload as one file part " +
-        "(see `fieldName`/`filename`/`fields`) instead of using it as the " +
-        "raw request body. Defaults to false (raw body).",
+        "instead of as the raw request body.",
     }),
   ),
   fieldName: Type.Optional(
     Type.String({
-      description:
-        "multipart form field name for the file part (default 'file'). " +
-        "Only used when `form` is true.",
+      description: "multipart field name for the file part (default 'file').",
     }),
   ),
   filename: Type.Optional(
     Type.String({
       description:
-        "Filename advertised for the payload. Defaults to the basename of " +
-        "`path`, or 'upload.bin' for an inline `body`.",
+        "Filename advertised for the payload. Defaults to `path`'s basename.",
     }),
   ),
   fields: Type.Optional(
     Type.Record(Type.String(), Type.String(), {
-      description:
-        "Extra multipart text fields sent alongside the file part. Only used " +
-        "when `form` is true.",
+      description: "Extra multipart text fields (only used with `form`).",
     }),
   ),
   contentType: Type.Optional(
     Type.String({
       description:
-        "Content type of the payload: the request Content-Type in raw mode, " +
-        "or the file part's type in multipart mode. Sniffed from the file " +
-        "extension when omitted.",
+        "Content type of the payload. Sniffed from the file extension when " +
+        "omitted.",
     }),
   ),
   headers: Type.Optional(
     Type.Record(Type.String(), Type.String(), {
       description:
-        "Extra request headers, e.g. authorization. In multipart mode the " +
-        "Content-Type header is set automatically and cannot be overridden.",
+        "Extra request headers, e.g. authorization (Content-Type is set " +
+        "automatically in multipart mode).",
     }),
   ),
 });
@@ -219,12 +210,9 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
     name: "upload",
     label: "Upload",
     description:
-      "Upload data to an http(s) URL with POST or PUT. The payload is either " +
-      "a local file (`path`) or an inline string (`body`, optionally base64). " +
-      "By default the payload is sent as the raw request body; set " +
-      "`form: true` for a multipart/form-data file part.",
-    promptSnippet:
-      "Use upload to POST/PUT a local file (path) or inline body to a URL, raw or as multipart form data.",
+      "Upload a local file (`path`) or inline string (`body`) to an http(s) " +
+      "URL with POST or PUT, as the raw body or (`form: true`) as " +
+      "multipart/form-data.",
     parameters,
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
       const p = params as {

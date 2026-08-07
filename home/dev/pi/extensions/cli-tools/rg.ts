@@ -13,15 +13,10 @@ import {
 
 const rgParams = Type.Object({
   pattern: Type.String({
-    description:
-      "Regex (or literal, with fixedStrings=true) to search for. Required.",
+    description: "Regex (or literal, with fixedStrings=true) to search for.",
   }),
   path: Type.Optional(
-    Type.String({
-      description:
-        "File or directory to search. Defaults to the current working " +
-        "directory. Passed after `--` so it is never parsed as a flag.",
-    }),
+    Type.String({ description: "File or directory to search. Defaults to cwd." }),
   ),
   fixedStrings: Type.Optional(
     Type.Boolean({ description: "Treat pattern as a literal string (-F)." }),
@@ -456,13 +451,8 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
   command: "rg",
   partialLabel: "Searching…",
   description:
-    "Search file contents with ripgrep. Provide a `pattern` plus optional " +
-    "typed flags and `path`. Respects .gitignore by default. Read-only.",
-  promptSnippet:
-    "Use rg to search file contents by regex/literal; prefer it over ad-hoc grep.",
-  promptGuidelines: [
-    "Use rg to search file contents. Prefer fixedStrings=true for literal text.",
-  ],
+    "Search file contents with ripgrep. Respects .gitignore by default. " +
+    "Read-only. Prefer fixedStrings=true for literal text.",
   parameters: rgParams,
   buildArgs(p) {
     // Always emit --json; we re-format output for the LLM and TUI in

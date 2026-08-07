@@ -13,11 +13,7 @@ const fdParams = Type.Object({
     }),
   ),
   path: Type.Optional(
-    Type.String({
-      description:
-        "Root to search. Defaults to cwd. Passed after `--` so it is " +
-        "never parsed as a flag.",
-    }),
+    Type.String({ description: "Root to search. Defaults to cwd." }),
   ),
   glob: Type.Optional(
     Type.Boolean({
@@ -75,13 +71,8 @@ export const fdTool: StructuredCliToolDef<typeof fdParams> = {
   label: "fd (find)",
   command: "fd",
   description:
-    "Find files/directories by name using fd. Provide optional `pattern` " +
-    "and typed flags. Respects .gitignore by default. Read-only.",
-  promptSnippet:
-    "Use fd to find files by name/pattern; prefer it over ad-hoc find.",
-  promptGuidelines: [
-    "Use fd to locate files or directories. Set glob=true for shell-style patterns.",
-  ],
+    "Find files/directories by name using fd. Respects .gitignore by " +
+    "default. Read-only. Set glob=true for shell-style patterns.",
   parameters: fdParams,
   buildArgs(p) {
     const args: string[] = [];

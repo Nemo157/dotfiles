@@ -93,19 +93,15 @@ in
 
       ## Pi Setup Notes
 
-      You do not have direct bash/shell access in this pi setup. The `bash`
-      tool is denied; instead, a curated set of local CLI wrappers is exposed
-      as individual tools (e.g. `read`, `edit`, `write`, `rg`, `fd`,
-      `mv`, `rm`, `cp`, `mkdir`, plus version-control wrappers).
+      You have no bash/shell access here: the `bash` tool is denied and a
+      curated set of CLI wrappers is registered as individual tools instead.
+      Which ones exist depends on the environment (e.g. version control is
+      either the `jj-*` or the `git-*` set, never both), so work from the
+      registered tools rather than assuming.
 
-      Which tools exist depends on the environment: the version-control
-      wrappers are either the `jj-*` set (in a jj workspace, including
-      colocated repos) or the `git-*` set (in a plain git repo), never both.
-      Use whichever is listed in Available tools.
-
-      If you need a command that isn't available as a registered tool, do not
-      try to work around it or fabricate output. Stop and ask the user to add
-      the missing tool to the `cli-tools` extension.
+      If you need a command that isn't a registered tool, do not work around
+      it or fabricate output. Stop and ask the user to add it to the
+      `cli-tools` extension.
     '';
 
     extensionSettings.web-fetch = {
