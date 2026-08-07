@@ -42,7 +42,10 @@ let
         wrapProgram "$bin" \
           --set-default PI_CODING_AGENT_DIR "${configDir}" \
           --set-default PI_SKIP_VERSION_CHECK 1 \
-          --set-default PI_OFFLINE 1
+          --set-default PI_OFFLINE 1 ${
+            lib.optionalString (cfg.extraArgs != [ ])
+              "--add-flags ${lib.escapeShellArg (lib.concatStringsSep " " cfg.extraArgs)}"
+          }
       done
     '';
   };
@@ -69,6 +72,18 @@ in
       type = lib.types.attrsOf lib.types.anything;
       default = { };
       description = "Written verbatim as pi/settings.json.";
+    };
+
+    extraArgs = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "--exclude-tools" "bash" ];
+      description = ''
+        Extra CLI flags baked into the wrapper, for settings pi only
+        accepts on the command line (`settings.json` has no equivalent).
+        Prepended to the user's arguments, so positional subcommands (only
+        `pi update` is matched positionally) are shadowed.
+      '';
     };
 
     appendSystem = lib.mkOption {

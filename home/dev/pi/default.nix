@@ -53,6 +53,22 @@ in
     enable = true;
     package = pkgs.unstable.pi-coding-agent;
 
+    # Drop the bash tool at the pi level, not just via `bash = "deny"` below.
+    #
+    # Prompt-cache stability: pi builds the base system prompt at startup from
+    # the full tool set (bash bullet + bash's `promptGuidelines`). On the first
+    # turn pi-permission-system's before_agent_start filters bash out of the
+    # active set and rewrites the prompt — and its sanitizer additionally runs
+    # `collapseExtraBlankLines` whenever it removed something. Pi then rebuilds
+    # the base prompt from the narrowed tool set, so turn 2 sends a *different*
+    # system prompt (bash guideline gone, blank lines no longer collapsed) and
+    # the whole provider prefix cache is rewritten once per session.
+    #
+    # Excluding bash up front makes the startup prompt already match the
+    # filtered set: the sanitizer finds nothing to remove, returns the prompt
+    # verbatim, and every turn is byte-identical.
+    extraArgs = [ "--exclude-tools" "bash" ];
+
     settings = {
       # Must stay false: pi-contextimate (pine-of-glass) anchors its panel on the
       # startup resource listing (`[Context]`/`[Skills]`/... rows), which
@@ -86,6 +102,10 @@ in
         "${./extensions/local-agents}/index.ts"
         "${./extensions/system-details}/index.ts"
         "${./extensions/continue-turn}/index.ts"
+        # Diagnostic: logs a line-level diff whenever the wire system prompt
+        # changes between provider requests (see pi-cachemire's
+        # `cause: system prompt changed`). Drop once the churn is found.
+        "${./extensions/prompt-diff}/index.ts"
       ];
     };
 
