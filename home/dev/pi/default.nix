@@ -68,6 +68,8 @@ in
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
         (pkgs.callPackage ./extensions/web-fetch { }).packageRoot
         (pkgs.callPackage ./extensions/pi-mcp-adapter { }).packageRoot
+        # Source tree is the package root (no build step, no node_modules).
+        "${pkgs.callPackage ./extensions/pine-of-glass { }}"
       ];
 
       extensions = [
