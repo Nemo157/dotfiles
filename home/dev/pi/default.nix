@@ -164,6 +164,10 @@ in
         grep = "allow";
         glob = "allow";
 
+        # Read-only line-range yank from the file-tools extension (the
+        # mutating cut-lines/paste-lines stay on the "ask" default).
+        copy-lines = "allow";
+
         write = "ask";
         edit = "ask";
 

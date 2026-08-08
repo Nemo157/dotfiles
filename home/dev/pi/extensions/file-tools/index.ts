@@ -37,10 +37,32 @@
 //     prompt: we can't raise an interactive prompt from execute(), and without
 //     it an auto-approved (edit-toggle=allow) call could read a file from
 //     outside the working directory with no confirmation at all.
-//   - The tools are also registered with the `edit-toggle` extension's
-//     governed set, so flipping edits to "deny" disables them too.
+//   - The mutating tools are also registered with the `edit-toggle`
+//     extension's governed set, so flipping edits to "deny" disables them
+//     too. (`copy-lines` is read-only: it is globally allowed like `read`
+//     and not governed.)
+//
+// Buffered line copy/cut/paste (copy-lines / cut-lines / paste-lines):
+//   The "buffer" is not in-memory state. copy-lines/cut-lines return the
+//   yanked text in the tool result's `details.buffer`, which pi persists in
+//   the session history. paste-lines walks `ctx.sessionManager.getBranch()`
+//   backwards for the most recent copy-lines/cut-lines toolResult whose
+//   buffer name matches, and inserts that text. So buffers survive session
+//   reload/resume for free, and a paste can be repeated. Buffer names are
+//   required (no default). One caveat: during tool execution the
+//   sessionManager is current only through the assistant's tool-call
+//   message, so paste-lines must run in a LATER step than the copy/cut it
+//   consumes, never in the same parallel batch (the tool descriptions say
+//   this too).
+//   - Their single file target is named `path`, so the built-in
+//     `input.path` extractor applies the shared `path` deny globs and the
+//     `external_directory` gate automatically, exactly like rm/mkdir.
+//   - cut-lines/paste-lines wrap their whole read-modify-write window in
+//     pi's withFileMutationQueue so they can't lose a race against a
+//     parallel built-in edit/write on the same file.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type, type TSchema } from "typebox";
 import * as fs from "node:fs/promises";
@@ -166,16 +188,31 @@ function displayPath(cwd: string, abs: string): string {
 // ── tool framework ────────────────────────────────────────────────────────
 interface FileToolContext {
   cwd: string;
+  /** ExtensionContext.sessionManager, kept structurally typed. */
+  sessionManager?: unknown;
+}
+
+/** The yanked line range copy-lines/cut-lines persist into history. */
+interface BufferPayload {
+  name: string;
+  /** The yanked lines joined by "\n" (no trailing newline). */
+  text: string;
+  lineCount: number;
+  sourcePath: string;
+  start: number;
+  end: number;
 }
 
 interface RunResult {
   /** One-line human summary, shown in the TUI result row. */
   line: string;
   isError?: boolean;
+  buffer?: BufferPayload;
 }
 
 interface FileToolDetails {
   line: string;
+  buffer?: BufferPayload;
 }
 
 interface FileToolDef<T extends TSchema> {
@@ -212,12 +249,13 @@ function registerFileTool<T extends TSchema>(
       try {
         result = await def.run(
           params as Record<string, unknown>,
-          { cwd: ctx.cwd },
+          { cwd: ctx.cwd, sessionManager: ctx.sessionManager },
         );
       } catch (err) {
         result = { line: `${def.name}: ${(err as Error).message}`, isError: true };
       }
       const details: FileToolDetails = { line: result.line };
+      if (result.buffer) details.buffer = result.buffer;
       return {
         content: [{ type: "text", text: result.line }],
         details,
@@ -461,6 +499,287 @@ const mkdirTool: FileToolDef<typeof mkdirParams> = {
   },
 };
 
+// ── buffered line copy/cut/paste ────────────────────────────────────────
+// See the header comment: the buffer lives in the persisted tool-result
+// details, not in memory.
+
+interface FileLines {
+  /** Lines without terminators. */
+  lines: string[];
+  /** Whether the file ended with a newline. */
+  trailingNewline: boolean;
+}
+
+async function readLineFile(abs: string, raw: string): Promise<FileLines> {
+  const stat = await fs.stat(abs).catch(() => undefined);
+  if (!stat) throw new Error(`no such file: ${raw}`);
+  if (!stat.isFile()) throw new Error(`not a regular file: ${raw}`);
+  const content = await fs.readFile(abs, "utf8");
+  if (content.includes("\0")) throw new Error(`binary file: ${raw}`);
+  const trailingNewline = content.endsWith("\n");
+  const lines = content.split("\n");
+  if (trailingNewline) lines.pop();
+  return { lines, trailingNewline };
+}
+
+async function writeLineFile(abs: string, f: FileLines): Promise<void> {
+  let out = f.lines.join("\n");
+  if (f.trailingNewline && f.lines.length > 0) out += "\n";
+  await fs.writeFile(abs, out, "utf8");
+}
+
+/** Validate a 1-indexed inclusive [start, end] range against lineCount. */
+function rangeError(
+  tool: string,
+  start: number,
+  end: number,
+  lineCount: number,
+): string | undefined {
+  if (!Number.isInteger(start) || !Number.isInteger(end))
+    return `${tool}: start and end must be integers`;
+  if (start < 1) return `${tool}: start must be >= 1`;
+  if (end < start) return `${tool}: end must be >= start`;
+  if (end > lineCount)
+    return `${tool}: end ${end} is past the last line (${lineCount})`;
+  return undefined;
+}
+
+/**
+ * Find the most recent copy-lines/cut-lines buffer with the given name by
+ * walking the current session branch backwards. Structurally typed against
+ * the persisted toolResult entries; tolerates missing/malformed details.
+ */
+function findBuffer(
+  sessionManager: unknown,
+  name: string,
+): BufferPayload | undefined {
+  const sm = sessionManager as
+    | { getBranch?: () => unknown[] }
+    | undefined;
+  if (typeof sm?.getBranch !== "function") return undefined;
+  const entries = sm.getBranch();
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i] as {
+      type?: string;
+      message?: {
+        role?: string;
+        toolName?: string;
+        details?: { buffer?: Partial<BufferPayload> };
+      };
+    };
+    if (entry?.type !== "message") continue;
+    const msg = entry.message;
+    if (msg?.role !== "toolResult") continue;
+    if (msg.toolName !== "copy-lines" && msg.toolName !== "cut-lines")
+      continue;
+    const b = msg.details?.buffer;
+    if (b && b.name === name && typeof b.text === "string") {
+      return b as BufferPayload;
+    }
+  }
+  return undefined;
+}
+
+const lineRangeParams = {
+  path: pathParam,
+  start: Type.Number({
+    description: "First line to take, 1-indexed inclusive.",
+  }),
+  end: Type.Number({
+    description: "Last line to take, 1-indexed inclusive.",
+  }),
+  buffer: Type.String({
+    description:
+      "Required buffer name. The latest copy-lines/cut-lines to a name " +
+      "wins; paste-lines reads the most recent entry with this name.",
+  }),
+};
+
+const copyLinesParams = Type.Object(lineRangeParams);
+
+const copyLinesTool: FileToolDef<typeof copyLinesParams> = {
+  name: "copy-lines",
+  label: "copy lines",
+  description:
+    "Copy a 1-indexed inclusive line range from a file into a named " +
+    "buffer (stored in the session history) for later paste-lines. " +
+    "Read-only: the file is not modified.",
+  parameters: copyLinesParams,
+  header(args, theme) {
+    const p = typeof args.path === "string" ? args.path : "…";
+    const b = typeof args.buffer === "string" ? args.buffer : "…";
+    return (
+      theme.fg("accent", `${p}:${args.start ?? "…"}-${args.end ?? "…"}`) +
+      theme.fg("muted", " → ") +
+      theme.fg("accent", b)
+    );
+  },
+  async run(params, ctx) {
+    const raw = String(params.path ?? "");
+    const name = String(params.buffer ?? "");
+    if (!raw || !name)
+      return { line: "copy-lines: path and buffer are required", isError: true };
+    const abs = resolvePath(ctx.cwd, raw);
+    const start = Number(params.start);
+    const end = Number(params.end);
+    const f = await readLineFile(abs, raw);
+    const err = rangeError("copy-lines", start, end, f.lines.length);
+    if (err) return { line: err, isError: true };
+    const taken = f.lines.slice(start - 1, end);
+    return {
+      line:
+        `copied ${taken.length} line(s) from ` +
+        `${displayPath(ctx.cwd, abs)}:${start}-${end} into buffer '${name}'`,
+      buffer: {
+        name,
+        text: taken.join("\n"),
+        lineCount: taken.length,
+        sourcePath: displayPath(ctx.cwd, abs),
+        start,
+        end,
+      },
+    };
+  },
+};
+
+const cutLinesParams = Type.Object(lineRangeParams);
+
+const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
+  name: "cut-lines",
+  label: "cut lines",
+  description:
+    "Cut a 1-indexed inclusive line range out of a file into a named " +
+    "buffer (stored in the session history) for later paste-lines. The " +
+    "lines are removed from the file.",
+  parameters: cutLinesParams,
+  header(args, theme) {
+    const p = typeof args.path === "string" ? args.path : "…";
+    const b = typeof args.buffer === "string" ? args.buffer : "…";
+    return (
+      theme.fg("warning", `${p}:${args.start ?? "…"}-${args.end ?? "…"}`) +
+      theme.fg("muted", " → ") +
+      theme.fg("accent", b)
+    );
+  },
+  async run(params, ctx) {
+    const raw = String(params.path ?? "");
+    const name = String(params.buffer ?? "");
+    if (!raw || !name)
+      return { line: "cut-lines: path and buffer are required", isError: true };
+    const abs = resolvePath(ctx.cwd, raw);
+    const start = Number(params.start);
+    const end = Number(params.end);
+
+    return withFileMutationQueue(abs, async () => {
+      const f = await readLineFile(abs, raw);
+      const err = rangeError("cut-lines", start, end, f.lines.length);
+      if (err) return { line: err, isError: true };
+      const taken = f.lines.slice(start - 1, end);
+      f.lines.splice(start - 1, taken.length);
+      await writeLineFile(abs, f);
+      return {
+        line:
+          `cut ${taken.length} line(s) from ` +
+          `${displayPath(ctx.cwd, abs)}:${start}-${end} into buffer '${name}'`,
+        buffer: {
+          name,
+          text: taken.join("\n"),
+          lineCount: taken.length,
+          sourcePath: displayPath(ctx.cwd, abs),
+          start,
+          end,
+        },
+      };
+    });
+  },
+};
+
+const pasteLinesParams = Type.Object({
+  path: pathParam,
+  line: Type.Number({
+    description:
+      "Reference line number (0 is only valid with position 'after', " +
+      "meaning the very top of the file).",
+  }),
+  position: Type.Union([Type.Literal("before"), Type.Literal("after")], {
+    description: "Insert before or after the reference line.",
+  }),
+  buffer: Type.String({
+    description:
+      "Required buffer name, as previously filled by copy-lines/cut-lines. " +
+      "The buffer is read from the session history, so call paste-lines " +
+      "only AFTER the copy-lines/cut-lines call has completed — never in " +
+      "the same parallel tool batch. Pasting does not consume the buffer.",
+  }),
+});
+
+const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
+  name: "paste-lines",
+  label: "paste lines",
+  description:
+    "Insert the contents of a named buffer (filled by an earlier " +
+    "copy-lines/cut-lines call) before or after a line of a file. The " +
+    "buffer is looked up in the session history and is not consumed, so " +
+    "it can be pasted repeatedly.",
+  parameters: pasteLinesParams,
+  header(args, theme) {
+    const p = typeof args.path === "string" ? args.path : "…";
+    const b = typeof args.buffer === "string" ? args.buffer : "…";
+    const pos = typeof args.position === "string" ? args.position : "…";
+    return (
+      theme.fg("accent", b) +
+      theme.fg("muted", ` → ${pos} `) +
+      theme.fg("accent", `${p}:${args.line ?? "…"}`)
+    );
+  },
+  async run(params, ctx) {
+    const raw = String(params.path ?? "");
+    const name = String(params.buffer ?? "");
+    if (!raw || !name)
+      return { line: "paste-lines: path and buffer are required", isError: true };
+    const abs = resolvePath(ctx.cwd, raw);
+    const line = Number(params.line);
+    const position = params.position === "before" ? "before" : "after";
+
+    const buf = findBuffer(ctx.sessionManager, name);
+    if (!buf) {
+      return {
+        line:
+          `paste-lines: no buffer named '${name}' ` +
+          "(nothing copied/cut into it yet)",
+        isError: true,
+      };
+    }
+
+    return withFileMutationQueue(abs, async () => {
+      const f = await readLineFile(abs, raw);
+      if (!Number.isInteger(line) || line < 0 || line > f.lines.length)
+        return {
+          line:
+            `paste-lines: line must be an integer in ` +
+            `[0, ${f.lines.length}]`,
+          isError: true,
+        };
+      if (line === 0 && position === "before")
+        return {
+          line: "paste-lines: line 0 is only valid with position 'after'",
+          isError: true,
+        };
+      const index = position === "before" ? line - 1 : line;
+      const insert = buf.text.length > 0 ? buf.text.split("\n") : [];
+      f.lines.splice(index, 0, ...insert);
+      await writeLineFile(abs, f);
+      const where =
+        position === "before" ? `before line ${line}` : `after line ${line}`;
+      return {
+        line:
+          `pasted ${insert.length} line(s) from buffer '${name}' into ` +
+          `${displayPath(ctx.cwd, abs)} ${where}`,
+      };
+    });
+  },
+};
+
 // ── destination gating ──────────────────────────────────────────────────
 // Re-aim the shared `path` + `external_directory` gates at the WRITE TARGET.
 //
@@ -518,6 +837,9 @@ export default function fileToolsExtension(pi: ExtensionAPI): void {
   registerFileTool(pi, rmTool);
   registerFileTool(pi, cpTool);
   registerFileTool(pi, mkdirTool);
+  registerFileTool(pi, copyLinesTool);
+  registerFileTool(pi, cutLinesTool);
+  registerFileTool(pi, pasteLinesTool);
 
   registerDestinationGating(pi);
 }

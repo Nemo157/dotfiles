@@ -58,7 +58,16 @@ type ToggleState = "ask" | "allow" | "deny";
 // filesystem-mutation tools registered by the `file-tools` extension, so
 // flipping to "deny" locks down all file changes. If new mutating tools
 // appear, add them here.
-const TARGET_TOOLS = new Set(["edit", "write", "mv", "rm", "cp", "mkdir"]);
+const TARGET_TOOLS = new Set([
+  "edit",
+  "write",
+  "mv",
+  "rm",
+  "cp",
+  "mkdir",
+  "cut-lines",
+  "paste-lines",
+]);
 
 const NEXT_STATE: Record<ToggleState, ToggleState> = {
   ask: "allow",
@@ -69,7 +78,8 @@ const NEXT_STATE: Record<ToggleState, ToggleState> = {
 // Persistent notes injected once, at turn start, when the edit capability
 // flips. See `before_agent_start` below.
 const DENY_NOTE =
-  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir file " +
+  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir/" +
+  "cut-lines/paste-lines file " +
   "tools) is disabled, so the user likely " +
   "wants to plan or discuss rather than change files. Don't call these " +
   "tools; describe what you would do instead. The user knows editing is " +
@@ -77,7 +87,8 @@ const DENY_NOTE =
   "to be editing, in which case note that it's disabled.</system-reminder>";
 
 const ENABLE_NOTE =
-  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir file " +
+  "<system-reminder>Editing (edit, write, and the mv/rm/cp/mkdir/" +
+  "cut-lines/paste-lines file " +
   "tools) is enabled again; use these tools as needed.</system-reminder>";
 
 // customType used for the persisted state entry.
