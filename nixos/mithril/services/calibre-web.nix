@@ -20,6 +20,7 @@
   };
 
   systemd.services.calibre-web.serviceConfig = {
+    ExecStartPre = pkgs.lib.mkForce ""; # Buggy and orphaned
     TemporaryFileSystem = [
       "/bind:ro"
     ];
