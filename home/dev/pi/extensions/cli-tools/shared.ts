@@ -461,11 +461,17 @@ function formatResult(
 ): { text: string; isError: boolean } {
   const invocation = buildInvocation(def.command, args);
   const parts: string[] = [`$ ${invocation}`];
-  if (result.stdout.trim().length > 0) {
+  const hasStdout = result.stdout.trim().length > 0;
+  const hasStderr = result.stderr.trim().length > 0;
+  if (hasStdout) {
     parts.push(clampForLlm(result.stdout.trimEnd()));
   }
-  if (result.stderr.trim().length > 0) {
-    parts.push(`--- stderr ---\n${clampForLlm(result.stderr.trimEnd())}`);
+  if (hasStderr) {
+    // Plenty of commands (jj, nix, …) report normal progress on stderr, so
+    // don't dress it up as a failure. The divider only earns its keep when
+    // both streams have content and the split would otherwise be invisible.
+    const text = clampForLlm(result.stderr.trimEnd());
+    parts.push(hasStdout ? `--- stderr ---\n${text}` : text);
   }
 
   let isError = false;
@@ -675,38 +681,35 @@ export const buildDefaultSpec: CliRenderResult = (
   const totalNonEmpty =
     countNonEmptyLines(stdout) + countNonEmptyLines(stderr);
 
-  // Build the output component: stdout in dim, then "--- stderr ---" divider
-  // and stderr in error, each capped at EXPANDED_MAX_LINES with a "… N more"
-  // tail.
+  // Build the output component: each stream capped at EXPANDED_MAX_LINES
+  // with a "… N more" tail. stderr is *not* an error channel — jj, nix and
+  // friends report ordinary progress there — so it's only coloured as one
+  // when the command actually failed, and the "--- stderr ---" divider only
+  // appears when both streams have content.
+  const failed =
+    details?.signal != null || (exitCode !== null && exitCode !== 0);
   const chunks: string[] = [];
   let extraTailLines = 0;
-  if (stdoutRawLines.length > 0) {
-    const shown = stdoutRawLines.slice(0, EXPANDED_MAX_LINES);
-    for (const line of shown) chunks.push(theme.fg("dim", line));
-    if (stdoutRawLines.length > EXPANDED_MAX_LINES) {
+  type ThemeColor = Parameters<typeof theme.fg>[0];
+  const pushLines = (lines: string[], color: ThemeColor) => {
+    const shown = lines.slice(0, EXPANDED_MAX_LINES);
+    for (const line of shown) chunks.push(theme.fg(color, line));
+    if (lines.length > EXPANDED_MAX_LINES) {
       chunks.push(
-        theme.fg(
-          "muted",
-          `… ${stdoutRawLines.length - EXPANDED_MAX_LINES} more line(s)`,
-        ),
+        theme.fg("muted", `… ${lines.length - EXPANDED_MAX_LINES} more line(s)`),
       );
       extraTailLines++;
     }
+  };
+  if (stdoutRawLines.length > 0) {
+    pushLines(stdoutRawLines, "dim");
   }
   if (stderrRawLines.length > 0) {
-    chunks.push(theme.fg("muted", "--- stderr ---"));
-    extraTailLines++;
-    const shown = stderrRawLines.slice(0, EXPANDED_MAX_LINES);
-    for (const line of shown) chunks.push(theme.fg("error", line));
-    if (stderrRawLines.length > EXPANDED_MAX_LINES) {
-      chunks.push(
-        theme.fg(
-          "muted",
-          `… ${stderrRawLines.length - EXPANDED_MAX_LINES} more line(s)`,
-        ),
-      );
+    if (stdoutRawLines.length > 0) {
+      chunks.push(theme.fg("muted", "--- stderr ---"));
       extraTailLines++;
     }
+    pushLines(stderrRawLines, failed ? "error" : "dim");
   }
   const output =
     chunks.length > 0 ? new Text(chunks.join("\n"), 0, 0) : undefined;
