@@ -63,8 +63,84 @@ in
               hash = "sha256-xQyRw18EkDgVsuiTDLuMjFvuDhqgB0jDCnuP8F0jELQ=";
             })
 
-            "--spec-type" "draft-mtp"
+            "--spec-type" "draft-mtp,ngram-mod"
+          ]);
+          capabilities = {
+            "in" = ["text"];
+            out = ["text"];
+            tools = true;
+          };
+        };
+
+        "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL" = {
+          cmd = lib.escapeShellArgs (llamaArgs ++ [
+            "--model" (fetchHF {
+              repo = "unsloth/gemma-4-26B-A4B-it-qat-GGUF";
+              rev = "7b92b5b28818151e8669af2e45e88d6086f490dd";
+              file = "gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf";
+              hash = "sha256-p8W8cV9f+OmaPokBzn0rQrQCxmm/JPfFJQdHYz0PWJE=";
+            })
+
+            "--fit" "off"
+            "--ctx-size" "81920"
+
+            "--n-cpu-moe" "10"
+            "--load-mode" "none"
+
+            "--model-draft" (fetchHF {
+              repo = "unsloth/gemma-4-26B-A4B-it-qat-GGUF";
+              rev = "7b92b5b28818151e8669af2e45e88d6086f490dd";
+              file = "mtp-gemma-4-26B-A4B-it.gguf";
+              hash = "sha256-cnLZdZXw1MdL17YjSSt9var9i3xy8ymoJwuk7KaPdoo=";
+            })
+
+            "--spec-type" "draft-mtp,ngram-mod"
+          ]);
+          capabilities = {
+            "in" = ["text"];
+            out = ["text"];
+            tools = true;
+          };
+        };
+
+        "Qwen3.6-35B-A3B-UD-IQ4_XS" = {
+          cmd = lib.escapeShellArgs (llamaArgs ++ [
+            "--model" (fetchHF {
+              repo = "unsloth/Qwen3.6-35B-A3B-MTP-GGUF";
+              rev = "5bc3e238d916f48a861bac2f8a1990a0e9b7e98d";
+              file = "Qwen3.6-35B-A3B-UD-IQ4_XS.gguf";
+              hash = "sha256-3yengENbe0XCWXU2ES6jywkfhUTD0MMxjZ9CWLMfet8=";
+            })
+
+            "--fit" "off"
+            "--ctx-size" "81920"
+
+            "--n-cpu-moe" "25"
+            "--load-mode" "none"
+
+            "--spec-type" "draft-mtp,ngram-mod"
             "--spec-draft-n-max" "3"
+          ]);
+          capabilities = {
+            "in" = ["text"];
+            out = ["text"];
+            tools = true;
+          };
+        };
+
+        "Qwen3.8-27B-UD-IQ2_XXS" = {
+          cmd = lib.escapeShellArgs (llamaArgs ++ [
+            "--model" (fetchHF {
+              repo = "unsloth/Qwen3.8-27B-GGUF";
+              rev = "4604b899a826000505a834e623272db5b7fd62f6";
+              file = "Qwen3.8-27B-UD-IQ2_XXS.gguf";
+              hash = "sha256-jRs3KX1s+YMDzTlolvNeAQid3MkEBTqcaZf3ocNbhSQ=";
+            })
+
+            "--fit" "off"
+            "--ctx-size" "81920"
+
+            "--spec-type" "ngram-mod"
           ]);
           capabilities = {
             "in" = ["text"];
