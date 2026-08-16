@@ -31,6 +31,11 @@
       }
     '';
 
+    layout = lib.mkAfter ''
+      default-column-width { proportion 0.66667; }
+    '';
+  };
+
   programs.home-manager.enable = true;
 
   programs.pi = {

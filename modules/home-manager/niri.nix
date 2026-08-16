@@ -8,7 +8,12 @@ let
       ${lib.getExe cfg.package} validate --config "$target"
     '';
 
-    text = cfg.config;
+    text = cfg.config + lib.optionalString (cfg.layout != "") ''
+
+      layout {
+      ${cfg.layout}
+      }
+    '';
   };
 in {
   options.programs.niri = {
@@ -22,6 +27,16 @@ in {
       description = ''
         Contents of niri's config.kdl. Fragments from multiple modules are
         concatenated, so hosts can append their own blocks (e.g. outputs).
+      '';
+    };
+
+    layout = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Contents of the single `layout { }` block in niri's config.kdl.
+        Kept separate from `config` because niri does not allow duplicate
+        layout blocks, so hosts can only extend it from within.
       '';
     };
   };

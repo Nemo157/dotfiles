@@ -111,35 +111,6 @@
         place-within-backdrop true
       }
 
-      layout {
-
-        gaps 0
-        struts { top 0; bottom 0; left 0; right 64; }
-
-        empty-workspace-above-first
-
-        preset-column-widths {
-            proportion 0.33333
-            proportion 0.5
-            proportion 0.66667
-            proportion 1.0
-        }
-
-        default-column-width { proportion 0.66667; }
-
-        background-color "transparent"
-        focus-ring {
-          off
-          active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
-        }
-
-        border { off; }
-        shadow { off; }
-        insert-hint {
-            gradient from="#2aa19880" to="#cb4b1680" angle=45 relative-to="workspace-view"
-        }
-      }
-
       overview {
         workspace-shadow {
           off
@@ -217,6 +188,32 @@
           Mod+Ctrl+P hotkey-overlay-title="Dynamic Cast: Clear" { clear-dynamic-cast-target; }
 
           Mod+Ctrl+Shift+E { quit; }
+      }
+    '';
+
+    layout = ''
+      gaps 0
+      struts { top 0; bottom 0; left 0; right 64; }
+
+      empty-workspace-above-first
+
+      preset-column-widths {
+          proportion 0.33333
+          proportion 0.5
+          proportion 0.66667
+          proportion 1.0
+      }
+
+      background-color "transparent"
+      focus-ring {
+        off
+        active-gradient from="#cb4b16" to="#859900" angle=45 relative-to="workspace-view"
+      }
+
+      border { off; }
+      shadow { off; }
+      insert-hint {
+          gradient from="#2aa19880" to="#cb4b1680" angle=45 relative-to="workspace-view"
       }
     '';
   };
