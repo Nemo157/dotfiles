@@ -1,12 +1,8 @@
-{ lib, pkgs, ... }: let
-  configFile = pkgs.writeTextFile {
-    name = "niri-config.kdl";
+{ lib, pkgs, ... }: {
+  programs.niri = {
+    enable = true;
 
-    checkPhase = ''
-      ${lib.getExe pkgs.niri} validate --config "$target"
-    '';
-
-    text = ''
+    config = ''
       // https://yalter.github.io/niri/Configuration:-Introduction
 
       input {
@@ -236,10 +232,6 @@
       }
     '';
   };
-in {
-  home.packages = [ pkgs.niri ];
-
-  xdg.configFile."niri/config.kdl".source = configFile;
 
   programs = {
     swaylock = {
