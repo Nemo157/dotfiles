@@ -1,5 +1,15 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, osConfig ? null, ... }:
 let
+  llamaSwapConfig = osConfig.services.llama-swap;
+
+  llamaSwapModels = lib.attrNames (
+    lib.filterAttrs
+      (_: m: (m.capabilities.out or [ "text" ]) == [ "text" ])
+      (if osConfig == null
+        then { }
+        else llamaSwapConfig.settings.models or { })
+  );
+
   permissionSystemLogs =
     "${config.xdg.stateHome}/pi/extensions/pi-permission-system/logs";
 
@@ -44,6 +54,23 @@ in
     };
   };
 
+  xdg.configFile."pi/models.json" = lib.mkIf (llamaSwapConfig.enable && llamaSwapModels != [ ]) {
+    text = builtins.toJSON {
+      providers.llama-swap = {
+        name = "llama-swap (local)";
+        baseUrl = "http://${llamaSwapConfig.listenAddress}:${toString llamaSwapConfig.port}/v1";
+        api = "openai-completions";
+        # Dummy key: llama-swap ignores auth, but pi hides models without one.
+        apiKey = "llama-swap";
+        compat = {
+          supportsDeveloperRole = false;
+          supportsReasoningEffort = false;
+        };
+        models = map (id: { inherit id; contextWindow = 81920; }) llamaSwapModels;
+      };
+    };
+  };
+
   home.activation.piPermissionSystemLogs =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       run mkdir -p ${lib.escapeShellArg permissionSystemLogs}
@@ -84,6 +111,8 @@ in
       compaction = {
         enabled = false;
       };
+
+      enabledModels = (map (id: "llama-swap/${id}") llamaSwapModels);
 
       packages = [
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot

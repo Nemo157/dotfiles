@@ -50,10 +50,12 @@ let
     '';
   };
 
+  json = pkgs.formats.json {};
+
   extensionConfigFiles = lib.mapAttrs'
     (name: settings: {
       name = "pi/extensions/${name}/config.json";
-      value = { text = builtins.toJSON settings; };
+      value = { source = json.generate "pi-config.json" settings; };
     })
     cfg.extensionSettings;
 in
@@ -69,7 +71,7 @@ in
     };
 
     settings = lib.mkOption {
-      type = lib.types.attrsOf lib.types.anything;
+      type = lib.types.attrsOf json.type;
       default = { };
       description = "Written verbatim as pi/settings.json.";
     };

@@ -1,4 +1,5 @@
-{ lib, config, pkgs, ts, hostname, ... }: {
+{ lib, config, pkgs, ts, hostname, ... }:
+{
   imports = [
     ./age.nix
     ./audio.nix
@@ -127,11 +128,10 @@
   programs.pi.settings = {
     defaultProvider = "openrouter";
     defaultThinkingLevel = "medium";
-    # The first entry is the startup model; order matters (defaultModel is
-    # only consulted when enabledModels is empty, so we don't set it).
-    enabledModels = [
-        "moonshotai/kimi-k3"
-        "z-ai/glm-5.2"
+    # The first entry is the startup model.
+    enabledModels = lib.mkBefore [
+      "moonshotai/kimi-k3"
+      "z-ai/glm-5.2"
     ];
   };
 
