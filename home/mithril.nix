@@ -18,6 +18,18 @@
 
   home.stateVersion = "23.05";
 
+  programs.niri = {
+    config = lib.mkAfter ''
+      output "PNP(AOC) U27G3X ZXKQ4HA005438" {
+          scale 1.5
+      }
+    '';
+
+    layout = lib.mkAfter ''
+      default-column-width { proportion 1.0; }
+    '';
+  };
+
   programs.home-manager.enable = true;
 
   systemd.user.startServices = "sd-switch";

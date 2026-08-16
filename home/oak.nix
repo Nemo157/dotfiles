@@ -16,6 +16,21 @@
 
   home.stateVersion = "24.05";
 
+  programs.niri = {
+    config = lib.mkAfter ''
+      output "PNP(AOC) U27G3X ZXKQ4HA005438" {
+          scale 1
+      }
+
+      output "Samsung Electric Company U32J59x H4LT100011" {
+          scale 1
+      }
+
+      output "Samsung Display Corp. 0x4181 Unknown" {
+          scale 1
+      }
+    '';
+
   programs.home-manager.enable = true;
 
   programs.pi = {
