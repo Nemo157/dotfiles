@@ -35,6 +35,14 @@
 // This lets the policy survive /reload and session resume without writing
 // an entry on every keypress.
 //
+// "the last recorded state" is always re-read from the current session
+// *branch* (`sessionManager.getBranch()`) rather than cached in a
+// variable or read from `getEntries()` (which returns every entry, from
+// all branches). Sessions branch — the user can go back to an earlier
+// message and take a different path — and a branch that forked before the
+// state entry must be treated as not having it, otherwise the entry and
+// its note silently go missing on that branch.
+//
 // Cache-friendly notification
 // ---------------------------
 // Rather than re-injecting a note on every LLM call, we inject a single
@@ -144,10 +152,25 @@ function statusFor(state: ToggleState, ctx: ExtensionContext): string {
 
 export default function editToggleExtension(pi: ExtensionAPI): void {
   let state: ToggleState = "ask";
-  // State as of the last agent turn start (mirrors the last persisted
-  // entry). Defaults to "ask" — i.e. allowed — before the first turn.
-  let lastTurnState: ToggleState = "ask";
   let dispose: (() => void) | undefined;
+
+  // Last state persisted on the *current* branch of the session, or
+  // "ask" (allowed) if this branch has no state entry yet. Entries dropped
+  // by compaction also count as absent, which is what we want: the note is
+  // then re-injected along with a fresh entry.
+  function lastRecordedState(ctx: ExtensionContext): ToggleState {
+    const last = ctx.sessionManager
+      .getBranch()
+      .filter(
+        (e: { type: string; customType?: string }) =>
+          e.type === "custom" && e.customType === STATE_ENTRY,
+      )
+      .pop() as { data?: { state?: ToggleState } } | undefined;
+    const recorded = last?.data?.state;
+    return recorded === "ask" || recorded === "allow" || recorded === "deny"
+      ? recorded
+      : "ask";
+  }
 
   function refreshStatus(ctx: ExtensionContext): void {
     ctx.ui.setStatus("edit-toggle", statusFor(state, ctx));
@@ -191,18 +214,7 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
     registerLink();
 
     // Restore the last persisted state (recorded at a previous turn start).
-    const entries = ctx.sessionManager.getEntries();
-    const last = entries
-      .filter(
-        (e: { type: string; customType?: string }) =>
-          e.type === "custom" && e.customType === STATE_ENTRY,
-      )
-      .pop() as { data?: { state?: ToggleState } } | undefined;
-    const restored = last?.data?.state;
-    if (restored === "ask" || restored === "allow" || restored === "deny") {
-      state = restored;
-      lastTurnState = restored;
-    }
+    state = lastRecordedState(ctx);
 
     refreshStatus(ctx);
   });
@@ -213,14 +225,14 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
   });
 
   // At the start of each assistant turn, record the current state if it
-  // changed since the last turn, and — if the allowed/denied category
+  // differs from the last one recorded on this branch, and — if the allowed/denied category
   // flipped — inject a single persistent message telling the agent.
-  pi.on("before_agent_start", async () => {
+  pi.on("before_agent_start", async (_event, ctx) => {
     const current = state;
-    if (current === lastTurnState) return;
+    const recorded = lastRecordedState(ctx);
+    if (current === recorded) return;
 
-    const flipped = isAllowed(current) !== isAllowed(lastTurnState);
-    lastTurnState = current;
+    const flipped = isAllowed(current) !== isAllowed(recorded);
     pi.appendEntry(STATE_ENTRY, { state: current });
 
     if (!flipped) return;
