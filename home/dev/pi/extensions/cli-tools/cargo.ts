@@ -42,11 +42,12 @@ export const cargoClippyTool: StructuredCliToolDef<typeof clippyParams> = {
   label: "cargo clippy",
   command: "cargo",
   partialLabel: "Linting…",
-  description: "Lint and type-check a Rust crate or workspace with clippy.",
+  description:
+    "Lint and type-check a Rust crate or workspace with clippy (all targets).",
   timeoutMs: 120_000,
   parameters: clippyParams,
   buildArgs(p) {
-    const args: string[] = ["clippy"];
+    const args: string[] = ["clippy", "--all-targets"];
     if (p.workspace) args.push("--workspace");
     if (p.package !== undefined) args.push("-p", p.package);
     return args;
