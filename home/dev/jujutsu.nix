@@ -80,6 +80,19 @@
       };
       template-aliases = {
         "format_timestamp(timestamp)" = "timestamp.ago()";
+        # padded to fit "+9999/-999", longer diffs just push the line out
+        "format_diff_stat(commit)" = ''
+          pad_end(10,
+            if(commit.empty(),
+              label("empty", "(empty)"),
+              concat(
+                pad_start(5, label("diff added", "+" ++ commit.diff().stat().total_added())),
+                "/",
+                pad_end(4, label("diff removed", "-" ++ commit.diff().stat().total_removed())),
+              )
+            )
+          )
+        '';
         log_compact = ''
           if(root,
             format_root_commit(self),
@@ -88,12 +101,12 @@
                 separate(" ",
                   format_short_change_id_with_change_offset(self),
                   format_short_commit_id(commit_id),
+                  format_diff_stat(self),
                   if(self.contained_in('first_parent(@)'), label("git_head", "HEAD")),
                   bookmarks,
                   tags,
                   working_copies,
                   if(conflict, label("conflict", "conflict")),
-                  if(empty, label("empty", "(empty)")),
                   if(description, description.first_line(), description_placeholder),
                   format_short_signature(author),
                   format_timestamp(committer.timestamp()),
