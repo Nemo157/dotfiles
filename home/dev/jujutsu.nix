@@ -80,16 +80,15 @@
       };
       template-aliases = {
         "format_timestamp(timestamp)" = "timestamp.ago()";
-        # padded to fit "+9999/-999", longer diffs just push the line out
+        # padded to fit "+9999/-999" (with "(empty)" centered on the "/"),
+        # longer diffs just push the line out
         "format_diff_stat(commit)" = ''
-          pad_end(10,
-            if(commit.empty(),
-              label("empty", "(empty)"),
-              concat(
-                pad_start(5, label("diff added", "+" ++ commit.diff().stat().total_added())),
-                "/",
-                pad_end(4, label("diff removed", "-" ++ commit.diff().stat().total_removed())),
-              )
+          if(commit.empty(),
+            "  " ++ label("empty", "(empty)") ++ " ",
+            concat(
+              pad_start(5, label("diff added", "+" ++ commit.diff().stat().total_added())),
+              "/",
+              pad_end(4, label("diff removed", "-" ++ commit.diff().stat().total_removed())),
             )
           )
         '';
