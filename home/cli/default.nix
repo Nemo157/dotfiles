@@ -2,6 +2,7 @@
   imports = [
     ./atuin.nix
     ./bat
+    ./bs32uuid
     ./dircolors.nix
     ./gpg.nix
     ./lsd.nix
