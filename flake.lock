@@ -457,7 +457,8 @@
         "nixur": "nixur",
         "rust-overlay": "rust-overlay",
         "systems": "systems",
-        "u2f-touch-detector": "u2f-touch-detector"
+        "u2f-touch-detector": "u2f-touch-detector",
+        "yt-dlp-src": "yt-dlp-src"
       }
     },
     "rust-overlay": {
@@ -519,6 +520,22 @@
         "owner": "Nemo157",
         "ref": "monitor",
         "repo": "u2f-touch-detector",
+        "type": "github"
+      }
+    },
+    "yt-dlp-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787055010,
+        "narHash": "sha256-s4Egvjfwj6F4iCN0y+Ax5xAg5Cuh+0qGMtBQe3NlBck=",
+        "owner": "yt-dlp",
+        "repo": "yt-dlp",
+        "rev": "5d5b634d8e6b41dc2891847a5ea7a5a3f569a28c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yt-dlp",
+        "repo": "yt-dlp",
         "type": "github"
       }
     }

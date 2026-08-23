@@ -86,6 +86,9 @@
       url = "github:edolstra/flake-compat";
       flake = false;
     };
+
+
+    yt-dlp-src = { url = "github:yt-dlp/yt-dlp"; flake = false; };
   };
 
   outputs = inputs @ {
@@ -240,7 +243,7 @@
       };
     };
 
-    overlays.default = import ./overlays { inherit (self.outputs) maintainers; };
+    overlays.default = import ./overlays { inherit (self.outputs) maintainers; inherit inputs; };
 
     homeManagerModules.default = import ./modules/home-manager;
 

@@ -1,4 +1,4 @@
-{ maintainers }: final: prev: let
+{ maintainers, inputs }: final: prev: let
   args = {
     # nix flake check doesn't like me renaming the function arguments,
     # so we have to alias here....
@@ -47,4 +47,11 @@ in {
     withUnfree = true;
     withFdkAac = true;
   };
+
+  yt-dlp = prev.yt-dlp.overrideAttrs (old: {
+    version = "nightly-${inputs.yt-dlp-src.shortRev}";
+    src = inputs.yt-dlp-src;
+    # doCheck = false;          # master occasionally has failing tests
+    # pythonRelaxDeps = true;   # master sometimes bumps yt-dlp-ejs minimums
+  });
 } // import ../packages { pkgs = final; }
