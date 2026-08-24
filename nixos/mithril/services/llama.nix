@@ -5,6 +5,8 @@ let
       url = "https://huggingface.co/${repo}/resolve/${rev}/${file}";
       inherit hash;
     };
+
+  json = pkgs.formats.json {};
 in
 {
   services.llama-swap = {
@@ -18,6 +20,12 @@ in
 
       stable-diffusion-cpp = pkgs.unstable.stable-diffusion-cpp-rocm;
       sd-server = lib.getExe' stable-diffusion-cpp "sd-server";
+
+      audio-cpp = pkgs.audio-cpp.rocm.override {
+        rocmGpuTargets = ["gfx1201"];
+        models = ["supertonic" "voxcpm2" "omnivoice"];
+      };
+      audio-cpp-server = lib.getExe' audio-cpp "audiocpp_server";
 
       llamaArgs = [
         llama-server
@@ -162,6 +170,78 @@ in
           capabilities = {
             "in" = ["text"];
             out = ["image"];
+          };
+        };
+
+        "audio-cpp" = {
+          cmd = lib.escapeShellArgs [
+            audio-cpp-server
+            "--config" (json.generate "audiocpp-server.config" {
+              models = [{
+                id = "supertonic-3";
+                family = "supertonic";
+                path = (fetchHF {
+                  repo = "audio-cpp/audio.cpp-gguf";
+                  rev = "359189ae3925638d419866d505c180a91815d8b8";
+                  file = "Supertonic-3-GGUF/supertonic-3-orig.gguf";
+                  hash = "sha256-r4FEhqC8lRP7Nq+r2bEVWtFPssNqEHrG/+Yuqa2vtmI=";
+                });
+                task = "tts";
+                mode = "streaming";
+                load_options = {
+                  language = "english";
+                };
+                voice_presets = {
+                  M1.voice_id = "M1";
+                  M2.voice_id = "M2";
+                  M3.voice_id = "M3";
+                  F1.voice_id = "F1";
+                  F2.voice_id = "F2";
+                  F3.voice_id = "F3";
+                };
+              } {
+                id = "voxcpm2";
+                family = "voxcpm2";
+                path = (fetchHF {
+                  repo = "audio-cpp/audio.cpp-gguf";
+                  rev = "359189ae3925638d419866d505c180a91815d8b8";
+                  file = "VoxCPM2-GGUF/voxcpm2-orig.gguf";
+                  hash = "sha256-ExgeAeFdVVyernd5Ym6zlcaTNPFelIyeomXd83q1CxY=";
+                });
+                task = "tts";
+                mode = "streaming";
+                load_options = {
+                  language = "english";
+                };
+              } {
+                id = "omnivoice";
+                family = "omnivoice";
+                path = (fetchHF {
+                  repo = "audio-cpp/audio.cpp-gguf";
+                  rev = "359189ae3925638d419866d505c180a91815d8b8";
+                  file = "OmniVoice-GGUF/omnivoice-f16.gguf";
+                  hash = "sha256-dCG2w4c1HSzc5+uLkx+ieXOdYo7yWs1P8gYqcObhq2M=";
+                });
+                task = "tts";
+                mode = "streaming";
+                load_options = {
+                  language = "english";
+                };
+                voice_presets = {
+                  # female.instruct = "female, young adult, moderate pitch";
+                };
+              }];
+            })
+            "--host" "127.0.0.1"
+            "--port" "\${PORT}"
+            "--backend" "rocm"
+            "--log"
+            "--cors-origins" "*"
+          ];
+          aliases = ["supertonic-3" "voxcpm2" "omnivoice"];
+          capabilities = {
+            "in" = ["text"];
+            out = ["audio"];
           };
         };
       };

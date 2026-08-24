@@ -50,6 +50,27 @@
         "type": "github"
       }
     },
+    "audio-cpp": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787776687,
+        "narHash": "sha256-uq0ro/20Ecs049kwlRIqfhy5nsTSMLhfgRHGVt4xQmU=",
+        "owner": "0xShug0",
+        "repo": "audio.cpp",
+        "rev": "80ef3879f1d4ec29888e7a69782caa80fd6cf195",
+        "type": "github"
+      },
+      "original": {
+        "owner": "0xShug0",
+        "repo": "audio.cpp",
+        "rev": "80ef3879f1d4ec29888e7a69782caa80fd6cf195",
+        "type": "github"
+      }
+    },
     "base16-schemes": {
       "flake": false,
       "locked": {
@@ -443,6 +464,7 @@
       "inputs": {
         "agenix": "agenix",
         "appearance-watcher": "appearance-watcher",
+        "audio-cpp": "audio-cpp",
         "colmena": "colmena",
         "ennead": "ennead",
         "ferris-icons": "ferris-icons",

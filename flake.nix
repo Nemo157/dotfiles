@@ -87,6 +87,10 @@
       flake = false;
     };
 
+    audio-cpp = {
+      url = "github:0xShug0/audio.cpp/80ef3879f1d4ec29888e7a69782caa80fd6cf195";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     yt-dlp-src = { url = "github:yt-dlp/yt-dlp"; flake = false; };
   };
@@ -108,6 +112,7 @@
     u2f-touch-detector,
     ennead,
     flake-utils,
+    audio-cpp,
     ...
   }: flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"] (system: let
     pkgs = import nixpkgs {
@@ -150,6 +155,7 @@
             ];
           };
           home-manager = home-manager.packages.${system}.home-manager;
+          audio-cpp = audio-cpp.packages.${system};
         })
         agenix.overlays.default
         colmena.overlays.default
