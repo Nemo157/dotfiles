@@ -19,6 +19,13 @@ let
   # and granted read access via piInfrastructureReadPaths below.
   webFetchCacheDir = "${config.xdg.cacheHome}/pi/web-fetch";
 
+  # Output root for the cli-tools `tar` tool. Same contract as
+  # webFetchCacheDir: kept in sync with the extension's own default
+  # (XDG_CACHE_HOME/pi/tar, see extensions/cli-tools/config.ts), passed to the
+  # extension explicitly, and granted read access below so the agent can read
+  # or upload the archives it creates.
+  tarCacheDir = "${config.xdg.cacheHome}/pi/tar";
+
   # Cargo stores dependency source under CARGO_HOME (relocated to
   # $XDG_RUNTIME_DIR/cargo-home and symlinked to $XDG_RUNTIME_DIR/cargo by
   # home/dev/rust/cargo.nix): registry crates under registry/src and git deps
@@ -153,6 +160,10 @@ in
       `cli-tools` extension.
     '';
 
+    extensionSettings.cli-tools = {
+      inherit tarCacheDir;
+    };
+
     extensionSettings.web-fetch = {
       cacheDir = webFetchCacheDir;
       # To enable the optional `prompt` parameter, set a small model here,
@@ -172,7 +183,9 @@ in
       # trigger an external_directory approval prompt. (A dynamic per-path
       # grant is not possible: the live-authority chain downgrades any allow
       # on the external_directory/path surfaces to defer.)
-      piInfrastructureReadPaths = [ webFetchCacheDir ];
+      # The cli-tools `tar` tool writes archives under tarCacheDir and hands
+      # the agent their paths for the same reason.
+      piInfrastructureReadPaths = [ webFetchCacheDir tarCacheDir ];
 
       permission = {
         "*" = "ask";
