@@ -74,4 +74,8 @@
       destination = "/etc/udev/rules.d/70-stlink.rules";
     })
   ];
+
+  services.tailscale = {
+    enable = true;
+  };
 }
