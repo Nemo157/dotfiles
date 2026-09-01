@@ -69,11 +69,7 @@ in
         api = "openai-completions";
         # Dummy key: llama-swap ignores auth, but pi hides models without one.
         apiKey = "llama-swap";
-        compat = {
-          supportsDeveloperRole = false;
-          supportsReasoningEffort = false;
-        };
-        models = map (id: { inherit id; contextWindow = 81920; }) llamaSwapModels;
+        models = map (id: { inherit id; contextWindow = 81920; reasoning = true; }) llamaSwapModels;
       };
     };
   };
