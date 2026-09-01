@@ -148,6 +148,31 @@ in
             "--fit" "off"
             "--ctx-size" "81920"
 
+            "--reasoning-preserve"
+
+            "--spec-type" "ngram-mod"
+          ]);
+          capabilities = {
+            "in" = ["text"];
+            out = ["text"];
+            tools = true;
+          };
+        };
+
+        "Qwen3.8-27B-Samantha.i1-Q2_K" = {
+          cmd = lib.escapeShellArgs (llamaArgs ++ [
+            "--model" (fetchHF {
+              repo = "mradermacher/Qwen3.8-27B-Samantha-i1-GGUF";
+              rev = "8fdfa49436472a8b4a7697305a36d0058caf7f96";
+              file = "Qwen3.8-27B-Samantha.i1-Q2_K.gguf";
+              hash = "sha256-/iMlqeb4tEddVrWVaEYHY6TxRWeGOKwbL7oUQWvCKP4=";
+            })
+
+            "--fit" "off"
+            "--ctx-size" "81920"
+
+            "--reasoning-preserve"
+
             "--spec-type" "ngram-mod"
           ]);
           capabilities = {
