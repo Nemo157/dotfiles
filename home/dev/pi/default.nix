@@ -242,6 +242,8 @@ in
         rg = "allow";
         cargo-dependency-path = "allow";
         fd = "allow";
+
+        nix-flake-check = "allow";
         nix-flake-info = "allow";
         nix-log = "allow";
 
