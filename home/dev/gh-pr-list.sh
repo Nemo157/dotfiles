@@ -42,10 +42,10 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
         { "APPROVED": "32",
           "CHANGES_REQUESTED": "31",
           "COMMENTED": "33",
-          "DISMISSED": "2",
-          "PENDING": "2",
-          "REQUESTED": "2"
-        }[.] // "2";
+          "DISMISSED": "90",
+          "PENDING": "90",
+          "REQUESTED": "90"
+        }[.] // "90";
 
       # bot detection / display cleanup, on a login string
       def bot_login:
@@ -88,7 +88,7 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
         }
         | . + { reviews: (.reviewers | map(.text) | join(" ")) } ] as $rows
       | if ($rows | length) == 0 then
-          "no matching pull requests" | colour("2")
+          "no matching pull requests" | colour("90")
         else
           ($rows | map({ key: .branch, value: .id }) | from_entries) as $by_branch
           | ($rows | map(. + { parent: $by_branch[.base] })) as $rows
@@ -127,7 +127,7 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
                     | ($title | link($row.url)) + spaces($titlew - ($title | length)) ),
                   ( $row.author
                     | pad($authorw)
-                    | colour(if $row.author_bot then "2"
+                    | colour(if $row.author_bot then "90"
                              elif $row.author_me then "1;35"
                              else "35" end) ),
                   ( ( $row.reviewers
@@ -138,8 +138,8 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
                       | join(" ") )
                     + spaces($revw - ($row.reviews | length)) ),
                   ($row.branch | pad($branchw) | colour("36")),
-                  ($row.created | pad($createdw) | colour("2")),
-                  ($row.updated | colour("2"))
+                  ($row.created | pad($createdw) | colour("90")),
+                  ($row.updated | colour("90"))
                 ]
                 | join("  ") )
             )
