@@ -1,7 +1,7 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests "$@" \
+gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests "$@" \
   | jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
@@ -67,6 +67,11 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
         | map(select(is_bot | not))
         | map(. + { text: "\(.name)\(.state | symbol)" });
 
+      # stacked PRs are listed above the PR they are based on
+      def stack($id; $children; $by_id):
+        ( [ ($children[$id] // [])[] | stack(.; $children; $by_id) ] | add // [] )
+        + [ $by_id[$id] ];
+
       [ .[] | {
           id: "#\(.number)",
           url: .url,
@@ -75,6 +80,7 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
           author_bot: ((.author.login // "") | bot_login),
           author_me: ($me != "" and (.author.login // "") == $me),
           branch: .headRefName,
+          base: .baseRefName,
           created: (.createdAt | reltime($now)),
           updated: (.updatedAt | reltime($now)),
           reviewers: reviewers,
@@ -84,7 +90,17 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
       | if ($rows | length) == 0 then
           "no matching pull requests" | colour("2")
         else
-          ($rows | map(.id | length) + [2] | max) as $idw
+          ($rows | map({ key: .branch, value: .id }) | from_entries) as $by_branch
+          | ($rows | map(. + { parent: $by_branch[.base] })) as $rows
+          | ($rows | map({ key: .id, value: . }) | from_entries) as $by_id
+          | ( $rows
+              | map(select(.parent != null))
+              | group_by(.parent)
+              | map({ key: .[0].parent, value: map(.id) })
+              | from_entries ) as $children
+          | ( [ $rows[] | select(.parent == null) | stack(.id; $children; $by_id) ]
+              | add // [] ) as $rows
+          | ($rows | map(.id | length) + [2] | max) as $idw
           | ($rows | map(.author | length) + [6] | max) as $authorw
           | ($rows | map(.branch | length) + [6] | max) as $branchw
           | ($rows | map(.reviews | length) + [7] | max) as $revw
@@ -92,20 +108,22 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
           | ($rows | map(.updated | length) + [7] | max) as $updatedw
           | ([$width - $idw - $authorw - $branchw - $revw - $createdw - $updatedw - 14, 20] | max) as $maxtitlew
           | ([($rows | map(.title | length) + [5] | max), $maxtitlew] | min) as $titlew
-          | ( [ ("ID" | pad($idw)),
-                ("TITLE" | pad($titlew)),
-                ("AUTHOR" | pad($authorw)),
-                ("REVIEWS" | pad($revw)),
-                ("BRANCH" | pad($branchw)),
-                ("CREATED" | pad($createdw)),
-                ("UPDATED" | pad($updatedw))
-              ]
-              | map(colour("1;4"))
-              | join("  ")
+          | ( ("ID" | pad($idw) | colour("1;4"))
+              + "  "
+              + ( [ ("TITLE" | pad($titlew)),
+                    ("AUTHOR" | pad($authorw)),
+                    ("REVIEWS" | pad($revw)),
+                    ("BRANCH" | pad($branchw)),
+                    ("CREATED" | pad($createdw)),
+                    ("UPDATED" | pad($updatedw))
+                  ]
+                  | map(colour("1;4"))
+                  | join("  ") )
             ),
             ( $rows[] as $row
-              | [ ($row.id | pad($idw) | colour(if $row.draft then "90" else "32" end)),
-                  ( ($row.title | truncate($titlew)) as $title
+              | ($row.id | pad($idw) | colour(if $row.draft then "90" else "32" end))
+              + (if $row.parent != null then " " + ("⋎" | colour("33")) else "  " end)
+              + ( [ ( ($row.title | truncate($titlew)) as $title
                     | ($title | link($row.url)) + spaces($titlew - ($title | length)) ),
                   ( $row.author
                     | pad($authorw)
@@ -123,7 +141,7 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
                   ($row.created | pad($createdw) | colour("2")),
                   ($row.updated | colour("2"))
                 ]
-              | join("  ")
+                | join("  ") )
             )
         end
     '
