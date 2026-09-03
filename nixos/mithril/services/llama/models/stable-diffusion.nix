@@ -1,14 +1,12 @@
-{ pkgs, config, fetchHF, ... }: let
-  inherit (config.lib.llama-swap) fetchHF mkStableDiffusion;
-in {
-  services.llama-swap.settings.models = {
-    "stable-diffusion-v1.5" = mkStableDiffusion [
-      "--model" (fetchHF {
+{ config, fetchHF, ... }: {
+  services.llama-swap.models.stable-diffusion = {
+    "stable-diffusion-v1.5" = {
+      model = fetchHF {
         repo = "stable-diffusion-v1-5/stable-diffusion-v1-5";
         rev = "451f4fe16113bff5a5d2269ed5ad43b0592e9a14";
         file = "v1-5-pruned.safetensors";
         hash = "sha256-GhifC+adYQakhUjnYmIH3d1wQqQY2/Nyzv0F4M26YbY=";
-      })
-    ];
+      };
+    };
   };
 }
