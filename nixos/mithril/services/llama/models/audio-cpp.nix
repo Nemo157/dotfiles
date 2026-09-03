@@ -1,6 +1,6 @@
 { config, fetchHF, ... }: {
   services.llama-swap.models.audio = {
-    "supertonic-3" = {
+    "tts/supertonic-3" = {
       id = "supertonic-3";
       family = "supertonic";
       path = fetchHF {
@@ -24,7 +24,7 @@
       };
     };
 
-    "voxcpm2" = {
+    "tts/voxcpm2" = {
       id = "voxcpm2";
       family = "voxcpm2";
       path = fetchHF {
@@ -40,7 +40,7 @@
       };
     };
 
-    "omnivoice" = {
+    "tts/omnivoice" = {
       id = "omnivoice";
       family = "omnivoice";
       path = fetchHF {
