@@ -1,7 +1,7 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
+gh pr list --json number,title,author,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
   | jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
@@ -125,8 +125,18 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
           author_bot: ((.author.login // "") | bot_login),
           author_me: ($me != "" and (.author.login // "") == $me),
           ci: ci,
+          owner: (.headRepositoryOwner.login // ""),
+          fork: (.isCrossRepository // false),
           branch: .headRefName,
-          base: .baseRefName,
+          # displayed branch, prefixed with the fork owner for cross-repo PRs
+          branch_text: (if (.isCrossRepository // false)
+                        then "\(.headRepositoryOwner.login // "?"):\(.headRefName)"
+                        else .headRefName end),
+          # stacks only exist within a single fork, so qualify branch names
+          # with the owner of the head repository to avoid linking PRs that
+          # happen to share a branch name across forks
+          branch_key: "\(.headRepositoryOwner.login // ""):\(.headRefName)",
+          base_key: "\(.headRepositoryOwner.login // ""):\(.baseRefName)",
           created: (.createdAt | reltime($now)),
           updated: (.updatedAt | reltime($now)),
           reviewers: reviewers,
@@ -136,8 +146,10 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
       | if ($rows | length) == 0 then
           "no matching pull requests" | colour("90")
         else
-          ($rows | map({ key: .branch, value: .id }) | from_entries) as $by_branch
-          | ($rows | map(. + { parent: $by_branch[.base] })) as $rows
+          ($rows | map({ key: .branch_key, value: .id }) | from_entries) as $by_branch
+          | ( $rows
+              | map($by_branch[.base_key] as $parent
+                    | . + { parent: (if $parent == .id then null else $parent end) }) ) as $rows
           | ($rows | map({ key: .id, value: . }) | from_entries) as $by_id
           | ( $rows
               | map(select(.parent != null))
@@ -145,11 +157,13 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
               | map({ key: .[0].parent, value: map(.id) })
               | from_entries ) as $children
           | ( [ $rows[] | select(.parent == null) | stack(.id; $children; $by_id) ]
-              | add // [] ) as $rows
+              | add // [] ) as $ordered
+          # any parent cycle would drop rows entirely, fall back to flat order
+          | (if ($ordered | length) == ($rows | length) then $ordered else $rows end) as $rows
           | ($rows | map(.id | length) + [2] | max) as $idw
           | ($rows | map(.author | length) + [6] | max) as $authorw
           | 2 as $ciw
-          | ($rows | map(.branch | length) + [6] | max) as $branchw
+          | ($rows | map(.branch_text | length) + [6] | max) as $branchw
           | ($rows | map(.reviews | length) + [7] | max) as $revw
           | ($rows | map(.created | length) + [7] | max) as $createdw
           | ($rows | map(.updated | length) + [7] | max) as $updatedw
@@ -187,7 +201,9 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
                                      + ($r.state | state_colour)))
                       | join(" ") )
                     + spaces($revw - ($row.reviews | length)) ),
-                  ($row.branch | pad($branchw) | colour("36")),
+                  ( (if $row.fork then ("\($row.owner):" | colour("90")) else "" end)
+                    + ($row.branch | colour("36"))
+                    + spaces($branchw - ($row.branch_text | length)) ),
                   ($row.created | pad($createdw) | colour("90")),
                   ($row.updated | colour("90"))
                 ]
