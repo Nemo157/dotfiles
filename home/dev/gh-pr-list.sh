@@ -1,7 +1,7 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests "$@" \
+gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
   | jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
@@ -67,6 +67,51 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
         | map(select(is_bot | not))
         | map(. + { text: "\(.name)\(.state | symbol)" });
 
+      # aggregate CI state over the checks of the head commit
+      def check_state:
+        if .__typename == "CheckRun" then
+          if .status != "COMPLETED" then "PENDING"
+          elif (.conclusion | IN("SUCCESS", "NEUTRAL", "SKIPPED")) then "SUCCESS"
+          else "FAILURE"
+          end
+        else
+          if .state == "SUCCESS" then "SUCCESS"
+          elif .state == "PENDING" or .state == "EXPECTED" then "PENDING"
+          else "FAILURE"
+          end
+        end;
+
+      # the actions run id a check run belongs to, 0 for anything else
+      def run_id:
+        ((.detailsUrl // "")
+         | capture("/actions/runs/(?<id>[0-9]+)")
+         | .id
+         | tonumber) // 0;
+
+      # older runs of a workflow stick around in the rollup, keep only the
+      # newest run of each workflow so cancelled/superseded jobs are ignored
+      def live_checks:
+        [ (.statusCheckRollup // [])[] ]
+        | ( ( map(select(.__typename == "CheckRun"))
+              | group_by(.workflowName)
+              | map((map(run_id) | max) as $latest | map(select(run_id == $latest)))
+              | add // [] )
+            + map(select(.__typename != "CheckRun")) );
+
+      def ci:
+        [ live_checks[] | check_state ] as $states
+        | if ($states | length) == 0 then "NONE"
+          elif ($states | any(. == "FAILURE")) then "FAILURE"
+          elif ($states | any(. == "PENDING")) then "PENDING"
+          else "SUCCESS"
+          end;
+
+      def ci_symbol:
+        { "SUCCESS": "✓", "FAILURE": "✗", "PENDING": "•" }[.] // "-";
+
+      def ci_colour:
+        { "SUCCESS": "32", "FAILURE": "31", "PENDING": "33" }[.] // "90";
+
       # stacked PRs are listed above the PR they are based on
       def stack($id; $children; $by_id):
         ( [ ($children[$id] // [])[] | stack(.; $children; $by_id) ] | add // [] )
@@ -79,6 +124,7 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
           author: (.author.login // "?" | clean_login),
           author_bot: ((.author.login // "") | bot_login),
           author_me: ($me != "" and (.author.login // "") == $me),
+          ci: ci,
           branch: .headRefName,
           base: .baseRefName,
           created: (.createdAt | reltime($now)),
@@ -102,16 +148,18 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
               | add // [] ) as $rows
           | ($rows | map(.id | length) + [2] | max) as $idw
           | ($rows | map(.author | length) + [6] | max) as $authorw
+          | 2 as $ciw
           | ($rows | map(.branch | length) + [6] | max) as $branchw
           | ($rows | map(.reviews | length) + [7] | max) as $revw
           | ($rows | map(.created | length) + [7] | max) as $createdw
           | ($rows | map(.updated | length) + [7] | max) as $updatedw
-          | ([$width - $idw - $authorw - $branchw - $revw - $createdw - $updatedw - 14, 20] | max) as $maxtitlew
+          | ([$width - $idw - $authorw - $ciw - $branchw - $revw - $createdw - $updatedw - 16, 20] | max) as $maxtitlew
           | ([($rows | map(.title | length) + [5] | max), $maxtitlew] | min) as $titlew
           | ( ("ID" | pad($idw) | colour("1;4"))
               + "  "
               + ( [ ("TITLE" | pad($titlew)),
                     ("AUTHOR" | pad($authorw)),
+                    ("CI" | pad($ciw)),
                     ("REVIEWS" | pad($revw)),
                     ("BRANCH" | pad($branchw)),
                     ("CREATED" | pad($createdw)),
@@ -130,6 +178,8 @@ gh pr list --json number,title,author,headRefName,baseRefName,createdAt,updatedA
                     | colour(if $row.author_bot then "90"
                              elif $row.author_me then "1;35"
                              else "35" end) ),
+                  (($row.ci | ci_symbol | colour($row.ci | ci_colour))
+                   + spaces($ciw - 1)),
                   ( ( $row.reviewers
                       | map(. as $r
                             | $r.text
