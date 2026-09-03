@@ -104,9 +104,9 @@ gh pr list --json number,title,author,headRefName,createdAt,updatedAt,url,isDraf
               | join("  ")
             ),
             ( $rows[] as $row
-              | [ ($row.id | colour(if $row.draft then "90" else "32" end) | link($row.url))
-                    + spaces($idw - ($row.id | length)),
-                  ($row.title | truncate($titlew) | pad($titlew)),
+              | [ ($row.id | pad($idw) | colour(if $row.draft then "90" else "32" end)),
+                  ( ($row.title | truncate($titlew)) as $title
+                    | ($title | link($row.url)) + spaces($titlew - ($title | length)) ),
                   ( $row.author
                     | pad($authorw)
                     | colour(if $row.author_bot then "2"
