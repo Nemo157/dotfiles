@@ -5,7 +5,7 @@
     ./calibre-web.nix
     ./grafana.nix
     ./influxdb.nix
-    ./llama.nix
+    ./llama
     ./nix-serve.nix
     ./samba.nix
     ./sunshine.nix
