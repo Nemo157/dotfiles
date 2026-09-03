@@ -27,8 +27,9 @@
 
       border = "no";
 
-      hwdec = "auto-copy";
-      hwdec-codecs = "all";
+      hwdec = "auto";
+      # All defaults except AV1 which seems to have issues
+      hwdec-codecs = "h264,vc1,hevc,vp8,vp9,prores,prores_raw,ffv1,dpx";
 
       resume-playback = "no";
 
