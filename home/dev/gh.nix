@@ -1,4 +1,9 @@
-{ ... }: {
+{ pkgs, ... }: {
+  scripts.gh-pr-list = {
+    runtimeInputs = with pkgs; [ gh jq coreutils ncurses ];
+    source = ./gh-pr-list.sh;
+  };
+
   programs = {
     gh = {
       enable = true;
