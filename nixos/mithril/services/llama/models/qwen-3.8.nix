@@ -1,17 +1,24 @@
 { config, fetchHF, ... }: let
-  model = fetchHF {
-    repo = "unsloth/Qwen3.8-27B-GGUF";
-    rev = "4604b899a826000505a834e623272db5b7fd62f6";
-    file = "Qwen3.8-27B-UD-IQ2_XXS.gguf";
-    hash = "sha256-jRs3KX1s+YMDzTlolvNeAQid3MkEBTqcaZf3ocNbhSQ=";
-  };
-
   baseArgs = {
-    inherit model;
+    model = fetchHF {
+      repo = "unsloth/Qwen3.8-27B-GGUF";
+      rev = "4ca720788d1e01f1bff70c033e0d0028fd02e502";
+      file = "Qwen3.8-27B-UD-IQ2_XXS.gguf";
+      hash = "sha256-55LY+zFC/m2RcYdtbaD3HwWnEChxjevHLb7JP/ZF5n0=";
+    };
+
+    model-draft = fetchHF {
+      repo = "unsloth/Qwen3.8-27B-GGUF";
+      rev = "4ca720788d1e01f1bff70c033e0d0028fd02e502";
+      file = "MTP/mtp-Qwen3.8-27B-Q4_0.gguf";
+      hash = "sha256-UNnOWm2jgbvPsxBhz3PflKkOb6+O/t3uN5qcuPFQHG4=";
+    };
+
     fit = "off";
-    ctx-size = 81920;
+    ctx-size = 32768;
     reasoning-preserve = true;
-    spec-type = "ngram-mod";
+
+    spec-type = "draft-mtp,ngram-mod";
   };
 in {
   services.llama-swap.models.llama = {
