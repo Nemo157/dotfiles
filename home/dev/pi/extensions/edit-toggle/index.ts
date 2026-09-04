@@ -27,32 +27,42 @@
 //     would hide it from the model before the chain ever runs. Not the
 //     case for us: `ask` keeps the tool exposed and we decide per call.
 //
-// State persistence
-// -----------------
-// The toggle state is recorded to the session with `pi.appendEntry` at
-// the start of an assistant turn (`before_agent_start`) whenever it
-// differs from the last recorded state, and restored on `session_start`.
-// This lets the policy survive /reload and session resume without writing
-// an entry on every keypress.
-//
-// "the last recorded state" is always re-read from the current session
-// *branch* (`sessionManager.getBranch()`) rather than cached in a
-// variable or read from `getEntries()` (which returns every entry, from
-// all branches). Sessions branch — the user can go back to an earlier
-// message and take a different path — and a branch that forked before the
-// state entry must be treated as not having it, otherwise the entry and
-// its note silently go missing on that branch.
-//
 // Cache-friendly notification
 // ---------------------------
 // Rather than re-injecting a note on every LLM call, we inject a single
 // persistent message at the start of an assistant turn (via
 // `before_agent_start`) only when the edit capability has flipped between
-// allowed (ask/allow) and denied (deny) since the previously recorded
-// state. The previous "allowed vs denied" category is derived from that
-// last persisted state — no separate flag is stored. Because the note is
-// injected once per transition (not per call), earlier turns' bytes stay
-// unchanged and the provider prefix cache stays warm.
+// allowed (ask/allow) and denied (deny) since the last note the agent
+// actually saw. Because the note is injected once per transition (not per
+// call), earlier turns' bytes stay unchanged and the provider prefix cache
+// stays warm.
+//
+// State persistence
+// -----------------
+// The state that the note announced is stored *on the note itself*, in the
+// custom message's `details` (persisted on the `custom_message` entry and
+// never sent to the LLM). This matters for rewinds: pi appends the note as
+// a child of the user message, so navigating back drops note and record
+// together, and the next turn re-announces.
+//
+// A separate `pi.appendEntry` record would NOT survive that correctly.
+// `before_agent_start` runs before the user message is persisted (it is
+// only written on `message_end`), so an entry appended there becomes the
+// *parent* of the user message — and rewinding to a user message sets the
+// leaf to `targetEntry.parentId`, i.e. lands exactly on that entry. The
+// record would then outlive the note it belongs to and suppress
+// re-injection. So `appendEntry` is used only for silent ask↔allow changes
+// (no note to attach to, and no bearing on whether a note is due).
+//
+// Both records are always re-read from the current *context* entries
+// (`sessionManager.buildContextEntries()`) rather than cached in a
+// variable or read from `getEntries()` (which returns every entry, from
+// all branches). Sessions branch — the user can go back to an earlier
+// message and take a different path — and a branch that forked before the
+// note must be treated as not having it. `buildContextEntries()` is also
+// compaction-aware (unlike `getBranch()`, which walks the raw parent chain
+// and would still report notes the model can no longer see), which is
+// exactly the question being asked here.
 
 import type {
   ExtensionAPI,
@@ -99,7 +109,9 @@ const ENABLE_NOTE =
   "cut-lines/paste-lines file " +
   "tools) is enabled again; use these tools as needed.</system-reminder>";
 
-// customType used for the persisted state entry.
+// customType for the injected note message (carries the announced state in
+// its `details`) and for the silent state-only entry.
+const NOTE_MESSAGE = "edit-toggle-note";
 const STATE_ENTRY = "edit-toggle";
 
 // allowed = ask/allow; denied = deny.
@@ -154,22 +166,42 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
   let state: ToggleState = "ask";
   let dispose: (() => void) | undefined;
 
-  // Last state persisted on the *current* branch of the session, or
-  // "ask" (allowed) if this branch has no state entry yet. Entries dropped
-  // by compaction also count as absent, which is what we want: the note is
-  // then re-injected along with a fresh entry.
-  function lastRecordedState(ctx: ExtensionContext): ToggleState {
+  function asState(value: unknown): ToggleState | undefined {
+    return value === "ask" || value === "allow" || value === "deny"
+      ? value
+      : undefined;
+  }
+
+  // State the agent was last *told* about, read off the note messages still
+  // in context, or undefined if it has not been told anything on this
+  // branch (in which case it assumes the allowed state).
+  function lastAnnouncedState(ctx: ExtensionContext): ToggleState | undefined {
     const last = ctx.sessionManager
-      .getBranch()
+      .buildContextEntries()
       .filter(
         (e: { type: string; customType?: string }) =>
-          e.type === "custom" && e.customType === STATE_ENTRY,
+          e.type === "custom_message" && e.customType === NOTE_MESSAGE,
       )
-      .pop() as { data?: { state?: ToggleState } } | undefined;
-    const recorded = last?.data?.state;
-    return recorded === "ask" || recorded === "allow" || recorded === "deny"
-      ? recorded
-      : "ask";
+      .pop() as { details?: { state?: unknown } } | undefined;
+    return asState(last?.details?.state);
+  }
+
+  // Last state recorded in context by either mechanism (note message or
+  // silent state entry), whichever comes last, or "ask" if neither is
+  // present. Used to restore the policy on session_start and to decide
+  // whether a silent record is still needed.
+  function lastRecordedState(ctx: ExtensionContext): ToggleState {
+    const last = ctx.sessionManager
+      .buildContextEntries()
+      .filter(
+        (e: { type: string; customType?: string }) =>
+          (e.type === "custom" && e.customType === STATE_ENTRY) ||
+          (e.type === "custom_message" && e.customType === NOTE_MESSAGE),
+      )
+      .pop() as
+      | { data?: { state?: unknown }; details?: { state?: unknown } }
+      | undefined;
+    return asState(last?.details?.state ?? last?.data?.state) ?? "ask";
   }
 
   function refreshStatus(ctx: ExtensionContext): void {
@@ -224,25 +256,30 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
     dispose = undefined;
   });
 
-  // At the start of each assistant turn, record the current state if it
-  // differs from the last one recorded on this branch, and — if the allowed/denied category
-  // flipped — inject a single persistent message telling the agent.
+  // At the start of each assistant turn: if the allowed/denied category
+  // flipped since the last note the agent saw, inject a fresh note carrying
+  // the new state in its `details`. Otherwise, if the exact state changed
+  // since the last record, persist it silently so /reload and resume can
+  // restore it.
   pi.on("before_agent_start", async (_event, ctx) => {
     const current = state;
-    const recorded = lastRecordedState(ctx);
-    if (current === recorded) return;
 
-    const flipped = isAllowed(current) !== isAllowed(recorded);
-    pi.appendEntry(STATE_ENTRY, { state: current });
+    // No note on this branch yet ⇒ the agent assumes the allowed state.
+    const announced = lastAnnouncedState(ctx) ?? "ask";
+    if (isAllowed(current) !== isAllowed(announced)) {
+      return {
+        message: {
+          customType: NOTE_MESSAGE,
+          content: isAllowed(current) ? ENABLE_NOTE : DENY_NOTE,
+          display: false,
+          details: { state: current },
+        },
+      };
+    }
 
-    if (!flipped) return;
-    return {
-      message: {
-        customType: "edit-toggle-note",
-        content: isAllowed(current) ? ENABLE_NOTE : DENY_NOTE,
-        display: false,
-      },
-    };
+    if (current !== lastRecordedState(ctx)) {
+      pi.appendEntry(STATE_ENTRY, { state: current });
+    }
   });
 
   pi.registerCommand("edit-toggle", {
