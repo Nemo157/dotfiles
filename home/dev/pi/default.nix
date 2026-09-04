@@ -137,6 +137,7 @@ in
         "${./extensions/cache-ttl}/index.ts"
         "${./extensions/local-agents}/index.ts"
         "${./extensions/system-details}/index.ts"
+        "${./extensions/current-date}/index.ts"
         "${./extensions/continue-turn}/index.ts"
         # Diagnostic: logs a line-level diff whenever the wire system prompt
         # changes between provider requests (see pi-cachemire's
