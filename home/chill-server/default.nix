@@ -3,6 +3,12 @@
     ./shairport-sync.nix
   ];
 
+  scripts.yt-dlp-playlist.text = ''
+    exec yt-dlp \
+      -o "playlists/%(playlist)s/%(playlist_index)s [%(upload_date>%Y-%m-%d)s] - %(title)s [%(id)s].%(ext)s" \
+      "$@"
+  '';
+
   programs.yt-dlp = {
     enable = true;
     settings = {
