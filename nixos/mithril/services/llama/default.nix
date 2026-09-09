@@ -9,6 +9,7 @@
     port = 8083;
 
     settings = {
+      healthCheckTimeout = 600;
       globalTTL = 300;
       performance.disabled = true;
       # Broken CORS
