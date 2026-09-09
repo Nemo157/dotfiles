@@ -1,7 +1,7 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
+gh pr list --json number,title,author,additions,deletions,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
   | jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
@@ -125,6 +125,8 @@ gh pr list --json number,title,author,headRefName,headRepositoryOwner,isCrossRep
           author_bot: ((.author.login // "") | bot_login),
           author_me: ($me != "" and (.author.login // "") == $me),
           ci: ci,
+          additions: "+\(.additions)",
+          deletions: "-\(.deletions)",
           owner: (.headRepositoryOwner.login // ""),
           fork: (.isCrossRepository // false),
           branch: .headRefName,
@@ -163,17 +165,22 @@ gh pr list --json number,title,author,headRefName,headRepositoryOwner,isCrossRep
           | ($rows | map(.id | length) + [2] | max) as $idw
           | ($rows | map(.author | length) + [6] | max) as $authorw
           | 2 as $ciw
+          | ($rows | map(.additions | length) + [1] | max) as $addw
+          | ($rows | map(.deletions | length) + [1] | max) as $delw
+          | (if $addw + $delw + 1 < 4 then 4 - $addw - $delw - 1 else 0 end) as $diffpad
+          | ($addw + $delw + 1 + $diffpad) as $diffw
           | ($rows | map(.branch_text | length) + [6] | max) as $branchw
           | ($rows | map(.reviews | length) + [7] | max) as $revw
           | ($rows | map(.created | length) + [7] | max) as $createdw
           | ($rows | map(.updated | length) + [7] | max) as $updatedw
-          | ([$width - $idw - $authorw - $ciw - $branchw - $revw - $createdw - $updatedw - 16, 20] | max) as $maxtitlew
+          | ([$width - $idw - $authorw - $ciw - $diffw - $branchw - $revw - $createdw - $updatedw - 18, 20] | max) as $maxtitlew
           | ([($rows | map(.title | length) + [5] | max), $maxtitlew] | min) as $titlew
           | ( ("ID" | pad($idw) | colour("1;4"))
               + "  "
               + ( [ ("TITLE" | pad($titlew)),
                     ("AUTHOR" | pad($authorw)),
                     ("CI" | pad($ciw)),
+                    ("DIFF" | pad($diffw)),
                     ("REVIEWS" | pad($revw)),
                     ("BRANCH" | pad($branchw)),
                     ("CREATED" | pad($createdw)),
@@ -194,6 +201,12 @@ gh pr list --json number,title,author,headRefName,headRepositoryOwner,isCrossRep
                              else "35" end) ),
                   (($row.ci | ci_symbol | colour($row.ci | ci_colour))
                    + spaces($ciw - 1)),
+                  ( spaces($addw - ($row.additions | length))
+                    + ($row.additions | colour("32"))
+                    + " "
+                    + spaces($delw - ($row.deletions | length))
+                    + ($row.deletions | colour("31"))
+                    + spaces($diffpad) ),
                   ( ( $row.reviewers
                       | map(. as $r
                             | $r.text
