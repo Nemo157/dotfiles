@@ -247,6 +247,16 @@ function shellQuote(arg: string): string {
   return `'${arg.replace(/'/g, `'\\''`)}'`;
 }
 
+// Inline-text hint appended to the `$ <command>` header when a tool feeds
+// stdin: show short single-line payloads (shell here-string style), else
+// just the byte count so the row stays on one line.
+function formatStdinHint(input: string): string {
+  if (input.length <= 80 && !/[\r\n]/.test(input)) {
+    return `<<< ${shellQuote(input)}`;
+  }
+  return `<<< ${Buffer.byteLength(input)} bytes`;
+}
+
 function buildInvocation(command: string, args: string[]): string {
   return [command, ...args.map(shellQuote)].join(" ");
 }
@@ -342,6 +352,14 @@ export interface StructuredCliToolDef<T extends TSchema = TSchema>
   parameters: T;
   buildArgs: (params: Static<T>) => string[];
   /**
+   * Text to feed the subprocess on stdin. When omitted (or when this returns
+   * `undefined`) the child's stdin is /dev/null; when set, {@link runCommand}
+   * spawns with stdin piped and writes the text before closing it. Needed by
+   * filter tools (e.g. jq) that accept inline data through stdin rather than
+   * only a file argument.
+   */
+  stdin?: (params: Static<T>) => string | undefined;
+  /**
    * Optional argv used purely for the header line rendered in the TUI. Lets
    * a tool present the user's *intent* (e.g. `rg -l pattern`) instead of
    * the actual argv used to spawn the subprocess (which may include
@@ -404,6 +422,13 @@ export function runCommand(
     cwd: string;
     signal?: AbortSignal;
     timeoutMs: number;
+    /**
+     * Text to write to the child's stdin (spawns with stdin piped). The write
+     * is synchronous and un-buffered across pipe boundaries, so keep payloads
+     * small-ish; children that read to EOF before producing output (like jq)
+     * drain the pipe as we write, which is the pattern this serves.
+     */
+    stdin?: string;
     /** Called after each stdout chunk with the full accumulated buffer. */
     onStdout?: (buf: string) => void;
     /** Called after each stderr chunk with the full accumulated buffer. */
@@ -414,7 +439,10 @@ export function runCommand(
     const child = spawn(command, args, {
       cwd: opts.cwd,
       env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio:
+        opts.stdin !== undefined
+          ? ["pipe", "pipe", "pipe"]
+          : ["ignore", "pipe", "pipe"],
     });
 
     let stdout = "";
@@ -423,6 +451,21 @@ export function runCommand(
 
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
+    if (opts.stdin !== undefined) {
+      // Feeding stdin to a child that may exit early (e.g. a filter compile
+      // error) can emit an async 'error' on the pipe; without a handler Node
+      // treats it as unhandled. Same guard pi's own bash tool uses.
+      child.stdin.on("error", () => {});
+      try {
+        // Writable strings encode as utf8 by default — there is no
+        // `setEncoding` on Writable (it's a Readable-only method), so don't
+        // call it. `end()` writes the payload then closes the pipe (EOF);
+        // `close()` would not flush pending writes.
+        child.stdin.end(opts.stdin);
+      } catch {
+        // Synchronous failure (child already gone); nothing to do.
+      }
+    }
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
       opts.onStdout?.(stdout);
@@ -465,10 +508,15 @@ export function runCommand(
 function formatResult(
   def: CliToolDef,
   args: string[],
+  stdinHint: string | undefined,
   result: RunResult,
 ): { text: string; isError: boolean } {
+  // Mirror the TUI header: when the tool pipes inline data via stdin, show
+  // it as a here-string snippet or byte count so the agent sees what ran.
   const invocation = buildInvocation(def.command, args);
-  const parts: string[] = [`$ ${invocation}`];
+  const head =
+    stdinHint !== undefined ? `${invocation} ${stdinHint}` : invocation;
+  const parts: string[] = [`$ ${head}`];
   const hasStdout = result.stdout.trim().length > 0;
   const hasStderr = result.stderr.trim().length > 0;
   if (hasStdout) {
@@ -812,6 +860,13 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
 
       const args = computeArgs(def, params);
 
+      // Inline stdin payloads (e.g. jq's `input`) are shown to the agent as
+      // a here-string hint on the invocation line, matching the TUI header.
+      const stdin = def.stdin?.(params as Static<typeof def.parameters>);
+      const stdinHint =
+        stdin !== undefined ? formatStdinHint(stdin) : undefined;
+
+
       // Streaming: for tools without a postProcess hook, forward partial
       // stdout/stderr to pi as the subprocess runs so the TUI can show a
       // live tail. postProcess tools (e.g. rg --json) buffer structured
@@ -871,6 +926,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         cwd: ctx.cwd,
         signal,
         timeoutMs: def.timeoutMs ?? 30_000,
+        stdin,
         onStdout: shouldStream
           ? (buf) => {
               latestStdout = buf;
@@ -916,7 +972,12 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         };
       }
 
-      const { text, isError } = formatResult(def, args, result);
+      const { text, isError } = formatResult(
+        def,
+        args,
+        stdinHint,
+        result,
+      );
       return {
         content: [{ type: "text", text }],
         details: baseDetails,
@@ -933,6 +994,13 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       try {
         const argv = computeDisplayArgs(def, args);
         invocation = buildInvocation(def.command, argv);
+        // Tools that pipe inline data via stdin get a here-string hint so
+        // the user can see what is being fed to the subprocess.
+        const stdin =
+          "stdin" in def
+            ? def.stdin?.(args as Static<typeof def.parameters>)
+            : undefined;
+        if (stdin !== undefined) invocation += ` ${formatStdinHint(stdin)}`;
       } catch {
         invocation = def.command;
       }

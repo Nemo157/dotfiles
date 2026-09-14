@@ -238,6 +238,10 @@ in
         rg = "allow";
         cargo-dependency-path = "allow";
         fd = "allow";
+        # Read-only JSON querying via jq (cli-tools/jq.ts). jq can't write
+        # files or touch the network, so the tool itself is allowed; the
+        # `path` / `external_directory` gates still apply to its `path` param.
+        jq = "allow";
 
         nix-flake-check = "allow";
         nix-flake-info = "allow";

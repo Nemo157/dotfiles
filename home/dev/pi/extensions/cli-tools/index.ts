@@ -24,6 +24,7 @@ import { getVcsTools } from "./vcs";
 import { ghTools } from "./gh";
 import { rgTool } from "./rg";
 import { fdTool } from "./fd";
+import { getJqTools } from "./jq";
 import { getCargoTools } from "./cargo";
 import { getNixTools } from "./nix";
 import { getTarTools } from "./tar";
@@ -34,6 +35,7 @@ export default function (pi: ExtensionAPI) {
     ...ghTools,
     rgTool,
     fdTool,
+    ...getJqTools(),
     ...getCargoTools(),
     ...getNixTools(),
     ...getTarTools(),
