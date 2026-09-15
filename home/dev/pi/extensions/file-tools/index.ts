@@ -307,7 +307,7 @@ const mvTool: FileToolDef<typeof mvParams> = {
   name: "mv",
   label: "move",
   description:
-    "Move or rename a file or directory. Works across filesystems.",
+    "Move or rename a file or directory. Works across filesystems; missing parent directories of the destination are created.",
   parameters: mvParams,
   header(args, theme) {
     const src = typeof args.source === "string" ? args.source : "…";
@@ -336,6 +336,10 @@ const mvTool: FileToolDef<typeof mvParams> = {
     if (pathPolicyDenies(dest))
       return { line: `mv: destination is blocked by the permission policy: ${dest}`, isError: true };
     if (!(await exists(src))) return { line: `mv: no such file: ${rawSrc}`, isError: true };
+
+    // Like `write`, create missing parent directories rather than failing with
+    // ENOENT — the destination itself is already gated, so its parents are too.
+    await fs.mkdir(path.dirname(dest), { recursive: true });
 
     try {
       await fs.rename(src, dest);
@@ -456,6 +460,10 @@ const cpTool: FileToolDef<typeof cpParams> = {
         isError: true,
       };
     }
+
+    // Like `write`, create missing parent directories rather than failing with
+    // ENOENT — the destination itself is already gated, so its parents are too.
+    await fs.mkdir(path.dirname(dest), { recursive: true });
 
     await fs.cp(src, dest, { recursive: params.recursive === true, force: true });
     return {
