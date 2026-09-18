@@ -130,6 +130,7 @@
     defaultThinkingLevel = "medium";
     # The first entry is the startup model.
     enabledModels = lib.mkBefore [
+      "~deepseek/deepseek-v4-flash-latest"
       "moonshotai/kimi-k3"
       "z-ai/glm-5.2"
     ];
