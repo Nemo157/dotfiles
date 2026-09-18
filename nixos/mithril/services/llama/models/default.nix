@@ -67,6 +67,7 @@
             "--log-verbosity" "4"
             "--cache-ram" "0"
             "--threads-http" "1"
+            "--parallel" "1"
           ] ++ argsToList args);
           capabilities = { "in" = [ "text" ]; out = [ "text" ]; tools = true; };
         }) config.services.llama-swap.models.llama)
