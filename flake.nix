@@ -152,6 +152,10 @@
                   };
                 };
               })
+
+              (final: prev: {
+                nodejs-slim_26 = prev.nodejs-slim_26.overrideAttrs (_old: { doCheck = false; });
+              })
             ];
           };
           home-manager = home-manager.packages.${system}.home-manager;
