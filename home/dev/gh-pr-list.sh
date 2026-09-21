@@ -1,7 +1,7 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,additions,deletions,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup "$@" \
+gh pr list --json number,title,author,additions,deletions,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup,mergeable "$@" \
   | jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
@@ -112,6 +112,10 @@ gh pr list --json number,title,author,additions,deletions,headRefName,headReposi
       def ci_colour:
         { "SUCCESS": "32", "FAILURE": "31", "PENDING": "33" }[.] // "90";
 
+      # a conflicting merge takes over the CI cell, whatever the checks say;
+      # mergeability is computed lazily so UNKNOWN just falls back to CI
+      def merge_symbol: if . == "CONFLICTING" then "⚠" else null end;
+
       # stacked PRs are listed above the PR they are based on
       def stack($id; $children; $by_id):
         ( [ ($children[$id] // [])[] | stack(.; $children; $by_id) ] | add // [] )
@@ -125,6 +129,7 @@ gh pr list --json number,title,author,additions,deletions,headRefName,headReposi
           author_bot: ((.author.login // "") | bot_login),
           author_me: ($me != "" and (.author.login // "") == $me),
           ci: ci,
+          mergeable: (.mergeable // "UNKNOWN"),
           additions: "+\(.additions)",
           deletions: "-\(.deletions)",
           owner: (.headRepositoryOwner.login // ""),
@@ -199,8 +204,10 @@ gh pr list --json number,title,author,additions,deletions,headRefName,headReposi
                     | colour(if $row.author_bot then "90"
                              elif $row.author_me then "1;35"
                              else "35" end) ),
-                  (($row.ci | ci_symbol | colour($row.ci | ci_colour))
-                   + spaces($ciw - 1)),
+                  ( (($row.mergeable | merge_symbol) as $conflict
+                     | if $conflict != null then ($conflict | colour("31"))
+                       else ($row.ci | ci_symbol | colour($row.ci | ci_colour)) end)
+                    + spaces($ciw - 1) ),
                   ( spaces($addw - ($row.additions | length))
                     + ($row.additions | colour("32"))
                     + " "
