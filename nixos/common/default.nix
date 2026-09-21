@@ -15,12 +15,17 @@
 
     gc = {
       automatic = true;
+      randomizedDelaySec = "45min";
     };
 
     optimise = {
       automatic = true;
     };
   };
+
+  # stable random offset (derived from machine-id + unit name) instead of a
+  # fresh roll every boot; systemd >= 247
+  systemd.timers.nix-gc.timerConfig.FixedRandomDelay = true;
 
   systemd.services.nix-gen-gc = {
     description = "NixOS Generation Garbage Collector";
