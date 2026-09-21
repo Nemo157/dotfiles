@@ -1,0 +1,88 @@
+diff --git a/src/input/devices.rs b/src/input/devices.rs
+index bdd9e70..c7d0b9f 100644
+--- a/src/input/devices.rs
++++ b/src/input/devices.rs
+@@ -299,6 +299,13 @@ impl TrackedDevice {
+                         // This is actually the grip, and gets recognized as such
+                         Some(vr::EVRControllerAxisType::Trigger as _)
+                     }
++                    // Some legacy games hardcode SteamVR's Knuckles layout and read the
++                    // thumbstick from axis 3, so report it there too.
++                    vr::ETrackedDeviceProperty::Axis3Type_Int32
++                        if data.openvr_controller_type == c"knuckles" =>
++                    {
++                        Some(vr::EVRControllerAxisType::Joystick as _)
++                    }
+                     // TODO: report knuckles trackpad?
+                     vr::ETrackedDeviceProperty::Axis3Type_Int32
+                     | vr::ETrackedDeviceProperty::Axis4Type_Int32 => {
+diff --git a/src/input/legacy.rs b/src/input/legacy.rs
+index 3099735..2c5fcb3 100644
+--- a/src/input/legacy.rs
++++ b/src/input/legacy.rs
+@@ -219,6 +219,14 @@ impl<C: openxr_data::Compositor> Input<C> {
+ 
+         let data = self.openxr.session_data.get();
+ 
++        // Some legacy games hardcode SteamVR's Knuckles layout (thumbstick on axis 3),
++        // so mirror the main stick there for Index controllers.
++        // Keyed off the Axis3Type property so the reported type and state always agree.
++        let is_knuckles = self.get_device_int_tracked_property(
++            device_index,
++            vr::ETrackedDeviceProperty::Axis3Type_Int32,
++        ) == Some(vr::EVRControllerAxisType::Joystick as i32);
++
+         state.unPacketNum = self.legacy_state.packet_num.load(Ordering::Relaxed);
+ 
+         // Only send the input event if we haven't already.
+@@ -277,12 +285,22 @@ impl<C: openxr_data::Compositor> Input<C> {
+         read_button(vr::EVRButtonId::A, &actions.a, None);
+         read_button(vr::EVRButtonId::Grip, &actions.squeeze_click, None);
+         read_button(vr::EVRButtonId::Axis2, &actions.squeeze_click, None);
++        if is_knuckles {
++            read_button(
++                vr::EVRButtonId::Axis3,
++                &actions.main_xy_click,
++                Some(&actions.main_xy_touch),
++            );
++        }
+ 
+         let j = actions.main_xy.state(&data.session, hand_path).unwrap();
+         state.rAxis[0] = vr::VRControllerAxis_t {
+             x: j.current_state.x,
+             y: j.current_state.y,
+         };
++        if is_knuckles {
++            state.rAxis[3] = state.rAxis[0];
++        }
+ 
+         let t = actions.trigger.state(&data.session, hand_path).unwrap();
+         state.rAxis[1] = vr::VRControllerAxis_t {
+@@ -702,7 +720,12 @@ mod tests {
+         };
+     }
+ 
+-    test_button!(main_xy_click, vr::EVRButtonId::Axis0, main_xy_touch);
++    // Test fixture uses Knuckles, which mirrors the main stick onto axis 3.
++    test_button!(
++        main_xy_click,
++        vr::EVRButtonId::Axis0 | vr::EVRButtonId::Axis3,
++        main_xy_touch
++    );
+     test_button!(trigger_click, vr::EVRButtonId::SteamVR_Trigger);
+     test_button!(app_menu, vr::EVRButtonId::ApplicationMenu);
+     test_button!(
+diff --git a/src/input/profiles/knuckles.rs b/src/input/profiles/knuckles.rs
+index 4b297d5..1df164c 100644
+--- a/src/input/profiles/knuckles.rs
++++ b/src/input/profiles/knuckles.rs
+@@ -68,7 +68,8 @@ impl InteractionProfile for Knuckles {
+                 EVRButtonId::A,
+                 EVRButtonId::Axis0,
+                 EVRButtonId::Axis1,
+-                EVRButtonId::Axis2
++                EVRButtonId::Axis2,
++                EVRButtonId::Axis3
+             ),
+         };
+         &DEVICE_PROPERTIES

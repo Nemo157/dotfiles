@@ -11,6 +11,7 @@
     ./sunshine.nix
     ./telegraf.nix
     ./restic.nix
+    ./vr
   ];
 
   services.upower.enable = true;

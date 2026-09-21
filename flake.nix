@@ -93,6 +93,14 @@
     };
 
     yt-dlp-src = { url = "github:yt-dlp/yt-dlp"; flake = false; };
+
+    nixpkgs-xr = {
+      url = "github:nix-community/nixpkgs-xr";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.flake-compat.follows = "flake-compat";
+      inputs.systems.follows = "systems";
+    };
   };
 
   outputs = inputs @ {
@@ -113,6 +121,7 @@
     ennead,
     flake-utils,
     audio-cpp,
+    nixpkgs-xr,
     ...
   }: flake-utils.lib.eachSystem ["x86_64-linux" "aarch64-darwin"] (system: let
     pkgs = import nixpkgs {
@@ -168,6 +177,7 @@
         u2f-touch-detector.overlays.default
         appearance-watcher.overlays.default
         ferris-icons.overlays.default
+        nixpkgs-xr.overlays.default
         self.overlays.default
         # run into various issues (e.g. nix-serve)
         # lix-module.overlays.lixFromNixpkgs

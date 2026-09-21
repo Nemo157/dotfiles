@@ -14,6 +14,7 @@
     ./dev/nixos.nix
     ./personal
     ./personal/nixos.nix
+    ./vr
     ./xdg.nix
   ];
 
@@ -142,4 +143,5 @@
     deviceActivation = true;
     notifyMissingCoverArt = true;
   };
+
 }
