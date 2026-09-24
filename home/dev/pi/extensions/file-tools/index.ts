@@ -60,6 +60,14 @@
 //   - cut-lines/paste-lines wrap their whole read-modify-write window in
 //     pi's withFileMutationQueue so they can't lose a race against a
 //     parallel built-in edit/write on the same file.
+//
+// mv/rm/cp likewise hold the mutation queue for every path they touch
+// (mv: source + dest, rm: target, cp: source + dest so a file isn't copied
+// mid-write). An `edit` and an `rm` of the same file in one parallel batch
+// are therefore serialized instead of racing. The queue is keyed per exact
+// (realpath'd) path, so it does NOT cover files inside a directory being
+// moved/removed recursively. mkdir is not queued: nothing else mutates a
+// directory entry under that key.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
@@ -177,6 +185,23 @@ async function exists(p: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/**
+ * Hold pi's per-file mutation queue for several paths at once. Locks are
+ * taken in sorted order so two calls touching the same pair (e.g. `mv a b`
+ * and `mv b a` in one parallel batch) can't deadlock.
+ */
+function withFileMutationQueues<T>(
+  paths: string[],
+  fn: () => Promise<T>,
+): Promise<T> {
+  const unique = [...new Set(paths)].sort();
+  const run = unique.reduceRight<() => Promise<T>>(
+    (inner, p) => () => withFileMutationQueue(p, inner),
+    fn,
+  );
+  return run();
 }
 
 /** Present a path relative to cwd when it's inside it, else absolute. */
@@ -335,26 +360,28 @@ const mvTool: FileToolDef<typeof mvParams> = {
       return { line: `mv: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
     if (pathPolicyDenies(dest))
       return { line: `mv: destination is blocked by the permission policy: ${dest}`, isError: true };
-    if (!(await exists(src))) return { line: `mv: no such file: ${rawSrc}`, isError: true };
+    return withFileMutationQueues([src, dest], async () => {
+      if (!(await exists(src))) return { line: `mv: no such file: ${rawSrc}`, isError: true };
 
-    // Like `write`, create missing parent directories rather than failing with
-    // ENOENT — the destination itself is already gated, so its parents are too.
-    await fs.mkdir(path.dirname(dest), { recursive: true });
+      // Like `write`, create missing parent directories rather than failing with
+      // ENOENT — the destination itself is already gated, so its parents are too.
+      await fs.mkdir(path.dirname(dest), { recursive: true });
 
-    try {
-      await fs.rename(src, dest);
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code === "EXDEV") {
-        // Cross-device move: copy then remove the source.
-        await fs.cp(src, dest, { recursive: true, force: true });
-        await fs.rm(src, { recursive: true, force: true });
-      } else {
-        throw err;
+      try {
+        await fs.rename(src, dest);
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code === "EXDEV") {
+          // Cross-device move: copy then remove the source.
+          await fs.cp(src, dest, { recursive: true, force: true });
+          await fs.rm(src, { recursive: true, force: true });
+        } else {
+          throw err;
+        }
       }
-    }
-    return {
-      line: `moved ${displayPath(ctx.cwd, src)} → ${displayPath(ctx.cwd, dest)}`,
-    };
+      return {
+        line: `moved ${displayPath(ctx.cwd, src)} → ${displayPath(ctx.cwd, dest)}`,
+      };
+    });
   },
 };
 
@@ -393,17 +420,19 @@ const rmTool: FileToolDef<typeof rmParams> = {
     const recursive = params.recursive === true;
     const force = params.force === true;
 
-    if (!force && !(await exists(target))) {
-      return { line: `rm: no such file: ${raw}`, isError: true };
-    }
-    if (!recursive && (await isDirectory(target))) {
-      return {
-        line: `rm: ${raw} is a directory (set recursive: true to remove it)`,
-        isError: true,
-      };
-    }
-    await fs.rm(target, { recursive, force });
-    return { line: `removed ${displayPath(ctx.cwd, target)}` };
+    return withFileMutationQueue(target, async () => {
+      if (!force && !(await exists(target))) {
+        return { line: `rm: no such file: ${raw}`, isError: true };
+      }
+      if (!recursive && (await isDirectory(target))) {
+        return {
+          line: `rm: ${raw} is a directory (set recursive: true to remove it)`,
+          isError: true,
+        };
+      }
+      await fs.rm(target, { recursive, force });
+      return { line: `removed ${displayPath(ctx.cwd, target)}` };
+    });
   },
 };
 
@@ -453,22 +482,24 @@ const cpTool: FileToolDef<typeof cpParams> = {
       return { line: `cp: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
     if (pathPolicyDenies(dest))
       return { line: `cp: destination is blocked by the permission policy: ${dest}`, isError: true };
-    if (!(await exists(src))) return { line: `cp: no such file: ${rawSrc}`, isError: true };
-    if (!(params.recursive === true) && (await isDirectory(src))) {
+    return withFileMutationQueues([src, dest], async () => {
+      if (!(await exists(src))) return { line: `cp: no such file: ${rawSrc}`, isError: true };
+      if (!(params.recursive === true) && (await isDirectory(src))) {
+        return {
+          line: `cp: ${rawSrc} is a directory (set recursive: true to copy it)`,
+          isError: true,
+        };
+      }
+
+      // Like `write`, create missing parent directories rather than failing with
+      // ENOENT — the destination itself is already gated, so its parents are too.
+      await fs.mkdir(path.dirname(dest), { recursive: true });
+
+      await fs.cp(src, dest, { recursive: params.recursive === true, force: true });
       return {
-        line: `cp: ${rawSrc} is a directory (set recursive: true to copy it)`,
-        isError: true,
+        line: `copied ${displayPath(ctx.cwd, src)} → ${displayPath(ctx.cwd, dest)}`,
       };
-    }
-
-    // Like `write`, create missing parent directories rather than failing with
-    // ENOENT — the destination itself is already gated, so its parents are too.
-    await fs.mkdir(path.dirname(dest), { recursive: true });
-
-    await fs.cp(src, dest, { recursive: params.recursive === true, force: true });
-    return {
-      line: `copied ${displayPath(ctx.cwd, src)} → ${displayPath(ctx.cwd, dest)}`,
-    };
+    });
   },
 };
 

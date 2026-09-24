@@ -5,11 +5,11 @@ import {
   type StructuredCliToolDef,
 } from "./shared";
 
-// Appended to the description of every tool that rewrites the repo, since
-// concurrent jj operations race and produce divergent operations/commits.
-const NO_PARALLEL_NOTE =
-  " Modifies the repository: never run in parallel with other jj tool " +
-  "calls; wait for each to finish before starting the next.";
+// Set on every tool that rewrites the repo, since concurrent jj operations
+// race and produce divergent operations/commits. pi then runs the whole
+// batch containing such a call sequentially, in the order the model emitted
+// it, so the model can safely chain e.g. `jj-commit` + `jj-new` in one turn.
+const SEQUENTIAL = "sequential" as const;
 
 // jj-status --------------------------------------------------------------
 
@@ -184,8 +184,8 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
     "Set a revision's description without closing it off; defaults to `@`. " +
     "Use only to retitle a non-@ revision \u2014 prefer `jj-commit` for the " +
     "working copy, since `jj-describe` leaves `@` open and later edits pile " +
-    "onto it." +
-    NO_PARALLEL_NOTE,
+    "onto it.",
+  executionMode: SEQUENTIAL,
   parameters: jjDescribeParams,
   buildArgs(p) {
     // `-m` on its own keeps jj non-interactive; `--no-edit` is a separate
@@ -221,8 +221,8 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
   description:
     "Commit the working copy with the given description and start a fresh " +
     "empty `@` on top. The default tool for 'commit what I just did': it " +
-    "seals the revision so later edits land in a new one." +
-    NO_PARALLEL_NOTE,
+    "seals the revision so later edits land in a new one.",
+  executionMode: SEQUENTIAL,
   parameters: jjCommitParams,
   buildArgs(p) {
     const args: string[] = ["commit", "-m", p.message];
@@ -281,8 +281,8 @@ const jjNew: StructuredCliToolDef<typeof jjNewParams> = {
     "copy `@`. Use it to move around history: `jj-new` on top of an earlier " +
     "or conflicted revision, edit files, then `jj-squash` into the parent " +
     "to amend it (descendants rebase automatically). With `insertAfter`/" +
-    "`insertBefore` it adds a new commit into the middle of a stack." +
-    NO_PARALLEL_NOTE,
+    "`insertBefore` it adds a new commit into the middle of a stack.",
+  executionMode: SEQUENTIAL,
   parameters: jjNewParams,
   buildArgs(p) {
     const revisions = asStringArray(p.revisions);
@@ -353,8 +353,8 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
     "Squash changes from one revision into another. Defaults to squashing " +
     "the working copy into its parent; narrow with `from`/`into` and " +
     "`paths`. " +
-    "Set exactly one of `message` or `useDestinationMessage`." +
-    NO_PARALLEL_NOTE,
+    "Set exactly one of `message` or `useDestinationMessage`.",
+  executionMode: SEQUENTIAL,
   parameters: jjSquashParams,
   buildArgs(p) {
     const args: string[] = ["squash"];
@@ -426,8 +426,8 @@ const jjRestore: StructuredCliToolDef<typeof jjRestoreParams> = {
     "Restore paths in a revision from another revision. Defaults to " +
     "restoring `@` from its parent, i.e. discarding working-copy changes. " +
     "To undo a revision's changes use `from: \"X-\", into: \"X\"`. " +
-    "Set exactly one of `paths` or `all`." +
-    NO_PARALLEL_NOTE,
+    "Set exactly one of `paths` or `all`.",
+  executionMode: SEQUENTIAL,
   parameters: jjRestoreParams,
   buildArgs(p) {
     const paths = asStringArray(p.paths);
@@ -498,8 +498,8 @@ const jjRebase: StructuredCliToolDef<typeof jjRebaseParams> = {
     "`source` (revision plus descendants) or `revisions` (just those, " +
     "children get reparented), and where with `onto` or `insertAfter`/" +
     "`insertBefore`. Conflicts are recorded in the commits rather than " +
-    "stopping the rebase." +
-    NO_PARALLEL_NOTE,
+    "stopping the rebase.",
+  executionMode: SEQUENTIAL,
   parameters: jjRebaseParams,
   buildArgs(p) {
     const revisions = asStringArray(p.revisions);

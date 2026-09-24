@@ -7,6 +7,7 @@
 import type {
   AgentToolResult,
   ExtensionAPI,
+  ToolExecutionMode,
 } from "@earendil-works/pi-coding-agent";
 import { type Component, Container, Spacer, Text } from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
@@ -282,6 +283,13 @@ export interface BaseCliToolFields {
   promptGuidelines?: string[];
   /** Timeout in ms. Defaults to 30s. */
   timeoutMs?: number;
+  /**
+   * Per-tool execution mode passed through to pi. `"sequential"` makes pi
+   * run the WHOLE batch of tool calls from that assistant message one at a
+   * time (in order) whenever this tool is among them. Use it for tools that
+   * mutate shared state (e.g. the jj repo). Defaults to pi's parallel mode.
+   */
+  executionMode?: ToolExecutionMode;
   /**
    * Optional post-processor. If defined, the returned `content` replaces the
    * default formatted text sent to the LLM, and `details` is merged into
@@ -750,6 +758,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     promptSnippet: def.promptSnippet,
     promptGuidelines: def.promptGuidelines,
     parameters: def.parameters,
+    executionMode: def.executionMode,
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
       // Custom tools run their own async implementation and reuse the shared
       // rendering by populating a CliToolDetails from the returned text.
