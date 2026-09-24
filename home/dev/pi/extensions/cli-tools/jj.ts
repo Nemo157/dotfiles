@@ -380,6 +380,153 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
   },
 };
 
+// jj-restore ------------------------------------------------------------
+
+const jjRestoreParams = Type.Object({
+  from: Type.Optional(
+    Type.String({
+      description:
+        "Revision to restore file contents from (--from <rev>). Defaults to " +
+        "the parent of `into`.",
+    }),
+  ),
+  into: Type.Optional(
+    Type.String({
+      description: "Revision to restore into (--into <rev>). Defaults to `@`.",
+    }),
+  ),
+  restoreDescendants: Type.Optional(
+    Type.Boolean({
+      description:
+        "Preserve descendants' content instead of letting the restore " +
+        "propagate into them (--restore-descendants).",
+    }),
+  ),
+  paths: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Paths to restore (relative to the working directory). Set this or " +
+        "`all`.",
+    }),
+  ),
+  all: Type.Optional(
+    Type.Boolean({
+      description:
+        "Restore every path. Set this or `paths`; required explicitly to " +
+        "avoid accidentally wiping a revision.",
+    }),
+  ),
+});
+
+const jjRestore: StructuredCliToolDef<typeof jjRestoreParams> = {
+  name: "jj-restore",
+  label: "jj restore",
+  command: "jj",
+  description:
+    "Restore paths in a revision from another revision. Defaults to " +
+    "restoring `@` from its parent, i.e. discarding working-copy changes. " +
+    "To undo a revision's changes use `from: \"X-\", into: \"X\"`. " +
+    "Set exactly one of `paths` or `all`." +
+    NO_PARALLEL_NOTE,
+  parameters: jjRestoreParams,
+  buildArgs(p) {
+    const paths = asStringArray(p.paths);
+    if ((paths.length > 0) === Boolean(p.all)) {
+      throw new Error("jj-restore: set exactly one of `paths` or `all`.");
+    }
+    const args: string[] = ["restore"];
+    if (p.from !== undefined) args.push("--from", p.from);
+    if (p.into !== undefined) args.push("--into", p.into);
+    if (p.restoreDescendants) args.push("--restore-descendants");
+    if (paths.length > 0) args.push("--", ...paths.map(expandTilde));
+    return args;
+  },
+};
+
+// jj-rebase -------------------------------------------------------------
+
+const jjRebaseParams = Type.Object({
+  source: Type.Optional(
+    Type.String({
+      description:
+        "Rebase this revision together with its descendants (-s <rev>). Set " +
+        "this or `revisions`.",
+    }),
+  ),
+  revisions: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Rebase only these revisions (-r); their children are reparented " +
+        "onto their former parents. Set this or `source`.",
+    }),
+  ),
+  onto: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "New parent(s) (--onto); several make a merge. Cannot be combined " +
+        "with `insertAfter`/`insertBefore`.",
+    }),
+  ),
+  insertAfter: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Insert after these revision(s) (-A), rebasing their children onto " +
+        "the moved revisions. Combinable with `insertBefore`.",
+    }),
+  ),
+  insertBefore: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Insert before these revision(s) (-B), rebasing them onto the moved " +
+        "revisions. Combinable with `insertAfter`.",
+    }),
+  ),
+  skipEmptied: Type.Optional(
+    Type.Boolean({
+      description:
+        "Abandon commits that become empty after the rebase (--skip-emptied).",
+    }),
+  ),
+});
+
+const jjRebase: StructuredCliToolDef<typeof jjRebaseParams> = {
+  name: "jj-rebase",
+  label: "jj rebase",
+  command: "jj",
+  description:
+    "Move revisions to new parents. Choose what to move with exactly one of " +
+    "`source` (revision plus descendants) or `revisions` (just those, " +
+    "children get reparented), and where with `onto` or `insertAfter`/" +
+    "`insertBefore`. Conflicts are recorded in the commits rather than " +
+    "stopping the rebase." +
+    NO_PARALLEL_NOTE,
+  parameters: jjRebaseParams,
+  buildArgs(p) {
+    const revisions = asStringArray(p.revisions);
+    const onto = asStringArray(p.onto);
+    const after = asStringArray(p.insertAfter);
+    const before = asStringArray(p.insertBefore);
+    if ((p.source !== undefined) === (revisions.length > 0)) {
+      throw new Error(
+        "jj-rebase: set exactly one of `source` or `revisions`.",
+      );
+    }
+    if ((onto.length > 0) === (after.length + before.length > 0)) {
+      throw new Error(
+        "jj-rebase: set either `onto` or `insertAfter`/`insertBefore`.",
+      );
+    }
+    const args: string[] = ["rebase"];
+    if (p.source !== undefined) args.push("-s", p.source);
+    for (const r of revisions) args.push("-r", r);
+    for (const r of onto) args.push("--onto", r);
+    for (const r of after) args.push("-A", r);
+    for (const r of before) args.push("-B", r);
+    if (p.skipEmptied) args.push("--skip-emptied");
+    return args;
+  },
+};
+
 export const jjTools = [
   jjStatus,
   jjDiff,
@@ -389,4 +536,6 @@ export const jjTools = [
   jjCommit,
   jjNew,
   jjSquash,
+  jjRestore,
+  jjRebase,
 ];
