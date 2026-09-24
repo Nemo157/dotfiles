@@ -5,6 +5,12 @@ import {
   type StructuredCliToolDef,
 } from "./shared";
 
+// Appended to the description of every tool that rewrites the repo, since
+// concurrent jj operations race and produce divergent operations/commits.
+const NO_PARALLEL_NOTE =
+  " Modifies the repository: never run in parallel with other jj tool " +
+  "calls; wait for each to finish before starting the next.";
+
 // jj-status --------------------------------------------------------------
 
 const jjStatusParams = Type.Object({});
@@ -178,7 +184,8 @@ const jjDescribe: StructuredCliToolDef<typeof jjDescribeParams> = {
     "Set a revision's description without closing it off; defaults to `@`. " +
     "Use only to retitle a non-@ revision \u2014 prefer `jj-commit` for the " +
     "working copy, since `jj-describe` leaves `@` open and later edits pile " +
-    "onto it.",
+    "onto it." +
+    NO_PARALLEL_NOTE,
   parameters: jjDescribeParams,
   buildArgs(p) {
     // `-m` on its own keeps jj non-interactive; `--no-edit` is a separate
@@ -214,7 +221,8 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
   description:
     "Commit the working copy with the given description and start a fresh " +
     "empty `@` on top. The default tool for 'commit what I just did': it " +
-    "seals the revision so later edits land in a new one.",
+    "seals the revision so later edits land in a new one." +
+    NO_PARALLEL_NOTE,
   parameters: jjCommitParams,
   buildArgs(p) {
     const args: string[] = ["commit", "-m", p.message];
@@ -222,6 +230,76 @@ const jjCommit: StructuredCliToolDef<typeof jjCommitParams> = {
     if (paths.length > 0) {
       args.push("--", ...paths);
     }
+    return args;
+  },
+};
+
+// jj-new ----------------------------------------------------------------
+
+const jjNewParams = Type.Object({
+  revisions: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Parent revision(s) of the new change; several make a merge. " +
+        "Defaults to `@`. Cannot be combined with `insertAfter`/" +
+        "`insertBefore`.",
+    }),
+  ),
+  insertAfter: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Insert the new change after these revision(s) (-A), rebasing " +
+        "their children onto it. Combinable with `insertBefore`.",
+    }),
+  ),
+  insertBefore: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Insert the new change before these revision(s) (-B), rebasing " +
+        "them onto it. Combinable with `insertAfter`.",
+    }),
+  ),
+  message: Type.Optional(
+    Type.String({
+      description: "Description for the new change (-m <message>).",
+    }),
+  ),
+  noEdit: Type.Optional(
+    Type.Boolean({
+      description:
+        "Create the change without making it the working copy (--no-edit).",
+    }),
+  ),
+});
+
+const jjNew: StructuredCliToolDef<typeof jjNewParams> = {
+  name: "jj-new",
+  label: "jj new",
+  command: "jj",
+  description:
+    "Create a new empty change and (unless `noEdit`) make it the working " +
+    "copy `@`. Use it to move around history: `jj-new` on top of an earlier " +
+    "or conflicted revision, edit files, then `jj-squash` into the parent " +
+    "to amend it (descendants rebase automatically). With `insertAfter`/" +
+    "`insertBefore` it adds a new commit into the middle of a stack." +
+    NO_PARALLEL_NOTE,
+  parameters: jjNewParams,
+  buildArgs(p) {
+    const revisions = asStringArray(p.revisions);
+    const after = asStringArray(p.insertAfter);
+    const before = asStringArray(p.insertBefore);
+    if (revisions.length > 0 && after.length + before.length > 0) {
+      throw new Error(
+        "jj-new: `revisions` cannot be combined with `insertAfter`/" +
+          "`insertBefore`.",
+      );
+    }
+    const args: string[] = ["new"];
+    for (const r of after) args.push("-A", r);
+    for (const r of before) args.push("-B", r);
+    if (p.message !== undefined) args.push("-m", p.message);
+    if (p.noEdit) args.push("--no-edit");
+    if (revisions.length > 0) args.push("--", ...revisions);
     return args;
   },
 };
@@ -275,7 +353,8 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
     "Squash changes from one revision into another. Defaults to squashing " +
     "the working copy into its parent; narrow with `from`/`into` and " +
     "`paths`. " +
-    "Set exactly one of `message` or `useDestinationMessage`.",
+    "Set exactly one of `message` or `useDestinationMessage`." +
+    NO_PARALLEL_NOTE,
   parameters: jjSquashParams,
   buildArgs(p) {
     const args: string[] = ["squash"];
@@ -308,5 +387,6 @@ export const jjTools = [
   jjShow,
   jjDescribe,
   jjCommit,
+  jjNew,
   jjSquash,
 ];
