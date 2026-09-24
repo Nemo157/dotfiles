@@ -134,7 +134,6 @@ in
         "${./extensions/file-tools}/index.ts"
         "${./extensions/file-upload}/index.ts"
         "${./extensions/edit-toggle}/index.ts"
-        "${./extensions/cache-ttl}/index.ts"
         "${./extensions/local-agents}/index.ts"
         "${./extensions/system-details}/index.ts"
         "${./extensions/current-date}/index.ts"
