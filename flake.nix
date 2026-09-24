@@ -123,6 +123,31 @@
           unstable = import nixpkgs-unstable {
             inherit system;
             config.allowUnfree = true;
+            overlays = [
+              (final: prev: {
+                pi-coding-agent = prev.pi-coding-agent.overrideAttrs rec {
+                  version = "0.87.1";
+
+                  src = final.fetchFromGitHub {
+                    owner = "earendil-works";
+                    repo = "pi";
+                    tag = "v${version}";
+                    hash = "sha256-GUhlq6t+l6iiViOZ0bkV28v3ZDqcLvEwpZpYZ5JAyDk=";
+                  };
+
+                  npmDeps = final.fetchNpmDeps {
+                    inherit src;
+                    name = "${final.pi-coding-agent.name}-npm-deps";
+                    hash = "sha256-JBIYoP2vvRNz1HONNvDJ1U3c+nmCJ7/VgNthRTkrkIA=";
+                  };
+
+                  modelData = final.fetchurl {
+                    url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${final.pi-coding-agent.version}.tgz";
+                    hash = "sha256-NbRDLyfMJmX4a+67mvajmxJRlwiDwwRL2L5PToxzHKA=";
+                  };
+                };
+              })
+            ];
           };
           home-manager = home-manager.packages.${system}.home-manager;
         })

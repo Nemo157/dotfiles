@@ -41,6 +41,7 @@
   programs.pi = {
     settings = {
       enabledModels = [
+        "claude-opus-5-5"
         "claude-opus-5"
         "claude-opus-4-8"
         "claude-sonnet-5"
@@ -50,7 +51,7 @@
     };
 
     # Small model backing the web-fetch extension's optional `prompt` query.
-    extensionSettings.web-fetch.model = "openrouter/deepseek/deepseek-v4-flash";
+    extensionSettings.web-fetch.model = "claude-sonnet-5";
   };
 
   home.packages = with pkgs; [
