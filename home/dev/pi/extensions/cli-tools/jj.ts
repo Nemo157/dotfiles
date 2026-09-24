@@ -258,6 +258,13 @@ const jjSquashParams = Type.Object({
       description: "Keep the source revision even if it becomes empty.",
     }),
   ),
+  paths: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Paths to squash (relative to the working directory); other changes " +
+        "stay in the source revision. Omit to squash everything.",
+    }),
+  ),
 });
 
 const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
@@ -266,7 +273,8 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
   command: "jj",
   description:
     "Squash changes from one revision into another. Defaults to squashing " +
-    "the working copy into its parent; narrow with `from`/`into`. " +
+    "the working copy into its parent; narrow with `from`/`into` and " +
+    "`paths`. " +
     "Set exactly one of `message` or `useDestinationMessage`.",
   parameters: jjSquashParams,
   buildArgs(p) {
@@ -285,6 +293,10 @@ const jjSquash: StructuredCliToolDef<typeof jjSquashParams> = {
       args.push("--use-destination-message");
     }
     if (p.keepEmptied) args.push("--keep-emptied");
+    const paths = asStringArray(p.paths);
+    if (paths.length > 0) {
+      args.push("--", ...paths);
+    }
     return args;
   },
 };
