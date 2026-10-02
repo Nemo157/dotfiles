@@ -20,7 +20,7 @@ wallpaper() {
 }
 
 get-monitors() {
-  niri msg -j outputs | jq -r 'keys.[] | "\(false) \(.)"'
+  niri msg -j outputs | jq -r '.[] | select (.current_mode) | "\(false) \(.name)"'
 }
 
 get-monitors | while read -r solitary monitor
