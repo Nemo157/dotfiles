@@ -94,7 +94,9 @@ const jjDiff: StructuredCliToolDef<typeof jjDiffParams> = {
 const jjLogParams = Type.Object({
   revisions: Type.Optional(
     Type.String({
-      description: "Revset to show (-r <revset>). Defaults to jj's default.",
+      description:
+        "Revset to show (-r <revset>). Defaults to `trunk()..@` (the current " +
+        "stack), hiding unrelated sibling branches.",
     }),
   ),
   limit: Type.Optional(
@@ -126,11 +128,13 @@ const jjLog: StructuredCliToolDef<typeof jjLogParams> = {
   name: "jj-log",
   label: "jj log",
   command: "jj",
-  description: "Show recent jj commits. Defaults to the last 20 entries.",
+  description:
+    "Show recent jj commits. Defaults to the last 20 entries of the current " +
+    "stack (`trunk()..@`).",
   parameters: jjLogParams,
   buildArgs(p) {
     const args: string[] = ["log", "--limit", String(p.limit ?? 20)];
-    if (p.revisions !== undefined) args.push("-r", p.revisions);
+    args.push("-r", p.revisions ?? "trunk()..@");
     if (p.reversed) args.push("--reversed");
     if (p.noGraph) args.push("--no-graph");
     if (p.stat) args.push("--stat");
