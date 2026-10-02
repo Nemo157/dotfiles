@@ -142,25 +142,6 @@
         fetch = ["origin" "upstream"];
         private-commits = "private()";
       };
-
-      fix.tools = {
-        rustfmt = {
-          command = ["rustfmt" "--edition" "2021"];
-          patterns = ["glob:**/*.rs"];
-        };
-        taplo = {
-          command = ["taplo" "fmt" "--stdin-filepath=$path" "-"];
-          patterns = ["glob:**/*.toml"];
-        };
-        prettier = {
-          command = ["pnpm" "exec" "prettier" "--stdin-filepath=$path"];
-          patterns = map (ext: "glob:**/*.${ext}") (lib.splitString " " "js mjs cjs jsx ts tsx");
-        };
-        terraform = {
-          command = ["terraform" "fmt" "-"];
-          patterns = ["glob:**/*.tf" "glob:**/*.tfvars" "glob:**/*.tftest.hcl"];
-        };
-      };
     };
   };
 }
