@@ -128,7 +128,18 @@
         "private()" = "description('private:*')";
       };
 
+      fileset-aliases = {
+        "LOCKFILES" = "**/Cargo.lock | **/flake.lock | **/package-lock.json | **/deno.lock";
+        "DEFAULT-GENERATED" = "LOCKFILES";
+        "GENERATED" = "DEFAULT-GENERATED | LOCAL-GENERATED";
+        "not:x" = "~x";
+
+        # to be overridden per-repo
+        "LOCAL-GENERATED" = "none()";
+      };
+
       aliases = {
+        sh = ["util" "exec" "--" "bash" "-c" ''jj log --no-graph -p -T builtin_log_detailed -r "''${1:-@}" -- not:GENERATED'' "jj-sh"];
         lo = ["log" "-r" "current"];
         f = ["git" "fetch" "--all-remotes"];
         redundancy-reduction = ["util" "exec" "--" (lib.getExe (pkgs.writeShellApplication {
