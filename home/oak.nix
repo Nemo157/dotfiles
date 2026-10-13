@@ -51,7 +51,7 @@
     };
 
     # Small model backing the web-fetch extension's optional `prompt` query.
-    extensionSettings.web-fetch.model = "claude-sonnet-5";
+    extensionSettings.web-fetch.model = "anthropic/claude-sonnet-5";
   };
 
   home.packages = with pkgs; [

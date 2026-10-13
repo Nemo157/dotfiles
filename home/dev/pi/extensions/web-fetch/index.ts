@@ -73,6 +73,8 @@ interface WebFetchDetails {
   fromCache: boolean;
   /** One-line condensation of the prompt answer, for the collapsed view. */
   answerSummary?: string;
+  /** Why the prompt query failed, if it did (content is returned instead). */
+  promptError?: string;
 }
 
 /** Details attached to partial (streaming) updates, driving renderResult. */
@@ -316,6 +318,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           : undefined;
 
       // ── Optional prompt query over the content ───────────────────────────
+      let failNote = "";
       if (question) {
         try {
           emitProgress({ url: rawUrl, mode, phase: "querying", startedAt });
@@ -354,9 +357,9 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           return textResult(text, details);
         } catch (err) {
           // Fall through to returning the content itself on model failure.
-          const failNote =
-            `\n\n[web-fetch: prompt query failed: ${(err as Error).message}]`;
-          primaryText = primaryText + failNote;
+          details.promptError = (err as Error).message;
+          failNote =
+            `\n\n[web-fetch: prompt query failed: ${details.promptError}]`;
         }
       }
 
@@ -368,7 +371,8 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}).\n` +
           `${payloadKind === "extract" ? "Extracted" : "Raw"} text is ${bytes} bytes ` +
           `(> ${config.maxInlineBytes} inline limit), saved to:\n${pathForContent}\n\n` +
-          `Read that file (use offset/limit for large files) to view the content.`;
+          `Read that file (use offset/limit for large files) to view the content.` +
+          failNote;
         details.inlined = false;
         return textResult(summary, details);
       }
@@ -378,7 +382,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         `${meta.finalUrl} (HTTP ${meta.status})` +
         (details.title ? ` — ${details.title}` : "") +
         `\n[${payloadKind}, ${bytes} bytes; cached at ${basename(pathForContent)}]\n\n`;
-      return textResult(heading + primaryText, details);
+      return textResult(heading + primaryText + failNote, details);
     },
 
     // ── Custom TUI display ───────────────────────────────────────────────
@@ -451,6 +455,9 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       if (d.title) summary += "\n" + theme.fg("accent", d.title);
       // Condensed prompt answer, shown in both collapsed and expanded views.
       if (d.answerSummary) summary += "\n" + theme.fg("text", d.answerSummary);
+      if (d.promptError) {
+        summary += "\n" + theme.fg("error", `prompt failed: ${d.promptError}`);
+      }
 
       if (!opts.expanded) {
         const hint = theme.fg(
