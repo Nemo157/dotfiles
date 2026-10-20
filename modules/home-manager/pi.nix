@@ -25,15 +25,26 @@ let
     referenceLinks;
 
   refDirsBlock = ''
-
     Self-reference directories readable outside the working tree:
     ${lib.concatMapStringsSep "\n"
       (name: "- ${configDir}/reference/${name}")
       (lib.attrNames referenceLinksUnique)}
   '';
 
-  pi-wrapped = pkgs.symlinkJoin {
-    pname = "pi-coding-agent-wrapped";
+  # `--append-system-prompt` disables pi's discovery of APPEND_SYSTEM.md, so
+  # when wrapper-only prose is set, the on-disk file is passed back in
+  # explicitly alongside it.
+  wrapperArgs = cfg.extraArgs ++ lib.optionals (cfg.wrapperAppendSystem != "") [
+    "--append-system-prompt"
+    "${pkgs.writeText "pi-wrapper-append-system.md" cfg.wrapperAppendSystem}"
+    "--append-system-prompt"
+    "${configDir}/APPEND_SYSTEM.md"
+  ];
+
+  # Shared environment only; no restricting flags. Exposed directly as
+  # `unrestrictedBinName` and wrapped again below for the main `pi`.
+  pi-base = pkgs.symlinkJoin {
+    pname = "pi-coding-agent-base";
     inherit (cfg.package) version;
     paths = [ cfg.package ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
@@ -42,11 +53,24 @@ let
         wrapProgram "$bin" \
           --set-default PI_CODING_AGENT_DIR "${configDir}" \
           --set-default PI_SKIP_VERSION_CHECK 1 \
-          --set-default PI_OFFLINE 1 ${
-            lib.optionalString (cfg.extraArgs != [ ])
-              "--add-flags ${lib.escapeShellArg (lib.concatStringsSep " " cfg.extraArgs)}"
-          }
+          --set-default PI_OFFLINE 1
       done
+    '';
+  };
+
+  pi-wrapped = pkgs.symlinkJoin {
+    pname = "pi-coding-agent-wrapped";
+    inherit (cfg.package) version;
+    paths = [ pi-base ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm $out/bin/pi
+      makeWrapper ${pi-base}/bin/pi $out/bin/pi ${
+        lib.optionalString (wrapperArgs != [ ])
+          "--add-flags ${lib.escapeShellArg (lib.concatStringsSep " " wrapperArgs)}"
+      }
+    '' + lib.optionalString (cfg.unrestrictedBinName != null) ''
+      ln -s ${pi-base}/bin/pi $out/bin/${lib.escapeShellArg cfg.unrestrictedBinName}
     '';
   };
 
@@ -101,6 +125,33 @@ in
       '';
     };
 
+    unrestrictedBinName = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "pi-bash";
+      description = ''
+        If set, also install a binary of this name that shares the
+        wrapper's environment (config dir etc.) but omits `extraArgs` and
+        `wrapperAppendSystem`, e.g. to run a session with bash enabled.
+      '';
+    };
+
+    wrapperAppendSystem = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = ''
+        Prose appended to the system prompt via `--append-system-prompt`
+        baked into the wrapper, rather than written to APPEND_SYSTEM.md.
+        Use for instructions tied to `extraArgs` (e.g. "no bash" alongside
+        `--exclude-tools bash`) so that `unrestrictedBinName` drops them
+        too.
+
+        Because the flag disables pi's APPEND_SYSTEM.md discovery, the
+        wrapper also passes pi/APPEND_SYSTEM.md explicitly; a project's
+        `.pi/APPEND_SYSTEM.md` is therefore not picked up when this is set.
+      '';
+    };
+
     extensionSettings = lib.mkOption {
       type = lib.types.attrsOf (lib.types.attrsOf lib.types.anything);
       default = { };
@@ -149,7 +200,8 @@ in
     xdg.configFile = {
       "pi/settings.json".text = builtins.toJSON cfg.settings;
 
-      "pi/APPEND_SYSTEM.md".text = cfg.appendSystem + refDirsBlock;
+      "pi/APPEND_SYSTEM.md".text = lib.concatStringsSep "\n"
+        (lib.filter (s: s != "") [ cfg.appendSystem refDirsBlock ]);
     } // (lib.mapAttrs'
       (name: path: lib.nameValuePair "pi/reference/${name}" { source = path; })
       referenceLinksUnique) // {

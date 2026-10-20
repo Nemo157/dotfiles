@@ -103,6 +103,10 @@ in
     # verbatim, and every turn is byte-identical.
     extraArgs = [ "--exclude-tools" "bash" ];
 
+    # Same setup without `extraArgs`/`wrapperAppendSystem`: bash enabled,
+    # gated by `bash = "ask"` below.
+    unrestrictedBinName = "pi-bash";
+
     settings = {
       # Must stay false: pi-contextimate (pine-of-glass) anchors its panel on the
       # startup resource listing (`[Context]`/`[Skills]`/... rows), which
@@ -145,8 +149,9 @@ in
       ];
     };
 
-    appendSystem = ''
-
+    # Lives in the wrapper next to `--exclude-tools bash`, so running the
+    # `pi-bash` (bash enabled) doesn't tell the model it has no shell.
+    wrapperAppendSystem = ''
       ## Pi Setup Notes
 
       You have no bash/shell access here: the `bash` tool is denied and a
@@ -219,8 +224,10 @@ in
         # Outbound file/data upload (exfiltration channel): always confirm.
         upload = "ask";
 
-        # No direct bash access, instead specific local tools registered by the cli-tools extension
-        bash = "deny";
+        # The wrapper excludes bash (`--exclude-tools bash`) in favour of the
+        # cli-tools wrappers; this only applies to `pi-bash`
+        # (`unrestrictedBinName`).
+        bash = "ask";
 
         # Read-only CLI wrappers from ./extensions/cli-tools.
         jj-status = "allow";
