@@ -172,12 +172,12 @@ const FAILURE_TAIL_LINES = 50;
  */
 export interface NixFlakeCheckExtraDetails {
   flakeCheck: {
-    mode: "list" | "run";
+    mode: "list" | "run" | "all";
     /** Available check names (list mode). */
     checks?: string[];
     /** The check that was run (run mode). */
     check?: string;
-    /** Whether the run succeeded (run mode). */
+    /** Whether the run succeeded (run/all mode). */
     passed?: boolean;
     /** Derivation path of the run check (run mode, success). */
     drvPath?: string;
@@ -203,6 +203,13 @@ const flakeCheckParams = Type.Object({
   check: Type.Optional(
     Type.String({
       description: "Name of the check to run; omit to list available checks.",
+    }),
+  ),
+  all: Type.Optional(
+    Type.Boolean({
+      description:
+        "Run all checks via `nix flake check` (also evaluates every flake " +
+        "output). Cannot be combined with `check`.",
     }),
   ),
 });
@@ -257,6 +264,11 @@ function makeFlakeCheckTool(
     if (fc.mode === "list") {
       const n = fc.checks?.length ?? 0;
       summary = theme.fg("success", `${n} check${n === 1 ? "" : "s"}`);
+    } else if (fc.mode === "all" && fc.passed) {
+      summary = theme.fg("success", "all checks passed");
+    } else if (fc.mode === "all") {
+      summary = "";
+      status = theme.fg("error", "flake check failed");
     } else if (fc.passed) {
       summary = theme.fg("success", `${fc.check} passed`);
       outputLines = COLLAPSED_INLINE_MAX_LINES + 1;
@@ -274,13 +286,27 @@ function makeFlakeCheckTool(
     command: "nix",
     partialLabel: "Checking…",
     description:
-      "List or run the flake's checks. Omit `check` to list check names. On " +
-      "failure returns the tail of the build log (with the failing drv path " +
-      "for nix-log); on success the drv and out store paths.",
+      "List or run the flake's checks. Omit `check` to list check names, or " +
+      "set `all` to run every check. On failure returns the tail of the " +
+      "build log (with the failing drv path for nix-log); on success of a " +
+      "single check the drv and out store paths.",
     // Checks may compile/build; allow plenty of time.
     timeoutMs: 600_000,
     parameters: flakeCheckParams,
     buildArgs(p) {
+      if (p.all) {
+        if (p.check !== undefined) {
+          throw new Error("`all` and `check` are mutually exclusive");
+        }
+        return [
+          "flake",
+          "check",
+          "--print-build-logs",
+          "--option",
+          "log-lines",
+          "0",
+        ];
+      }
       if (p.check === undefined) {
         return [
           "eval",
@@ -304,17 +330,38 @@ function makeFlakeCheckTool(
     // Present the user's intent; hide machine-oriented flags (--json,
     // --no-link, --print-build-logs, --option log-lines 0).
     displayArgs(p) {
+      if (p.all) return ["flake", "check"];
       if (p.check === undefined) {
         return ["eval", `.#checks.${system}`, "--apply", "builtins.attrNames"];
       }
       return ["build", `.#checks.${system}.${p.check}`];
     },
     postProcess(raw) {
-      const p = raw.params as { check?: string };
+      const p = raw.params as { check?: string; all?: boolean };
       const failed =
         raw.timedOut ||
         raw.signal !== null ||
         (raw.exitCode !== null && raw.exitCode !== 0);
+
+      // All mode.
+      if (p.all) {
+        if (failed) {
+          const tail = tailLines(raw.stderr, FAILURE_TAIL_LINES);
+          const header = raw.timedOut
+            ? "flake check timed out"
+            : `flake check failed (exit ${raw.exitCode})`;
+          return {
+            content: tail.length > 0 ? `${header}\n\n${tail}` : header,
+            details: { flakeCheck: { mode: "all", passed: false } },
+            isError: true,
+          };
+        }
+        return {
+          content: "all checks passed",
+          details: { flakeCheck: { mode: "all", passed: true } },
+          isError: false,
+        };
+      }
 
       // List mode.
       if (p.check === undefined) {
