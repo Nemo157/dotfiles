@@ -57,6 +57,13 @@
 //   - Their single file target is named `path`, so the built-in
 //     `input.path` extractor applies the shared `path` deny globs and the
 //     `external_directory` gate automatically, exactly like rm/mkdir.
+//   - Off-by-one guard: line numbers alone are error-prone (the model
+//     counts lines it read without numbering), so every range/anchor line
+//     must be accompanied by its expected text (`startText`/`endText`/
+//     `lineText`, trimmed-prefix match). A mismatch fails BEFORE mutating
+//     and returns a numbered window around the line so the caller can
+//     retry with the right number. Successful cut/paste results also show
+//     numbered post-change context, since every later line number shifts.
 //   - cut-lines/paste-lines wrap their whole read-modify-write window in
 //     pi's withFileMutationQueue so they can't lose a race against a
 //     parallel built-in edit/write on the same file.
@@ -231,6 +238,8 @@ interface BufferPayload {
 interface RunResult {
   /** One-line human summary, shown in the TUI result row. */
   line: string;
+  /** Extra text for the model only (appended to content, not the TUI row). */
+  detail?: string;
   isError?: boolean;
   buffer?: BufferPayload;
 }
@@ -282,7 +291,14 @@ function registerFileTool<T extends TSchema>(
       const details: FileToolDetails = { line: result.line };
       if (result.buffer) details.buffer = result.buffer;
       return {
-        content: [{ type: "text", text: result.line }],
+        content: [
+          {
+            type: "text",
+            text: result.detail
+              ? `${result.line}\n${result.detail}`
+              : result.line,
+          },
+        ],
         details,
         isError: result.isError ?? false,
       };
@@ -584,6 +600,69 @@ function rangeError(
 }
 
 /**
+ * Whether `actual` matches the caller's expected line text: trimmed prefix
+ * match, with an empty expectation matching only a blank line.
+ */
+function lineMatches(actual: string, expected: string): boolean {
+  const e = expected.trim();
+  const a = actual.trim();
+  return e === "" ? a === "" : a.startsWith(e);
+}
+
+/**
+ * Render 1-indexed inclusive [from, to] (clamped) as numbered lines,
+ * eliding the middle of long ranges.
+ */
+function numberedLines(lines: string[], from: number, to: number): string {
+  const lo = Math.max(1, from);
+  const hi = Math.min(lines.length, to);
+  if (hi < lo) return "  (no lines)";
+  const width = String(hi).length;
+  const fmt = (n: number) => `${String(n).padStart(width)}| ${lines[n - 1]}`;
+  const out: string[] = [];
+  if (hi - lo + 1 > 12) {
+    for (let n = lo; n < lo + 5; n++) out.push(fmt(n));
+    out.push(`${" ".repeat(width)}| … (${hi - lo + 1 - 10} more lines)`);
+    for (let n = hi - 4; n <= hi; n++) out.push(fmt(n));
+  } else {
+    for (let n = lo; n <= hi; n++) out.push(fmt(n));
+  }
+  return out.join("\n");
+}
+
+/**
+ * Check that line `n` (1-indexed) matches `expected`; on mismatch return an
+ * error result showing a numbered window around it, plus any nearby line
+ * that does match (the usual off-by-one).
+ */
+function anchorMismatch(
+  tool: string,
+  label: string,
+  lines: string[],
+  n: number,
+  expected: string,
+): RunResult | undefined {
+  if (lineMatches(lines[n - 1] ?? "", expected)) return undefined;
+  const near: number[] = [];
+  for (let d = 1; d <= 5; d++) {
+    for (const m of [n - d, n + d]) {
+      if (m >= 1 && m <= lines.length && lineMatches(lines[m - 1], expected))
+        near.push(m);
+    }
+  }
+  const hint = near.length
+    ? ` (matches line ${near.join(", ")} — off by ${near[0] - n})`
+    : "";
+  return {
+    line:
+      `${tool}: line ${n} does not match ${label} ${JSON.stringify(expected)}` +
+      `${hint}; nothing was changed`,
+    detail: numberedLines(lines, n - 4, n + 4),
+    isError: true,
+  };
+}
+
+/**
  * Find the most recent copy-lines/cut-lines buffer with the given name by
  * walking the current session branch backwards. Structurally typed against
  * the persisted toolResult entries; tolerates missing/malformed details.
@@ -627,6 +706,16 @@ const lineRangeParams = {
   end: Type.Number({
     description: "Last line to take, 1-indexed inclusive.",
   }),
+  startText: Type.String({
+    description:
+      "Expected content of line `start` (leading part is enough, " +
+      "whitespace-trimmed; \"\" for a blank line). Guards against off-by-one: " +
+      "on mismatch nothing happens and nearby numbered lines are shown.",
+  }),
+  endText: Type.String({
+    description:
+      "Expected content of line `end`, matched like `startText`.",
+  }),
   buffer: Type.String({
     description:
       "Required buffer name. The latest copy-lines/cut-lines to a name " +
@@ -664,6 +753,10 @@ const copyLinesTool: FileToolDef<typeof copyLinesParams> = {
     const f = await readLineFile(abs, raw);
     const err = rangeError("copy-lines", start, end, f.lines.length);
     if (err) return { line: err, isError: true };
+    const bad =
+      anchorMismatch("copy-lines", "startText", f.lines, start, String(params.startText ?? "")) ??
+      anchorMismatch("copy-lines", "endText", f.lines, end, String(params.endText ?? ""));
+    if (bad) return bad;
     const taken = f.lines.slice(start - 1, end);
     return {
       line:
@@ -689,7 +782,8 @@ const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
   description:
     "Cut a 1-indexed inclusive line range out of a file into a named " +
     "buffer (stored in the session history) for later paste-lines. The " +
-    "lines are removed from the file.",
+    "lines are removed from the file. Later line numbers in the file " +
+    "shift up; use the numbered context in the result for follow-ups.",
   parameters: cutLinesParams,
   header(args, theme) {
     const p = typeof args.path === "string" ? args.path : "…";
@@ -713,6 +807,10 @@ const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
       const f = await readLineFile(abs, raw);
       const err = rangeError("cut-lines", start, end, f.lines.length);
       if (err) return { line: err, isError: true };
+      const bad =
+        anchorMismatch("cut-lines", "startText", f.lines, start, String(params.startText ?? "")) ??
+        anchorMismatch("cut-lines", "endText", f.lines, end, String(params.endText ?? ""));
+      if (bad) return bad;
       const taken = f.lines.slice(start - 1, end);
       f.lines.splice(start - 1, taken.length);
       await writeLineFile(abs, f);
@@ -720,6 +818,10 @@ const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
         line:
           `cut ${taken.length} line(s) from ` +
           `${displayPath(ctx.cwd, abs)}:${start}-${end} into buffer '${name}'`,
+        detail:
+          `Lines after ${end} moved up by ${taken.length}; ` +
+          `file now has ${f.lines.length} lines. Context at the cut:\n` +
+          numberedLines(f.lines, start - 3, start + 2),
         buffer: {
           name,
           text: taken.join("\n"),
@@ -742,6 +844,14 @@ const pasteLinesParams = Type.Object({
   }),
   position: Type.Union([Type.Literal("before"), Type.Literal("after")], {
     description: "Insert before or after the reference line.",
+  }),
+  lineText: Type.String({
+    description:
+      "Expected content of the reference line (leading part is enough, " +
+      "whitespace-trimmed; \"\" for a blank line or for line 0). Guards " +
+      "against off-by-one: on mismatch nothing happens and nearby " +
+      "numbered lines are shown. Remember an earlier cut in the same file " +
+      "shifts line numbers.",
   }),
   buffer: Type.String({
     description:
@@ -804,6 +914,16 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
           line: "paste-lines: line 0 is only valid with position 'after'",
           isError: true,
         };
+      if (line > 0) {
+        const bad = anchorMismatch(
+          "paste-lines",
+          "lineText",
+          f.lines,
+          line,
+          String(params.lineText ?? ""),
+        );
+        if (bad) return bad;
+      }
       const index = position === "before" ? line - 1 : line;
       const insert = buf.text.length > 0 ? buf.text.split("\n") : [];
       f.lines.splice(index, 0, ...insert);
@@ -814,6 +934,10 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
         line:
           `pasted ${insert.length} line(s) from buffer '${name}' into ` +
           `${displayPath(ctx.cwd, abs)} ${where}`,
+        detail:
+          `Pasted block is now lines ${index + 1}-${index + insert.length}; ` +
+          `later lines moved down by ${insert.length}. Result:\n` +
+          numberedLines(f.lines, index - 1, index + insert.length + 2),
       };
     });
   },
