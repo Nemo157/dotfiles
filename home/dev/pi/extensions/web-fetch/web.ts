@@ -116,6 +116,21 @@ export function rawExtension(contentType: string, url: string): string {
   return m ? m[1].toLowerCase() : "bin";
 }
 
+/**
+ * Pretty-print JSON bodies (2-space indent) so the cached artifact is
+ * line-oriented and greppable. Returns the body unchanged if it is not JSON
+ * or fails to parse (e.g. NDJSON, truncated responses).
+ */
+export function prettyJson(contentType: string, body: Buffer): Buffer {
+  if (!contentType.includes("json")) return body;
+  try {
+    const parsed: unknown = JSON.parse(body.toString("utf8"));
+    return Buffer.from(JSON.stringify(parsed, null, 2) + "\n", "utf8");
+  } catch {
+    return body;
+  }
+}
+
 export interface Extraction {
   title?: string;
   text: string;

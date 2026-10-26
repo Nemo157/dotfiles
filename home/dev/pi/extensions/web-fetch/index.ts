@@ -5,7 +5,8 @@
 //   extract (default) — download the URL and convert it to readable text.
 //                       HTML is run through Mozilla Readability (over a
 //                       linkedom DOM); other textual types pass through.
-//   raw               — return the body verbatim.
+//   raw               — return the body verbatim (JSON is pretty-printed so
+//                       the cached file is greppable).
 //
 // TUI display: the tool renders a custom header (`renderCall`) showing the
 // URL, mode, refresh, and prompt, and a custom result view (`renderResult`)
@@ -47,6 +48,7 @@ import {
   fetchUrl,
   isHtml,
   isTextual,
+  prettyJson,
   rawExtension,
 } from "./web";
 import { runPrompt, summarizeAnswer } from "./model";
@@ -233,7 +235,9 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         }
         const ext = rawExtension(fetched.contentType, fetched.finalUrl);
         const rawFile = `raw.${ext}`;
-        cache.writeBytes(key, rawFile, fetched.body);
+        // JSON is stored pretty-printed so the cache file is greppable.
+        const body = prettyJson(fetched.contentType, fetched.body);
+        cache.writeBytes(key, rawFile, body);
         meta = {
           url: rawUrl,
           finalUrl: fetched.finalUrl,
@@ -242,9 +246,9 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           mode,
           rawFile,
           fetchedAt: Date.now(),
-          rawBytes: fetched.body.byteLength,
+          rawBytes: body.byteLength,
         };
-        rawBody = fetched.body;
+        rawBody = body;
         fromCache = false;
       }
 
