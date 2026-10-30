@@ -234,9 +234,9 @@
   };
 
   # programs.zsh.profileExtra = lib.mkAfter ''
-  #   if [[ ! -v WAYLAND_DISPLAY ]] && [[ ! -v TMUX ]] && [[ "$XDG_VTNR" -eq 1 ]]
+  #   if [[ -o interactive ]] && [[ ! -v WAYLAND_DISPLAY ]] && [[ ! -v TMUX ]] && [[ "$XDG_VTNR" -eq 1 ]]
   #   then
-  #     exec niri-session
+  #     exec niri-session -l
   #   fi
   # '';
 }
