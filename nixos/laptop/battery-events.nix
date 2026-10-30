@@ -13,7 +13,29 @@ in {
     };
   };
 
+  # Devices that are already plugged when the manager starts don't retroactively
+  # start their wanted units, so check at startup and start ac.target manually.
+  systemd.services.ac-coldplug = {
+    description = "Start ac.target if already on AC power at boot";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecCondition = "${systemctl} is-active --quiet ac.device";
+      ExecStart = "${systemctl} start --no-block ac.target";
+    };
+  };
+
   systemd.user.services = {
+    ac-coldplug = {
+      description = "Start ac.target if already on AC power at login";
+      wantedBy = [ "default.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecCondition = "${systemctl} --user is-active --quiet ac.device";
+        ExecStart = "${systemctl} --user start --no-block ac.target";
+      };
+    };
+
     inhibit-suspend-on-ac = {
       path = [ pkgs.coreutils pkgs.systemd ];
       script = ''
