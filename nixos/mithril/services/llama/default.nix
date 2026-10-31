@@ -5,6 +5,15 @@
 
   services.llama-swap = {
     enable = true;
+
+    package = pkgs.unstable.llama-swap.overrideAttrs (final: prev: {
+      passthru = prev.passthru // {
+        ui = prev.passthru.ui.overrideAttrs (uiPrev: {
+          patches = (uiPrev.patches or [ ]) ++ [ ./llama-swap-ui-erase-line.patch ];
+        });
+      };
+    });
+
     listenAddress = "127.0.0.1";
     port = 8083;
 

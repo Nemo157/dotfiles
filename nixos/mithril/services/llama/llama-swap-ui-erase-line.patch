@@ -1,0 +1,63 @@
+diff --git a/src/components/LogPanel.svelte b/src/components/LogPanel.svelte
+index 3167bbe..21e0717 100644
+--- a/src/components/LogPanel.svelte
++++ b/src/components/LogPanel.svelte
+@@ -58,13 +58,56 @@
+     }
+   });
+ 
++  // Backends that draw progress bars redraw a line in place with \r (cursor
++  // to start of line) and ESC [ K (erase in line). A <pre> can't interpret
++  // those, so replay them per line the way a terminal would.
++  const ERASE_IN_LINE = /\x1b\[([012]?)K/y;
++
++  function renderLine(line: string): string {
++    if (!line.includes("\r") && !line.includes("\x1b[")) return line;
++    let buf: string[] = [];
++    let cursor = 0;
++    for (let i = 0; i < line.length; i++) {
++      const ch = line[i];
++      if (ch === "\r") {
++        cursor = 0;
++        continue;
++      }
++      if (ch === "\x1b") {
++        ERASE_IN_LINE.lastIndex = i;
++        const m = ERASE_IN_LINE.exec(line);
++        if (m) {
++          switch (m[1]) {
++            case "":
++            case "0": // cursor to end of line
++              buf.length = Math.min(buf.length, cursor);
++              break;
++            case "1": // start of line through cursor
++              for (let j = 0; j <= cursor && j < buf.length; j++) buf[j] = " ";
++              break;
++            case "2": // whole line
++              buf = [];
++              break;
++          }
++          i += m[0].length - 1;
++          continue;
++        }
++      }
++      while (buf.length < cursor) buf.push(" ");
++      buf[cursor++] = ch;
++    }
++    return buf.join("");
++  }
++
++  let renderedLogs = $derived(logData.split("\n").map(renderLine).join("\n"));
++
+   let filteredLogs = $derived.by(() => {
+-    if (!filterRegex) return logData;
++    if (!filterRegex) return renderedLogs;
+     try {
+       const regex = new RegExp(filterRegex, "i");
+-      return logData.split("\n").filter((line) => regex.test(line)).join("\n");
++      return renderedLogs.split("\n").filter((line) => regex.test(line)).join("\n");
+     } catch {
+-      return logData;
++      return renderedLogs;
+     }
+   });
