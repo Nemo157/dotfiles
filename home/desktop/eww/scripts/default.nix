@@ -97,4 +97,13 @@
     ];
     source = ./eww-listenbrainz.sh;
   };
+
+  scripts.eww-volume-mixer = {
+    runtimeInputs = with pkgs; [
+      mixxc
+      niri
+      procps
+    ];
+    source = ./eww-volume-mixer.sh;
+  };
 }

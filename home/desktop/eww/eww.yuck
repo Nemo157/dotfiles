@@ -219,6 +219,8 @@
       (box :hexpand true)
       (btn :icon "󰎈" :onclick "rand-album")
       (box :hexpand true)
+      (btn :icon "󰕾" :onclick "eww-volume-mixer")
+      (box :hexpand true)
     )
   )
 )
