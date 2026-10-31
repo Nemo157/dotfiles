@@ -3,8 +3,10 @@ op="$([ "$scheme" = "dark" ] && echo -le || echo -ge)"
 
 echo "color-scheme $scheme => op $op" >&2
 
+read -r -a fd_filter <<< "${WALLPAPER_FD_ARGS:-}"
+
 wallpaper() {
-  fd -Ltf . "${WALLPAPER_DIR:-$HOME/Wallpapers}" | shuf -n10 | while read -r img
+  fd -Ltf . "${WALLPAPER_DIR:-$HOME/Wallpapers}" "${fd_filter[@]}" | shuf -n10 | while read -r img
   do
     echo "$img" >&2
     median="$(magick "$img"'[0]' -format '%[fx:trunc(median * 100)]' info:)"
