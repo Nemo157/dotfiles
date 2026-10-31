@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, osConfig, ... }:
 let
   xr-chaperone-idle = pkgs.writeShellApplication {
     name = "xr-chaperone-idle";
@@ -31,6 +31,8 @@ let
   xrizer = pkgs.xrizer.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./xrizer-knuckles-axis3.patch ];
   });
+
+  monado = osConfig.services.monado.package;
 in
 {
   home.packages = [
@@ -43,14 +45,23 @@ in
   ];
 
   home.file = {
+    # These are required for monado to find the flatpak steam lighthouse binaries.
     ".steam/root".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
     ".steam/steam".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
-    ".var/app/com.valvesoftware.Steam/config/openxr/1/active_runtime.json".source = "${pkgs.monado}/share/openxr/1/openxr_monado.json";
-    ".var/app/com.valvesoftware.Steam/config/openvr/openvrpaths.vrpath".text = ''
-      {
-        "version": 1,
-        "runtime": ["${xrizer}/lib/xrizer"]
-      }
+
+    # If SteamVR is running, then use that, otherwise connect to monado via xrizer.
+    # Needs to be applied to individual games:
+    #     ~/.local/bin/vr-launch %command%
+    ".var/app/com.valvesoftware.Steam/.local/bin/vr-launch".source = pkgs.writeShellScript "vr-launch" ''
+      STEAMVR="$HOME/.local/share/Steam/steamapps/common/SteamVR"
+      if ${pkgs.procps}/bin/pgrep -x vrserver >/dev/null; then
+        export XR_RUNTIME_JSON="$STEAMVR/steamxr_linux64.json"
+      else
+        export VR_OVERRIDE="${xrizer}/lib/xrizer"
+        export XR_RUNTIME_JSON="${monado}/share/openxr/1/openxr_monado.json"
+        export PRESSURE_VESSEL_FILESYSTEMS_RW="$XDG_RUNTIME_DIR/monado_comp_ipc"
+      fi
+      exec "$@"
     '';
   };
 
