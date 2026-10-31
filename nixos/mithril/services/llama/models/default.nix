@@ -2,6 +2,7 @@
   imports = [
     ./gemma-4.nix
     ./qwen-3.8.nix
+    ./qwen-3.8-flash-next.nix
     ./audio-cpp.nix
     ./stable-diffusion.nix
   ];
