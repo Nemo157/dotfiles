@@ -57,6 +57,12 @@
       device = "/dev/disk/by-uuid/28C9-03CC";
       fsType = "vfat";
     };
+
+    "/mnt/data" = {
+      device = "/dev/disk/by-uuid/c625a094-95d0-4c33-85ed-0647e7544ac6";
+      fsType = "ext4";
+      options = ["noatime" "nofail"];
+    };
   };
 
   swapDevices = [
