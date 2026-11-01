@@ -60,6 +60,12 @@ in
       description = "Polling interval in seconds";
     };
 
+    rampSkipAfter = lib.mkOption {
+      type = lib.types.int;
+      default = 10;
+      description = "Number of consecutive polling cycles a display must be unavailable before ramping is skipped and brightness jumps straight to the target upon return";
+    };
+
   };
 
   config = lib.mkIf cfg.enable {
@@ -84,6 +90,7 @@ in
           "BRIGHTNESS_MIN=${toString cfg.brightnessMin}"
           "BRIGHTNESS_MAX=${toString cfg.brightnessMax}"
           "INTERVAL=${toString cfg.interval}"
+          "RAMP_SKIP_AFTER=${toString cfg.rampSkipAfter}"
           "PATH=${
             lib.makeBinPath [
               pkgs.ddcutil

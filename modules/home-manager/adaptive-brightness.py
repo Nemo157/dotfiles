@@ -63,8 +63,10 @@ def main():
     brightness_min = int(os.environ["BRIGHTNESS_MIN"])
     brightness_max = int(os.environ["BRIGHTNESS_MAX"])
     interval = int(os.environ["INTERVAL"])
+    ramp_skip_after = int(os.environ.get("RAMP_SKIP_AFTER", "0"))
 
     current = {}
+    missing = {}
 
     while True:
         try:
@@ -79,6 +81,10 @@ def main():
             )
             displays = detect_displays()
 
+            for d in list(missing):
+                if d not in displays:
+                    missing[d] += 1
+
             if not displays:
                 print("No displays detected, skipping", file=sys.stderr)
             else:
@@ -86,10 +92,15 @@ def main():
                     cur = current.get(d)
                     if cur is None:
                         cur = target
+                    elif (
+                        ramp_skip_after and missing.get(d, 0) > ramp_skip_after
+                    ):
+                        cur = target
                     elif cur < target:
                         cur += 1
                     elif cur > target:
                         cur -= 1
+                    missing[d] = 0
 
                     if cur != current.get(d):
                         print(
