@@ -193,6 +193,8 @@
     packages = import ./packages { inherit pkgs; };
     legacyPackages = pkgs;
 
+    formatter = pkgs.nixfmt-tree;
+
     devShells = import ./shells { inherit pkgs; } // {
       local = pkgs.mkShell {
         buildInputs = [
@@ -209,6 +211,15 @@
       (prefixAttrs "packages" self.outputs.packages.${system})
       // (prefixAttrs "shells" self.outputs.devShells.${system})
       // {
+        formatting = pkgs.runCommand "check-formatting" {
+          nativeBuildInputs = [ self.outputs.formatter.${system} pkgs.writableTmpDirAsHomeHook ];
+        } ''
+          cp -r --no-preserve=mode ${self} source
+          cd source
+          treefmt --ci --tree-root . --walk filesystem
+          touch $out
+        '';
+
         pi-extensions = pkgs.callPackage ./home/dev/pi/typecheck.nix {
           pi-coding-agent = pkgs.unstable.pi-coding-agent;
         };
