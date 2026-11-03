@@ -1,10 +1,9 @@
-sep=$'\f'
-format="{{status}}$sep{{position}}"
+format=$'{{status}}\f{{position}}'
 script='
-  . / $sep
+  . / "\f"
   | {
       state: (.[0] | ascii_downcase),
       position: (.[1] | tonumber / 1000000),
     }
 '
-playerctl -p mpd metadata -f "$format" -F | jq --unbuffered -RMc --arg sep "$sep" "$script"
+playerctl -p mpd metadata -f "$format" -F | jq --unbuffered -RMc "$script"

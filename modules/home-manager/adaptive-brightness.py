@@ -49,7 +49,14 @@ def detect_displays():
 
 def set_brightness(display, brightness):
     subprocess.run(
-        ["ddcutil", "setvcp", "10", str(brightness), "--display", str(display)],
+        [
+            "ddcutil",
+            "setvcp",
+            "10",
+            str(brightness),
+            "--display",
+            str(display),
+        ],
         capture_output=True,
         timeout=15,
     )
