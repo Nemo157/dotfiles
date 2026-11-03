@@ -35,12 +35,6 @@
 
     nix-colors.url = "github:misterio77/nix-colors";
 
-    lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/release-2.93.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
-
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -55,12 +49,6 @@
 
     appearance-watcher = {
       url = "github:Nemo157/appearance-watcher";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
-
-    ferris-icons = {
-      url = "github:Nemo157/ferris-icons";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
@@ -112,9 +100,7 @@
       agenix,
       appearance-watcher,
       colmena,
-      ferris-icons,
       home-manager,
-      lix-module,
       nix-colors,
       nixos-hardware,
       nixpkgs,
@@ -185,11 +171,8 @@
             rust-overlay.overlays.default
             u2f-touch-detector.overlays.default
             appearance-watcher.overlays.default
-            ferris-icons.overlays.default
             nixpkgs-xr.overlays.default
             self.overlays.default
-            # run into various issues (e.g. nix-serve)
-            # lix-module.overlays.lixFromNixpkgs
           ];
         };
 

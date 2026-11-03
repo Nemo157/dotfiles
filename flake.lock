@@ -168,29 +168,6 @@
         "type": "github"
       }
     },
-    "ferris-icons": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1726763512,
-        "narHash": "sha256-Ym/Ea358bY2vEtvI50H2VyLSUbxkpMJLSbJhSwOr2ZE=",
-        "owner": "Nemo157",
-        "repo": "ferris-icons",
-        "rev": "88f9a684807f9991637da2b7bd8e6f2efaafaf0e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Nemo157",
-        "repo": "ferris-icons",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -248,21 +225,6 @@
         "type": "github"
       }
     },
-    "flakey-profile": {
-      "locked": {
-        "lastModified": 1712898590,
-        "narHash": "sha256-FhGIEU93VHAChKEXx905TSiPZKga69bWl1VB37FK//I=",
-        "owner": "lf-",
-        "repo": "flakey-profile",
-        "rev": "243c903fd8eadc0f63d205665a92d4df91d42d9d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "lf-",
-        "repo": "flakey-profile",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -282,43 +244,6 @@
         "ref": "release-26.05",
         "repo": "home-manager",
         "type": "github"
-      }
-    },
-    "lix": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1777914952,
-        "narHash": "sha256-H94I3Z9PgI0utJ56Ma+DLNPNjVyKfIrOBLYDQkw+zUU=",
-        "rev": "c2dbb0f5bfffa2562ae9f84040e5bb3503c6b011",
-        "type": "tarball",
-        "url": "https://git.lix.systems/api/v1/repos/lix-project/lix/archive/c2dbb0f5bfffa2562ae9f84040e5bb3503c6b011.tar.gz?rev=c2dbb0f5bfffa2562ae9f84040e5bb3503c6b011"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://git.lix.systems/lix-project/lix/archive/release-2.93.tar.gz"
-      }
-    },
-    "lix-module": {
-      "inputs": {
-        "flake-utils": [
-          "flake-utils"
-        ],
-        "flakey-profile": "flakey-profile",
-        "lix": "lix",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1778183118,
-        "narHash": "sha256-fWYOWhACIzdj8YC4pG9yjaH1B4kjKT/RdH7lxwTr9MQ=",
-        "rev": "573e44683c02018534d1d9c281518d62db9efa67",
-        "type": "tarball",
-        "url": "https://git.lix.systems/api/v1/repos/lix-project/nixos-module/archive/573e44683c02018534d1d9c281518d62db9efa67.tar.gz"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://git.lix.systems/lix-project/nixos-module/archive/release-2.93.tar.gz"
       }
     },
     "nix-colors": {
@@ -528,11 +453,9 @@
         "audio-cpp": "audio-cpp",
         "colmena": "colmena",
         "ennead": "ennead",
-        "ferris-icons": "ferris-icons",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
-        "lix-module": "lix-module",
         "nix-colors": "nix-colors",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
