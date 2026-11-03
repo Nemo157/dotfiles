@@ -1,2 +1,5 @@
 # format with nixfmt
 088aa48bb2088c05cfce08ab8b22c0e2e231976d
+
+# format with biome, ruff and shfmt
+6a8f5ab5e310cb4ed452cd778c818c359c068b97
