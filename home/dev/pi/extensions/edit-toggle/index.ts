@@ -86,6 +86,8 @@ const TARGET_TOOLS = new Set([
   "mkdir",
   "cut-lines",
   "paste-lines",
+  "replace-block",
+  "regex-replace",
   "jj-describe",
   "jj-commit",
   "jj-new",
@@ -104,8 +106,8 @@ const NEXT_STATE: Record<ToggleState, ToggleState> = {
 // flips. See `before_agent_start` below.
 const DENY_NOTE =
   "<system-reminder>Editing (edit, write, the mv/rm/cp/mkdir/" +
-  "cut-lines/paste-lines file tools, and the jj describe/commit/new/" +
-  "squash/restore/rebase tools) is disabled, so the user likely " +
+  "cut-lines/paste-lines/replace-block/regex-replace file tools, and the " +
+  "jj describe/commit/new/squash/restore/rebase tools) is disabled, so the user likely " +
   "wants to plan or discuss rather than change files. Don't call these " +
   "tools; describe what you would do instead. The user knows editing is " +
   "off, so don't ask them to re-enable it — unless they clearly expect you " +
@@ -113,8 +115,8 @@ const DENY_NOTE =
 
 const ENABLE_NOTE =
   "<system-reminder>Editing (edit, write, the mv/rm/cp/mkdir/" +
-  "cut-lines/paste-lines file tools, and the jj describe/commit/new/" +
-  "squash/restore/rebase tools) is enabled again; use these tools as needed.</system-reminder>";
+  "cut-lines/paste-lines/replace-block/regex-replace file tools, and the " +
+  "jj describe/commit/new/squash/restore/rebase tools) is enabled again; use these tools as needed.</system-reminder>";
 
 // customType for the injected note message (carries the announced state in
 // its `details`) and for the silent state-only entry.

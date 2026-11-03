@@ -68,6 +68,24 @@
 //     pi's withFileMutationQueue so they can't lose a race against a
 //     parallel built-in edit/write on the same file.
 //
+// Block/regex replacement (replace-block / regex-replace):
+//   Token-cheap alternatives to the built-in `edit` for two common cases.
+//   replace-block swaps a whole line range identified by its first/last
+//   line (trimmed-prefix markers, like the line tools above), so a large
+//   block can be rewritten without echoing it back as `oldText`.
+//   regex-replace applies a sequence of global regex (or literal)
+//   replacements to one file. Both follow the same guard philosophy as the
+//   line tools: replace-block refuses ambiguous start markers (unless
+//   disambiguated by `startLine`) and can pin the block size with
+//   `expectedLines`; regex-replace REQUIRES an `expectedCount` per rule and
+//   writes nothing unless every count matches. Both target a single `path`
+//   (auto-gated like rm/mkdir), run under withFileMutationQueue, and are
+//   in the edit-toggle governed set.
+//
+// The content-editing tools (cut-lines, paste-lines, replace-block,
+// regex-replace) also store a display diff in `details.diff`, rendered with
+// pi's own renderDiff when the tool row is expanded (like built-in `edit`).
+//
 // mv/rm/cp likewise hold the mutation queue for every path they touch
 // (mv: source + dest, rm: target, cp: source + dest so a file isn't copied
 // mid-write). An `edit` and an `rm` of the same file in one parallel batch
@@ -77,7 +95,11 @@
 // directory entry under that key.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
+import {
+  generateDiffString,
+  renderDiff,
+  withFileMutationQueue,
+} from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type, type TSchema } from "typebox";
 import * as fs from "node:fs/promises";
@@ -242,11 +264,14 @@ interface RunResult {
   detail?: string;
   isError?: boolean;
   buffer?: BufferPayload;
+  /** Display diff of the file change, shown in the expanded TUI view only. */
+  diff?: string;
 }
 
 interface FileToolDetails {
   line: string;
   buffer?: BufferPayload;
+  diff?: string;
 }
 
 interface FileToolDef<T extends TSchema> {
@@ -290,6 +315,7 @@ function registerFileTool<T extends TSchema>(
       }
       const details: FileToolDetails = { line: result.line };
       if (result.buffer) details.buffer = result.buffer;
+      if (result.diff) details.diff = result.diff;
       return {
         content: [
           {
@@ -316,7 +342,11 @@ function registerFileTool<T extends TSchema>(
       const msg =
         details?.line ??
         (first && first.type === "text" ? first.text : "(done)");
-      return new Text(theme.fg(result.isError ? "error" : "success", msg), 0, 0);
+      let out = theme.fg(result.isError ? "error" : "success", msg);
+      // Like the built-in edit tool, show the change as a diff, but only in
+      // the expanded view to keep the collapsed row a single line.
+      if (opts.expanded && details?.diff) out += `\n\n${renderDiff(details.diff)}`;
+      return new Text(out, 0, 0);
     },
   });
 }
@@ -563,24 +593,42 @@ interface FileLines {
   lines: string[];
   /** Whether the file ended with a newline. */
   trailingNewline: boolean;
+  /** The file content as read, for diffing. */
+  original: string;
 }
 
-async function readLineFile(abs: string, raw: string): Promise<FileLines> {
+async function readTextFile(abs: string, raw: string): Promise<string> {
   const stat = await fs.stat(abs).catch(() => undefined);
   if (!stat) throw new Error(`no such file: ${raw}`);
   if (!stat.isFile()) throw new Error(`not a regular file: ${raw}`);
   const content = await fs.readFile(abs, "utf8");
   if (content.includes("\0")) throw new Error(`binary file: ${raw}`);
+  return content;
+}
+
+async function readLineFile(abs: string, raw: string): Promise<FileLines> {
+  const content = await readTextFile(abs, raw);
   const trailingNewline = content.endsWith("\n");
   const lines = content.split("\n");
   if (trailingNewline) lines.pop();
-  return { lines, trailingNewline };
+  return { lines, trailingNewline, original: content };
 }
 
-async function writeLineFile(abs: string, f: FileLines): Promise<void> {
+/** Write the lines back; returns a display diff against the content read. */
+async function writeLineFile(abs: string, f: FileLines): Promise<string> {
   let out = f.lines.join("\n");
   if (f.trailingNewline && f.lines.length > 0) out += "\n";
   await fs.writeFile(abs, out, "utf8");
+  return displayDiff(f.original, out);
+}
+
+/** Display diff (pi's edit-tool format) for the expanded TUI view. */
+function displayDiff(before: string, after: string): string {
+  try {
+    return generateDiffString(before, after).diff;
+  } catch {
+    return "";
+  }
 }
 
 /** Validate a 1-indexed inclusive [start, end] range against lineCount. */
@@ -813,8 +861,9 @@ const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
       if (bad) return bad;
       const taken = f.lines.slice(start - 1, end);
       f.lines.splice(start - 1, taken.length);
-      await writeLineFile(abs, f);
+      const diff = await writeLineFile(abs, f);
       return {
+        diff,
         line:
           `cut ${taken.length} line(s) from ` +
           `${displayPath(ctx.cwd, abs)}:${start}-${end} into buffer '${name}'`,
@@ -927,10 +976,11 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
       const index = position === "before" ? line - 1 : line;
       const insert = buf.text.length > 0 ? buf.text.split("\n") : [];
       f.lines.splice(index, 0, ...insert);
-      await writeLineFile(abs, f);
+      const diff = await writeLineFile(abs, f);
       const where =
         position === "before" ? `before line ${line}` : `after line ${line}`;
       return {
+        diff,
         line:
           `pasted ${insert.length} line(s) from buffer '${name}' into ` +
           `${displayPath(ctx.cwd, abs)} ${where}`,
@@ -938,6 +988,457 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
           `Pasted block is now lines ${index + 1}-${index + insert.length}; ` +
           `later lines moved down by ${insert.length}. Result:\n` +
           numberedLines(f.lines, index - 1, index + insert.length + 2),
+      };
+    });
+  },
+};
+
+// ── replace-block ───────────────────────────────────────────────────────
+
+/** Render specific 1-indexed line numbers (sorted, deduped, capped). */
+function numberedSet(lines: string[], nums: Iterable<number>, cap = 20): string {
+  const sorted = [...new Set(nums)]
+    .filter((n) => n >= 1 && n <= lines.length)
+    .sort((a, b) => a - b);
+  if (sorted.length === 0) return "  (no lines)";
+  const shown = sorted.slice(0, cap);
+  const width = String(shown[shown.length - 1]).length;
+  const out = shown.map((n) => `${String(n).padStart(width)}| ${lines[n - 1]}`);
+  if (sorted.length > cap)
+    out.push(`${" ".repeat(width)}| … (${sorted.length - cap} more lines)`);
+  return out.join("\n");
+}
+
+/** Split a (possibly multi-line) marker; one trailing newline is ignored. */
+function markerLines(text: string): string[] {
+  return (text.endsWith("\n") ? text.slice(0, -1) : text).split("\n");
+}
+
+/** Whether marker lines `seq` match consecutive file lines starting at `n`. */
+function seqMatchesAt(lines: string[], n: number, seq: string[]): boolean {
+  if (n < 1 || n + seq.length - 1 > lines.length) return false;
+  return seq.every((expected, k) => lineMatches(lines[n - 1 + k], expected));
+}
+
+const replaceBlockParams = Type.Object({
+  path: pathParam,
+  startText: Type.String({
+    description:
+      "Marker for the block's first line(s): one or more \\n-separated " +
+      "lines, each matched against consecutive file lines (leading part is " +
+      "enough, whitespace-trimmed). Must match at exactly one position " +
+      "unless `startLine` is given; add lines to make it unique.",
+  }),
+  endText: Type.String({
+    description:
+      "Marker for the block's last line(s), matched like `startText`. The " +
+      "block ends at the FIRST match after the start marker, so a bare `}` " +
+      "may close an inner block: prefer a multi-line marker such as the " +
+      "block's last statement plus its closing brace, or pin the size with " +
+      "`expectedLines`.",
+  }),
+  newText: Type.String({
+    description:
+      "Replacement lines. By default the marker lines are replaced too, so " +
+      "include their new versions; see keepStart/keepEnd. A single trailing " +
+      "newline is ignored; \"\" deletes the block.",
+  }),
+  keepStart: Type.Optional(
+    Type.Boolean({
+      description:
+        "Keep the start marker line(s) and replace only what follows. Handy " +
+        "for keeping a signature/header. Defaults to false.",
+    }),
+  ),
+  keepEnd: Type.Optional(
+    Type.Boolean({
+      description:
+        "Keep the end marker line(s) and replace only what precedes them. " +
+        "Defaults to false, which suits multi-line end markers whose extra " +
+        "context lines belong to the body being rewritten (just re-include " +
+        "the closing line in newText).",
+    }),
+  ),
+  startLine: Type.Optional(
+    Type.Number({
+      description:
+        "Line number of the start marker's first line, to disambiguate a " +
+        "`startText` that matches at several positions. Checked against " +
+        "`startText`.",
+    }),
+  ),
+  expectedLines: Type.Optional(
+    Type.Number({
+      description:
+        "Expected number of lines being replaced (counting marker lines " +
+        "unless kept). On mismatch nothing is changed and the found block is " +
+        "shown.",
+    }),
+  ),
+});
+
+const replaceBlockTool: FileToolDef<typeof replaceBlockParams> = {
+  name: "replace-block",
+  label: "replace block",
+  description:
+    "Replace a block of whole lines delimited by start and end marker " +
+    "line(s) with new text, without having to repeat the old block. Prefer " +
+    "this over `edit` for rewriting large multi-line regions (function " +
+    "bodies, config sections). Shows numbered context of the result.",
+  parameters: replaceBlockParams,
+  header(args, theme) {
+    const p = typeof args.path === "string" ? args.path : "…";
+    const s = typeof args.startText === "string" ? args.startText : "…";
+    const e = typeof args.endText === "string" ? args.endText : "…";
+    const at = typeof args.startLine === "number" ? `:${args.startLine}` : "";
+    return (
+      theme.fg("accent", `${p}${at}`) +
+      theme.fg("muted", ` ${JSON.stringify(s)} … ${JSON.stringify(e)}`) +
+      (args.keepStart === true ? theme.fg("muted", " (keep start)") : "") +
+      (args.keepEnd === true ? theme.fg("muted", " (keep end)") : "")
+    );
+  },
+  async run(params, ctx) {
+    const tool = "replace-block";
+    const raw = String(params.path ?? "");
+    if (!raw) return { line: `${tool}: path is required`, isError: true };
+    const abs = resolvePath(ctx.cwd, raw);
+    const startText = String(params.startText ?? "");
+    const endText = String(params.endText ?? "");
+    const startSeq = markerLines(startText);
+    const endSeq = markerLines(endText);
+    const keepStart = params.keepStart === true;
+    const keepEnd = params.keepEnd === true;
+    let newText = String(params.newText ?? "");
+    if (newText.endsWith("\n")) newText = newText.slice(0, -1);
+    const insert = newText.length > 0 ? newText.split("\n") : [];
+
+    return withFileMutationQueue(abs, async () => {
+      const f = await readLineFile(abs, raw);
+
+      // Locate the start marker (first line = `start`, last = `startLast`).
+      let start: number;
+      if (params.startLine !== undefined) {
+        start = Number(params.startLine);
+        const maxStart = f.lines.length - startSeq.length + 1;
+        if (!Number.isInteger(start) || start < 1 || start > maxStart)
+          return {
+            line: `${tool}: startLine must be an integer in [1, ${maxStart}]`,
+            isError: true,
+          };
+        for (const [k, expected] of startSeq.entries()) {
+          const label = startSeq.length > 1 ? `startText line ${k + 1}` : "startText";
+          const bad = anchorMismatch(tool, label, f.lines, start + k, expected);
+          if (bad) return bad;
+        }
+      } else {
+        const hits: number[] = [];
+        for (let n = 1; n <= f.lines.length; n++) {
+          if (seqMatchesAt(f.lines, n, startSeq)) hits.push(n);
+        }
+        if (hits.length === 0)
+          return {
+            line: `${tool}: no line matches startText ${JSON.stringify(startText)}; nothing was changed`,
+            isError: true,
+          };
+        if (hits.length > 1)
+          return {
+            line:
+              `${tool}: startText ${JSON.stringify(startText)} matches ` +
+              `${hits.length} positions; add marker lines or pass startLine ` +
+              `to pick one. Nothing was changed`,
+            detail: numberedSet(f.lines, hits),
+            isError: true,
+          };
+        start = hits[0];
+      }
+      const startLast = start + startSeq.length - 1;
+
+      // Locate the end marker: first match strictly after the start marker
+      // (first line = `endFirst`, last = `end`).
+      let endFirst = -1;
+      for (let n = startLast + 1; n <= f.lines.length; n++) {
+        if (seqMatchesAt(f.lines, n, endSeq)) {
+          endFirst = n;
+          break;
+        }
+      }
+      if (endFirst < 0)
+        return {
+          line:
+            `${tool}: nothing after line ${startLast} matches endText ` +
+            `${JSON.stringify(endText)}; nothing was changed`,
+          detail: numberedLines(f.lines, start, startLast + 8),
+          isError: true,
+        };
+      const end = endFirst + endSeq.length - 1;
+
+      // 1-indexed first replaced line and replaced line count.
+      const from = keepStart ? startLast + 1 : start;
+      const to = keepEnd ? endFirst - 1 : end;
+      const count = to - from + 1;
+      if (params.expectedLines !== undefined) {
+        const expected = Number(params.expectedLines);
+        if (count !== expected)
+          return {
+            line:
+              `${tool}: block ${start}-${end} would replace ${count} line(s), ` +
+              `expected ${expected}; nothing was changed`,
+            detail: numberedLines(f.lines, start, end),
+            isError: true,
+          };
+      }
+
+      f.lines.splice(from - 1, count, ...insert);
+      const diff = await writeLineFile(abs, f);
+      const delta = insert.length - count;
+      const shift =
+        delta === 0
+          ? "later line numbers unchanged"
+          : `later lines moved ${delta > 0 ? "down" : "up"} by ${Math.abs(delta)}`;
+      return {
+        diff,
+        line:
+          `replaced ${count} line(s) with ${insert.length} in ` +
+          `${displayPath(ctx.cwd, abs)}:${start}-${end}` +
+          (keepStart && keepEnd
+            ? " (markers kept)"
+            : keepStart
+              ? " (start kept)"
+              : keepEnd
+                ? " (end kept)"
+                : ""),
+        detail:
+          (insert.length
+            ? `New content is lines ${from}-${from + insert.length - 1}`
+            : `Block removed before line ${from}`) +
+          `; ${shift}. Result:\n` +
+          numberedLines(f.lines, from - 2, from + insert.length + 1),
+      };
+    });
+  },
+};
+
+// ── regex-replace ───────────────────────────────────────────────────────
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Expand a String.prototype.replace-style template ($$, $&, $`, $', $n,
+ * $nn, $<name>) for one match. Done by hand (rather than via
+ * text.replace) so we know each replacement's length and can report the
+ * output lines it landed on.
+ */
+function expandTemplate(tpl: string, m: RegExpMatchArray, input: string): string {
+  const idx = m.index ?? 0;
+  const groupCount = m.length - 1;
+  return tpl.replace(/\$(\$|&|`|'|\d{1,2}|<([^>]*)>)/g, (tok, k: string, name?: string) => {
+    if (k === "$") return "$";
+    if (k === "&") return m[0];
+    if (k === "`") return input.slice(0, idx);
+    if (k === "'") return input.slice(idx + m[0].length);
+    if (name !== undefined) return m.groups ? (m.groups[name] ?? "") : tok;
+    const n = parseInt(k, 10);
+    if (n >= 1 && n <= groupCount) return m[n] ?? "";
+    if (k.length === 2) {
+      const n1 = parseInt(k[0], 10);
+      if (n1 >= 1 && n1 <= groupCount) return (m[n1] ?? "") + k[1];
+    }
+    return tok;
+  });
+}
+
+/** Map character offsets to 1-indexed line numbers. */
+function lineIndexer(text: string): (offset: number) => number {
+  const nl: number[] = [];
+  for (let i = text.indexOf("\n"); i >= 0; i = text.indexOf("\n", i + 1)) nl.push(i);
+  return (offset) => {
+    let lo = 0;
+    let hi = nl.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (nl[mid] < offset) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo + 1;
+  };
+}
+
+/** Lines covered by [s, e) spans in `text`. */
+function spanLines(text: string, spans: Array<[number, number]>): number[] {
+  const lineOf = lineIndexer(text);
+  const out: number[] = [];
+  for (const [s, e] of spans) {
+    const a = lineOf(s);
+    const b = lineOf(Math.max(s, e - 1));
+    for (let n = a; n <= b; n++) out.push(n);
+  }
+  return out;
+}
+
+/** Split for display, dropping the phantom line after a trailing newline. */
+function displayLines(text: string): string[] {
+  const lines = text.split("\n");
+  if (text.endsWith("\n")) lines.pop();
+  return lines;
+}
+
+const regexReplaceParams = Type.Object({
+  path: pathParam,
+  replacements: Type.Array(
+    Type.Object({
+      pattern: Type.String({
+        description: "JavaScript regular expression source (or literal text with `literal`).",
+      }),
+      replacement: Type.String({
+        description:
+          "Replacement text. Supports $1, $<name>, $&, $$ unless `literal` is set, " +
+          "in which case it is inserted verbatim.",
+      }),
+      flags: Type.Optional(
+        Type.String({
+          description:
+            "Extra regex flags from i, m, s, u (g is always on). The pattern is " +
+            "matched against the whole file, so use m for per-line ^/$.",
+        }),
+      ),
+      literal: Type.Optional(
+        Type.Boolean({
+          description: "Treat pattern and replacement as plain text.",
+        }),
+      ),
+      expectedCount: Type.Number({
+        description:
+          "Exact number of matches expected. If any rule's count differs, " +
+          "nothing is written and the matching lines are shown.",
+      }),
+    }),
+    {
+      minItems: 1,
+      description:
+        "Rules applied in order, each to the output of the previous one.",
+    },
+  ),
+});
+
+const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
+  name: "regex-replace",
+  label: "regex replace",
+  description:
+    "Apply one or more global regex (or literal) replacements to a single " +
+    "file, e.g. renaming an identifier everywhere. Every rule needs an " +
+    "exact `expectedCount`; on any mismatch the file is left untouched. " +
+    "Shows the changed lines, numbered.",
+  parameters: regexReplaceParams,
+  header(args, theme) {
+    const p = typeof args.path === "string" ? args.path : "…";
+    const rules = Array.isArray(args.replacements) ? args.replacements : [];
+    const first = rules[0] as { pattern?: unknown; replacement?: unknown } | undefined;
+    const summary =
+      first && typeof first.pattern === "string"
+        ? ` /${first.pattern}/ → ${JSON.stringify(first.replacement ?? "")}` +
+          (rules.length > 1 ? ` (+${rules.length - 1} more)` : "")
+        : "";
+    return theme.fg("accent", p) + theme.fg("muted", summary);
+  },
+  async run(params, ctx) {
+    const tool = "regex-replace";
+    const raw = String(params.path ?? "");
+    if (!raw) return { line: `${tool}: path is required`, isError: true };
+    const rules = Array.isArray(params.replacements)
+      ? (params.replacements as Array<Record<string, unknown>>)
+      : [];
+    if (rules.length === 0)
+      return { line: `${tool}: at least one replacement is required`, isError: true };
+    const abs = resolvePath(ctx.cwd, raw);
+
+    return withFileMutationQueue(abs, async () => {
+      const original = await readTextFile(abs, raw);
+      let text = original;
+      const reports: string[] = [];
+      let lineCountChanged = false;
+
+      for (const [i, rule] of rules.entries()) {
+        const label = `rule #${i + 1}`;
+        const pattern = String(rule.pattern ?? "");
+        const replacement = String(rule.replacement ?? "");
+        const literal = rule.literal === true;
+        const flags = String(rule.flags ?? "");
+        const expected = Number(rule.expectedCount);
+        if (!pattern)
+          return { line: `${tool}: ${label}: pattern must not be empty`, isError: true };
+        if (!/^[gimsu]*$/.test(flags))
+          return { line: `${tool}: ${label}: unsupported flags ${JSON.stringify(flags)} (allowed: i, m, s, u)`, isError: true };
+        if (!Number.isInteger(expected) || expected < 0)
+          return { line: `${tool}: ${label}: expectedCount must be a non-negative integer`, isError: true };
+
+        let re: RegExp;
+        try {
+          const f = [...new Set((flags + "g").split(""))].join("");
+          re = new RegExp(literal ? escapeRegExp(pattern) : pattern, f);
+        } catch (err) {
+          return { line: `${tool}: ${label}: invalid regex: ${(err as Error).message}`, isError: true };
+        }
+
+        const matches = [...text.matchAll(re)];
+        if (matches.length !== expected) {
+          const where = i === 0 ? "" : ` (line numbers as of after rule #${i})`;
+          return {
+            line:
+              `${tool}: ${label} ${re} matched ${matches.length} time(s), ` +
+              `expected ${expected}; nothing was changed`,
+            detail: matches.length
+              ? `Matching lines${where}:\n` +
+                numberedSet(
+                  displayLines(text),
+                  spanLines(
+                    text,
+                    matches.map(
+                      (m): [number, number] => [m.index ?? 0, (m.index ?? 0) + m[0].length],
+                    ),
+                  ),
+                )
+              : undefined,
+            isError: true,
+          };
+        }
+        if (matches.length === 0) continue;
+
+        let out = "";
+        let last = 0;
+        const spans: Array<[number, number]> = [];
+        for (const m of matches) {
+          const idx = m.index ?? 0;
+          const rep = literal ? replacement : expandTemplate(replacement, m, text);
+          out += text.slice(last, idx);
+          const s = out.length;
+          out += rep;
+          spans.push([s, out.length]);
+          last = idx + m[0].length;
+        }
+        out += text.slice(last);
+        if (displayLines(out).length !== displayLines(text).length)
+          lineCountChanged = true;
+        text = out;
+        reports.push(
+          `${label} ${re}: ${matches.length} replacement(s)\n` +
+            numberedSet(displayLines(text), spanLines(text, spans)),
+        );
+      }
+
+      if (text === original)
+        return { line: `${tool}: no changes to ${displayPath(ctx.cwd, abs)}` };
+      await fs.writeFile(abs, text, "utf8");
+      const total = rules.reduce((n, r) => n + Number(r.expectedCount), 0);
+      return {
+        diff: displayDiff(original, text),
+        line: `replaced ${total} match(es) in ${displayPath(ctx.cwd, abs)} (${rules.length} rule(s))`,
+        detail:
+          (lineCountChanged && rules.length > 1
+            ? "Line count changed; each rule's line numbers are as of after that rule.\n"
+            : "") + reports.join("\n"),
       };
     });
   },
@@ -1003,6 +1504,8 @@ export default function fileToolsExtension(pi: ExtensionAPI): void {
   registerFileTool(pi, copyLinesTool);
   registerFileTool(pi, cutLinesTool);
   registerFileTool(pi, pasteLinesTool);
+  registerFileTool(pi, replaceBlockTool);
+  registerFileTool(pi, regexReplaceTool);
 
   registerDestinationGating(pi);
 }
