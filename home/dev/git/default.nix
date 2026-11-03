@@ -12,7 +12,7 @@
       advice.detachedHead = false;
       init.defaultBranch = "main";
       core.safecrlf = true;
-      blame.ignoreRevsFile = ".git-blame-ignore-revs";
+      blame.ignoreRevsFile = ":(optional).git-blame-ignore-revs";
       push = {
         default = "simple";
         autoSetupRemote = true;
