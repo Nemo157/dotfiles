@@ -170,6 +170,14 @@ export interface CliToolDetails {
    * `Static<typeof params>` type.
    */
   params?: unknown;
+  /**
+   * Whether the call failed. Pi ignores an `isError` returned from
+   * `execute()` (only a throw marks a tool result as failed) and a throw
+   * would drop these details, which the renderers need. So the flag rides
+   * here and the `tool_result` hook in {@link registerCliTool} promotes it
+   * to the real result error state.
+   */
+  isError?: boolean;
 }
 
 // Extract the exact signature pi uses so extension code stays in sync with
@@ -234,7 +242,7 @@ export interface RawCommandResult {
  * Result of a `postProcess` hook: LLM-facing text and any extra structured
  * details to merge into the standard {@link CliToolDetails}.
  */
-export interface PostProcessResult<TExtra = Record<string, unknown>> {
+export interface PostProcessResult<TExtra extends object = object> {
   content: string;
   details?: TExtra;
   /** Force error state. If omitted the runner infers it from exit code. */
@@ -449,9 +457,13 @@ export function runCommand(
     let stderr = "";
     let timedOut = false;
 
-    child.stdout.setEncoding("utf8");
-    child.stderr.setEncoding("utf8");
-    if (opts.stdin !== undefined) {
+    // stdout/stderr are always piped, stdin only when `opts.stdin` is set;
+    // the conditional stdio config defeats Node's typing, hence the `!`s.
+    const stdoutStream = child.stdout!;
+    const stderrStream = child.stderr!;
+    stdoutStream.setEncoding("utf8");
+    stderrStream.setEncoding("utf8");
+    if (opts.stdin !== undefined && child.stdin) {
       // Feeding stdin to a child that may exit early (e.g. a filter compile
       // error) can emit an async 'error' on the pipe; without a handler Node
       // treats it as unhandled. Same guard pi's own bash tool uses.
@@ -466,11 +478,11 @@ export function runCommand(
         // Synchronous failure (child already gone); nothing to do.
       }
     }
-    child.stdout.on("data", (chunk) => {
+    stdoutStream.on("data", (chunk) => {
       stdout += chunk;
       opts.onStdout?.(stdout);
     });
-    child.stderr.on("data", (chunk) => {
+    stderrStream.on("data", (chunk) => {
       stderr += chunk;
       opts.onStderr?.(stderr);
     });
@@ -799,6 +811,14 @@ export const buildDefaultSpec: CliRenderResult = (
 };
 
 export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
+  // Promote the failure flag carried in details (see CliToolDetails.isError)
+  // to the tool result's error state.
+  pi.on("tool_result", (event) => {
+    if (event.toolName !== def.name) return;
+    const details = event.details as CliToolDetails | undefined;
+    if (details?.isError === true) return { isError: true };
+  });
+
   pi.registerTool({
     name: def.name,
     label: def.label,
@@ -830,11 +850,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             updatedAt: Date.now(),
             params,
             ...(res.details ?? {}),
+            isError: res.isError ?? false,
           };
           return {
             content: [{ type: "text", text: clampForLlm(res.content) }],
             details,
-            isError: res.isError ?? false,
           };
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -849,11 +869,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             startedAt,
             updatedAt: Date.now(),
             params,
+            isError: true,
           };
           return {
             content: [{ type: "text", text: msg }],
             details,
-            isError: true,
           };
         }
       }
@@ -902,7 +922,6 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             updatedAt: Date.now(),
             params,
           },
-          isError: false,
         });
       };
       const scheduleFlush = () => {
@@ -960,15 +979,18 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
 
       if (def.postProcess) {
         const pp = def.postProcess({ ...baseDetails, params });
-        const details = { ...baseDetails, ...(pp.details ?? {}) };
         const inferredError =
           result.timedOut ||
           result.signal !== null ||
           (result.code !== null && result.code !== 0);
+        const details = {
+          ...baseDetails,
+          ...(pp.details ?? {}),
+          isError: pp.isError ?? inferredError,
+        };
         return {
           content: [{ type: "text", text: clampForLlm(pp.content) }],
           details,
-          isError: pp.isError ?? inferredError,
         };
       }
 
@@ -980,8 +1002,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       );
       return {
         content: [{ type: "text", text }],
-        details: baseDetails,
-        isError,
+        details: { ...baseDetails, isError },
       };
     },
 
@@ -1027,7 +1048,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         );
       }
       const spec = (def.renderResult ?? buildDefaultSpec)(
-        result,
+        result as AgentToolResult<CliToolDetails>,
         opts,
         theme,
         ctx,

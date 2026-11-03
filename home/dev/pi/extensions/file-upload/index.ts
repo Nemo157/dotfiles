@@ -126,10 +126,20 @@ interface UploadDetails {
   /** Streaming marker for renderResult's partial branch. */
   phase?: "uploading";
   startedAt?: number;
+  /**
+   * Whether the call failed. Pi ignores an `isError` returned from
+   * `execute()` (only a throw marks a tool result as failed, and a throw
+   * drops these details), so the flag rides here and a `tool_result` hook
+   * promotes it to the real result error state.
+   */
+  isError?: boolean;
 }
 
 function result(text: string, details: UploadDetails, isError = false) {
-  return { content: [{ type: "text" as const, text }], details, isError };
+  return {
+    content: [{ type: "text" as const, text }],
+    details: isError ? { ...details, isError } : details,
+  };
 }
 
 function fail(message: string, details: UploadDetails = {}) {
@@ -206,6 +216,13 @@ const parameters = Type.Object({
 });
 
 export default function fileUploadExtension(pi: ExtensionAPI): void {
+  // Promote the failure flag carried in details (see UploadDetails.isError).
+  pi.on("tool_result", (event) => {
+    if (event.toolName !== "upload") return;
+    const details = event.details as UploadDetails | undefined;
+    if (details?.isError === true) return { isError: true };
+  });
+
   pi.registerTool({
     name: "upload",
     label: "Upload",
@@ -324,7 +341,7 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
       // Normalise header casing so our own defaults don't duplicate a
       // caller-supplied header under different casing.
       const lower = new Set(Object.keys(headers).map((k) => k.toLowerCase()));
-      let requestBody: BodyInit;
+      let requestBody: NonNullable<RequestInit["body"]>;
 
       if (form) {
         const fd = new FormData();
@@ -440,7 +457,7 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
       return new Text(s, 0, 0);
     },
 
-    renderResult(res, opts, theme, _context) {
+    renderResult(res, opts, theme, context) {
       const d = res.details as UploadDetails | undefined;
 
       if (opts.isPartial) {
@@ -455,11 +472,14 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
         );
       }
 
-      if (res.isError || !d || typeof d.status !== "number") {
+      // No HTTP status means the request never completed (validation,
+      // network or permission failure); HTTP error statuses fall through to
+      // the normal summary, which colours them itself.
+      if (!d || typeof d.status !== "number") {
         const first = res.content?.[0];
         const msg =
           first && first.type === "text" ? first.text : "upload: error";
-        return new Text(theme.fg(res.isError ? "error" : "dim", msg), 0, 0);
+        return new Text(theme.fg(context.isError ? "error" : "dim", msg), 0, 0);
       }
 
       const color =

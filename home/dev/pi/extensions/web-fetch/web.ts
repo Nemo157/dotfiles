@@ -153,7 +153,12 @@ function normalize(text: string): string {
 export function extractHtml(html: string, _url?: string): Extraction {
   const { document } = parseHTML(html);
   try {
-    const reader = new Readability(document as unknown as Document);
+    // linkedom's document is structurally close enough for Readability but
+    // not typed as a DOM `Document` (no DOM lib here, so name it via the
+    // constructor's own parameter type).
+    const reader = new Readability(
+      document as unknown as ConstructorParameters<typeof Readability>[0],
+    );
     const article = reader.parse();
     const text = article?.textContent ? normalize(article.textContent) : "";
     if (text.length > 0) {

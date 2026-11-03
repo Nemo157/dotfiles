@@ -99,21 +99,17 @@ function elapsedSuffix(startedAt: number): string {
   return ` (${((Date.now() - startedAt) / 1000).toFixed(1)}s)`;
 }
 
-function textResult(text: string, details: WebFetchDetails, isError = false) {
+function textResult(text: string, details: WebFetchDetails) {
   return {
     content: [{ type: "text" as const, text }],
     details,
-    isError,
   };
 }
 
-function errorResult(message: string) {
-  return {
-    content: [{ type: "text" as const, text: message }],
-    details: {},
-    isError: true,
-  };
-}
+// Failures throw: pi ignores an `isError` field on a returned result, and
+// a throw is the only way to mark the tool result as failed. Error results
+// carry no details, so nothing is lost (renderResult falls back to the
+// message text).
 
 export default function webFetchExtension(pi: ExtensionAPI): void {
   const config = loadConfig();
@@ -174,10 +170,10 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       try {
         parsedUrl = new URL(rawUrl);
       } catch {
-        return errorResult(`Invalid URL: '${rawUrl}'`);
+        throw new Error(`Invalid URL: '${rawUrl}'`);
       }
       if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
-        return errorResult(
+        throw new Error(
           `Only http/https URLs are supported (got '${parsedUrl.protocol}').`,
         );
       }
@@ -229,7 +225,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             },
           });
         } catch (err) {
-          return errorResult(
+          throw new Error(
             `Fetch failed for ${rawUrl}: ${(err as Error).message}`,
           );
         }
@@ -253,7 +249,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       }
 
       if (!meta || !rawBody) {
-        return errorResult("web-fetch: internal error (no content)");
+        throw new Error("web-fetch: internal error (no content)");
       }
 
       const rawPath = cache.path(key, meta.rawFile);
@@ -410,7 +406,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       return text;
     },
 
-    renderResult(result, opts, theme, _context) {
+    renderResult(result, opts, theme, context) {
       // ── Streaming: show phase + download progress ──────────────────────
       if (opts.isPartial) {
         const p = result.details as WebFetchProgress | undefined;
@@ -441,11 +437,11 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       const d = result.details as WebFetchDetails | undefined;
 
       // ── Errors / missing details: fall back to the textual content ─────
-      if (result.isError || !d || typeof d.status !== "number") {
+      if (context.isError || !d || typeof d.status !== "number") {
         const first = result.content?.[0];
         const msg =
           first && first.type === "text" ? first.text : "web-fetch: error";
-        return new Text(theme.fg(result.isError ? "error" : "dim", msg), 0, 0);
+        return new Text(theme.fg(context.isError ? "error" : "dim", msg), 0, 0);
       }
 
       const statusColor =

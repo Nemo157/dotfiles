@@ -272,6 +272,13 @@ interface FileToolDetails {
   line: string;
   buffer?: BufferPayload;
   diff?: string;
+  /**
+   * Whether the call failed. Pi ignores an `isError` returned from
+   * `execute()` (only a throw marks a tool result as failed, and a throw
+   * drops these details), so the flag rides here and the `tool_result` hook
+   * in registerFileTool promotes it to the real result error state.
+   */
+  isError?: boolean;
 }
 
 interface FileToolDef<T extends TSchema> {
@@ -298,6 +305,12 @@ function registerFileTool<T extends TSchema>(
   pi: ExtensionAPI,
   def: FileToolDef<T>,
 ): void {
+  pi.on("tool_result", (event) => {
+    if (event.toolName !== def.name) return;
+    const details = event.details as FileToolDetails | undefined;
+    if (details?.isError === true) return { isError: true };
+  });
+
   pi.registerTool({
     name: def.name,
     label: def.label,
@@ -316,6 +329,7 @@ function registerFileTool<T extends TSchema>(
       const details: FileToolDetails = { line: result.line };
       if (result.buffer) details.buffer = result.buffer;
       if (result.diff) details.diff = result.diff;
+      if (result.isError) details.isError = true;
       return {
         content: [
           {
@@ -326,7 +340,6 @@ function registerFileTool<T extends TSchema>(
           },
         ],
         details,
-        isError: result.isError ?? false,
       };
     },
     renderCall(args, theme, _context) {
@@ -335,14 +348,14 @@ function registerFileTool<T extends TSchema>(
         def.header(args as Record<string, unknown>, theme as RenderTheme);
       return new Text(head, 0, 0);
     },
-    renderResult(result, opts, theme, _context) {
+    renderResult(result, opts, theme, context) {
       if (opts.isPartial) return new Text("", 0, 0);
       const details = result.details as FileToolDetails | undefined;
       const first = result.content?.[0];
       const msg =
         details?.line ??
         (first && first.type === "text" ? first.text : "(done)");
-      let out = theme.fg(result.isError ? "error" : "success", msg);
+      let out = theme.fg(context.isError ? "error" : "success", msg);
       // Like the built-in edit tool, show the change as a diff, but only in
       // the expanded view to keep the collapsed row a single line.
       if (opts.expanded && details?.diff) out += `\n\n${renderDiff(details.diff)}`;

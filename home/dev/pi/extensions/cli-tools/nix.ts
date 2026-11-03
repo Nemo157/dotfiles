@@ -242,7 +242,7 @@ function makeFlakeCheckTool(
       .join("\n")
       .replace(/\s+$/, "");
     const lines = contentText.length > 0 ? contentText.split("\n") : [];
-    const isError = result.isError === true;
+    const isError = context.isError;
     const output =
       lines.length > 0
         ? new Text(
