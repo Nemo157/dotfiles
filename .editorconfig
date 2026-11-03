@@ -19,7 +19,7 @@ max_line_length = 100
 [*.md]
 max_line_length = 0
 
-[*.{ts,js}]
+[*.{ts,js,json}]
 indent_size = 2
 
 [*.toml]
@@ -28,3 +28,5 @@ indent_size = 2
 [*.{bash,sh,zsh}]
 indent_size = 2
 switch_case_indent = true
+# most scripts have no shebang (`writeShellApplication`), so shfmt can't detect bash
+shell_variant = bash

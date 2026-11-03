@@ -205,7 +205,50 @@
         packages = import ./packages { inherit pkgs; };
         legacyPackages = pkgs;
 
-        formatter = pkgs.nixfmt-tree;
+        formatter = pkgs.nixfmt-tree.override {
+          runtimeInputs = [
+            pkgs.biome
+            pkgs.ruff
+            pkgs.shfmt
+          ];
+          settings = {
+            excludes = [
+              "*/package-lock.json"
+              # exported from grafana
+              "nixos/common/services/grafana/dashboards/*"
+            ];
+            formatter = {
+              biome = {
+                command = "biome";
+                options = [
+                  "format"
+                  "--write"
+                  "--indent-style=space"
+                  "--indent-width=2"
+                  "--line-width=80"
+                ];
+                includes = [
+                  "*.ts"
+                  "*.json"
+                ];
+              };
+              ruff = {
+                command = "ruff";
+                options = [
+                  "format"
+                  "--line-length=80"
+                ];
+                includes = [ "*.py" ];
+              };
+              # configured via .editorconfig
+              shfmt = {
+                command = "shfmt";
+                options = [ "--write" ];
+                includes = [ "*.sh" ];
+              };
+            };
+          };
+        };
 
         devShells = import ./shells { inherit pkgs; } // {
           local = pkgs.mkShell {
