@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -13,7 +18,9 @@ let
 
   environment = defaultEnvironment // cfg.environment;
 
-  envFlags = concatStringsSep " " (mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment);
+  envFlags = concatStringsSep " " (
+    mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment
+  );
 
   execStart = pkgs.writeShellScript "kokoro-fastapi-start" ''
     exec ${pkgs.podman}/bin/podman run \
@@ -31,7 +38,8 @@ let
       ${optionalString (cfg.environmentFile != null) "--env-file ${cfg.environmentFile}"} \
       ${cfg.image}
   '';
-in {
+in
+{
   options.services.kokoro-fastapi = {
     enable = mkEnableOption "kokoro-fastapi TTS server";
 

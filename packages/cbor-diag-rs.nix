@@ -1,4 +1,8 @@
-{ lib, fetchCrate, rustPlatform }:
+{
+  lib,
+  fetchCrate,
+  rustPlatform,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "cbor-diag-cli";
@@ -13,7 +17,10 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     homepage = src.meta.homepage;
-    license = with licenses; [ mit asl20 ];
+    license = with licenses; [
+      mit
+      asl20
+    ];
     maintainers = [ maintainers.nemo157 ];
   };
 }

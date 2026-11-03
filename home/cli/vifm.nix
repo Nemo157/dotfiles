@@ -4,7 +4,10 @@ let
 
   vifm-image-viewer = pkgs.writeShellApplication {
     name = "vifm-image-viewer";
-    runtimeInputs = with pkgs; [ imagemagick kitty ];
+    runtimeInputs = with pkgs; [
+      imagemagick
+      kitty
+    ];
     text = ''
       if [ "$1" == "clear" ]
       then
@@ -59,7 +62,11 @@ let
 
   vifm-music-viewer = pkgs.writeShellApplication {
     name = "vifm-music-viewer";
-    runtimeInputs = with pkgs; [ imagemagick kitty ffmpeg ];
+    runtimeInputs = with pkgs; [
+      imagemagick
+      kitty
+      ffmpeg
+    ];
     text = ''
       if [ "$1" == "clear" ]
       then
@@ -100,7 +107,11 @@ let
 
   vifm-epub-viewer = pkgs.writeShellApplication {
     name = "vifm-epub-viewer";
-    runtimeInputs = with pkgs; [ imagemagick kitty calibre ];
+    runtimeInputs = with pkgs; [
+      imagemagick
+      kitty
+      calibre
+    ];
     text = ''
       if [ "$1" == "clear" ]
       then
@@ -137,7 +148,8 @@ let
       fi
     '';
   };
-in {
+in
+{
   home.packages = with pkgs; [
     vifm
 

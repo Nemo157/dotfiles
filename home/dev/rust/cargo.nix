@@ -1,11 +1,17 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 let
   setup-xdg-cargo-home = pkgs.writeShellApplication {
     name = "setup-xdg-cargo-home";
-    runtimeInputs = [pkgs.coreutils];
+    runtimeInputs = [ pkgs.coreutils ];
     text = lib.readFile ./setup-xdg-cargo-home.sh;
   };
-in {
+in
+{
   home.sessionVariables = {
     CARGO_HOME = "$XDG_RUNTIME_DIR/cargo-home";
   };
@@ -15,7 +21,7 @@ in {
       CARGO_HOME = "$XDG_RUNTIME_DIR/cargo-home";
     };
 
-    services ={
+    services = {
       setup-xdg-cargo-home = {
         Service = {
           ExecStart = lib.getExe setup-xdg-cargo-home;

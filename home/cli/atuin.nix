@@ -1,4 +1,11 @@
-{ lib, pkgs, config, ts, ... }: {
+{
+  lib,
+  pkgs,
+  config,
+  ts,
+  ...
+}:
+{
   programs.atuin = {
     enable = true;
     flags = [
@@ -16,7 +23,8 @@
       show_preview = true;
       search_mode = "prefix";
       keymap_mode = "auto";
-    } // lib.optionalAttrs pkgs.stdenv.isLinux {
+    }
+    // lib.optionalAttrs pkgs.stdenv.isLinux {
       daemon = {
         enabled = true;
         socket_path = "/run/user/1000/atuin.socket";

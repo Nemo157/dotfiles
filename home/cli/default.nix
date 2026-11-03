@@ -79,7 +79,11 @@
     '';
 
     miniserve-archive = {
-      runtimeInputs = with pkgs; [ archivemount coreutils miniserve ];
+      runtimeInputs = with pkgs; [
+        archivemount
+        coreutils
+        miniserve
+      ];
       text = ''
         trap exit SIGINT
 

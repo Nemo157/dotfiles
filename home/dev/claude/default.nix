@@ -2,17 +2,24 @@
 let
   claude-statusline = pkgs.writeShellApplication {
     name = "claude-statusline";
-    runtimeInputs = [ pkgs.jq pkgs.jujutsu ];
+    runtimeInputs = [
+      pkgs.jq
+      pkgs.jujutsu
+    ];
     text = lib.readFile ./claude-statusline.sh;
   };
 
   jj-claude = pkgs.writeShellApplication {
     name = "jj-claude";
-    runtimeInputs = [ pkgs.coreutils pkgs.jujutsu ];
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.jujutsu
+    ];
     text = lib.readFile ./jj-claude.sh;
   };
 
-in {
+in
+{
   programs.claude-code = {
     enable = true;
 
@@ -100,5 +107,10 @@ in {
   };
 
   # Run a claude instance in a fresh workspace
-  programs.jujutsu.settings.aliases.claude = ["util" "exec" "--" (lib.getExe jj-claude)];
+  programs.jujutsu.settings.aliases.claude = [
+    "util"
+    "exec"
+    "--"
+    (lib.getExe jj-claude)
+  ];
 }

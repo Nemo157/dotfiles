@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   boot.kernelPatches = [
     {
       name = "amd-bsb-fix";

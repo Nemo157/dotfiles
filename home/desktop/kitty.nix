@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   kitty-shell = pkgs.writeShellApplication {
     name = "kitty-tmux-session";
@@ -7,7 +12,7 @@ let
       pkgs.tmux
     ];
     text = ''
-        zsh --login -c "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
+      zsh --login -c "tmux -u new-session -s primary-$(hostname -s) -t primary -A"
     '';
   };
 
@@ -46,7 +51,8 @@ let
     color21 #${palette.base06}
   '';
 
-in {
+in
+{
   programs.kitty = {
     enable = true;
 
@@ -77,7 +83,8 @@ in {
       dim_opacity = "0.8";
 
       shell = lib.getExe kitty-shell;
-    } // lib.optionalAttrs pkgs.stdenv.isLinux {
+    }
+    // lib.optionalAttrs pkgs.stdenv.isLinux {
       allow_remote_control = "socket-only";
       listen_on = "unix:$XDG_RUNTIME_DIR/kitty-{kitty_pid}.socket";
     };
@@ -105,4 +112,3 @@ in {
     "kitty/kitty.conf".onChange = lib.mkForce "";
   };
 }
-

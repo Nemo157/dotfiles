@@ -1,4 +1,11 @@
-{ nixos-hardware, config, pkgs, ts, ... }: {
+{
+  nixos-hardware,
+  config,
+  pkgs,
+  ts,
+  ...
+}:
+{
   imports = [
     ../client
     ../laptop

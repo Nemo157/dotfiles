@@ -30,7 +30,7 @@
   systemd.services.nix-gen-gc = {
     description = "NixOS Generation Garbage Collector";
     script = "exec ${config.nix.package.out}/bin/nix-env -vvvv --profile /nix/var/nix/profiles/system --delete-generations +10";
-    wantedBy = ["nix-gc.service"];
+    wantedBy = [ "nix-gc.service" ];
     serviceConfig.Type = "oneshot";
   };
 

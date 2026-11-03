@@ -1,4 +1,10 @@
-{ config, nixos-hardware, pkgs, ... }: {
+{
+  config,
+  nixos-hardware,
+  pkgs,
+  ...
+}:
+{
   imports = [
     ../client
     ../laptop
@@ -37,7 +43,10 @@
 
   main-user = "wim";
 
-  nix.settings.trusted-users = ["root" "wim"];
+  nix.settings.trusted-users = [
+    "root"
+    "wim"
+  ];
 
   hardware.enableRedistributableFirmware = true;
 

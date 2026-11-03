@@ -1,4 +1,9 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 let
   systemctl = "${config.systemd.package}/bin/systemctl";
   lighthouse = lib.getExe pkgs.lighthouse-steamvr;

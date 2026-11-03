@@ -1,9 +1,17 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.services.adaptive-brightness;
 
-  script = pkgs.writers.writePython3Bin "adaptive-brightness" { } (builtins.readFile ./adaptive-brightness.py);
-in {
+  script = pkgs.writers.writePython3Bin "adaptive-brightness" { } (
+    builtins.readFile ./adaptive-brightness.py
+  );
+in
+{
   options.services.adaptive-brightness = {
     enable = lib.mkEnableOption "adaptive monitor brightness based on ambient light";
 
@@ -76,7 +84,12 @@ in {
           "BRIGHTNESS_MIN=${toString cfg.brightnessMin}"
           "BRIGHTNESS_MAX=${toString cfg.brightnessMax}"
           "INTERVAL=${toString cfg.interval}"
-          "PATH=${lib.makeBinPath [ pkgs.ddcutil pkgs.coreutils ]}"
+          "PATH=${
+            lib.makeBinPath [
+              pkgs.ddcutil
+              pkgs.coreutils
+            ]
+          }"
         ];
         LoadCredential = "ha-token:${cfg.tokenFile}";
       };

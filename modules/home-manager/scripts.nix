@@ -1,26 +1,40 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
-  inherit (lib) mkOption mapAttrs' nameValuePair types getExe;
+  inherit (lib)
+    mkOption
+    mapAttrs'
+    nameValuePair
+    types
+    getExe
+    ;
   inherit (pkgs) writeShellApplication;
-in {
+in
+{
   options = {
     scripts = mkOption {
-      type = types.attrsOf(types.submodule {
-        options = {
-          text = mkOption {
-            type = types.nullOr types.lines;
-            default = null;
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            text = mkOption {
+              type = types.nullOr types.lines;
+              default = null;
+            };
+            source = mkOption {
+              type = types.path;
+            };
+            runtimeInputs = mkOption {
+              type = types.listOf types.package;
+              default = [ ];
+            };
           };
-          source = mkOption {
-            type = types.path;
-          };
-          runtimeInputs = mkOption {
-            type = types.listOf types.package;
-            default = [];
-          };
-        };
-      });
-      default = {};
+        }
+      );
+      default = { };
     };
 
     binHome = mkOption {
@@ -33,16 +47,16 @@ in {
   config = {
     home.sessionPath = [ config.binHome ];
 
-    home.file = mapAttrs'
-    (name: file:
+    home.file = mapAttrs' (
+      name: file:
       let
         text = if file.text != null then file.text else lib.readFile file.source;
         source = getExe (writeShellApplication {
           inherit name text;
           inherit (file) runtimeInputs;
         });
-      in nameValuePair "${config.binHome}/${name}" { inherit source; }
-    )
-      config.scripts;
+      in
+      nameValuePair "${config.binHome}/${name}" { inherit source; }
+    ) config.scripts;
   };
 }

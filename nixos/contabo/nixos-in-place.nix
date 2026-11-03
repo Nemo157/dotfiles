@@ -1,6 +1,6 @@
 { config, pkgs, ... }: {
 
-  boot.kernelParams = ["boot.shell_on_fail"];
+  boot.kernelParams = [ "boot.shell_on_fail" ];
   boot.loader.grub.device = "/dev/sda";
   boot.loader.grub.storePath = "/nixos/nix/store";
   boot.initrd.supportedFilesystems = [ "ext4" ];

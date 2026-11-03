@@ -17,7 +17,10 @@
   system.stateVersion = "23.05";
 
   nix = {
-    settings.trusted-users = [ "root" "nix-ssh" ];
+    settings.trusted-users = [
+      "root"
+      "nix-ssh"
+    ];
 
     sshServe = {
       enable = true;

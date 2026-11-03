@@ -1,4 +1,5 @@
-{ config, pkgs, ... }: let
+{ config, pkgs, ... }:
+let
   ssh-keys = [
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIN0g9YhXofS5DOZJZP5Ji38bhxbFgA9LcBWMrZ2sFooTAAAABHNzaDo= nemo157@mithril"
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAINPdciLKw1xWMzKVeacAUOtqkfd8GyAfpSJTl/NodScKAAAABHNzaDo= nemo157@zinc"
@@ -6,7 +7,8 @@
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIE5gbS2iAoFj4gbPQrvb/YIUN9WL91CKPPeT8brQ71omAAAABHNzaDo="
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIKg1UZY31YuMijgeRLu1Nx/v4EPcScIP3T3M5p36e6eOAAAABHNzaDo= nemo157@lime"
   ];
-in {
+in
+{
   programs = {
     zsh.enable = true;
   };

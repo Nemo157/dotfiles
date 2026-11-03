@@ -21,15 +21,17 @@ buildNpmPackage (finalAttrs: {
 
   # Peer deps (@earendil-works/pi-*) are provided by the host pi install at
   # runtime; --legacy-peer-deps stops npm from trying to fetch them.
-  npmFlags = [ "--omit=dev" "--legacy-peer-deps" ];
+  npmFlags = [
+    "--omit=dev"
+    "--legacy-peer-deps"
+  ];
 
   # Nothing to build: pi loads index.ts directly.
   dontNpmBuild = true;
 
   # Expose the package root (directory containing package.json) so consumers
   # can add it to `settings.packages` without hard-coding the store path.
-  passthru.packageRoot =
-    "${finalAttrs.finalPackage}/lib/node_modules/web-fetch";
+  passthru.packageRoot = "${finalAttrs.finalPackage}/lib/node_modules/web-fetch";
 
   meta = {
     description = "Web fetch/extract tool for the Pi coding agent";

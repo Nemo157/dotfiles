@@ -1,8 +1,18 @@
-{ lib, config, pkgs, osConfig, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  osConfig,
+  ...
+}:
 let
   xr-chaperone-idle = pkgs.writeShellApplication {
     name = "xr-chaperone-idle";
-    runtimeInputs = [ pkgs.xr-chaperone pkgs.monado pkgs.gawk ];
+    runtimeInputs = [
+      pkgs.xr-chaperone
+      pkgs.monado
+      pkgs.gawk
+    ];
     text = ''
       grace=30  # seconds alone before quitting
 
@@ -40,29 +50,32 @@ in
     pkgs.xr-chaperone
     pkgs.xdg-utils
     pkgs.cameractrls
-    (pkgs.callPackage ./mpv-xr.nix {})
+    (pkgs.callPackage ./mpv-xr.nix { })
     pkgs.unstable.lighthouse-steamvr
   ];
 
   home.file = {
     # These are required for monado to find the flatpak steam lighthouse binaries.
-    ".steam/root".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
-    ".steam/steam".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
+    ".steam/root".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
+    ".steam/steam".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.var/app/com.valvesoftware.Steam/.local/share/Steam";
 
     # If SteamVR is running, then use that, otherwise connect to monado via xrizer.
     # Needs to be applied to individual games:
     #     ~/.local/bin/vr-launch %command%
-    ".var/app/com.valvesoftware.Steam/.local/bin/vr-launch".source = pkgs.writeShellScript "vr-launch" ''
-      STEAMVR="$HOME/.local/share/Steam/steamapps/common/SteamVR"
-      if ${pkgs.procps}/bin/pgrep -x vrserver >/dev/null; then
-        export XR_RUNTIME_JSON="$STEAMVR/steamxr_linux64.json"
-      else
-        export VR_OVERRIDE="${xrizer}/lib/xrizer"
-        export XR_RUNTIME_JSON="${monado}/share/openxr/1/openxr_monado.json"
-        export PRESSURE_VESSEL_FILESYSTEMS_RW="$XDG_RUNTIME_DIR/monado_comp_ipc"
-      fi
-      exec "$@"
-    '';
+    ".var/app/com.valvesoftware.Steam/.local/bin/vr-launch".source =
+      pkgs.writeShellScript "vr-launch" ''
+        STEAMVR="$HOME/.local/share/Steam/steamapps/common/SteamVR"
+        if ${pkgs.procps}/bin/pgrep -x vrserver >/dev/null; then
+          export XR_RUNTIME_JSON="$STEAMVR/steamxr_linux64.json"
+        else
+          export VR_OVERRIDE="${xrizer}/lib/xrizer"
+          export XR_RUNTIME_JSON="${monado}/share/openxr/1/openxr_monado.json"
+          export PRESSURE_VESSEL_FILESYSTEMS_RW="$XDG_RUNTIME_DIR/monado_comp_ipc"
+        fi
+        exec "$@"
+      '';
   };
 
   xdg.configFile."wayvr/theme/gui/watch.xml".source = ./watch.xml;

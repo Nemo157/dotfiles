@@ -1,7 +1,8 @@
 { lib, ... }:
 let
   entryBefore = lib.hm.dag.entryBefore;
-in {
+in
+{
   programs.ssh = {
     settings = {
       "*.infra.rust-lang.org" = {
@@ -9,7 +10,7 @@ in {
         IdentityFile = "~/.ssh/id_ed25519.infra.rust-lang.org";
       };
 
-      "bastion.infra.rust-lang.org" = entryBefore ["*.infra.rust-lang.org"] {
+      "bastion.infra.rust-lang.org" = entryBefore [ "*.infra.rust-lang.org" ] {
         User = "nemo157";
         ProxyJump = "contabo";
       };

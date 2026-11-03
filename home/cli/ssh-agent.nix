@@ -1,9 +1,12 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   inherit (pkgs.stdenv) isLinux isDarwin;
-  socketDir =
-    if isDarwin then "$TMPDIR/sshagmux"
-    else "$XDG_RUNTIME_DIR";
+  socketDir = if isDarwin then "$TMPDIR/sshagmux" else "$XDG_RUNTIME_DIR";
 
   shared = {
     home.packages = [ pkgs.sshagmux ];
@@ -47,11 +50,13 @@ let
       sshagmux = {
         enable = true;
         config = {
-          ProgramArguments = [ "${pkgs.writeShellScript "sshagmux-start" ''
-            mkdir -p "$TMPDIR/sshagmux"
-            rm -f "$TMPDIR/sshagmux/ssh-agent.socket"
-            exec ${pkgs.sshagmux}/bin/sshagmux daemon --bind-address "$TMPDIR/sshagmux/ssh-agent.socket"
-          ''}" ];
+          ProgramArguments = [
+            "${pkgs.writeShellScript "sshagmux-start" ''
+              mkdir -p "$TMPDIR/sshagmux"
+              rm -f "$TMPDIR/sshagmux/ssh-agent.socket"
+              exec ${pkgs.sshagmux}/bin/sshagmux daemon --bind-address "$TMPDIR/sshagmux/ssh-agent.socket"
+            ''}"
+          ];
           KeepAlive = true;
           RunAtLoad = true;
         };
@@ -59,16 +64,18 @@ let
       ssh-agent = {
         enable = true;
         config = {
-          ProgramArguments = [ "${pkgs.writeShellScript "ssh-agent-start" ''
-            mkdir -p "$TMPDIR/sshagmux"
-            rm -f "$TMPDIR/sshagmux/ssh-agent-upstream.socket"
-            ${pkgs.openssh}/bin/ssh-agent -D -a "$TMPDIR/sshagmux/ssh-agent-upstream.socket" &
-            AGENT_PID=$!
-            sleep 1
-            SSH_AUTH_SOCK="$TMPDIR/sshagmux/ssh-agent.socket" \
-              ${pkgs.sshagmux}/bin/sshagmux add-upstream --forward-adds "$TMPDIR/sshagmux/ssh-agent-upstream.socket"
-            wait $AGENT_PID
-          ''}" ];
+          ProgramArguments = [
+            "${pkgs.writeShellScript "ssh-agent-start" ''
+              mkdir -p "$TMPDIR/sshagmux"
+              rm -f "$TMPDIR/sshagmux/ssh-agent-upstream.socket"
+              ${pkgs.openssh}/bin/ssh-agent -D -a "$TMPDIR/sshagmux/ssh-agent-upstream.socket" &
+              AGENT_PID=$!
+              sleep 1
+              SSH_AUTH_SOCK="$TMPDIR/sshagmux/ssh-agent.socket" \
+                ${pkgs.sshagmux}/bin/sshagmux add-upstream --forward-adds "$TMPDIR/sshagmux/ssh-agent-upstream.socket"
+              wait $AGENT_PID
+            ''}"
+          ];
           KeepAlive = true;
           RunAtLoad = true;
         };
@@ -76,8 +83,8 @@ let
     };
   };
 in
-  lib.mkMerge [
-    shared
-    (lib.mkIf isLinux linux)
-    (lib.mkIf isDarwin darwin)
-  ]
+lib.mkMerge [
+  shared
+  (lib.mkIf isLinux linux)
+  (lib.mkIf isDarwin darwin)
+]

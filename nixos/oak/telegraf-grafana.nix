@@ -34,9 +34,9 @@ in
   services.telegraf = {
     extraConfig = {
       inputs = {
-        docker = {};
-        linux_cpu = {};
-        sensors = {};
+        docker = { };
+        linux_cpu = { };
+        sensors = { };
         kubernetes = {
           url = "https://kind-control-plane:10250";
           bearer_token = "/dev/null";

@@ -1,6 +1,18 @@
-{ name, ts, syncthing, config, pkgs, lib, ... }: {
+{
+  name,
+  ts,
+  syncthing,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
 
-  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 8384 22000 ];
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [
+    8384
+    22000
+  ];
 
   services.syncthing = {
     enable = true;

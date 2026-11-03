@@ -1,4 +1,11 @@
-{ lib, pkgs, fetchFromGitHub, buildGoModule, testers, maintainers }:
+{
+  lib,
+  pkgs,
+  fetchFromGitHub,
+  buildGoModule,
+  testers,
+  maintainers,
+}:
 let
   gh-poi = buildGoModule rec {
     pname = "gh-poi";
@@ -37,4 +44,5 @@ let
       maintainers = [ maintainers.nemo157 ];
     };
   };
-in gh-poi
+in
+gh-poi

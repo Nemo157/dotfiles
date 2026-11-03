@@ -1,6 +1,8 @@
-{ config, pkgs, ... }: let
+{ config, pkgs, ... }:
+let
   plugins = pkgs.vimPlugins // pkgs.callPackage ../vim/plugins.nix { };
-in {
+in
+{
   home.packages = [
     pkgs.terraform-ls
     pkgs.typescript-language-server

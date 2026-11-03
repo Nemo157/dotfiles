@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   cfg = config.programs.niri;
   configFile = pkgs.writeTextFile {
@@ -8,14 +13,17 @@ let
       ${lib.getExe cfg.package} validate --config "$target"
     '';
 
-    text = cfg.config + lib.optionalString (cfg.layout != "") ''
+    text =
+      cfg.config
+      + lib.optionalString (cfg.layout != "") ''
 
-      layout {
-      ${cfg.layout}
-      }
-    '';
+        layout {
+        ${cfg.layout}
+        }
+      '';
   };
-in {
+in
+{
   options.programs.niri = {
     enable = lib.mkEnableOption "niri, a scrollable-tiling Wayland compositor";
 

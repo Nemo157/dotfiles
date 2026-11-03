@@ -1,4 +1,10 @@
-{ name, config, ts, ... }: {
+{
+  name,
+  config,
+  ts,
+  ...
+}:
+{
   services.grafana = {
     enable = true;
     settings = {

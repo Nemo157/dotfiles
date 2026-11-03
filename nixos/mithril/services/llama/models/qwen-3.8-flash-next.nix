@@ -1,4 +1,11 @@
-{ lib, pkgs, config, fetchHF, ... }: let
+{
+  lib,
+  pkgs,
+  config,
+  fetchHF,
+  ...
+}:
+let
   repo = "unsloth/Qwen3.8-Flash-Next-GGUF";
   rev = "38bb39ee97821de2c9009abb7e93950eec396e66";
 
@@ -10,15 +17,18 @@
 
   pad = lib.fixedWidthNumber 5;
 
-  files = pkgs.linkFarm "qwen3.8-flash-next-ud-iq3_xxs" (lib.imap1 (i: hash: rec {
-    name = "Qwen3.8-Flash-Next-UD-IQ3_XXS-${pad i}-of-${pad (builtins.length hashes)}.gguf";
-    path = fetchHF {
-      inherit repo rev hash;
-      file = "UD-IQ3_XXS/${name}";
-    };
-  }) hashes);
+  files = pkgs.linkFarm "qwen3.8-flash-next-ud-iq3_xxs" (
+    lib.imap1 (i: hash: rec {
+      name = "Qwen3.8-Flash-Next-UD-IQ3_XXS-${pad i}-of-${pad (builtins.length hashes)}.gguf";
+      path = fetchHF {
+        inherit repo rev hash;
+        file = "UD-IQ3_XXS/${name}";
+      };
+    }) hashes
+  );
 
-in {
+in
+{
   services.llama-swap.models.llama = {
     "Qwen3.8-Flash-Next-UD-IQ3_XXS" = {
       model = "${files}/Qwen3.8-Flash-Next-UD-IQ3_XXS-00001-of-00003.gguf";

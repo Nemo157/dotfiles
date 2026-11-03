@@ -12,25 +12,36 @@
     package = pkgs.unstable.jujutsu;
     settings = {
       ui = {
-        pager = ["env" "LESSANSIENDCHARS=Km" "less" "-RF"];
+        pager = [
+          "env"
+          "LESSANSIENDCHARS=Km"
+          "less"
+          "-RF"
+        ];
         diff-formatter = "delta";
         always-allow-large-revsets = true;
       };
 
       merge-tools = {
         delta = {
-          program = lib.getExe (pkgs.writeShellApplication {
-            name = "delta";
-            runtimeInputs = [pkgs.delta];
-            text = ''
-              cd "$(dirname "$1")"
-              delta "$(basename "$1")" "$(basename "$2")" || true
-            '';
-          });
+          program = lib.getExe (
+            pkgs.writeShellApplication {
+              name = "delta";
+              runtimeInputs = [ pkgs.delta ];
+              text = ''
+                cd "$(dirname "$1")"
+                delta "$(basename "$1")" "$(basename "$2")" || true
+              '';
+            }
+          );
         };
         difftastic = {
           program = lib.getExe pkgs.difftastic;
-          diff-args = [ "--color=always" "$left" "$right" ];
+          diff-args = [
+            "--color=always"
+            "$left"
+            "$right"
+          ];
         };
       };
 
@@ -139,18 +150,44 @@
       };
 
       aliases = {
-        sh = ["util" "exec" "--" "bash" "-c" ''jj log --no-graph -p -T builtin_log_detailed -r "''${1:-@}" -- not:GENERATED'' "jj-sh"];
-        lo = ["log" "-r" "current"];
-        f = ["git" "fetch" "--all-remotes"];
-        redundancy-reduction = ["util" "exec" "--" (lib.getExe (pkgs.writeShellApplication {
-          name = "jj-redundancy-reduction";
-          runtimeInputs = [ pkgs.jujutsu ];
-          text = ''jj rebase -s "exactly($1, 1)" -d "exactly($1, 1)-~::exactly($1, 1)--"'';
-        }))];
+        sh = [
+          "util"
+          "exec"
+          "--"
+          "bash"
+          "-c"
+          ''jj log --no-graph -p -T builtin_log_detailed -r "''${1:-@}" -- not:GENERATED''
+          "jj-sh"
+        ];
+        lo = [
+          "log"
+          "-r"
+          "current"
+        ];
+        f = [
+          "git"
+          "fetch"
+          "--all-remotes"
+        ];
+        redundancy-reduction = [
+          "util"
+          "exec"
+          "--"
+          (lib.getExe (
+            pkgs.writeShellApplication {
+              name = "jj-redundancy-reduction";
+              runtimeInputs = [ pkgs.jujutsu ];
+              text = ''jj rebase -s "exactly($1, 1)" -d "exactly($1, 1)-~::exactly($1, 1)--"'';
+            }
+          ))
+        ];
       };
 
       git = {
-        fetch = ["origin" "upstream"];
+        fetch = [
+          "origin"
+          "upstream"
+        ];
         private-commits = "private()";
       };
     };

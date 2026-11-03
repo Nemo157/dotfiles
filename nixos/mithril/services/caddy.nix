@@ -1,4 +1,12 @@
-{ name, ts, config, pkgs, lib, ... }: {
+{
+  name,
+  ts,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
   services.caddy = {
     enable = true;
     email = "mithril.letsencrypt@nemo157.com";
@@ -26,11 +34,11 @@
     '';
   };
 
-   age.secrets = {
-     tailscale-auth-key = {
-       file = ./tailscale-auth-key.age;
-     };
-   };
+  age.secrets = {
+    tailscale-auth-key = {
+      file = ./tailscale-auth-key.age;
+    };
+  };
 
   systemd.services.caddy = {
     serviceConfig = {

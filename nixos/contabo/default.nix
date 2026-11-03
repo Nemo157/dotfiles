@@ -1,4 +1,12 @@
-{ name, ts, config, pkgs, lib, ... }: {
+{
+  name,
+  ts,
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
 
   imports = [
     ../personal
@@ -15,7 +23,11 @@
   boot.loader.grub.enable = true;
 
   networking.hostName = "contabo";
-  networking.firewall.allowedTCPPorts = [ 80 443 8448 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+    8448
+  ];
   networking.firewall.allowedUDPPorts = [ 43211 ];
 
   networking.interfaces.ens18.ipv6.addresses = [
@@ -92,7 +104,7 @@
 
   systemd.services.caddy.serviceConfig.ExecStartPre = lib.mkForce [
     "/bin/sh -c 'sleep 5'" # workaround time taken to bind IP addresses
-    ''${config.services.caddy.package}/bin/caddy validate --config ${config.services.caddy.configFile}''
+    "${config.services.caddy.package}/bin/caddy validate --config ${config.services.caddy.configFile}"
   ];
 
   users.mutableUsers = false;

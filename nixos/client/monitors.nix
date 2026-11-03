@@ -33,7 +33,8 @@ let
       '';
     };
   };
-in {
+in
+{
   hardware = {
     i2c.enable = true;
   };
@@ -46,5 +47,5 @@ in {
     pathsToLink = [
       "/share/ddcutil"
     ];
-};
+  };
 }

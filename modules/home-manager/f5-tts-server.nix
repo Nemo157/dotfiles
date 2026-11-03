@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -11,7 +16,9 @@ let
 
   environment = defaultEnvironment // cfg.environment;
 
-  envFlags = concatStringsSep " " (mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment);
+  envFlags = concatStringsSep " " (
+    mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment
+  );
 
   execStartPre = pkgs.writeShellScript "f5-tts-server-build" ''
     if ! ${pkgs.podman}/bin/podman image exists ${cfg.image}; then
@@ -44,7 +51,8 @@ let
       ${optionalString (cfg.environmentFile != null) "--env-file ${cfg.environmentFile}"} \
       ${cfg.image}
   '';
-in {
+in
+{
   options.services.f5-tts-server = {
     enable = mkEnableOption "F5-TTS-Server TTS server";
 

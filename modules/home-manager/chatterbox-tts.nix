@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -12,7 +17,9 @@ let
 
   environment = defaultEnvironment // cfg.environment;
 
-  envFlags = concatStringsSep " " (mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment);
+  envFlags = concatStringsSep " " (
+    mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment
+  );
 
   configFile = (pkgs.formats.yaml { }).generate "chatterbox-tts-config.yaml" {
     device = "auto";
@@ -39,7 +46,8 @@ let
       ${cfg.image} \
       -c 'cp /app/config.base.yaml /app/config.yaml && exec /opt/nvidia/nvidia_entrypoint.sh python3 server.py'
   '';
-in {
+in
+{
   options.services.chatterbox-tts = {
     enable = mkEnableOption "chatterbox-tts TTS server";
 

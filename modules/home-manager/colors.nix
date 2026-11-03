@@ -43,21 +43,18 @@ let
         '';
       };
       variant = lib.mkOption {
-        type = lib.types.enum [ "dark" "light" ];
-        default =
-          if builtins.substring 0 1 cfg.palette.base00 < "5" then
-            "dark"
-          else
-            "light";
+        type = lib.types.enum [
+          "dark"
+          "light"
+        ];
+        default = if builtins.substring 0 1 cfg.palette.base00 < "5" then "dark" else "light";
         description = ''
           Whether the scheme is dark or light
         '';
       };
 
       palette = lib.mkOption {
-        type = lib.types.attrsOf (
-          lib.types.coercedTo lib.types.str (lib.removePrefix "#") hexColorType
-        );
+        type = lib.types.attrsOf (lib.types.coercedTo lib.types.str (lib.removePrefix "#") hexColorType);
         default = { };
         example = lib.literalExpression ''
           {

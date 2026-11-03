@@ -1,6 +1,16 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   scripts.eww-wm-info = {
-    runtimeInputs = with pkgs; [ niri jq coreutils ];
+    runtimeInputs = with pkgs; [
+      niri
+      jq
+      coreutils
+    ];
     source = ./eww-wm-info.sh;
   };
 
@@ -30,17 +40,27 @@
   };
 
   scripts.eww-music-queue = {
-    runtimeInputs = with pkgs; [ mpc jq playerctl ];
+    runtimeInputs = with pkgs; [
+      mpc
+      jq
+      playerctl
+    ];
     source = ./eww-music-queue.sh;
   };
 
   scripts.eww-music-status = {
-    runtimeInputs = with pkgs; [ jq playerctl ];
+    runtimeInputs = with pkgs; [
+      jq
+      playerctl
+    ];
     source = ./eww-music-status.sh;
   };
 
   scripts.eww-music-metadata = {
-    runtimeInputs = with pkgs; [ jq playerctl ];
+    runtimeInputs = with pkgs; [
+      jq
+      playerctl
+    ];
     source = ./eww-music-metadata.sh;
   };
 
@@ -50,17 +70,31 @@
   };
 
   scripts.eww-auto-open-taskbars = {
-    runtimeInputs = with pkgs; [ eww niri socat jq ripgrep coreutils ];
+    runtimeInputs = with pkgs; [
+      eww
+      niri
+      socat
+      jq
+      ripgrep
+      coreutils
+    ];
     source = ./eww-auto-open-taskbars.sh;
   };
 
   scripts.eww-llama-swap = {
-    runtimeInputs = with pkgs; [ curl jq coreutils ];
+    runtimeInputs = with pkgs; [
+      curl
+      jq
+      coreutils
+    ];
     source = ./eww-llama-swap.sh;
   };
 
   scripts.eww-listenbrainz = {
-    runtimeInputs = with pkgs; [ curl jq ];
+    runtimeInputs = with pkgs; [
+      curl
+      jq
+    ];
     source = ./eww-listenbrainz.sh;
   };
 }

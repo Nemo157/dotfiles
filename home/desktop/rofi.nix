@@ -1,8 +1,16 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   run-command = pkgs.writeShellApplication {
     name = "run-command";
-    runtimeInputs = with pkgs; [ coreutils systemd ];
+    runtimeInputs = with pkgs; [
+      coreutils
+      systemd
+    ];
     text = ''
       run() {
         cmd="$1"
@@ -30,7 +38,8 @@ let
   rofimoji-modi = lib.concatStringsSep "," (
     lib.lists.map (mode: "${mode}:rofimoji -f ${mode}") rofimoji-modes
   );
-in {
+in
+{
   scripts.rofi-systemd = {
     runtimeInputs = with pkgs; [ systemd ];
     text = ''
@@ -39,12 +48,23 @@ in {
   };
 
   scripts.rofinix = {
-    runtimeInputs = [ pkgs.rofi pkgs.nix pkgs.coreutils pkgs.systemd ];
+    runtimeInputs = [
+      pkgs.rofi
+      pkgs.nix
+      pkgs.coreutils
+      pkgs.systemd
+    ];
     source = ./rofinix.sh;
   };
 
   scripts.rofi-characters = {
-    runtimeInputs = with pkgs; [ rofi rofimoji coreutils wtype wl-clipboard ];
+    runtimeInputs = with pkgs; [
+      rofi
+      rofimoji
+      coreutils
+      wtype
+      wl-clipboard
+    ];
     text = ''
       wl-copy -c
       rofi -show emojis -modi '${rofimoji-modi}'

@@ -1,4 +1,10 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   home.packages = [
     pkgs.ffmpeg
   ];
@@ -41,7 +47,10 @@
       };
 
       fetchart = {
-        sources = [ "filesystem" "coverart" ];
+        sources = [
+          "filesystem"
+          "coverart"
+        ];
       };
 
       convert = {

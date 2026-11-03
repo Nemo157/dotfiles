@@ -1,11 +1,17 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.programs.md-tui;
-  toml = pkgs.formats.toml {};
-in {
+  toml = pkgs.formats.toml { };
+in
+{
   options.programs.md-tui = {
     enable = mkEnableOption "md-tui markdown viewer";
 
@@ -17,7 +23,7 @@ in {
 
     settings = mkOption {
       type = toml.type;
-      default = {};
+      default = { };
       description = "Configuration written to ~/.config/mdt/config.toml";
       example = literalExpression ''
         {
@@ -33,7 +39,7 @@ in {
   config = mkIf cfg.enable {
     home.packages = [ cfg.package ];
 
-    xdg.configFile."mdt/config.toml" = mkIf (cfg.settings != {}) {
+    xdg.configFile."mdt/config.toml" = mkIf (cfg.settings != { }) {
       source = toml.generate "md-tui-config.toml" cfg.settings;
     };
   };

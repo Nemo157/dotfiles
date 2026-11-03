@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -6,27 +11,35 @@ let
   cfg = config.programs.claude-code;
 
   unwrapped = pkgs.unstable.claude-code;
-  json = pkgs.formats.json {};
-  yaml = pkgs.formats.yaml {};
+  json = pkgs.formats.json { };
+  yaml = pkgs.formats.yaml { };
 
   permissionsType = types.submodule {
     freeformType = json.type;
     options = {
       allow = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "List of allowed capabilities/commands";
-        example = [ "WebSearch" "Bash(cargo check:*)" "mcp__linear-server__get_issue" ];
+        example = [
+          "WebSearch"
+          "Bash(cargo check:*)"
+          "mcp__linear-server__get_issue"
+        ];
       };
 
       deny = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "List of denied capabilities/commands";
       };
 
       defaultMode = mkOption {
-        type = types.enum [ "acceptEdits" "ask" "deny" ];
+        type = types.enum [
+          "acceptEdits"
+          "ask"
+          "deny"
+        ];
         description = "Default permission mode for Claude operations";
       };
     };
@@ -76,53 +89,60 @@ let
     };
   };
 
-  skillType = types.submodule ({ name, ... }: {
-    options = {
-      name = mkOption {
-        type = types.strMatching "[a-z0-9-]+";
-        default = name;
-        description = "Skill name (lowercase, numbers, hyphens only)";
-      };
+  skillType = types.submodule (
+    { name, ... }: {
+      options = {
+        name = mkOption {
+          type = types.strMatching "[a-z0-9-]+";
+          default = name;
+          description = "Skill name (lowercase, numbers, hyphens only)";
+        };
 
-      description = mkOption {
-        type = types.str;
-        description = "Description of what the skill does and when to use it";
-      };
+        description = mkOption {
+          type = types.str;
+          description = "Description of what the skill does and when to use it";
+        };
 
-      allowed-tools = mkOption {
-        type = types.nullOr (types.listOf types.str);
-        default = null;
-        description = "Optional list of tools the skill is allowed to use";
-        example = [ "Read" "Grep" "Glob" ];
-      };
+        allowed-tools = mkOption {
+          type = types.nullOr (types.listOf types.str);
+          default = null;
+          description = "Optional list of tools the skill is allowed to use";
+          example = [
+            "Read"
+            "Grep"
+            "Glob"
+          ];
+        };
 
-      content = mkOption {
-        type = types.nullOr types.lines;
-        default = null;
-        description = "Skill body content as text";
-      };
+        content = mkOption {
+          type = types.nullOr types.lines;
+          default = null;
+          description = "Skill body content as text";
+        };
 
-      source = mkOption {
-        type = types.nullOr types.path;
-        default = null;
-        description = "Skill body content from file";
-      };
+        source = mkOption {
+          type = types.nullOr types.path;
+          default = null;
+          description = "Skill body content from file";
+        };
 
-      extraFiles = mkOption {
-        type = types.attrsOf types.path;
-        default = {};
-        description = "Additional files to include in the skill directory";
-        example = {
-          "template.txt" = ./template.txt;
-          "helper.sh" = ./helper.sh;
+        extraFiles = mkOption {
+          type = types.attrsOf types.path;
+          default = { };
+          description = "Additional files to include in the skill directory";
+          example = {
+            "template.txt" = ./template.txt;
+            "helper.sh" = ./helper.sh;
+          };
         };
       };
-    };
-  });
+    }
+  );
 
   claude-code-settings = json.generate "claude-code-settings.json" cfg.settings;
 
-  importFiles = lib.mapAttrs (name: import:
+  importFiles = lib.mapAttrs (
+    name: import:
     if import.text != null then
       pkgs.writeText "${name}.md" import.text
     else if import.source != null then
@@ -131,18 +151,18 @@ let
       throw "Import '${name}' must have either text or source specified"
   ) cfg.imports;
 
-  importReferences = lib.concatStringsSep "\n" (lib.mapAttrsToList (name: import:
-    "Reference @${importFiles.${name}} for ${import.description}"
-  ) cfg.imports);
+  importReferences = lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (
+      name: import: "Reference @${importFiles.${name}} for ${import.description}"
+    ) cfg.imports
+  );
 
-  claudeMdContent = if cfg.imports != {} then
-    cfg.memory + "\n" + importReferences
-  else
-    cfg.memory;
+  claudeMdContent = if cfg.imports != { } then cfg.memory + "\n" + importReferences else cfg.memory;
 
   claude-md-file = pkgs.writeText "CLAUDE.md" claudeMdContent;
 
-  agentFiles = lib.mapAttrs (name: agent:
+  agentFiles = lib.mapAttrs (
+    name: agent:
     if agent.text != null then
       pkgs.writeText "${name}.md" agent.text
     else if agent.source != null then
@@ -151,19 +171,22 @@ let
       throw "Agent '${name}' must have either text or source specified"
   ) cfg.agents;
 
-  skillFiles = lib.mapAttrs (name: skill:
+  skillFiles = lib.mapAttrs (
+    name: skill:
     let
-      bodyContent = if skill.content != null then
-        skill.content
-      else if skill.source != null then
-        builtins.readFile skill.source
-      else
-        throw "Skill '${name}' must have either content or source specified";
+      bodyContent =
+        if skill.content != null then
+          skill.content
+        else if skill.source != null then
+          builtins.readFile skill.source
+        else
+          throw "Skill '${name}' must have either content or source specified";
 
       frontmatterData = {
         name = skill.name;
         description = skill.description;
-      } // lib.optionalAttrs (skill.allowed-tools != null) {
+      }
+      // lib.optionalAttrs (skill.allowed-tools != null) {
         allowed-tools = skill.allowed-tools;
       };
 
@@ -172,21 +195,28 @@ let
 
       skillMd = pkgs.writeText "SKILL.md" ("---\n" + frontmatterYaml + "---\n\n" + bodyContent);
     in
-      { inherit skillMd; extraFiles = skill.extraFiles; }
+    {
+      inherit skillMd;
+      extraFiles = skill.extraFiles;
+    }
   ) cfg.skills;
 
-  claude-code = if cfg.configDirOverride then
-    pkgs.runCommand unwrapped.name {
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-    } ''
-      makeWrapper "${lib.getExe unwrapped}" $out/bin/claude \
-        --set CLAUDE_CONFIG_DIR ${config.xdg.configHome}/claude
-    ''
-  else
-    unwrapped;
+  claude-code =
+    if cfg.configDirOverride then
+      pkgs.runCommand unwrapped.name
+        {
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+        }
+        ''
+          makeWrapper "${lib.getExe unwrapped}" $out/bin/claude \
+            --set CLAUDE_CONFIG_DIR ${config.xdg.configHome}/claude
+        ''
+    else
+      unwrapped;
 
   configDir = if cfg.configDirOverride then ".config/claude" else ".claude";
-in {
+in
+{
   options.programs.claude-code = {
     enable = mkEnableOption "Claude Code CLI tool";
 
@@ -211,7 +241,10 @@ in {
           command = "/path/to/statusline-script";
         };
         permissions = {
-          allow = [ "WebSearch" "Bash(cargo check:*)" ];
+          allow = [
+            "WebSearch"
+            "Bash(cargo check:*)"
+          ];
           defaultMode = "ask";
         };
         env = {
@@ -231,22 +264,24 @@ in {
     };
 
     agents = mkOption {
-      type = types.attrsOf (types.submodule {
-        options = {
-          text = mkOption {
-            type = types.nullOr types.lines;
-            default = null;
-            description = "Agent content as text";
-          };
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            text = mkOption {
+              type = types.nullOr types.lines;
+              default = null;
+              description = "Agent content as text";
+            };
 
-          source = mkOption {
-            type = types.nullOr types.path;
-            default = null;
-            description = "Agent content from file";
+            source = mkOption {
+              type = types.nullOr types.path;
+              default = null;
+              description = "Agent content from file";
+            };
           };
-        };
-      });
-      default = {};
+        }
+      );
+      default = { };
       description = "Agent definitions with name as key and text or source content";
       example = {
         code-reviewer = {
@@ -262,27 +297,29 @@ in {
     };
 
     imports = mkOption {
-      type = types.attrsOf (types.submodule {
-        options = {
-          text = mkOption {
-            type = types.nullOr types.lines;
-            default = null;
-            description = "Import content as text";
-          };
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            text = mkOption {
+              type = types.nullOr types.lines;
+              default = null;
+              description = "Import content as text";
+            };
 
-          source = mkOption {
-            type = types.nullOr types.path;
-            default = null;
-            description = "Import content from file";
-          };
+            source = mkOption {
+              type = types.nullOr types.path;
+              default = null;
+              description = "Import content from file";
+            };
 
-          description = mkOption {
-            type = types.str;
-            description = "Description of what this import provides";
+            description = mkOption {
+              type = types.str;
+              description = "Description of what this import provides";
+            };
           };
-        };
-      });
-      default = {};
+        }
+      );
+      default = { };
       description = "Import definitions with name as key, content, and description";
       example = {
         jj = {
@@ -294,12 +331,15 @@ in {
 
     skills = mkOption {
       type = types.attrsOf skillType;
-      default = {};
+      default = { };
       description = "Skill definitions with key as default name";
       example = {
         pdf = {
           description = "Extract and analyze PDF files";
-          allowed-tools = [ "Read" "Bash" ];
+          allowed-tools = [
+            "Read"
+            "Bash"
+          ];
           content = ''
             # PDF Skill
             This skill extracts text from PDF files.
@@ -327,7 +367,8 @@ in {
       name = "${configDir}/agents/${name}.md";
       value.source = file;
     }) agentFiles)
-    // (lib.foldl' (acc: name:
+    // (lib.foldl' (
+      acc: name:
       acc
       // {
         "${configDir}/skills/${name}/SKILL.md".source = skillFiles.${name}.skillMd;
@@ -336,7 +377,7 @@ in {
         name = "${configDir}/skills/${name}/${filename}";
         value.source = path;
       }) skillFiles.${name}.extraFiles)
-    ) {} (lib.attrNames skillFiles));
+    ) { } (lib.attrNames skillFiles));
 
     programs.git.ignores = [
       ".claude/settings.local.json"

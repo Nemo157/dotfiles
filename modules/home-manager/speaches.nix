@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -17,7 +22,9 @@ let
 
   environment = defaultEnvironment // cfg.environment;
 
-  envFlags = concatStringsSep " " (mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment);
+  envFlags = concatStringsSep " " (
+    mapAttrsToList (k: v: "--env ${escapeShellArg "${k}=${v}"}") environment
+  );
 
   execStart = pkgs.writeShellScript "speaches-start" ''
     mkdir -p ${cfg.modelCacheDir}
@@ -36,7 +43,8 @@ let
       ${optionalString (cfg.environmentFile != null) "--env-file ${cfg.environmentFile}"} \
       ${cfg.image}
   '';
-in {
+in
+{
   options.services.speaches = {
     enable = mkEnableOption "speaches speech processing server";
 

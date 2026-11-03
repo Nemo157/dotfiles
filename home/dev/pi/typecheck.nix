@@ -1,4 +1,10 @@
-{ lib, runCommand, callPackage, typescript, pi-coding-agent }:
+{
+  lib,
+  runCommand,
+  callPackage,
+  typescript,
+  pi-coding-agent,
+}:
 
 # Typechecks the local pi extensions (home/dev/pi/extensions/*/*.ts) against
 # the exact pi build they run under, and outputs the checked source tree.
@@ -18,29 +24,29 @@
 let
   piRoot = "${pi-coding-agent}/lib/node_modules/pi-monorepo";
   piModules = "${piRoot}/node_modules";
-  webFetchModules =
-    "${(callPackage ./extensions/web-fetch { }).packageRoot}/node_modules";
+  webFetchModules = "${(callPackage ./extensions/web-fetch { }).packageRoot}/node_modules";
 in
 runCommand "pi-extensions"
-{
-  src = lib.cleanSource ./extensions;
-  nativeBuildInputs = [ typescript ];
-} ''
-  cp -r "$src" extensions
-  chmod -R u+w extensions
-  cd extensions
+  {
+    src = lib.cleanSource ./extensions;
+    nativeBuildInputs = [ typescript ];
+  }
+  ''
+    cp -r "$src" extensions
+    chmod -R u+w extensions
+    cd extensions
 
-  mkdir -p node_modules/@earendil-works node_modules/@types node_modules/@mozilla
-  ln -s ${piRoot} node_modules/@earendil-works/pi-coding-agent
-  ln -s ${piModules}/@earendil-works/pi-tui node_modules/@earendil-works/pi-tui
-  ln -s ${piModules}/@earendil-works/pi-ai node_modules/@earendil-works/pi-ai
-  ln -s ${piModules}/typebox node_modules/typebox
-  ln -s ${piModules}/@types/node node_modules/@types/node
-  ln -s ${webFetchModules}/@mozilla/readability node_modules/@mozilla/readability
-  ln -s ${webFetchModules}/linkedom node_modules/linkedom
+    mkdir -p node_modules/@earendil-works node_modules/@types node_modules/@mozilla
+    ln -s ${piRoot} node_modules/@earendil-works/pi-coding-agent
+    ln -s ${piModules}/@earendil-works/pi-tui node_modules/@earendil-works/pi-tui
+    ln -s ${piModules}/@earendil-works/pi-ai node_modules/@earendil-works/pi-ai
+    ln -s ${piModules}/typebox node_modules/typebox
+    ln -s ${piModules}/@types/node node_modules/@types/node
+    ln -s ${webFetchModules}/@mozilla/readability node_modules/@mozilla/readability
+    ln -s ${webFetchModules}/linkedom node_modules/linkedom
 
-  tsc --version
-  tsc -p tsconfig.json --pretty false
+    tsc --version
+    tsc -p tsconfig.json --pretty false
 
-  cp -r "$src" $out
-''
+    cp -r "$src" $out
+  ''

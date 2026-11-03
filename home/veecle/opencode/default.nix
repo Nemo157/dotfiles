@@ -1,4 +1,10 @@
-{ config, lib, pkgs, ... }: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
   linearReadOnly = {
     linear_get_document = "allow";
     linear_get_issue = "allow";
@@ -19,7 +25,8 @@
     linear_list_users = "allow";
     linear_search_documentation = "allow";
   };
-in {
+in
+{
   age.secrets.gcal-oauth-credentials.file = ../gcal-oauth-credentials.age;
 
   services.mcp-proxy = {
@@ -27,7 +34,11 @@ in {
     path = [ pkgs.nodejs ];
     port = 14127;
     servers.google-calendar = {
-      command = [ "npx" "-y" "@cocal/google-calendar-mcp" ];
+      command = [
+        "npx"
+        "-y"
+        "@cocal/google-calendar-mcp"
+      ];
       env = {
         GOOGLE_OAUTH_CREDENTIALS = config.age.secrets.gcal-oauth-credentials.path;
         ENABLED_TOOLS = "list-calendars,list-events,search-events,get-event,get-freebusy,get-current-time";

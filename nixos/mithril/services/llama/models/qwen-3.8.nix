@@ -1,4 +1,10 @@
-{ lib, config, fetchHF, ... }: let
+{
+  lib,
+  config,
+  fetchHF,
+  ...
+}:
+let
   baseArgs = {
     model = fetchHF {
       repo = "unsloth/Qwen3.8-27B-GGUF";
@@ -31,7 +37,8 @@
 
     spec-type = "ngram-mod";
   };
-in {
+in
+{
   services.llama-swap.models.llama = {
     "Qwen3.8-27B-UD-IQ2_XXS" = baseArgs;
 

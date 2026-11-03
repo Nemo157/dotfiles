@@ -1,11 +1,13 @@
-{ config, pkgs, ... }: let
+{ config, pkgs, ... }:
+let
   zsh-completion-sync-src = pkgs.fetchFromGitHub {
     owner = "BronzeDeer";
     repo = "zsh-completion-sync";
     rev = "v0.3.0";
     hash = "sha256-zDlmFaKU/Ilzcw6o22Hu9JFt8JKsER8idkb6QrtQKjI=";
   };
-in {
+in
+{
   programs.zsh = {
     enable = true;
     dotDir = "${config.xdg.configHome}/zsh";
@@ -36,8 +38,7 @@ in {
       fu = "sudo $( fc -ln -1 )";
       ytop = "ytop -c ansi-8";
     };
-    profileExtra = ''
-    '';
+    profileExtra = "";
     initContent = ''
       setopt auto_menu
       setopt correct

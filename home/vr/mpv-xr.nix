@@ -63,7 +63,12 @@ stdenv.mkDerivation (finalAttrs: {
   # turn needs libGL/libEGL; make sure the vendor libs are reachable.
   postFixup = ''
     wrapProgram $out/bin/mpv-xr \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ libGL openxr-loader ]}
+      --prefix LD_LIBRARY_PATH : ${
+        lib.makeLibraryPath [
+          libGL
+          openxr-loader
+        ]
+      }
   '';
 
   meta = {

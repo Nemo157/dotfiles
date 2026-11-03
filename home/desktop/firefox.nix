@@ -6,7 +6,8 @@ let
     rev = "1ff9383984632fe91b8466730679e019de13c745";
     sha256 = "sha256-KmkiSpxzlsPBWoX51o27l+X1IEh/Uv8RMkihGRxg98o=";
   };
-in {
+in
+{
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-esr;
@@ -23,71 +24,107 @@ in {
         force = true;
         engines = {
           "Nix Packages" = {
-            urls = [{
-              template = "https://search.nixos.org/packages";
-              params = [
-                { name = "type"; value = "packages"; }
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://search.nixos.org/packages";
+                params = [
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
 
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@np" ];
           };
 
           "NixOS Options" = {
-            urls = [{
-              template = "https://search.nixos.org/options";
-              params = [
-                { name = "type"; value = "packages"; }
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://search.nixos.org/options";
+                params = [
+                  {
+                    name = "type";
+                    value = "packages";
+                  }
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
 
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@no" ];
           };
 
           "NixOS Wiki" = {
-            urls = [{
-              template = "https://nixos.wiki/index.php";
-              params = [
-                { name = "search"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://nixos.wiki/index.php";
+                params = [
+                  {
+                    name = "search";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@nw" ];
           };
 
           Noogle = {
-            urls = [{
-              template = "https://noogle.dev/q";
-              params = [
-                { name = "term"; value = "\"{searchTerms}\""; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://noogle.dev/q";
+                params = [
+                  {
+                    name = "term";
+                    value = "\"{searchTerms}\"";
+                  }
+                ];
+              }
+            ];
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@nf" ];
           };
 
           ProtonDB = {
-            urls = [{
-              template = "https://www.protondb.com/search";
-              params = [
-                { name = "q"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://www.protondb.com/search";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             icon = "https://www.protondb.com/sites/protondb/images/favicon-32x32.png";
             definedAliases = [ "@pd" ];
           };
 
           "HomeManager Options" = {
-            urls = [{
-              template = "https://home-manager-options.extranix.com/";
-              params = [
-                { name = "query"; value = "{searchTerms}"; }
-              ];
-            }];
+            urls = [
+              {
+                template = "https://home-manager-options.extranix.com/";
+                params = [
+                  {
+                    name = "query";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
             icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
             definedAliases = [ "@ho" ];
           };
@@ -122,12 +159,14 @@ in {
         "general.autoScroll" = true;
       };
 
-      userChrome = builtins.concatStringsSep "\n" (builtins.map builtins.readFile [
-        "${csshacks}/chrome/hide_tabs_toolbar.css"
-        # Preferable, but there's too many bugs with menu dropdowns not dropping
-        # up when they're at the bottom of the screen
-        # "${csshacks}/chrome/navbar_below_content.css"
-      ]);
+      userChrome = builtins.concatStringsSep "\n" (
+        builtins.map builtins.readFile [
+          "${csshacks}/chrome/hide_tabs_toolbar.css"
+          # Preferable, but there's too many bugs with menu dropdowns not dropping
+          # up when they're at the bottom of the screen
+          # "${csshacks}/chrome/navbar_below_content.css"
+        ]
+      );
 
       extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
         augmented-steam

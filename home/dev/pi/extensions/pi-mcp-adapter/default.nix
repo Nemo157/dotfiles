@@ -1,12 +1,13 @@
-{ lib
-, stdenv
-, runCommand
-, jq
-, buildNpmPackage
-, fetchFromGitHub
-, autoPatchelfHook
-, zlib
-, libsecret
+{
+  lib,
+  stdenv,
+  runCommand,
+  jq,
+  buildNpmPackage,
+  fetchFromGitHub,
+  autoPatchelfHook,
+  zlib,
+  libsecret,
 }:
 
 # Pi MCP adapter extension (https://github.com/nicobailon/pi-mcp-adapter).
@@ -68,7 +69,11 @@ buildNpmPackage (finalAttrs: {
   # scripts (no node-gyp rebuilds), omit devDependencies (vitest/tsx/etc.,
   # not needed since pi runs index.ts directly), and stop npm from trying to
   # install the @earendil-works/pi-* peer deps that the host pi provides.
-  npmFlags = [ "--ignore-scripts" "--omit=dev" "--legacy-peer-deps" ];
+  npmFlags = [
+    "--ignore-scripts"
+    "--omit=dev"
+    "--legacy-peer-deps"
+  ];
 
   # Nothing to compile: pi loads index.ts directly.
   dontNpmBuild = true;
@@ -106,8 +111,7 @@ buildNpmPackage (finalAttrs: {
 
   # Expose the package root (directory containing package.json) so consumers
   # can add it to `settings.packages` without hard-coding the store path.
-  passthru.packageRoot =
-    "${finalAttrs.finalPackage}/lib/node_modules/pi-mcp-adapter";
+  passthru.packageRoot = "${finalAttrs.finalPackage}/lib/node_modules/pi-mcp-adapter";
 
   meta = {
     description = "MCP adapter extension for the Pi coding agent";

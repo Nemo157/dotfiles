@@ -1,4 +1,10 @@
-{ config, pkgs, vimUtils, fetchFromGitHub, ... }:
+{
+  config,
+  pkgs,
+  vimUtils,
+  fetchFromGitHub,
+  ...
+}:
 {
   Nemo157-airline-themes = vimUtils.buildVimPlugin {
     pname = "Nemo157-airline-themes";

@@ -1,4 +1,8 @@
-{ lib, buildNpmPackage, fetchurl }:
+{
+  lib,
+  buildNpmPackage,
+  fetchurl,
+}:
 
 # Pi extension packaged from npm. The npm tarball ships without a lock file,
 # so we keep our own `package-lock.json` next to this derivation (generated
@@ -52,7 +56,11 @@ buildNpmPackage (finalAttrs: {
   # `--legacy-peer-deps` stops npm 7+ from auto-installing peer deps
   # (@earendil-works/pi-coding-agent, @earendil-works/pi-tui) which are
   # provided by the host pi installation at runtime.
-  npmFlags = [ "--ignore-scripts" "--omit=dev" "--legacy-peer-deps" ];
+  npmFlags = [
+    "--ignore-scripts"
+    "--omit=dev"
+    "--legacy-peer-deps"
+  ];
 
   # Nothing to compile: pi loads `src/index.ts` directly.
   dontNpmBuild = true;
@@ -64,8 +72,7 @@ buildNpmPackage (finalAttrs: {
   # Expose a convenient attribute so consumers can reference the package
   # root (the directory containing package.json) without hard-coding the
   # $out/lib/node_modules/... path.
-  passthru.packageRoot =
-    "${finalAttrs.finalPackage}/lib/node_modules/@gotgenes/pi-permission-system";
+  passthru.packageRoot = "${finalAttrs.finalPackage}/lib/node_modules/@gotgenes/pi-permission-system";
 
   meta = {
     description = "Permission enforcement extension for the Pi coding agent";

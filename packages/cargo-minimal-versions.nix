@@ -1,4 +1,8 @@
-{ lib, fetchCrate, rustPlatform }:
+{
+  lib,
+  fetchCrate,
+  rustPlatform,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-minimal-versions";
@@ -14,7 +18,10 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "Cargo subcommand for proper use of -Z minimal-versions";
     homepage = src.meta.homepage;
-    license = with licenses; [ mit asl20 ];
+    license = with licenses; [
+      mit
+      asl20
+    ];
     maintainers = [ maintainers.nemo157 ];
   };
 }

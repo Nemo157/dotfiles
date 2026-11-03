@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   gh-pr-list-popup = pkgs.writeShellApplication {
     name = "gh-pr-list-popup";
@@ -29,9 +34,15 @@ let
       done
     '';
   };
-in {
+in
+{
   scripts.gh-pr-list = {
-    runtimeInputs = with pkgs; [ gh jq coreutils ncurses ];
+    runtimeInputs = with pkgs; [
+      gh
+      jq
+      coreutils
+      ncurses
+    ];
     source = ./gh-pr-list.sh;
   };
 

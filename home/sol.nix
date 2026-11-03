@@ -19,4 +19,5 @@ let
   };
   hash = builtins.mapAttrs (name: value: "#${value}") nohash;
   rgb = builtins.mapAttrs (name: value: "rgb(${value})") nohash;
-in hash // { inherit hash nohash rgb; }
+in
+hash // { inherit hash nohash rgb; }

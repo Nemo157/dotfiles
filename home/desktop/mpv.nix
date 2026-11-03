@@ -1,11 +1,20 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   programs.mpv = {
     enable = true;
     package = pkgs.mpv.override {
       mpv-unwrapped = pkgs.mpv-unwrapped.override {
         vapoursynthSupport = true;
       };
-      scripts = with pkgs.mpvScripts; [ sponsorblock uosc ];
+      scripts = with pkgs.mpvScripts; [
+        sponsorblock
+        uosc
+      ];
     };
     defaultProfiles = [ "gpu-hq" ];
     profiles = {
@@ -45,10 +54,14 @@
       ytdl-raw-options = "format-sort=height:2160";
     };
   };
-  xsession.windowManager.i3.config.floating.criteria = [{
-    class = "mpv";
-  }];
-  wayland.windowManager.sway.config.floating.criteria = [{
-    class = "mpv";
-  }];
+  xsession.windowManager.i3.config.floating.criteria = [
+    {
+      class = "mpv";
+    }
+  ];
+  wayland.windowManager.sway.config.floating.criteria = [
+    {
+      class = "mpv";
+    }
+  ];
 }

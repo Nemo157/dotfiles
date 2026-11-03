@@ -5,7 +5,8 @@ let
   swapdir = "${statedir}/swap";
   undodir = "${statedir}/undo";
   plugins = pkgs.vimPlugins // pkgs.callPackage ./plugins.nix { };
-in {
+in
+{
   programs.vim = {
     enable = true;
     defaultEditor = true;

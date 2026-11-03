@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   portals-conf = pkgs.writeTextDir "share/xdg-desktop-portal/portals/portals.conf" ''
     [preferred]
@@ -19,7 +24,8 @@ let
       "/share/applications"
     ];
   };
-in {
+in
+{
   home.sessionVariables = {
     XDG_DESKTOP_PORTAL_DIR = "${portals}/share/xdg-desktop-portal/portals";
   };

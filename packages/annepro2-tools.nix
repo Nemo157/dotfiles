@@ -1,4 +1,10 @@
-{ lib, fetchFromGitHub, rustPlatform, libusb1, pkg-config }:
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+  libusb1,
+  pkg-config,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "AnnePro2-Tools";

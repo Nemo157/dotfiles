@@ -1,4 +1,11 @@
-{ pkgs, name, ts, config, ... }: {
+{
+  pkgs,
+  name,
+  ts,
+  config,
+  ...
+}:
+{
   services.navidrome = {
     enable = true;
     package = pkgs.unstable.navidrome; # workaround <https://github.com/NixOS/nixpkgs/issues/481611>

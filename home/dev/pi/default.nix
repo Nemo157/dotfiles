@@ -1,17 +1,20 @@
-{ config, lib, pkgs, osConfig ? null, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  osConfig ? null,
+  ...
+}:
 let
   llamaSwapConfig = osConfig.services.llama-swap;
 
   llamaSwapModels = lib.attrNames (
-    lib.filterAttrs
-      (_: m: (m.capabilities.out or [ "text" ]) == [ "text" ])
-      (if osConfig == null
-        then { }
-        else llamaSwapConfig.settings.models or { })
+    lib.filterAttrs (_: m: (m.capabilities.out or [ "text" ]) == [ "text" ]) (
+      if osConfig == null then { } else llamaSwapConfig.settings.models or { }
+    )
   );
 
-  permissionSystemLogs =
-    "${config.xdg.stateHome}/pi/extensions/pi-permission-system/logs";
+  permissionSystemLogs = "${config.xdg.stateHome}/pi/extensions/pi-permission-system/logs";
 
   # Cache root for the web-fetch extension. Must stay in sync with the
   # extension's own default (XDG_CACHE_HOME/pi/web-fetch, see
@@ -74,15 +77,18 @@ in
         api = "openai-completions";
         # Dummy key: llama-swap ignores auth, but pi hides models without one.
         apiKey = "llama-swap";
-        models = map (id: { inherit id; contextWindow = 81920; reasoning = true; }) llamaSwapModels;
+        models = map (id: {
+          inherit id;
+          contextWindow = 81920;
+          reasoning = true;
+        }) llamaSwapModels;
       };
     };
   };
 
-  home.activation.piPermissionSystemLogs =
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      run mkdir -p ${lib.escapeShellArg permissionSystemLogs}
-    '';
+  home.activation.piPermissionSystemLogs = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run mkdir -p ${lib.escapeShellArg permissionSystemLogs}
+  '';
 
   programs.pi = {
     enable = true;
@@ -102,7 +108,10 @@ in
     # Excluding bash up front makes the startup prompt already match the
     # filtered set: the sanitizer finds nothing to remove, returns the prompt
     # verbatim, and every turn is byte-identical.
-    extraArgs = [ "--exclude-tools" "bash" ];
+    extraArgs = [
+      "--exclude-tools"
+      "bash"
+    ];
 
     # Same setup without `extraArgs`/`wrapperAppendSystem`: bash enabled,
     # gated by `bash = "ask"` below.
@@ -191,7 +200,10 @@ in
       # on the external_directory/path surfaces to defer.)
       # The cli-tools `tar` tool writes archives under tarCacheDir and hands
       # the agent their paths for the same reason.
-      piInfrastructureReadPaths = [ webFetchCacheDir tarCacheDir ];
+      piInfrastructureReadPaths = [
+        webFetchCacheDir
+        tarCacheDir
+      ];
 
       permission = {
         "*" = "ask";
@@ -254,18 +266,19 @@ in
 
         external_directory = {
           "*" = "ask";
-        } // lib.listToAttrs (lib.concatMap (d: [
-          {
-            name = builtins.unsafeDiscardStringContext d;
-            value = "allow";
-          }
-          {
-            name = builtins.unsafeDiscardStringContext "${d}/*";
-            value = "allow";
-          }
-        ]) (config.programs.pi.referenceDirs
-          ++ [ config.programs.pi.referenceLinkDir ]
-          ++ cargoSourceDirs));
+        }
+        // lib.listToAttrs (
+          lib.concatMap (d: [
+            {
+              name = builtins.unsafeDiscardStringContext d;
+              value = "allow";
+            }
+            {
+              name = builtins.unsafeDiscardStringContext "${d}/*";
+              value = "allow";
+            }
+          ]) (config.programs.pi.referenceDirs ++ [ config.programs.pi.referenceLinkDir ] ++ cargoSourceDirs)
+        );
       };
     };
   };

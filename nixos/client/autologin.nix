@@ -1,4 +1,10 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   options = {
     main-user = lib.mkOption {
       type = lib.types.str;
@@ -13,7 +19,12 @@
       overrideStrategy = "asDropin";
       serviceConfig.ExecStart = [
         "" # override upstream default with an empty ExecStart
-        "@${pkgs.util-linux}/sbin/agetty agetty ${lib.escapeShellArgs ["--login-program" "${config.services.getty.loginProgram}"]} --autologin ${config.main-user} --noclear --keep-baud %I 115200,38400,9600 $TERM"
+        "@${pkgs.util-linux}/sbin/agetty agetty ${
+          lib.escapeShellArgs [
+            "--login-program"
+            "${config.services.getty.loginProgram}"
+          ]
+        } --autologin ${config.main-user} --noclear --keep-baud %I 115200,38400,9600 $TERM"
       ];
       restartIfChanged = false;
     };

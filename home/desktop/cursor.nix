@@ -11,7 +11,9 @@
     # Unfortunately this just creates symlinks the flatpaks can't access, you
     # still need an override added to access the nix store:
     #     flatpak override -u --filesystem /nix/store:ro
-    "icons/catppuccin-latte-light-cursors".source = "${pkgs.catppuccin-cursors.latteLight}/share/icons/catppuccin-latte-light-cursors";
-    "icons/catppuccin-mocha-dark-cursors".source = "${pkgs.catppuccin-cursors.mochaDark}/share/icons/catppuccin-mocha-dark-cursors";
+    "icons/catppuccin-latte-light-cursors".source =
+      "${pkgs.catppuccin-cursors.latteLight}/share/icons/catppuccin-latte-light-cursors";
+    "icons/catppuccin-mocha-dark-cursors".source =
+      "${pkgs.catppuccin-cursors.mochaDark}/share/icons/catppuccin-mocha-dark-cursors";
   };
 }

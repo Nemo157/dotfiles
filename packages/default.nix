@@ -17,7 +17,10 @@
 
   cargo-rubber = pkgs.writeShellApplication {
     name = "cargo-rubber";
-    runtimeInputs = [ pkgs.bubblewrap pkgs.jq ];
+    runtimeInputs = [
+      pkgs.bubblewrap
+      pkgs.jq
+    ];
     text = pkgs.lib.readFile ./cargo-rubber.sh;
   };
 

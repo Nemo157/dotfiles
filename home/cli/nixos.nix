@@ -4,7 +4,10 @@
   ];
 
   scripts.html2md = {
-    runtimeInputs = [ pkgs.python3Packages.markdownify pkgs.wl-clipboard ];
+    runtimeInputs = [
+      pkgs.python3Packages.markdownify
+      pkgs.wl-clipboard
+    ];
     text = ''
       # Replace the clipboard's plain-text selection with Markdown converted
       # from the HTML selection, e.g. when copying rich snippets from GitHub.

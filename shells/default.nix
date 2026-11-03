@@ -2,7 +2,8 @@
 let
   lib = pkgs.lib;
   mkRustShell = args: pkgs.callPackage ./rust args;
-in {
+in
+{
   rust = mkRustShell { };
   rust-unwrapped = mkRustShell { custom = false; };
 

@@ -1,4 +1,10 @@
-{ lib, config, pkgs, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
   xdg.configFile."eww/eww.scss" = {
     source = ./eww.scss;
   };

@@ -1,4 +1,10 @@
-{ name, config, ts, ... }: {
+{
+  name,
+  config,
+  ts,
+  ...
+}:
+{
   services.nix-serve = {
     enable = true;
     port = 5069;

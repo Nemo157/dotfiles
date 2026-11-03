@@ -2,7 +2,10 @@
   boot = {
     initrd = {
       supportedFilesystems = [ "zfs" ];
-      availableKernelModules = [ "zfs" "nvme" ];
+      availableKernelModules = [
+        "zfs"
+        "nvme"
+      ];
       kernelModules = [ "usb_storage" ];
 
       luks.devices = {
@@ -37,22 +40,67 @@
         "x-systemd.device-timeout=infinity"
       ];
     };
-    "/home" = { device = "rpool/nixos/home"; fsType = "zfs"; };
-    "/home/nemo157/sources" = { device = "rpool/nixos/home/nemo157/sources"; fsType = "zfs"; };
-    "/home/nemo157/.local/share/atuin" = { device = "rpool/nixos/home/nemo157/.local-share-atuin"; fsType = "zfs"; };
-    "/home/nemo157/.var" = { device = "rpool/nixos/home/nemo157/.var"; fsType = "zfs"; };
-    "/home/nemo157/.var/app/com.valvesoftware.Steam" = { device = "rpool/nixos/home/nemo157/.var/app-com.valvesoftware.Steam"; fsType = "zfs"; };
-    "/home/nemo157/.var/app/at.vintagestory.VintageStory" = { device = "rpool/nixos/home/nemo157/.var/app-at.vintagestory.VintageStory"; fsType = "zfs"; };
-    "/home/nemo157/sources/rustfmt/target" = { device = "rpool/nixos/home/nemo157/sources/rustfmt-target"; fsType = "zfs"; };
-    "/home/nemo157/.var/app/org.fractalsoft.Starsector" = { device = "rpool/nixos/home/nemo157/.var/app-org.fractalsoft.Starsector"; fsType = "zfs"; };
-    "/home/nemo157/.var/app/org.prismlauncher.PrismLauncher" = { device = "rpool/nixos/home/nemo157/.var/app-org.prismlauncher.PrismLauncher"; fsType = "zfs"; };
-    "/home/nemo157/sources/docs.rs/.rustwide-docker" = { device = "rpool/nixos/home/nemo157/sources/docs.rs-.rustwide-docker"; fsType = "zfs"; };
-    "/home/nemo157/sources/cargo/target" = { device = "rpool/nixos/home/nemo157/sources/cargo-target"; fsType = "zfs"; };
+    "/home" = {
+      device = "rpool/nixos/home";
+      fsType = "zfs";
+    };
+    "/home/nemo157/sources" = {
+      device = "rpool/nixos/home/nemo157/sources";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.local/share/atuin" = {
+      device = "rpool/nixos/home/nemo157/.local-share-atuin";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.var" = {
+      device = "rpool/nixos/home/nemo157/.var";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.var/app/com.valvesoftware.Steam" = {
+      device = "rpool/nixos/home/nemo157/.var/app-com.valvesoftware.Steam";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.var/app/at.vintagestory.VintageStory" = {
+      device = "rpool/nixos/home/nemo157/.var/app-at.vintagestory.VintageStory";
+      fsType = "zfs";
+    };
+    "/home/nemo157/sources/rustfmt/target" = {
+      device = "rpool/nixos/home/nemo157/sources/rustfmt-target";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.var/app/org.fractalsoft.Starsector" = {
+      device = "rpool/nixos/home/nemo157/.var/app-org.fractalsoft.Starsector";
+      fsType = "zfs";
+    };
+    "/home/nemo157/.var/app/org.prismlauncher.PrismLauncher" = {
+      device = "rpool/nixos/home/nemo157/.var/app-org.prismlauncher.PrismLauncher";
+      fsType = "zfs";
+    };
+    "/home/nemo157/sources/docs.rs/.rustwide-docker" = {
+      device = "rpool/nixos/home/nemo157/sources/docs.rs-.rustwide-docker";
+      fsType = "zfs";
+    };
+    "/home/nemo157/sources/cargo/target" = {
+      device = "rpool/nixos/home/nemo157/sources/cargo-target";
+      fsType = "zfs";
+    };
 
-    "/var/lib" = { device = "rpool/nixos/var/lib"; fsType = "zfs"; };
-    "/var/lib/docker" = { device = "rpool/nixos/var/lib/docker"; fsType = "zfs"; };
-    "/var/log" = { device = "rpool/nixos/var/log"; fsType = "zfs"; };
-    "/boot" = { device = "rpool/nixos/boot"; fsType = "zfs"; };
+    "/var/lib" = {
+      device = "rpool/nixos/var/lib";
+      fsType = "zfs";
+    };
+    "/var/lib/docker" = {
+      device = "rpool/nixos/var/lib/docker";
+      fsType = "zfs";
+    };
+    "/var/log" = {
+      device = "rpool/nixos/var/log";
+      fsType = "zfs";
+    };
+    "/boot" = {
+      device = "rpool/nixos/boot";
+      fsType = "zfs";
+    };
     "/boot/efis/nvme-CT2000P3PSSD8_2309E6B34606-part3" = {
       device = "/dev/disk/by-uuid/28C9-03CC";
       fsType = "vfat";
@@ -61,7 +109,10 @@
     "/mnt/data" = {
       device = "/dev/disk/by-uuid/c625a094-95d0-4c33-85ed-0647e7544ac6";
       fsType = "ext4";
-      options = ["noatime" "nofail"];
+      options = [
+        "noatime"
+        "nofail"
+      ];
     };
   };
 

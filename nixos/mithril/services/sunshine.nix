@@ -1,4 +1,11 @@
-{ name, ts, config, pkgs, ... }: {
+{
+  name,
+  ts,
+  config,
+  pkgs,
+  ...
+}:
+{
   services.sunshine = {
     enable = true;
     settings = {

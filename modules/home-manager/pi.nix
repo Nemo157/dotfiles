@@ -1,14 +1,20 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.programs.pi;
 
   configDir = "${config.xdg.configHome}/pi";
   stateDir = "${config.xdg.stateHome}/pi";
 
-  referenceDirs =
-    [ "${cfg.package}/lib/node_modules/pi-monorepo" ]
-    ++ (cfg.settings.packages or [ ])
-    ++ map builtins.dirOf (cfg.settings.extensions or [ ]);
+  referenceDirs = [
+    "${cfg.package}/lib/node_modules/pi-monorepo"
+  ]
+  ++ (cfg.settings.packages or [ ])
+  ++ map builtins.dirOf (cfg.settings.extensions or [ ]);
 
   # Stable, versionless symlinks into the store so the injected context can
   # reference short paths (e.g. ~/.config/pi/reference/pi-mcp-adapter) instead
@@ -16,30 +22,32 @@ let
   # Keyed by the leaf directory name; collisions would silently drop an entry,
   # so assert the names stay unique.
   referenceLinkNames = map (dir: baseNameOf (builtins.unsafeDiscardStringContext dir)) referenceDirs;
-  referenceLinks = lib.listToAttrs
-    (lib.zipListsWith lib.nameValuePair referenceLinkNames referenceDirs);
+  referenceLinks = lib.listToAttrs (
+    lib.zipListsWith lib.nameValuePair referenceLinkNames referenceDirs
+  );
   referenceLinksUnique =
-    assert lib.assertMsg
-      (lib.length (lib.unique referenceLinkNames) == lib.length referenceDirs)
+    assert lib.assertMsg (lib.length (lib.unique referenceLinkNames) == lib.length referenceDirs)
       "programs.pi reference symlinks have colliding leaf names: ${lib.concatStringsSep ", " referenceLinkNames}";
     referenceLinks;
 
   refDirsBlock = ''
     Self-reference directories readable outside the working tree:
-    ${lib.concatMapStringsSep "\n"
-      (name: "- ${configDir}/reference/${name}")
-      (lib.attrNames referenceLinksUnique)}
+    ${lib.concatMapStringsSep "\n" (name: "- ${configDir}/reference/${name}") (
+      lib.attrNames referenceLinksUnique
+    )}
   '';
 
   # `--append-system-prompt` disables pi's discovery of APPEND_SYSTEM.md, so
   # when wrapper-only prose is set, the on-disk file is passed back in
   # explicitly alongside it.
-  wrapperArgs = cfg.extraArgs ++ lib.optionals (cfg.wrapperAppendSystem != "") [
-    "--append-system-prompt"
-    "${pkgs.writeText "pi-wrapper-append-system.md" cfg.wrapperAppendSystem}"
-    "--append-system-prompt"
-    "${configDir}/APPEND_SYSTEM.md"
-  ];
+  wrapperArgs =
+    cfg.extraArgs
+    ++ lib.optionals (cfg.wrapperAppendSystem != "") [
+      "--append-system-prompt"
+      "${pkgs.writeText "pi-wrapper-append-system.md" cfg.wrapperAppendSystem}"
+      "--append-system-prompt"
+      "${configDir}/APPEND_SYSTEM.md"
+    ];
 
   # Shared environment only; no restricting flags. Exposed directly as
   # `unrestrictedBinName` and wrapped again below for the main `pi`.
@@ -66,22 +74,24 @@ let
     postBuild = ''
       rm $out/bin/pi
       makeWrapper ${pi-base}/bin/pi $out/bin/pi ${
-        lib.optionalString (wrapperArgs != [ ])
-          "--add-flags ${lib.escapeShellArg (lib.concatStringsSep " " wrapperArgs)}"
+        lib.optionalString (
+          wrapperArgs != [ ]
+        ) "--add-flags ${lib.escapeShellArg (lib.concatStringsSep " " wrapperArgs)}"
       }
-    '' + lib.optionalString (cfg.unrestrictedBinName != null) ''
+    ''
+    + lib.optionalString (cfg.unrestrictedBinName != null) ''
       ln -s ${pi-base}/bin/pi $out/bin/${lib.escapeShellArg cfg.unrestrictedBinName}
     '';
   };
 
-  json = pkgs.formats.json {};
+  json = pkgs.formats.json { };
 
-  extensionConfigFiles = lib.mapAttrs'
-    (name: settings: {
-      name = "pi/extensions/${name}/config.json";
-      value = { source = json.generate "pi-config.json" settings; };
-    })
-    cfg.extensionSettings;
+  extensionConfigFiles = lib.mapAttrs' (name: settings: {
+    name = "pi/extensions/${name}/config.json";
+    value = {
+      source = json.generate "pi-config.json" settings;
+    };
+  }) cfg.extensionSettings;
 in
 {
   options.programs.pi = {
@@ -103,7 +113,10 @@ in
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      example = [ "--exclude-tools" "bash" ];
+      example = [
+        "--exclude-tools"
+        "bash"
+      ];
       description = ''
         Extra CLI flags baked into the wrapper, for settings pi only
         accepts on the command line (`settings.json` has no equivalent).
@@ -200,19 +213,23 @@ in
     xdg.configFile = {
       "pi/settings.json".text = builtins.toJSON cfg.settings;
 
-      "pi/APPEND_SYSTEM.md".text = lib.concatStringsSep "\n"
-        (lib.filter (s: s != "") [ cfg.appendSystem refDirsBlock ]);
-    } // (lib.mapAttrs'
-      (name: path: lib.nameValuePair "pi/reference/${name}" { source = path; })
-      referenceLinksUnique) // {
+      "pi/APPEND_SYSTEM.md".text = lib.concatStringsSep "\n" (
+        lib.filter (s: s != "") [
+          cfg.appendSystem
+          refDirsBlock
+        ]
+      );
+    }
+    // (lib.mapAttrs' (
+      name: path: lib.nameValuePair "pi/reference/${name}" { source = path; }
+    ) referenceLinksUnique)
+    // {
 
-      "pi/auth.json".source =
-        config.lib.file.mkOutOfStoreSymlink "${stateDir}/auth.json";
-      "pi/models-store.json".source =
-        config.lib.file.mkOutOfStoreSymlink "${stateDir}/models-store.json";
-      "pi/sessions".source =
-        config.lib.file.mkOutOfStoreSymlink "${stateDir}/sessions";
-    } // extensionConfigFiles;
+      "pi/auth.json".source = config.lib.file.mkOutOfStoreSymlink "${stateDir}/auth.json";
+      "pi/models-store.json".source = config.lib.file.mkOutOfStoreSymlink "${stateDir}/models-store.json";
+      "pi/sessions".source = config.lib.file.mkOutOfStoreSymlink "${stateDir}/sessions";
+    }
+    // extensionConfigFiles;
 
     # Ensure the state dir exists before pi first tries to write auth.json
     # / sessions into it.

@@ -1,6 +1,8 @@
-{ lib, pkgs, ... }: let
+{ lib, pkgs, ... }:
+let
   systemctl = lib.getExe' pkgs.systemd "systemctl";
-in {
+in
+{
   systemd.targets = {
     ac = {
       description = "On AC power";

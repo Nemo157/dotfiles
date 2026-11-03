@@ -1,4 +1,8 @@
-{ lib, fetchCrate, rustPlatform }:
+{
+  lib,
+  fetchCrate,
+  rustPlatform,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "cargo-dl";
@@ -14,7 +18,10 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "Cargo subcommand for downloading crate sources";
     homepage = src.meta.homepage;
-    license = with licenses; [ mit asl20 ];
+    license = with licenses; [
+      mit
+      asl20
+    ];
     maintainers = [ maintainers.nemo157 ];
   };
 }

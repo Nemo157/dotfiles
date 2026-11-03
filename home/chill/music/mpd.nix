@@ -1,4 +1,11 @@
-{ lib, config, pkgs, ts, ... }: {
+{
+  lib,
+  config,
+  pkgs,
+  ts,
+  ...
+}:
+{
   home.packages = [ pkgs.mpc ];
 
   services.mpd = {

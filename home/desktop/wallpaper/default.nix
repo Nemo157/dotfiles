@@ -1,8 +1,19 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   set-wallpaper = pkgs.writeShellApplication {
     name = "set-wallpaper";
-    runtimeInputs = with pkgs; [ coreutils awww niri jq imagemagick ];
+    runtimeInputs = with pkgs; [
+      coreutils
+      awww
+      niri
+      jq
+      imagemagick
+    ];
     text = lib.readFile ./set-wallpaper.sh;
   };
 
@@ -19,7 +30,8 @@ let
     ];
     text = lib.readFile ./change-wallpapers.sh;
   };
-in {
+in
+{
   home.packages = [
     set-wallpaper
   ];
@@ -42,8 +54,14 @@ in {
     services = {
       change-wallpaper = {
         Unit = {
-          After = [ "awww-daemon.service" "xdg-desktop-portal.service" ];
-          Requires = [ "awww-daemon.service" "xdg-desktop-portal.service" ];
+          After = [
+            "awww-daemon.service"
+            "xdg-desktop-portal.service"
+          ];
+          Requires = [
+            "awww-daemon.service"
+            "xdg-desktop-portal.service"
+          ];
         };
         Service = {
           Type = "oneshot";
@@ -65,24 +83,34 @@ in {
         Service = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = lib.getExe (pkgs.writeShellApplication {
-            name = "sww-change-wallpapers-ac-on";
-            runtimeInputs = with pkgs; [ coreutils systemd ];
-            text = ''
-              mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.{timer,service}.d
-              echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
-              systemctl --user daemon-reload
-            '';
-          });
-          ExecStop = lib.getExe (pkgs.writeShellApplication {
-            name = "sww-change-wallpapers-ac-off";
-            runtimeInputs = with pkgs; [ coreutils systemd ];
-            text = ''
-              rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
-              rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.service.d/ac-override.conf
-              systemctl --user daemon-reload
-            '';
-          });
+          ExecStart = lib.getExe (
+            pkgs.writeShellApplication {
+              name = "sww-change-wallpapers-ac-on";
+              runtimeInputs = with pkgs; [
+                coreutils
+                systemd
+              ];
+              text = ''
+                mkdir -p "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.{timer,service}.d
+                echo $'[Timer]\nOnCalendar=*:00/10' >"$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
+                systemctl --user daemon-reload
+              '';
+            }
+          );
+          ExecStop = lib.getExe (
+            pkgs.writeShellApplication {
+              name = "sww-change-wallpapers-ac-off";
+              runtimeInputs = with pkgs; [
+                coreutils
+                systemd
+              ];
+              text = ''
+                rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.timer.d/ac-override.conf
+                rm "$XDG_RUNTIME_DIR"/systemd/user/change-wallpaper.service.d/ac-override.conf
+                systemctl --user daemon-reload
+              '';
+            }
+          );
         };
         Install.WantedBy = [ "ac.target" ];
       };
@@ -104,16 +132,18 @@ in {
     };
   };
 
-  xdg.dataFile = let
-    trigger-change-wallpaper = pkgs.writeShellApplication {
-      name = "trigger-change-wallpapers";
-      runtimeInputs = with pkgs; [ systemd ];
-      text = ''
-        systemctl --user start --no-block change-wallpaper
-      '';
+  xdg.dataFile =
+    let
+      trigger-change-wallpaper = pkgs.writeShellApplication {
+        name = "trigger-change-wallpapers";
+        runtimeInputs = with pkgs; [ systemd ];
+        text = ''
+          systemctl --user start --no-block change-wallpaper
+        '';
+      };
+    in
+    {
+      "light-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
+      "dark-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
     };
-  in {
-    "light-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
-    "dark-mode.d/trigger-change-wallpapers".source = lib.getExe trigger-change-wallpaper;
-  };
 }

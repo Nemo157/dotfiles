@@ -6,12 +6,16 @@
     firewall = {
       allowedTCPPorts = [
         # shairport-sync
-        5000 5001
+        5000
+        5001
       ];
 
       allowedUDPPortRanges = [
         # shairport-sync
-        { from = 6001; to = 6011; }
+        {
+          from = 6001;
+          to = 6011;
+        }
       ];
 
       interfaces.tailscale0 = {

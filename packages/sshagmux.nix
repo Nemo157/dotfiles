@@ -1,4 +1,8 @@
-{ lib, fetchFromGitHub, rustPlatform }:
+{
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
+}:
 rustPlatform.buildRustPackage rec {
   pname = "sshagmux";
   version = "b8ada819a5332b9603f561521fdc5176a785cc61";
@@ -25,7 +29,10 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "An ssh-agent multiplexer";
     homepage = src.meta.homepage;
-    license = with licenses; [ mit asl20 ];
+    license = with licenses; [
+      mit
+      asl20
+    ];
     maintainers = [ maintainers.nemo157 ];
   };
 }

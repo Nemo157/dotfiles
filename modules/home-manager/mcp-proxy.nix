@@ -1,10 +1,15 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
 let
   cfg = config.services.mcp-proxy;
-  json = pkgs.formats.json {};
+  json = pkgs.formats.json { };
 
   enabledServers = filterAttrs (_: s: s.enable) cfg.servers;
 
@@ -27,17 +32,22 @@ let
       command = mkOption {
         type = types.listOf types.str;
         description = "Command and arguments to launch the MCP server.";
-        example = [ "npx" "-y" "@cocal/google-calendar-mcp" ];
+        example = [
+          "npx"
+          "-y"
+          "@cocal/google-calendar-mcp"
+        ];
       };
 
       env = mkOption {
         type = types.attrsOf types.str;
-        default = {};
+        default = { };
         description = "Environment variables passed to the server.";
       };
     };
   };
-in {
+in
+{
   options.services.mcp-proxy = {
     enable = mkEnableOption "mcp-proxy SSE gateway";
 
@@ -61,13 +71,13 @@ in {
 
     path = mkOption {
       type = types.listOf types.package;
-      default = [];
+      default = [ ];
       description = "Extra packages to add to the service PATH (e.g. nodejs for npx).";
     };
 
     servers = mkOption {
       type = types.attrsOf serverType;
-      default = {};
+      default = { };
       description = "Named MCP servers to proxy.";
     };
   };
@@ -80,19 +90,23 @@ in {
         X-Restart-Triggers = [ "${configFile}" ];
       };
 
-      Service = let
-        execStart = "${lib.getExe cfg.package} --host ${cfg.hostname} --port ${toString cfg.port} --named-server-config ${configFile}";
-      in {
-        ExecStart =
-          if cfg.path == [] then execStart
-          else "${pkgs.writeShellScript "mcp-proxy-start" ''
-            export PATH="${lib.makeBinPath cfg.path}:$PATH"
-            exec ${execStart}
-          ''}";
-        Restart = "on-failure";
-        RestartSteps = 5;
-        RestartMaxDelaySec = 10;
-      };
+      Service =
+        let
+          execStart = "${lib.getExe cfg.package} --host ${cfg.hostname} --port ${toString cfg.port} --named-server-config ${configFile}";
+        in
+        {
+          ExecStart =
+            if cfg.path == [ ] then
+              execStart
+            else
+              "${pkgs.writeShellScript "mcp-proxy-start" ''
+                export PATH="${lib.makeBinPath cfg.path}:$PATH"
+                exec ${execStart}
+              ''}";
+          Restart = "on-failure";
+          RestartSteps = 5;
+          RestartMaxDelaySec = 10;
+        };
 
       Install = {
         WantedBy = [ "default.target" ];

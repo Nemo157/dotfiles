@@ -18,7 +18,10 @@
   home.keyboard = {
     layout = "us";
     variant = "dvp";
-    options = [ "caps:escape" "compose:ralt" ];
+    options = [
+      "caps:escape"
+      "compose:ralt"
+    ];
   };
 
   services.u2f-touch-detector = {

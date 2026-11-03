@@ -2,7 +2,11 @@
   boot = {
     initrd = {
       availableKernelModules = [
-        "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod"
+        "ahci"
+        "xhci_pci"
+        "usbhid"
+        "usb_storage"
+        "sd_mod"
       ];
       kernelModules = [ "dm-snapshot" ];
     };

@@ -1,8 +1,16 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   jj-ai-branch-summary = pkgs.writeShellApplication {
     name = "jj-ai-branch-summary";
-    runtimeInputs = [ pkgs.jujutsu pkgs.jq ];
+    runtimeInputs = [
+      pkgs.jujutsu
+      pkgs.jq
+    ];
     text = builtins.readFile ./jj-ai-branch-summary.sh;
   };
 in

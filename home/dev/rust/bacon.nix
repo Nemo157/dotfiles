@@ -21,21 +21,25 @@
 
       jobs = {
         check.command = [
-          "cargo" "rubber"
+          "cargo"
+          "rubber"
           "check"
           "--workspace"
           "--all-targets"
           "--all-features"
-          "--color" "always"
+          "--color"
+          "always"
         ];
 
         clippy.command = [
-          "cargo" "rubber"
+          "cargo"
+          "rubber"
           "clippy"
           "--workspace"
           "--all-targets"
           "--all-features"
-          "--color" "always"
+          "--color"
+          "always"
         ];
 
         deny = {
@@ -46,27 +50,33 @@
             "--all-features"
             "--locked"
             "check"
-            "--allow" "duplicate"
+            "--allow"
+            "duplicate"
           ];
           need_stdout = true;
         };
 
         doc.command = [
-          "cargo" "rubber"
+          "cargo"
+          "rubber"
           "doc"
           "--no-deps"
-          "--color" "always"
+          "--color"
+          "always"
         ];
 
         test = {
           command = [
-            "cargo" "rubber"
+            "cargo"
+            "rubber"
             "test"
             "--workspace"
             "--all-features"
-            "--color" "always"
+            "--color"
+            "always"
             "--"
-            "--color" "always"
+            "--color"
+            "always"
           ];
           need_stdout = true;
         };

@@ -1,17 +1,29 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   tmux-urlview-popup = pkgs.writeShellApplication {
     name = "tmux-urlview-popup";
-    runtimeInputs = with pkgs; [ tmux xdg-utils ];
+    runtimeInputs = with pkgs; [
+      tmux
+      xdg-utils
+    ];
     text = lib.readFile ./tmux/urlview-popup.sh;
   };
   tmux-urlview = pkgs.writeShellApplication {
     name = "tmux-urlview";
-    runtimeInputs = with pkgs; [ tmux ripgrep ];
+    runtimeInputs = with pkgs; [
+      tmux
+      ripgrep
+    ];
     runtimeEnv.TMUX_URLVIEW_POPUP = lib.getExe tmux-urlview-popup;
     text = lib.readFile ./tmux/urlview.sh;
   };
-in {
+in
+{
   programs.tmux = {
     enable = true;
     escapeTime = 0;

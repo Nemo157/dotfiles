@@ -1,4 +1,11 @@
-{ name, config, ts, lib, ... }: {
+{
+  name,
+  config,
+  ts,
+  lib,
+  ...
+}:
+{
   age.secrets.grafana-admin-password = lib.mkIf config.services.grafana.enable {
     file = ./admin-password.age;
     owner = "grafana";

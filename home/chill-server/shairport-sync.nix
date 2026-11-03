@@ -1,39 +1,43 @@
-{ lib, pkgs, ... }: let
-    shairport-sync = pkgs.shairport-sync.override {
-      enableAirplay2 = false;
-      enableAlsa = false;
-      enableSndio = false;
-      enablePulse = false;
-      enablePipe = false;
-      enablePipewire = true;
-      enableAo = false;
-      enableJack = false;
-      enableSoundio = false;
-      enableMetadata = false;
-      enableMpris = false;
-      enableMqttClient = false;
-      enableDbus = false;
-      enableSoxr = false;
-      enableLibdaemon = false;
+{ lib, pkgs, ... }:
+let
+  shairport-sync = pkgs.shairport-sync.override {
+    enableAirplay2 = false;
+    enableAlsa = false;
+    enableSndio = false;
+    enablePulse = false;
+    enablePipe = false;
+    enablePipewire = true;
+    enableAo = false;
+    enableJack = false;
+    enableSoundio = false;
+    enableMetadata = false;
+    enableMpris = false;
+    enableMqttClient = false;
+    enableDbus = false;
+    enableSoxr = false;
+    enableLibdaemon = false;
+  };
+
+  config = builtins.toFile "shairport-sync.conf" ''
+    general = {
+      ignore_volume_control = "yes";
+      dbus_service_bus = "session";
+      mpris_service_bus = "session";
     };
+    sessioncontrol = {
+      session_timeout = 3600;
+    };
+    diagnostics = {
+      statistics = "yes";
+    };
+  '';
 
-    config = builtins.toFile "shairport-sync.conf" ''
-      general = {
-        ignore_volume_control = "yes";
-        dbus_service_bus = "session";
-        mpris_service_bus = "session";
-      };
-      sessioncontrol = {
-        session_timeout = 3600;
-      };
-      diagnostics = {
-        statistics = "yes";
-      };
-    '';
-
-    mk-service = config-text: let
+  mk-service =
+    config-text:
+    let
       config = builtins.toFile "shairport-sync.conf" config-text;
-    in {
+    in
+    {
       Unit = {
         Description = pkgs.shairport-sync.meta.description;
       };
@@ -48,7 +52,8 @@
         WantedBy = [ "default.target" ];
       };
     };
-in {
+in
+{
   systemd.user.services = {
     shairport-sync = mk-service ''
       general = {

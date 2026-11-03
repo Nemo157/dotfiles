@@ -1,4 +1,11 @@
-{ lib, config, pkgs, ts, hostname, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ts,
+  hostname,
+  ...
+}:
 {
   imports = [
     ./age.nix
@@ -119,7 +126,7 @@
 
         openrouter = {
           models = {
-            "z-ai/glm-5.2" = {};
+            "z-ai/glm-5.2" = { };
           };
         };
       };

@@ -1,4 +1,5 @@
-{ pkgs, ... }: rust-toolchain:
+{ pkgs, ... }:
+rust-toolchain:
 let
   rustc-wrapped = pkgs.writeShellApplication {
     name = "rustc";
@@ -25,7 +26,8 @@ let
       fi
     '';
   };
-in pkgs.symlinkJoin {
+in
+pkgs.symlinkJoin {
   inherit (rust-toolchain) name;
   paths = [
     rustc-wrapped

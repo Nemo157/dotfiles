@@ -1,4 +1,6 @@
-{ maintainers, inputs }: final: prev: let
+{ maintainers, inputs }:
+final: prev:
+let
   args = {
     # nix flake check doesn't like me renaming the function arguments,
     # so we have to alias here....
@@ -8,7 +10,8 @@
   intersectAttrs = builtins.intersectAttrs;
   functionArgs = builtins.functionArgs;
   callOverlay = path: (import path) args;
-in {
+in
+{
   freetube = final.unstable.freetube;
 
   maintainers = prev.maintainers // maintainers;
@@ -29,16 +32,19 @@ in {
     ];
   };
 
-  cargo-llvm-cov = final.callPackage ({ rustPlatform }: rustPlatform.buildRustPackage rec {
-    pname = "cargo-llvm-cov";
-    version = "0.6.15";
-    src = final.fetchCrate {
-      inherit pname version;
-      sha256 = "sha256-NOgo36hyWhdJq1It24gwn9Pu9jbDPOiWsOlvaWPRgJc=";
-    };
-    cargoHash = "sha256-MfccCi8nw/sz+5WfVc4ge1D57rISJbwI6MvVPA/aBDk=";
-    doCheck = false;
-  }) {};
+  cargo-llvm-cov = final.callPackage (
+    { rustPlatform }:
+    rustPlatform.buildRustPackage rec {
+      pname = "cargo-llvm-cov";
+      version = "0.6.15";
+      src = final.fetchCrate {
+        inherit pname version;
+        sha256 = "sha256-NOgo36hyWhdJq1It24gwn9Pu9jbDPOiWsOlvaWPRgJc=";
+      };
+      cargoHash = "sha256-MfccCi8nw/sz+5WfVc4ge1D57rISJbwI6MvVPA/aBDk=";
+      doCheck = false;
+    }
+  ) { };
 
   jujutsu = final.unstable.jujutsu;
 
@@ -54,4 +60,5 @@ in {
     # doCheck = false;          # master occasionally has failing tests
     # pythonRelaxDeps = true;   # master sometimes bumps yt-dlp-ejs minimums
   });
-} // import ../packages { pkgs = final; }
+}
+// import ../packages { pkgs = final; }

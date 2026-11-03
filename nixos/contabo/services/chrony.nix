@@ -1,4 +1,11 @@
-{ options, lib, name, ts, ... }: {
+{
+  options,
+  lib,
+  name,
+  ts,
+  ...
+}:
+{
   networking.firewall.interfaces.tailscale0.allowedUDPPorts = [ 123 ];
 
   networking.timeServers = lib.mkForce options.networking.timeServers.default;
