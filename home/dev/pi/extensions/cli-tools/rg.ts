@@ -16,7 +16,9 @@ const rgParams = Type.Object({
     description: "Regex (or literal, with fixedStrings=true) to search for.",
   }),
   path: Type.Optional(
-    Type.String({ description: "File or directory to search. Defaults to cwd." }),
+    Type.String({
+      description: "File or directory to search. Defaults to cwd.",
+    }),
   ),
   fixedStrings: Type.Optional(
     Type.Boolean({ description: "Treat pattern as a literal string (-F)." }),
@@ -29,7 +31,8 @@ const rgParams = Type.Object({
   ),
   multiline: Type.Optional(
     Type.Boolean({
-      description: "Enable multiline matching (-U). Implies --multiline-dotall.",
+      description:
+        "Enable multiline matching (-U). Implies --multiline-dotall.",
     }),
   ),
   context: Type.Optional(
@@ -47,7 +50,7 @@ const rgParams = Type.Object({
   ),
   type: Type.Optional(
     Type.Array(Type.String(), {
-      description: "Restrict to file types (rg -t), e.g. `[\"rust\", \"nix\"]`.",
+      description: 'Restrict to file types (rg -t), e.g. `["rust", "nix"]`.',
     }),
   ),
   filesWithMatches: Type.Optional(
@@ -336,9 +339,7 @@ const renderResult: CliRenderResult<RgDetails> = (
     for (const m of file.matches) {
       if (outLines.length >= EXPAND_LIMIT) break outer;
       const gutter = String(m.lineNumber).padStart(5);
-      outLines.push(
-        `${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`,
-      );
+      outLines.push(`${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`);
     }
   }
   if (outLines.length < totalOutputLines) {
@@ -377,9 +378,7 @@ function renderRgPartial(
   const totalFiles = parsed.files.length;
   const elapsed =
     details.startedAt !== undefined
-      ? formatElapsed(
-          (details.updatedAt ?? Date.now()) - details.startedAt,
-        )
+      ? formatElapsed((details.updatedAt ?? Date.now()) - details.startedAt)
       : undefined;
   const elapsedBadge = elapsed ? theme.fg("muted", ` · ${elapsed}`) : "";
 

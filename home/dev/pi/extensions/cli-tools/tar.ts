@@ -141,7 +141,7 @@ const params = Type.Object({
     Type.String({
       description:
         "Top-level directory name inside the archive. Defaults to the base " +
-        "directory's own name; pass \"\" for no top-level directory (entries " +
+        'directory\'s own name; pass "" for no top-level directory (entries ' +
         "then start at the members themselves).",
     }),
   ),
@@ -332,7 +332,10 @@ function makeTarTool(flavour: TarFlavour): CustomCliToolDef<typeof params> {
         // (resolved) base directory.
         const real = realpathSync(abs);
         const rel = relative(baseReal, real);
-        if (rel !== "" && (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel))) {
+        if (
+          rel !== "" &&
+          (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel))
+        ) {
           throw new Error(
             `Member "${raw}" resolves outside the base directory (${real}).`,
           );
@@ -359,7 +362,9 @@ function makeTarTool(flavour: TarFlavour): CustomCliToolDef<typeof params> {
       } else {
         // Derived from the directory / top-level name: sanitise rather than
         // reject, so an awkward directory name still produces an archive.
-        const derived = (topLevel !== "" ? topLevel.split("/").pop()! : physical)
+        const derived = (
+          topLevel !== "" ? topLevel.split("/").pop()! : physical
+        )
           .replace(/\.tar(\.gz)?$/i, "")
           .replace(/[^A-Za-z0-9._-]/g, "-")
           .replace(/^[-]+/, "");
@@ -401,7 +406,11 @@ function makeTarTool(flavour: TarFlavour): CustomCliToolDef<typeof params> {
       });
       if (r.timedOut) throw new Error(`tar timed out after ${TIMEOUT_MS}ms.`);
       if (r.code !== 0) {
-        const detail = (r.stderr.trim() || r.stdout.trim() || "no output").trim();
+        const detail = (
+          r.stderr.trim() ||
+          r.stdout.trim() ||
+          "no output"
+        ).trim();
         throw new Error(`tar failed (exit ${r.code}): ${detail}`);
       }
 

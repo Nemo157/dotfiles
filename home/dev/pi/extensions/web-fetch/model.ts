@@ -63,9 +63,7 @@ const SUMMARY_SYSTEM_PROMPT =
   "quotes. Reply with the one-line summary and nothing else.";
 
 /** Collect the text parts of a completion message into a trimmed string. */
-function messageText(message: {
-  content: { type: string }[];
-}): string {
+function messageText(message: { content: { type: string }[] }): string {
   return (message.content as { type: string; text?: string }[])
     .filter((c): c is { type: "text"; text: string } => c.type === "text")
     .map((c) => c.text)
@@ -158,9 +156,7 @@ export async function summarizeAnswer(opts: {
   const reasoning: ThinkingLevel | undefined =
     parsed.thinking && parsed.thinking !== "off" ? parsed.thinking : undefined;
 
-  const user =
-    `Question: ${opts.question}\n\n` +
-    `Answer:\n${opts.answer}`;
+  const user = `Question: ${opts.question}\n\n` + `Answer:\n${opts.answer}`;
 
   const message = await runtime.completeSimple(
     model,
@@ -176,5 +172,7 @@ export async function summarizeAnswer(opts: {
   }
 
   // Collapse any stray newlines the model may emit into a single line.
-  return messageText(message).replace(/\s*\n\s*/g, " ").trim();
+  return messageText(message)
+    .replace(/\s*\n\s*/g, " ")
+    .trim();
 }

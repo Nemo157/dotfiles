@@ -152,8 +152,7 @@ const gitLog: StructuredCliToolDef<typeof gitLogParams> = {
     const args: string[] = ["log", "-n", String(p.limit ?? 20)];
     // Default to --oneline unless caller explicitly disables it, or asks for
     // stat/patch output where the multi-line format is more useful.
-    const wantsOneline =
-      p.oneline ?? !(p.stat === true || p.patch === true);
+    const wantsOneline = p.oneline ?? !(p.stat === true || p.patch === true);
     if (wantsOneline) args.push("--oneline");
     if (p.stat) args.push("--stat");
     if (p.patch) args.push("-p");

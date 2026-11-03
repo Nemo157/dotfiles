@@ -319,12 +319,15 @@ function registerFileTool<T extends TSchema>(
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       let result: RunResult;
       try {
-        result = await def.run(
-          params as Record<string, unknown>,
-          { cwd: ctx.cwd, sessionManager: ctx.sessionManager },
-        );
+        result = await def.run(params as Record<string, unknown>, {
+          cwd: ctx.cwd,
+          sessionManager: ctx.sessionManager,
+        });
       } catch (err) {
-        result = { line: `${def.name}: ${(err as Error).message}`, isError: true };
+        result = {
+          line: `${def.name}: ${(err as Error).message}`,
+          isError: true,
+        };
       }
       const details: FileToolDetails = { line: result.line };
       if (result.buffer) details.buffer = result.buffer;
@@ -358,7 +361,8 @@ function registerFileTool<T extends TSchema>(
       let out = theme.fg(context.isError ? "error" : "success", msg);
       // Like the built-in edit tool, show the change as a diff, but only in
       // the expanded view to keep the collapsed row a single line.
-      if (opts.expanded && details?.diff) out += `\n\n${renderDiff(details.diff)}`;
+      if (opts.expanded && details?.diff)
+        out += `\n\n${renderDiff(details.diff)}`;
       return new Text(out, 0, 0);
     },
   });
@@ -405,7 +409,8 @@ const mvTool: FileToolDef<typeof mvParams> = {
   async run(params, ctx) {
     const rawSrc = String(params.source ?? "");
     const rawDest = String(params.dest ?? "");
-    if (!rawSrc || !rawDest) return { line: "mv: source and dest are required", isError: true };
+    if (!rawSrc || !rawDest)
+      return { line: "mv: source and dest are required", isError: true };
     const src = resolvePath(ctx.cwd, rawSrc);
     let dest = resolvePath(ctx.cwd, rawDest);
     if (await isDirectory(dest)) dest = path.join(dest, path.basename(src));
@@ -414,13 +419,23 @@ const mvTool: FileToolDef<typeof mvParams> = {
     // the source ourselves: deny globs, plus block an external source outright
     // (we cannot prompt from here, unlike the gated destination).
     if (pathPolicyDenies(src))
-      return { line: `mv: source is blocked by the permission policy: ${src}`, isError: true };
+      return {
+        line: `mv: source is blocked by the permission policy: ${src}`,
+        isError: true,
+      };
     if (externalSourceBlocked(ctx.cwd, src))
-      return { line: `mv: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
+      return {
+        line: `mv: source is outside the working directory and not allowed by policy: ${src}`,
+        isError: true,
+      };
     if (pathPolicyDenies(dest))
-      return { line: `mv: destination is blocked by the permission policy: ${dest}`, isError: true };
+      return {
+        line: `mv: destination is blocked by the permission policy: ${dest}`,
+        isError: true,
+      };
     return withFileMutationQueues([src, dest], async () => {
-      if (!(await exists(src))) return { line: `mv: no such file: ${rawSrc}`, isError: true };
+      if (!(await exists(src)))
+        return { line: `mv: no such file: ${rawSrc}`, isError: true };
 
       // Like `write`, create missing parent directories rather than failing with
       // ENOENT — the destination itself is already gated, so its parents are too.
@@ -510,8 +525,7 @@ const cpParams = Type.Object({
 const cpTool: FileToolDef<typeof cpParams> = {
   name: "cp",
   label: "copy",
-  description:
-    "Copy a file or directory (directories need `recursive: true`).",
+  description: "Copy a file or directory (directories need `recursive: true`).",
   parameters: cpParams,
   header(args, theme) {
     const src = typeof args.source === "string" ? args.source : "…";
@@ -527,7 +541,8 @@ const cpTool: FileToolDef<typeof cpParams> = {
   async run(params, ctx) {
     const rawSrc = String(params.source ?? "");
     const rawDest = String(params.dest ?? "");
-    if (!rawSrc || !rawDest) return { line: "cp: source and dest are required", isError: true };
+    if (!rawSrc || !rawDest)
+      return { line: "cp: source and dest are required", isError: true };
     const src = resolvePath(ctx.cwd, rawSrc);
     let dest = resolvePath(ctx.cwd, rawDest);
     if (await isDirectory(dest)) dest = path.join(dest, path.basename(src));
@@ -536,13 +551,23 @@ const cpTool: FileToolDef<typeof cpParams> = {
     // the source ourselves: deny globs, plus block an external source outright
     // (we cannot prompt from here, unlike the gated destination).
     if (pathPolicyDenies(src))
-      return { line: `cp: source is blocked by the permission policy: ${src}`, isError: true };
+      return {
+        line: `cp: source is blocked by the permission policy: ${src}`,
+        isError: true,
+      };
     if (externalSourceBlocked(ctx.cwd, src))
-      return { line: `cp: source is outside the working directory and not allowed by policy: ${src}`, isError: true };
+      return {
+        line: `cp: source is outside the working directory and not allowed by policy: ${src}`,
+        isError: true,
+      };
     if (pathPolicyDenies(dest))
-      return { line: `cp: destination is blocked by the permission policy: ${dest}`, isError: true };
+      return {
+        line: `cp: destination is blocked by the permission policy: ${dest}`,
+        isError: true,
+      };
     return withFileMutationQueues([src, dest], async () => {
-      if (!(await exists(src))) return { line: `cp: no such file: ${rawSrc}`, isError: true };
+      if (!(await exists(src)))
+        return { line: `cp: no such file: ${rawSrc}`, isError: true };
       if (!(params.recursive === true) && (await isDirectory(src))) {
         return {
           line: `cp: ${rawSrc} is a directory (set recursive: true to copy it)`,
@@ -554,7 +579,10 @@ const cpTool: FileToolDef<typeof cpParams> = {
       // ENOENT — the destination itself is already gated, so its parents are too.
       await fs.mkdir(path.dirname(dest), { recursive: true });
 
-      await fs.cp(src, dest, { recursive: params.recursive === true, force: true });
+      await fs.cp(src, dest, {
+        recursive: params.recursive === true,
+        force: true,
+      });
       return {
         line: `copied ${displayPath(ctx.cwd, src)} → ${displayPath(ctx.cwd, dest)}`,
       };
@@ -732,9 +760,7 @@ function findBuffer(
   sessionManager: unknown,
   name: string,
 ): BufferPayload | undefined {
-  const sm = sessionManager as
-    | { getBranch?: () => unknown[] }
-    | undefined;
+  const sm = sessionManager as { getBranch?: () => unknown[] } | undefined;
   if (typeof sm?.getBranch !== "function") return undefined;
   const entries = sm.getBranch();
   for (let i = entries.length - 1; i >= 0; i--) {
@@ -749,8 +775,7 @@ function findBuffer(
     if (entry?.type !== "message") continue;
     const msg = entry.message;
     if (msg?.role !== "toolResult") continue;
-    if (msg.toolName !== "copy-lines" && msg.toolName !== "cut-lines")
-      continue;
+    if (msg.toolName !== "copy-lines" && msg.toolName !== "cut-lines") continue;
     const b = msg.details?.buffer;
     if (b && b.name === name && typeof b.text === "string") {
       return b as BufferPayload;
@@ -770,12 +795,11 @@ const lineRangeParams = {
   startText: Type.String({
     description:
       "Expected content of line `start` (leading part is enough, " +
-      "whitespace-trimmed; \"\" for a blank line). Guards against off-by-one: " +
+      'whitespace-trimmed; "" for a blank line). Guards against off-by-one: ' +
       "on mismatch nothing happens and nearby numbered lines are shown.",
   }),
   endText: Type.String({
-    description:
-      "Expected content of line `end`, matched like `startText`.",
+    description: "Expected content of line `end`, matched like `startText`.",
   }),
   buffer: Type.String({
     description:
@@ -807,7 +831,10 @@ const copyLinesTool: FileToolDef<typeof copyLinesParams> = {
     const raw = String(params.path ?? "");
     const name = String(params.buffer ?? "");
     if (!raw || !name)
-      return { line: "copy-lines: path and buffer are required", isError: true };
+      return {
+        line: "copy-lines: path and buffer are required",
+        isError: true,
+      };
     const abs = resolvePath(ctx.cwd, raw);
     const start = Number(params.start);
     const end = Number(params.end);
@@ -815,8 +842,20 @@ const copyLinesTool: FileToolDef<typeof copyLinesParams> = {
     const err = rangeError("copy-lines", start, end, f.lines.length);
     if (err) return { line: err, isError: true };
     const bad =
-      anchorMismatch("copy-lines", "startText", f.lines, start, String(params.startText ?? "")) ??
-      anchorMismatch("copy-lines", "endText", f.lines, end, String(params.endText ?? ""));
+      anchorMismatch(
+        "copy-lines",
+        "startText",
+        f.lines,
+        start,
+        String(params.startText ?? ""),
+      ) ??
+      anchorMismatch(
+        "copy-lines",
+        "endText",
+        f.lines,
+        end,
+        String(params.endText ?? ""),
+      );
     if (bad) return bad;
     const taken = f.lines.slice(start - 1, end);
     return {
@@ -869,8 +908,20 @@ const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
       const err = rangeError("cut-lines", start, end, f.lines.length);
       if (err) return { line: err, isError: true };
       const bad =
-        anchorMismatch("cut-lines", "startText", f.lines, start, String(params.startText ?? "")) ??
-        anchorMismatch("cut-lines", "endText", f.lines, end, String(params.endText ?? ""));
+        anchorMismatch(
+          "cut-lines",
+          "startText",
+          f.lines,
+          start,
+          String(params.startText ?? ""),
+        ) ??
+        anchorMismatch(
+          "cut-lines",
+          "endText",
+          f.lines,
+          end,
+          String(params.endText ?? ""),
+        );
       if (bad) return bad;
       const taken = f.lines.slice(start - 1, end);
       f.lines.splice(start - 1, taken.length);
@@ -910,7 +961,7 @@ const pasteLinesParams = Type.Object({
   lineText: Type.String({
     description:
       "Expected content of the reference line (leading part is enough, " +
-      "whitespace-trimmed; \"\" for a blank line or for line 0). Guards " +
+      'whitespace-trimmed; "" for a blank line or for line 0). Guards ' +
       "against off-by-one: on mismatch nothing happens and nearby " +
       "numbered lines are shown. Remember an earlier cut in the same file " +
       "shifts line numbers.",
@@ -947,7 +998,10 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
     const raw = String(params.path ?? "");
     const name = String(params.buffer ?? "");
     if (!raw || !name)
-      return { line: "paste-lines: path and buffer are required", isError: true };
+      return {
+        line: "paste-lines: path and buffer are required",
+        isError: true,
+      };
     const abs = resolvePath(ctx.cwd, raw);
     const line = Number(params.line);
     const position = params.position === "before" ? "before" : "after";
@@ -1009,7 +1063,11 @@ const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
 // ── replace-block ───────────────────────────────────────────────────────
 
 /** Render specific 1-indexed line numbers (sorted, deduped, capped). */
-function numberedSet(lines: string[], nums: Iterable<number>, cap = 20): string {
+function numberedSet(
+  lines: string[],
+  nums: Iterable<number>,
+  cap = 20,
+): string {
   const sorted = [...new Set(nums)]
     .filter((n) => n >= 1 && n <= lines.length)
     .sort((a, b) => a - b);
@@ -1054,7 +1112,7 @@ const replaceBlockParams = Type.Object({
     description:
       "Replacement lines. By default the marker lines are replaced too, so " +
       "include their new versions; see keepStart/keepEnd. A single trailing " +
-      "newline is ignored; \"\" deletes the block.",
+      'newline is ignored; "" deletes the block.',
   }),
   keepStart: Type.Optional(
     Type.Boolean({
@@ -1140,7 +1198,8 @@ const replaceBlockTool: FileToolDef<typeof replaceBlockParams> = {
             isError: true,
           };
         for (const [k, expected] of startSeq.entries()) {
-          const label = startSeq.length > 1 ? `startText line ${k + 1}` : "startText";
+          const label =
+            startSeq.length > 1 ? `startText line ${k + 1}` : "startText";
           const bad = anchorMismatch(tool, label, f.lines, start + k, expected);
           if (bad) return bad;
         }
@@ -1244,29 +1303,37 @@ function escapeRegExp(s: string): string {
  * text.replace) so we know each replacement's length and can report the
  * output lines it landed on.
  */
-function expandTemplate(tpl: string, m: RegExpMatchArray, input: string): string {
+function expandTemplate(
+  tpl: string,
+  m: RegExpMatchArray,
+  input: string,
+): string {
   const idx = m.index ?? 0;
   const groupCount = m.length - 1;
-  return tpl.replace(/\$(\$|&|`|'|\d{1,2}|<([^>]*)>)/g, (tok, k: string, name?: string) => {
-    if (k === "$") return "$";
-    if (k === "&") return m[0];
-    if (k === "`") return input.slice(0, idx);
-    if (k === "'") return input.slice(idx + m[0].length);
-    if (name !== undefined) return m.groups ? (m.groups[name] ?? "") : tok;
-    const n = parseInt(k, 10);
-    if (n >= 1 && n <= groupCount) return m[n] ?? "";
-    if (k.length === 2) {
-      const n1 = parseInt(k[0], 10);
-      if (n1 >= 1 && n1 <= groupCount) return (m[n1] ?? "") + k[1];
-    }
-    return tok;
-  });
+  return tpl.replace(
+    /\$(\$|&|`|'|\d{1,2}|<([^>]*)>)/g,
+    (tok, k: string, name?: string) => {
+      if (k === "$") return "$";
+      if (k === "&") return m[0];
+      if (k === "`") return input.slice(0, idx);
+      if (k === "'") return input.slice(idx + m[0].length);
+      if (name !== undefined) return m.groups ? (m.groups[name] ?? "") : tok;
+      const n = parseInt(k, 10);
+      if (n >= 1 && n <= groupCount) return m[n] ?? "";
+      if (k.length === 2) {
+        const n1 = parseInt(k[0], 10);
+        if (n1 >= 1 && n1 <= groupCount) return (m[n1] ?? "") + k[1];
+      }
+      return tok;
+    },
+  );
 }
 
 /** Map character offsets to 1-indexed line numbers. */
 function lineIndexer(text: string): (offset: number) => number {
   const nl: number[] = [];
-  for (let i = text.indexOf("\n"); i >= 0; i = text.indexOf("\n", i + 1)) nl.push(i);
+  for (let i = text.indexOf("\n"); i >= 0; i = text.indexOf("\n", i + 1))
+    nl.push(i);
   return (offset) => {
     let lo = 0;
     let hi = nl.length;
@@ -1303,7 +1370,8 @@ const regexReplaceParams = Type.Object({
   replacements: Type.Array(
     Type.Object({
       pattern: Type.String({
-        description: "JavaScript regular expression source (or literal text with `literal`).",
+        description:
+          "JavaScript regular expression source (or literal text with `literal`).",
       }),
       replacement: Type.String({
         description:
@@ -1348,7 +1416,9 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
   header(args, theme) {
     const p = typeof args.path === "string" ? args.path : "…";
     const rules = Array.isArray(args.replacements) ? args.replacements : [];
-    const first = rules[0] as { pattern?: unknown; replacement?: unknown } | undefined;
+    const first = rules[0] as
+      | { pattern?: unknown; replacement?: unknown }
+      | undefined;
     const summary =
       first && typeof first.pattern === "string"
         ? ` /${first.pattern}/ → ${JSON.stringify(first.replacement ?? "")}` +
@@ -1364,7 +1434,10 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
       ? (params.replacements as Array<Record<string, unknown>>)
       : [];
     if (rules.length === 0)
-      return { line: `${tool}: at least one replacement is required`, isError: true };
+      return {
+        line: `${tool}: at least one replacement is required`,
+        isError: true,
+      };
     const abs = resolvePath(ctx.cwd, raw);
 
     return withFileMutationQueue(abs, async () => {
@@ -1381,18 +1454,30 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
         const flags = String(rule.flags ?? "");
         const expected = Number(rule.expectedCount);
         if (!pattern)
-          return { line: `${tool}: ${label}: pattern must not be empty`, isError: true };
+          return {
+            line: `${tool}: ${label}: pattern must not be empty`,
+            isError: true,
+          };
         if (!/^[gimsu]*$/.test(flags))
-          return { line: `${tool}: ${label}: unsupported flags ${JSON.stringify(flags)} (allowed: i, m, s, u)`, isError: true };
+          return {
+            line: `${tool}: ${label}: unsupported flags ${JSON.stringify(flags)} (allowed: i, m, s, u)`,
+            isError: true,
+          };
         if (!Number.isInteger(expected) || expected < 0)
-          return { line: `${tool}: ${label}: expectedCount must be a non-negative integer`, isError: true };
+          return {
+            line: `${tool}: ${label}: expectedCount must be a non-negative integer`,
+            isError: true,
+          };
 
         let re: RegExp;
         try {
           const f = [...new Set((flags + "g").split(""))].join("");
           re = new RegExp(literal ? escapeRegExp(pattern) : pattern, f);
         } catch (err) {
-          return { line: `${tool}: ${label}: invalid regex: ${(err as Error).message}`, isError: true };
+          return {
+            line: `${tool}: ${label}: invalid regex: ${(err as Error).message}`,
+            isError: true,
+          };
         }
 
         const matches = [...text.matchAll(re)];
@@ -1408,9 +1493,10 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
                   displayLines(text),
                   spanLines(
                     text,
-                    matches.map(
-                      (m): [number, number] => [m.index ?? 0, (m.index ?? 0) + m[0].length],
-                    ),
+                    matches.map((m): [number, number] => [
+                      m.index ?? 0,
+                      (m.index ?? 0) + m[0].length,
+                    ]),
                   ),
                 )
               : undefined,
@@ -1424,7 +1510,9 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
         const spans: Array<[number, number]> = [];
         for (const m of matches) {
           const idx = m.index ?? 0;
-          const rep = literal ? replacement : expandTemplate(replacement, m, text);
+          const rep = literal
+            ? replacement
+            : expandTemplate(replacement, m, text);
           out += text.slice(last, idx);
           const s = out.length;
           out += rep;

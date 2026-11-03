@@ -9,7 +9,12 @@ import type {
   ExtensionAPI,
   ToolExecutionMode,
 } from "@earendil-works/pi-coding-agent";
-import { type Component, Container, Spacer, Text } from "@earendil-works/pi-tui";
+import {
+  type Component,
+  Container,
+  Spacer,
+  Text,
+} from "@earendil-works/pi-tui";
 import type { Static, TSchema } from "typebox";
 import { spawn, spawnSync } from "node:child_process";
 import { homedir } from "node:os";
@@ -572,10 +577,7 @@ function countNonEmptyLines(text: string): number {
  *     a blank spacer, `output`, and `trailer?` stacked.
  *   - expanded: same as inline case, but without the size cap.
  */
-function renderSpec(
-  spec: CliRenderSpec,
-  expanded: boolean,
-): Component {
+function renderSpec(spec: CliRenderSpec, expanded: boolean): Component {
   const size = spec.outputLines ?? 0;
   const inline =
     !expanded &&
@@ -743,11 +745,12 @@ export const buildDefaultSpec: CliRenderResult = (
 
   const stdoutTrimmed = stdout.replace(/\s+$/, "");
   const stderrTrimmed = stderr.replace(/\s+$/, "");
-  const stdoutRawLines = stdoutTrimmed.length > 0 ? stdoutTrimmed.split("\n") : [];
-  const stderrRawLines = stderrTrimmed.length > 0 ? stderrTrimmed.split("\n") : [];
+  const stdoutRawLines =
+    stdoutTrimmed.length > 0 ? stdoutTrimmed.split("\n") : [];
+  const stderrRawLines =
+    stderrTrimmed.length > 0 ? stderrTrimmed.split("\n") : [];
   const totalRawLines = stdoutRawLines.length + stderrRawLines.length;
-  const totalNonEmpty =
-    countNonEmptyLines(stdout) + countNonEmptyLines(stderr);
+  const totalNonEmpty = countNonEmptyLines(stdout) + countNonEmptyLines(stderr);
 
   // Build the output component: each stream capped at EXPANDED_MAX_LINES
   // with a "… N more" tail. stderr is *not* an error channel — jj, nix and
@@ -764,7 +767,10 @@ export const buildDefaultSpec: CliRenderResult = (
     for (const line of shown) chunks.push(theme.fg(color, line));
     if (lines.length > EXPANDED_MAX_LINES) {
       chunks.push(
-        theme.fg("muted", `… ${lines.length - EXPANDED_MAX_LINES} more line(s)`),
+        theme.fg(
+          "muted",
+          `… ${lines.length - EXPANDED_MAX_LINES} more line(s)`,
+        ),
       );
       extraTailLines++;
     }
@@ -790,21 +796,19 @@ export const buildDefaultSpec: CliRenderResult = (
       ? undefined
       : theme.fg("error", `exit ${exitCode}`);
   const summaryBase =
-    exitCode === 0 || exitCode === null
-      ? theme.fg("success", "done")
-      : "";
+    exitCode === 0 || exitCode === null ? theme.fg("success", "done") : "";
   const summary =
     totalNonEmpty > 0
-      ? (summaryBase
-          ? summaryBase +
-            theme.fg(
-              "dim",
-              ` (${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
-            )
-          : theme.fg(
-              "dim",
-              `(${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
-            ))
+      ? summaryBase
+        ? summaryBase +
+          theme.fg(
+            "dim",
+            ` (${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
+          )
+        : theme.fg(
+            "dim",
+            `(${totalNonEmpty} line${totalNonEmpty === 1 ? "" : "s"} of output)`,
+          )
       : summaryBase;
 
   return { summary, status, output, outputLines };
@@ -885,7 +889,6 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       const stdin = def.stdin?.(params as Static<typeof def.parameters>);
       const stdinHint =
         stdin !== undefined ? formatStdinHint(stdin) : undefined;
-
 
       // Streaming: for tools without a postProcess hook, forward partial
       // stdout/stderr to pi as the subprocess runs so the TUI can show a
@@ -994,12 +997,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         };
       }
 
-      const { text, isError } = formatResult(
-        def,
-        args,
-        stdinHint,
-        result,
-      );
+      const { text, isError } = formatResult(def, args, stdinHint, result);
       return {
         content: [{ type: "text", text }],
         details: { ...baseDetails, isError },

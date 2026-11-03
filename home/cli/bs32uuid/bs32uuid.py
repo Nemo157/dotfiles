@@ -22,8 +22,7 @@ def encode(value):
     typeid suffix encoding.
     """
     return "".join(
-        ALPHABET[(value >> shift) & 0x1F]
-        for shift in range(125, -5, -5)
+        ALPHABET[(value >> shift) & 0x1F] for shift in range(125, -5, -5)
     )
 
 

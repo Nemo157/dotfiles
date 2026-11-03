@@ -87,7 +87,10 @@ const EXT_TYPES: Record<string, string> = {
   ".tar": "application/x-tar",
 };
 
-function sniffContentType(file: string | undefined, inlineText: boolean): string {
+function sniffContentType(
+  file: string | undefined,
+  inlineText: boolean,
+): string {
   if (file) {
     const t = EXT_TYPES[path.extname(file).toLowerCase()];
     if (t) return t;
@@ -324,7 +327,10 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
         (sourcePath ? path.basename(sourcePath) : "upload.bin");
       const contentType =
         (typeof p.contentType === "string" && p.contentType.trim()) ||
-        sniffContentType(sourcePath ?? (form ? filename : undefined), inlineText);
+        sniffContentType(
+          sourcePath ?? (form ? filename : undefined),
+          inlineText,
+        );
 
       const details: UploadDetails = {
         url: rawUrl,
@@ -412,7 +418,9 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
 
       details.status = res.status;
       details.statusText = res.statusText;
-      details.responseType = (res.headers.get("content-type") ?? "").toLowerCase();
+      details.responseType = (
+        res.headers.get("content-type") ?? ""
+      ).toLowerCase();
       details.responseBytes = responseBytes;
       details.location = res.headers.get("location") ?? undefined;
       details.responseText = shown;
@@ -422,7 +430,9 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
       const lines = [
         `${method} ${rawUrl} → HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`,
         `sent ${formatBytes(payload.byteLength)} ${
-          form ? `as multipart field (filename ${filename})` : `as ${contentType}`
+          form
+            ? `as multipart field (filename ${filename})`
+            : `as ${contentType}`
         }${sourcePath ? ` from ${sourcePath}` : " from inline body"}`,
       ];
       if (details.location) lines.push(`location: ${details.location}`);
@@ -464,7 +474,8 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
         const elapsed = d?.startedAt
           ? ` (${((Date.now() - d.startedAt) / 1000).toFixed(1)}s)`
           : "";
-        const size = d?.sentBytes !== undefined ? ` ${formatBytes(d.sentBytes)}` : "";
+        const size =
+          d?.sentBytes !== undefined ? ` ${formatBytes(d.sentBytes)}` : "";
         return new Text(
           theme.fg("warning", `⋮ Uploading${size}${elapsed}`),
           0,
@@ -507,7 +518,8 @@ export default function fileUploadExtension(pi: ExtensionAPI): void {
       if (d.responseText && d.responseText.trim().length > 0) {
         lines.push(theme.fg("dim", "───"));
         lines.push(d.responseText.trimEnd());
-        if (d.truncated) lines.push(theme.fg("warning", "(response truncated)"));
+        if (d.truncated)
+          lines.push(theme.fg("warning", "(response truncated)"));
       }
       return new Text(lines.join("\n"), 0, 0);
     },

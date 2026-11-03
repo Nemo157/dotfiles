@@ -16,7 +16,10 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type {
+  ExtensionAPI,
+  ExtensionContext,
+} from "@earendil-works/pi-coding-agent";
 
 // --- payload → system text -------------------------------------------------
 
@@ -70,7 +73,12 @@ interface DiffResult {
 // answer is "which block moved", and the divergent middle shows that directly.
 function diffLines(prev: string[], cur: string[]): DiffResult | undefined {
   let start = 0;
-  while (start < prev.length && start < cur.length && prev[start] === cur[start]) start++;
+  while (
+    start < prev.length &&
+    start < cur.length &&
+    prev[start] === cur[start]
+  )
+    start++;
   let end = 0;
   while (
     end < prev.length - start &&
@@ -146,7 +154,9 @@ export default function promptDiffExtension(pi: ExtensionAPI): void {
     if (!diff) return;
 
     const hint =
-      firstNonEmpty(diff.added) ?? firstNonEmpty(diff.removed) ?? "(whitespace)";
+      firstNonEmpty(diff.added) ??
+      firstNonEmpty(diff.removed) ??
+      "(whitespace)";
     lastSummary =
       `line ${diff.at + 1}: -${diff.removed.length}/+${diff.added.length} — ` +
       hint.slice(0, 120);

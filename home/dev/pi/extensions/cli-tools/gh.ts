@@ -39,7 +39,11 @@ async function gh(args: string[], ctx: GhContext): Promise<string> {
 }
 
 /** Run a `gh api` call and JSON-parse the (possibly paginated) response. */
-async function ghApi<T>(endpoint: string, ctx: GhContext, paginate = false): Promise<T> {
+async function ghApi<T>(
+  endpoint: string,
+  ctx: GhContext,
+  paginate = false,
+): Promise<T> {
   const args = ["api"];
   if (paginate) args.push("--paginate");
   args.push(endpoint);
@@ -94,7 +98,10 @@ async function detectPr(ctx: GhContext): Promise<number> {
   for (const sha of shas) {
     let pulls: Pull[];
     try {
-      pulls = await ghApi<Pull[]>(`repos/{owner}/{repo}/commits/${sha}/pulls`, ctx);
+      pulls = await ghApi<Pull[]>(
+        `repos/{owner}/{repo}/commits/${sha}/pulls`,
+        ctx,
+      );
     } catch {
       // Commit not on GitHub (unpushed) or transient error — try the next.
       continue;
@@ -342,26 +349,42 @@ interface Report {
 
 async function buildReport(pr: number, ctx: GhContext): Promise<Report> {
   const meta = await ghApi<PrMeta>(`repos/{owner}/{repo}/pulls/${pr}`, ctx);
-  const [decision, reviews, issueComments, inline, activity] = await Promise.all([
-    gh(["pr", "view", String(pr), "--json", "reviewDecision"], ctx)
-      .then((o) => (JSON.parse(o || "{}") as ReviewDecision).reviewDecision ?? "")
-      .catch(() => ""),
-    ghApi<Review[]>(`repos/{owner}/{repo}/pulls/${pr}/reviews`, ctx, true),
-    ghApi<IssueComment[]>(`repos/{owner}/{repo}/issues/${pr}/comments`, ctx, true),
-    ghApi<ReviewComment[]>(`repos/{owner}/{repo}/pulls/${pr}/comments`, ctx, true),
-    ghGraphql<TimelineResponse>(
-      TIMELINE_QUERY,
-      {
-        strings: { owner: meta.base.repo.owner.login, name: meta.base.repo.name },
-        ints: { number: pr },
-      },
-      ctx,
-    )
-      .then((r) =>
-        buildActivity(r.data?.repository?.pullRequest?.timelineItems?.nodes ?? []),
+  const [decision, reviews, issueComments, inline, activity] =
+    await Promise.all([
+      gh(["pr", "view", String(pr), "--json", "reviewDecision"], ctx)
+        .then(
+          (o) => (JSON.parse(o || "{}") as ReviewDecision).reviewDecision ?? "",
+        )
+        .catch(() => ""),
+      ghApi<Review[]>(`repos/{owner}/{repo}/pulls/${pr}/reviews`, ctx, true),
+      ghApi<IssueComment[]>(
+        `repos/{owner}/{repo}/issues/${pr}/comments`,
+        ctx,
+        true,
+      ),
+      ghApi<ReviewComment[]>(
+        `repos/{owner}/{repo}/pulls/${pr}/comments`,
+        ctx,
+        true,
+      ),
+      ghGraphql<TimelineResponse>(
+        TIMELINE_QUERY,
+        {
+          strings: {
+            owner: meta.base.repo.owner.login,
+            name: meta.base.repo.name,
+          },
+          ints: { number: pr },
+        },
+        ctx,
       )
-      .catch(() => [] as TimelineEntry[]),
-  ]);
+        .then((r) =>
+          buildActivity(
+            r.data?.repository?.pullRequest?.timelineItems?.nodes ?? [],
+          ),
+        )
+        .catch(() => [] as TimelineEntry[]),
+    ]);
 
   const out: string[] = [];
 

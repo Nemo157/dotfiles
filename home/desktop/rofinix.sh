@@ -10,10 +10,8 @@ run() {
 cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/rofinix.cache"
 
 list_cache() {
-  if [ -f "$cache_file" ]
-  then
-    while read -r _count app
-    do
+  if [ -f "$cache_file" ]; then
+    while read -r _count app; do
       echo "$app"
     done <"$cache_file"
   fi
@@ -22,40 +20,34 @@ list_cache() {
 declare -A cache=()
 
 load_cache() {
-  if [ -f "$cache_file" ]
-  then
-    while read -r count app
-    do
+  if [ -f "$cache_file" ]; then
+    while read -r count app; do
       cache["$app"]=$count
     done <"$cache_file"
   fi
 }
 
 save_cache() {
-  for app in "${!cache[@]}"
-  do
+  for app in "${!cache[@]}"; do
     echo "${cache[$app]} $app"
   done | sort -nr >"$cache_file"
 }
 
-if [ "$ROFI_RETV" = 0 ]
-then
+if [ "$ROFI_RETV" = 0 ]; then
   list_cache
-elif [ "$ROFI_RETV" = 3 ]
-then
+elif [ "$ROFI_RETV" = 3 ]; then
   # kb-delete-entry: drop the entry and redisplay the list
   load_cache
   unset 'cache[$1]'
   save_cache
   list_cache
-elif [ "$ROFI_RETV" = 1 ] || [ "$ROFI_RETV" = 2 ]
-then
+elif [ "$ROFI_RETV" = 1 ] || [ "$ROFI_RETV" = 2 ]; then
   # 1: selected an entry, 2: selected a custom (typed) entry
   # shellcheck disable=SC2206
   cmd=($1)
 
   load_cache
-  (( cache["$1"] += 1 ))
+  ((cache["$1"] += 1))
   save_cache
 
   pkg="${cmd[0]}"
@@ -67,15 +59,15 @@ then
   # shellcheck disable=SC2016
   systemd_run=(
     systemd-run
-      --scope
-      --user
-      --slice-inherit
-      --slice="$app"
-      --unit="$unit"
-      --expand-environment=false
-      systemd-cat
-        --identifier="$app"
-        bash -c '
+    --scope
+    --user
+    --slice-inherit
+    --slice="$app"
+    --unit="$unit"
+    --expand-environment=false
+    systemd-cat
+    --identifier="$app"
+    bash -c '
           set -euo pipefail
           pkg="$1"
           shift

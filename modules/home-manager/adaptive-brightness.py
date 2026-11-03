@@ -37,7 +37,9 @@ def detect_displays():
     try:
         result = subprocess.run(
             ["ddcutil", "detect"],
-            capture_output=True, text=True, timeout=15,
+            capture_output=True,
+            text=True,
+            timeout=15,
         )
         return re.findall(r"Display\s+(\d+)", result.stdout)
     except Exception as e:
@@ -47,9 +49,9 @@ def detect_displays():
 
 def set_brightness(display, brightness):
     subprocess.run(
-        ["ddcutil", "setvcp", "10", str(brightness),
-         "--display", str(display)],
-        capture_output=True, timeout=15,
+        ["ddcutil", "setvcp", "10", str(brightness), "--display", str(display)],
+        capture_output=True,
+        timeout=15,
     )
 
 
@@ -69,7 +71,11 @@ def main():
             token = read_token()
             lux = get_lux(ha_url, sensor_entity_id, token)
             target = log_map(
-                lux, lux_min, lux_max, brightness_min, brightness_max,
+                lux,
+                lux_min,
+                lux_max,
+                brightness_min,
+                brightness_max,
             )
             displays = detect_displays()
 

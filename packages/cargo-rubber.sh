@@ -1,5 +1,4 @@
-if [ "$1" = "rubber" ]
-then
+if [ "$1" = "rubber" ]; then
   shift
 fi
 
@@ -34,8 +33,7 @@ bwrap_args=(
   --bind "$target_dir" "$target_dir"
 )
 
-if build_dir="$(cargo metadata "${manifest[@]}" --format-version 1 | jq -er .build_directory)"
-then
+if build_dir="$(cargo metadata "${manifest[@]}" --format-version 1 | jq -er .build_directory)"; then
   build_dir="$(realpath "$build_dir")"
   mkdir -p "$build_dir"
   bwrap_args+=(

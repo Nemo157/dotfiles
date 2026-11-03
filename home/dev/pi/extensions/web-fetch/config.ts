@@ -66,12 +66,7 @@ function defaultCacheDir(): string {
 export function loadConfig(): WebFetchConfig {
   let raw: Record<string, unknown> = {};
   try {
-    const path = join(
-      getAgentDir(),
-      "extensions",
-      "web-fetch",
-      "config.json",
-    );
+    const path = join(getAgentDir(), "extensions", "web-fetch", "config.json");
     raw = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
   } catch {
     // No config file (or unreadable / invalid JSON): fall back to defaults.

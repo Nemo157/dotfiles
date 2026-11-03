@@ -429,13 +429,13 @@ const jjRestore: StructuredCliToolDef<typeof jjRestoreParams> = {
   description:
     "Restore paths in a revision from another revision. Defaults to " +
     "restoring `@` from its parent, i.e. discarding working-copy changes. " +
-    "To undo a revision's changes use `from: \"X-\", into: \"X\"`. " +
+    'To undo a revision\'s changes use `from: "X-", into: "X"`. ' +
     "Set exactly one of `paths` or `all`.",
   executionMode: SEQUENTIAL,
   parameters: jjRestoreParams,
   buildArgs(p) {
     const paths = asStringArray(p.paths);
-    if ((paths.length > 0) === Boolean(p.all)) {
+    if (paths.length > 0 === Boolean(p.all)) {
       throw new Error("jj-restore: set exactly one of `paths` or `all`.");
     }
     const args: string[] = ["restore"];
@@ -510,12 +510,10 @@ const jjRebase: StructuredCliToolDef<typeof jjRebaseParams> = {
     const onto = asStringArray(p.onto);
     const after = asStringArray(p.insertAfter);
     const before = asStringArray(p.insertBefore);
-    if ((p.source !== undefined) === (revisions.length > 0)) {
-      throw new Error(
-        "jj-rebase: set exactly one of `source` or `revisions`.",
-      );
+    if ((p.source !== undefined) === revisions.length > 0) {
+      throw new Error("jj-rebase: set exactly one of `source` or `revisions`.");
     }
-    if ((onto.length > 0) === (after.length + before.length > 0)) {
+    if (onto.length > 0 === after.length + before.length > 0) {
       throw new Error(
         "jj-rebase: set either `onto` or `insertAfter`/`insertBefore`.",
       );

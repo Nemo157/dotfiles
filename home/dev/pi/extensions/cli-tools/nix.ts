@@ -71,7 +71,11 @@ function formatFlakeInfo(raw: {
   const empty: NixFlakeExtraDetails = { nixFlake: { inputs: {} } };
 
   if (raw.timedOut) {
-    return { content: "nix flake archive timed out", details: empty, isError: true };
+    return {
+      content: "nix flake archive timed out",
+      details: empty,
+      isError: true,
+    };
   }
   if (raw.exitCode !== 0) {
     const stderr = raw.stderr.trim();
@@ -246,9 +250,7 @@ function makeFlakeCheckTool(
     const output =
       lines.length > 0
         ? new Text(
-            lines
-              .map((l) => theme.fg(isError ? "error" : "dim", l))
-              .join("\n"),
+            lines.map((l) => theme.fg(isError ? "error" : "dim", l)).join("\n"),
             0,
             0,
           )
@@ -379,14 +381,12 @@ function makeFlakeCheckTool(
         let names: string[] = [];
         try {
           const parsed = JSON.parse(raw.stdout) as unknown;
-          if (Array.isArray(parsed)) names = parsed.filter((n): n is string => typeof n === "string");
+          if (Array.isArray(parsed))
+            names = parsed.filter((n): n is string => typeof n === "string");
         } catch {
           // fall through with empty list
         }
-        const content =
-          names.length === 0
-            ? "No checks."
-            : names.join("\n");
+        const content = names.length === 0 ? "No checks." : names.join("\n");
         return {
           content,
           details: { flakeCheck: { mode: "list", checks: names } },
@@ -405,7 +405,9 @@ function makeFlakeCheckTool(
           : `check ${p.check} failed (exit ${raw.exitCode})`;
         return {
           content: tail.length > 0 ? `${header}\n\n${tail}` : header,
-          details: { flakeCheck: { mode: "run", check: p.check, passed: false } },
+          details: {
+            flakeCheck: { mode: "run", check: p.check, passed: false },
+          },
           isError: true,
         };
       }
@@ -426,7 +428,13 @@ function makeFlakeCheckTool(
       return {
         content: contentLines.join("\n"),
         details: {
-          flakeCheck: { mode: "run", check: p.check, passed: true, drvPath, outPath },
+          flakeCheck: {
+            mode: "run",
+            check: p.check,
+            passed: true,
+            drvPath,
+            outPath,
+          },
         },
         isError: false,
       };
@@ -448,7 +456,8 @@ function makeFlakeCheckTool(
           new Text(theme.fg("muted", `⋮ ${hidden} earlier line(s)`), 0, 0),
         );
       }
-      for (const line of shown) c.addChild(new Text(theme.fg("dim", line), 0, 0));
+      for (const line of shown)
+        c.addChild(new Text(theme.fg("dim", line), 0, 0));
       c.addChild(new Text(theme.fg("warning", "⋮ Checking…"), 0, 0));
       const spec: CliRenderSpec = {
         summary: "",

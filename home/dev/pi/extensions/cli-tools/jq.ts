@@ -37,7 +37,8 @@ const jqParams = Type.Object({
   ),
   raw: Type.Optional(
     Type.Boolean({
-      description: "Raw string output (-r): strings emitted unquoted, unescaped.",
+      description:
+        "Raw string output (-r): strings emitted unquoted, unescaped.",
     }),
   ),
   compact: Type.Optional(

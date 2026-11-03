@@ -1,8 +1,8 @@
 width="${COLUMNS:-$(tput cols 2>/dev/null || echo 100)}"
 me="$(gh api user --jq .login 2>/dev/null || true)"
 
-gh pr list --json number,title,author,additions,deletions,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup,mergeable "$@" \
-  | jq -r \
+gh pr list --json number,title,author,additions,deletions,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,createdAt,updatedAt,url,isDraft,latestReviews,reviewRequests,statusCheckRollup,mergeable "$@" |
+  jq -r \
     --argjson now "$(date +%s)" \
     --argjson width "$width" \
     --arg me "$me" \

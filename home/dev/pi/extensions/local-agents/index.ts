@@ -26,7 +26,9 @@ const LOCAL_AGENTS_REL = ".local/AGENTS.md";
 
 // Read `<cwd>/.local/AGENTS.md`, returning its trimmed contents or null when
 // the file is absent (or unreadable / empty).
-function readLocalAgents(cwd: string): { path: string; content: string } | null {
+function readLocalAgents(
+  cwd: string,
+): { path: string; content: string } | null {
   const path = resolve(cwd, LOCAL_AGENTS_REL);
   try {
     const content = readFileSync(path, "utf8").trim();

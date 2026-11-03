@@ -1,7 +1,6 @@
 set -x
 
-if [ -e "$CARGO_HOME" ]
-then
+if [ -e "$CARGO_HOME" ]; then
   echo "Found existing CARGO_HOME in $CARGO_HOME" >&2
   exit
 fi

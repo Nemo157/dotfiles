@@ -290,7 +290,10 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             : undefined;
           if (cachedExtract === undefined) {
             emitProgress({ url: rawUrl, mode, phase: "extracting", startedAt });
-            const extraction = extractHtml(rawBody.toString("utf8"), meta.finalUrl);
+            const extraction = extractHtml(
+              rawBody.toString("utf8"),
+              meta.finalUrl,
+            );
             const extractFile = "extract.txt";
             const header = extraction.title ? `# ${extraction.title}\n\n` : "";
             cachedExtract = header + extraction.text;
@@ -358,8 +361,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         } catch (err) {
           // Fall through to returning the content itself on model failure.
           details.promptError = (err as Error).message;
-          failNote =
-            `\n\n[web-fetch: prompt query failed: ${details.promptError}]`;
+          failNote = `\n\n[web-fetch: prompt query failed: ${details.promptError}]`;
         }
       }
 
@@ -421,12 +423,16 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             body = `${formatBytes(got)} downloaded`;
           }
           return new Text(
-            theme.fg("warning", `⋮ Fetching ${body}${elapsedSuffix(p.startedAt)}`),
+            theme.fg(
+              "warning",
+              `⋮ Fetching ${body}${elapsedSuffix(p.startedAt)}`,
+            ),
             0,
             0,
           );
         }
-        const label = p.phase === "extracting" ? "Extracting…" : "Querying model…";
+        const label =
+          p.phase === "extracting" ? "Extracting…" : "Querying model…";
         return new Text(
           theme.fg("warning", `⋮ ${label}${elapsedSuffix(p.startedAt)}`),
           0,
@@ -476,19 +482,21 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         lines.push(theme.fg("muted", `url:     ${d.finalUrl || d.url}`));
       }
       lines.push(theme.fg("dim", `mode:    ${d.mode}`));
-      if (d.extractPath) lines.push(theme.fg("dim", `extract: ${d.extractPath}`));
+      if (d.extractPath)
+        lines.push(theme.fg("dim", `extract: ${d.extractPath}`));
       lines.push(theme.fg("dim", `raw:     ${d.rawPath}`));
       if (d.promptPath) lines.push(theme.fg("dim", `answer:  ${d.promptPath}`));
       if (!d.inlined) {
-        lines.push(theme.fg("warning", "content not inlined — read the cached file"));
+        lines.push(
+          theme.fg("warning", "content not inlined — read the cached file"),
+        );
       }
 
       // Show the inlined payload (as sent to the agent) when it is small
       // enough. No separate preview is stored: we read result.content.
       if (d.inlined) {
         const first = result.content?.[0];
-        const payload =
-          first && first.type === "text" ? first.text : undefined;
+        const payload = first && first.type === "text" ? first.text : undefined;
         if (payload && payload.length <= MAX_PREVIEW_CHARS) {
           lines.push(theme.fg("dim", "───"));
           lines.push(payload.trimEnd());

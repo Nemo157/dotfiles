@@ -1,14 +1,10 @@
 strip_trailing_punctuation() {
-  while IFS= read -r url
-  do
-    while [[ "$url" =~ [.,\;:\!\?\)]$ ]]
-    do
-      if [[ "$url" == *')' ]]
-      then
+  while IFS= read -r url; do
+    while [[ "$url" =~ [.,\;:\!\?\)]$ ]]; do
+      if [[ "$url" == *')' ]]; then
         opens="${url//[^(]/}"
         closes="${url//[^)]/}"
-        if (( ${#closes} > ${#opens} ))
-        then
+        if ((${#closes} > ${#opens})); then
           url="${url%?}"
         else
           break
@@ -22,9 +18,9 @@ strip_trailing_punctuation() {
 }
 
 filter_bare() {
-  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?|localhost(:[0-9]+)?\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))' \
-    | strip_trailing_punctuation \
-    || true
+  rg --only-matching 'https?://([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|\[[0-9a-f:]+\](:[0-9]+)?|localhost(:[0-9]+)?\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))' |
+    strip_trailing_punctuation ||
+    true
 }
 
 filter_osc8() {
@@ -43,8 +39,7 @@ capture_urls() {
 
 readarray -t urls < <(capture_urls)
 
-if ! [[ -v urls ]]
-then
+if ! [[ -v urls ]]; then
   tmux display-message "No urls found"
   exit 0
 fi
@@ -55,19 +50,16 @@ printf "%q\n" "${urls[@]}" >&2
 # deduplicate while preserving order, taking the last name for each url
 declare -A mapped
 declare -a order
-for entry in "${urls[@]}"
-do
-  IFS=$'\x1f' read -r url name <<< "$entry"
-  if [[ ! -v mapped["$url"] ]]
-  then
+for entry in "${urls[@]}"; do
+  IFS=$'\x1f' read -r url name <<<"$entry"
+  if [[ ! -v mapped["$url"] ]]; then
     order+=("$url")
   fi
   mapped["$url"]="$name"
 done
 
 readarray -t urls < <(
-  for url in "${order[@]}"
-  do
+  for url in "${order[@]}"; do
     printf '%s\x1f%s\n' "$url" "${mapped[$url]}"
   done
 )

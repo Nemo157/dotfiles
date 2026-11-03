@@ -1,5 +1,4 @@
-if [ "$#" -gt 0 ] && [ "${1:0:1}" = "+" ]
-then
+if [ "$#" -gt 0 ] && [ "${1:0:1}" = "+" ]; then
   channel="${1:1}"
   shift
 else
@@ -8,8 +7,7 @@ fi
 
 command="$(basename "$0")"
 
-if [[ "$channel" == nightly* ]]
-then
+if [[ "$channel" == nightly* ]]; then
   extensions='["rust-src" "rustc-codegen-cranelift-preview" "miri"]'
 else
   extensions='[]'

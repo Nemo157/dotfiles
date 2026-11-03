@@ -13,15 +13,13 @@ get-info() {
 
 prev=
 info() {
-  if new="$(get-info)" && [ "$prev" != "$new" ]
-  then
+  if new="$(get-info)" && [ "$prev" != "$new" ]; then
     prev="$new"
     echo "$new"
   fi
 }
 
-while true
-do
+while true; do
   info
   sleep 5
 done

@@ -38,7 +38,8 @@ const fdParams = Type.Object({
   ),
   extension: Type.Optional(
     Type.Array(Type.String(), {
-      description: "Restrict to given file extensions (-e), without leading dot.",
+      description:
+        "Restrict to given file extensions (-e), without leading dot.",
     }),
   ),
   hidden: Type.Optional(
@@ -54,7 +55,8 @@ const fdParams = Type.Object({
   ),
   fullPath: Type.Optional(
     Type.Boolean({
-      description: "Match pattern against the full path, not just filename (-p).",
+      description:
+        "Match pattern against the full path, not just filename (-p).",
     }),
   ),
   maxDepth: Type.Optional(
