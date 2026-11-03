@@ -208,6 +208,11 @@
     checks =
       (prefixAttrs "packages" self.outputs.packages.${system})
       // (prefixAttrs "shells" self.outputs.devShells.${system})
+      // {
+        pi-extensions = pkgs.callPackage ./home/dev/pi/typecheck.nix {
+          pi-coding-agent = pkgs.unstable.pi-coding-agent;
+        };
+      }
       // (prefixAttrs "colmena" (nixpkgs.lib.mapAttrs
            (name: node: node.config.system.build.toplevel)
            (nixpkgs.lib.filterAttrs

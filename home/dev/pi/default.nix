@@ -40,6 +40,11 @@ let
     "/run/user/*/cargo/registry/src"
     "/run/user/*/cargo/git/checkouts"
   ];
+
+  # Typechecked copy of ./extensions; see ./typecheck.nix.
+  extensions = pkgs.callPackage ./typecheck.nix {
+    pi-coding-agent = config.programs.pi.package;
+  };
 in
 {
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
@@ -130,18 +135,18 @@ in
       ];
 
       extensions = [
-        "${./extensions/cli-tools}/index.ts"
-        "${./extensions/file-tools}/index.ts"
-        "${./extensions/file-upload}/index.ts"
-        "${./extensions/edit-toggle}/index.ts"
-        "${./extensions/local-agents}/index.ts"
-        "${./extensions/system-details}/index.ts"
-        "${./extensions/current-date}/index.ts"
-        "${./extensions/continue-turn}/index.ts"
+        "${extensions}/cli-tools/index.ts"
+        "${extensions}/file-tools/index.ts"
+        "${extensions}/file-upload/index.ts"
+        "${extensions}/edit-toggle/index.ts"
+        "${extensions}/local-agents/index.ts"
+        "${extensions}/system-details/index.ts"
+        "${extensions}/current-date/index.ts"
+        "${extensions}/continue-turn/index.ts"
         # Diagnostic: logs a line-level diff whenever the wire system prompt
         # changes between provider requests (see pi-cachemire's
         # `cause: system prompt changed`). Drop once the churn is found.
-        "${./extensions/prompt-diff}/index.ts"
+        "${extensions}/prompt-diff/index.ts"
       ];
     };
 
