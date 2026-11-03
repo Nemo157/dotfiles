@@ -22,6 +22,11 @@ let
     runtimeEnv.TMUX_URLVIEW_POPUP = lib.getExe tmux-urlview-popup;
     text = lib.readFile ./tmux/urlview.sh;
   };
+  tmux-sigusr1 = pkgs.writeShellApplication {
+    name = "tmux-sigusr1";
+    runtimeInputs = with pkgs; [ tmux ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ procps ];
+    text = lib.readFile ./tmux/sigusr1.sh;
+  };
 in
 {
   programs.tmux = {
@@ -109,6 +114,9 @@ in
       set -g allow-rename on
 
       bind-key u run-shell "${lib.getExe tmux-urlview}"
+
+      # send SIGUSR1 to the foreground process of the current pane
+      bind-key S run-shell "${lib.getExe tmux-sigusr1}"
     '';
   };
 }
