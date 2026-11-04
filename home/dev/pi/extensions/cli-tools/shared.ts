@@ -36,6 +36,40 @@ export function asStringArray(v: unknown): string[] {
   return Array.isArray(v) ? v.map(String) : [String(v)];
 }
 
+/**
+ * Clamp top-level numeric arguments into their schema's `minimum`/`maximum`
+ * range. Wired up as `prepareArguments`, which pi runs before schema
+ * validation: models routinely overshoot numeric bounds (and some providers
+ * strip them from the schema they forward), and rejecting the whole call
+ * over e.g. `context: 25` just wastes a round trip. The bounds stay in the
+ * schema so models that do honour them still see them.
+ */
+function clampNumericArgs(schema: TSchema, args: unknown): unknown {
+  if (typeof args !== "object" || args === null || Array.isArray(args)) {
+    return args;
+  }
+  const props = (schema as { properties?: Record<string, unknown> }).properties;
+  if (!props) return args;
+  let out: Record<string, unknown> | undefined;
+  for (const [key, value] of Object.entries(args)) {
+    if (typeof value !== "number") continue;
+    const prop = props[key] as { minimum?: unknown; maximum?: unknown };
+    if (!prop) continue;
+    let clamped = value;
+    if (typeof prop.maximum === "number") {
+      clamped = Math.min(clamped, prop.maximum);
+    }
+    if (typeof prop.minimum === "number") {
+      clamped = Math.max(clamped, prop.minimum);
+    }
+    if (clamped !== value) {
+      out ??= { ...(args as Record<string, unknown>) };
+      out[key] = clamped;
+    }
+  }
+  return out ?? args;
+}
+
 export function commandOk(command: string, args: string[]): boolean {
   try {
     const r = spawnSync(command, args, { stdio: "ignore" });
@@ -830,6 +864,8 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     promptSnippet: def.promptSnippet,
     promptGuidelines: def.promptGuidelines,
     parameters: def.parameters,
+    prepareArguments: (args) =>
+      clampNumericArgs(def.parameters, args) as Static<typeof def.parameters>,
     executionMode: def.executionMode,
     async execute(_toolCallId, params, signal, onUpdate, ctx) {
       // Custom tools run their own async implementation and reuse the shared
@@ -1008,7 +1044,10 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     // and lets the user see exactly what will run before/after execution.
     // Wrapped in try/catch because args may be partial while streaming, in
     // which case buildArgs (structured tools) can throw on missing fields.
-    renderCall(args, theme, _context) {
+    renderCall(rawArgs, theme, _context) {
+      // pi hands renderCall the model's raw arguments, before
+      // prepareArguments; clamp here too so the header shows what runs.
+      const args = clampNumericArgs(def.parameters, rawArgs) as typeof rawArgs;
       let invocation: string;
       try {
         const argv = computeDisplayArgs(def, args);
