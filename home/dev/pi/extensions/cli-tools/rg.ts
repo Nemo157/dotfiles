@@ -81,11 +81,32 @@ interface RgMatch {
   lineNumber: number;
   /** Line contents with trailing newline stripped. May be truncated. */
   text: string;
+  /** True for `-C` context lines surrounding a match. */
+  context?: boolean;
 }
 
 interface RgFile {
   path: string;
+  /** Match and context lines, in file order. */
   matches: RgMatch[];
+  /** Number of real (non-context) matches in `matches`. */
+  matchCount: number;
+}
+
+/**
+ * Line indices in `file.matches` that should be preceded by a `--` group
+ * separator. Like rg itself, separators only appear when context lines are
+ * present; plain match listings stay unseparated.
+ */
+function gapsBefore(file: RgFile): Set<number> {
+  const gaps = new Set<number>();
+  if (!file.matches.some((m) => m.context)) return gaps;
+  for (let i = 1; i < file.matches.length; i++) {
+    if (file.matches[i]!.lineNumber > file.matches[i - 1]!.lineNumber + 1) {
+      gaps.add(i);
+    }
+  }
+  return gaps;
 }
 
 /**
@@ -165,9 +186,10 @@ function parseRgJsonl(stdout: string): ParsedRg {
           truncated = true;
           continue;
         }
-        filesByPath.set(path, { path, matches: [] });
+        filesByPath.set(path, { path, matches: [], matchCount: 0 });
       }
-    } else if (type === "match") {
+    } else if (type === "match" || type === "context") {
+      const isContext = type === "context";
       const path = extractPath(data);
       if (typeof path !== "string") continue;
       let file = filesByPath.get(path);
@@ -176,11 +198,13 @@ function parseRgJsonl(stdout: string): ParsedRg {
           truncated = true;
           continue;
         }
-        file = { path, matches: [] };
+        file = { path, matches: [], matchCount: 0 };
         filesByPath.set(path, file);
       }
-      if (file.matches.length >= MAX_MATCHES_PER_FILE) {
-        truncated = true;
+      // Once a file hits the match cap, drop everything after it (context
+      // included) so we don't show trailing context for an omitted match.
+      if (file.matchCount >= MAX_MATCHES_PER_FILE) {
+        if (!isContext) truncated = true;
         continue;
       }
       const lineNumber = Number(
@@ -191,13 +215,15 @@ function parseRgJsonl(stdout: string): ParsedRg {
       file.matches.push({
         lineNumber,
         text: typeof lineText === "string" ? truncateLine(lineText) : "",
+        ...(isContext ? { context: true } : {}),
       });
+      if (!isContext) file.matchCount++;
     }
-    // Ignore `context`, `end`, `summary`. We could surface elapsed time later.
+    // Ignore `end`, `summary`. We could surface elapsed time later.
   }
 
   const files = [...filesByPath.values()];
-  const matchCount = files.reduce((n, f) => n + f.matches.length, 0);
+  const matchCount = files.reduce((n, f) => n + f.matchCount, 0);
   return { files, matchCount, truncated };
 }
 
@@ -257,9 +283,11 @@ function formatRgOutput(
     const blocks: string[] = [];
     for (const file of files) {
       const lines: string[] = [`${file.path}:`];
-      for (const m of file.matches) {
-        lines.push(`  ${m.lineNumber}: ${m.text}`);
-      }
+      const gaps = gapsBefore(file);
+      file.matches.forEach((m, i) => {
+        if (gaps.has(i)) lines.push("  --");
+        lines.push(`  ${m.lineNumber}${m.context ? "-" : ":"} ${m.text}`);
+      });
       blocks.push(lines.join("\n"));
     }
     content = blocks.join("\n\n");
@@ -327,7 +355,10 @@ const renderResult: CliRenderResult<RgDetails> = (
 
   const totalOutputLines = rg.filesWithMatchesOnly
     ? rg.fileCount
-    : rg.matchCount + rg.fileCount;
+    : rg.files.reduce(
+        (n, f) => n + 1 + f.matches.length + gapsBefore(f).size,
+        0,
+      );
 
   // Build the listing up to EXPAND_LIMIT; the shared layer decides whether
   // to actually show it based on expanded / outputLines.
@@ -336,10 +367,15 @@ const renderResult: CliRenderResult<RgDetails> = (
     if (outLines.length >= EXPAND_LIMIT) break;
     outLines.push(theme.fg("accent", file.path));
     if (rg.filesWithMatchesOnly) continue;
-    for (const m of file.matches) {
+    const gaps = gapsBefore(file);
+    for (const [i, m] of file.matches.entries()) {
       if (outLines.length >= EXPAND_LIMIT) break outer;
+      if (gaps.has(i)) outLines.push(theme.fg("muted", "    ⋮"));
       const gutter = String(m.lineNumber).padStart(5);
-      outLines.push(`${theme.fg("muted", gutter)}  ${theme.fg("dim", m.text)}`);
+      const text = m.context
+        ? theme.fg("dim", m.text)
+        : theme.fg("toolOutput", m.text);
+      outLines.push(`${theme.fg("muted", gutter)}  ${text}`);
     }
   }
   if (outLines.length < totalOutputLines) {
@@ -412,6 +448,7 @@ function renderRgPartial(
     for (let i = parsed.files.length - 1; i >= 0; i--) {
       const file = parsed.files[i]!;
       for (let j = file.matches.length - 1; j >= 0; j--) {
+        if (file.matches[j]!.context) continue;
         recent.push({ path: file.path, m: file.matches[j]! });
         if (recent.length >= PARTIAL_TAIL_MATCHES) break;
       }
