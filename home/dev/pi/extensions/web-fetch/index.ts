@@ -111,6 +111,17 @@ function textResult(text: string, details: WebFetchDetails) {
 // carry no details, so nothing is lost (renderResult falls back to the
 // message text).
 
+// Models sometimes fill optional params with a null placeholder, which can
+// arrive as JSON null or (after schema coercion) the literal string "null".
+// Treat those, and blank strings, as "no prompt".
+function normalizePrompt(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (trimmed.length === 0) return undefined;
+  if (/^(null|undefined|none)$/i.test(trimmed)) return undefined;
+  return trimmed;
+}
+
 export default function webFetchExtension(pi: ExtensionAPI): void {
   const config = loadConfig();
   const cache = new Cache(config.cacheDir);
@@ -181,12 +192,9 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       const mode: "extract" | "raw" =
         (params as { mode?: string }).mode === "raw" ? "raw" : "extract";
       const refresh = (params as { refresh?: boolean }).refresh === true;
-      const question =
-        promptEnabled &&
-        typeof (params as { prompt?: unknown }).prompt === "string" &&
-        (params as { prompt: string }).prompt.trim().length > 0
-          ? (params as { prompt: string }).prompt.trim()
-          : undefined;
+      const question = promptEnabled
+        ? normalizePrompt((params as { prompt?: unknown }).prompt)
+        : undefined;
 
       const key = hash(`${mode}:${rawUrl}`);
 
@@ -395,14 +403,15 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         url?: string;
         mode?: string;
         refresh?: boolean;
-        prompt?: string;
+        prompt?: unknown;
       };
       let s = theme.fg("toolTitle", theme.bold("web-fetch "));
       s += theme.fg("accent", a.url ?? "…");
       if (a.mode === "raw") s += " " + theme.fg("muted", "[raw]");
       if (a.refresh) s += " " + theme.fg("warning", "[refresh]");
-      if (a.prompt && a.prompt.trim().length > 0) {
-        s += "\n" + theme.fg("dim", `? ${a.prompt.trim()}`);
+      const prompt = normalizePrompt(a.prompt);
+      if (prompt) {
+        s += "\n" + theme.fg("dim", `? ${prompt}`);
       }
       text.setText(s);
       return text;
