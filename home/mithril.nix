@@ -133,15 +133,20 @@
     };
   };
 
-  programs.pi.settings = {
-    defaultProvider = "openrouter";
-    defaultThinkingLevel = "medium";
-    # The first entry is the startup model.
-    enabledModels = lib.mkBefore [
-      "~deepseek/deepseek-v4-flash-latest"
-      "moonshotai/kimi-k3"
-      "z-ai/glm-5.2"
-    ];
+  programs.pi = {
+    settings = {
+      defaultProvider = "openrouter";
+      defaultThinkingLevel = "medium";
+      # The first entry is the startup model.
+      enabledModels = lib.mkBefore [
+        "~deepseek/deepseek-v4-flash-latest"
+        "moonshotai/kimi-k3"
+        "z-ai/glm-5.2"
+      ];
+    };
+
+    # Small model backing the web-fetch extension's optional `prompt` query.
+    extensionSettings.web-fetch.model = "openrouter/~deepseek/deepseek-v4-flash-latest";
   };
 
   services."ἐννεάς-listenbrainz-watcher" = {
