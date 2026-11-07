@@ -245,7 +245,6 @@
               name = "pi-extensions-external-checks";
               paths = [
                 (pkgs.callPackage ./home/dev/pi/extensions/pi-permission-system { }).packageRoot
-                (pkgs.callPackage ./home/dev/pi/extensions/pi-mcp-adapter { }).packageRoot
                 (pkgs.callPackage ./home/dev/pi/extensions/pine-of-glass { })
               ];
             };

@@ -53,18 +53,19 @@ in
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
     config.lib.file.mkOutOfStoreSymlink permissionSystemLogs;
 
-  # Global MCP server config read by the pi-mcp-adapter extension
-  # (~/.config/mcp/mcp.json is its user-global shared source).
-  xdg.configFile."mcp/mcp.json".text = builtins.toJSON {
+  # User-level MCP server config for pi's native MCP support
+  # ($PI_CODING_AGENT_DIR/mcp.json, written to ~/.config/pi/mcp.json).
+  xdg.configFile."pi/mcp.json".text = builtins.toJSON {
     mcpServers = {
       # Exa remote MCP. No API key for now; add one later via e.g.
       # url = "https://mcp.exa.ai/mcp?exaApiKey=..."; (agenix secret).
       exa = {
         url = "https://mcp.exa.ai/mcp";
         # Register the web search tool as a first-class Pi tool instead of
-        # only exposing it through the mcp proxy. Uses the original MCP
-        # tool name (unprefixed).
-        directTools = [ "web_search_exa" ];
+        # leaving the whole server reachable only through search/scripts.
+        # Uses the original MCP tool name (unprefixed); the server's other
+        # tools keep the default codemode exposure.
+        toolExposure.web_search_exa = "direct";
       };
     };
   };
@@ -137,7 +138,6 @@ in
       packages = [
         (pkgs.callPackage ./extensions/pi-permission-system { }).packageRoot
         (pkgs.callPackage ./extensions/web-fetch { }).packageRoot
-        (pkgs.callPackage ./extensions/pi-mcp-adapter { }).packageRoot
         # Source tree is the package root (no build step, no node_modules).
         "${pkgs.callPackage ./extensions/pine-of-glass { }}"
       ];
