@@ -1,63 +1,191 @@
 diff --git a/src/components/LogPanel.svelte b/src/components/LogPanel.svelte
-index 3167bbe..21e0717 100644
+index edf435a..66daa4e 100644
 --- a/src/components/LogPanel.svelte
 +++ b/src/components/LogPanel.svelte
-@@ -58,13 +58,56 @@
+@@ -2,6 +2,7 @@
+   import { persistentStore } from "../stores/persistent";
+   import { isDarkMode } from "../stores/theme";
+   import { ansiToHtml } from "../lib/ansi";
++  import { renderTerminalText } from "../lib/terminalLine";
+   import { Type, WrapText, Search, SearchX, CircleX } from "@lucide/svelte";
+   import { Button } from "$lib/components/ui/button/index.js";
+   import { Input } from "$lib/components/ui/input/index.js";
+@@ -60,13 +61,17 @@
      }
    });
  
-+  // Backends that draw progress bars redraw a line in place with \r (cursor
-+  // to start of line) and ESC [ K (erase in line). A <pre> can't interpret
-+  // those, so replay them per line the way a terminal would.
-+  const ERASE_IN_LINE = /\x1b\[([012]?)K/y;
-+
-+  function renderLine(line: string): string {
-+    if (!line.includes("\r") && !line.includes("\x1b[")) return line;
-+    let buf: string[] = [];
-+    let cursor = 0;
-+    for (let i = 0; i < line.length; i++) {
-+      const ch = line[i];
-+      if (ch === "\r") {
-+        cursor = 0;
-+        continue;
-+      }
-+      if (ch === "\x1b") {
-+        ERASE_IN_LINE.lastIndex = i;
-+        const m = ERASE_IN_LINE.exec(line);
-+        if (m) {
-+          switch (m[1]) {
-+            case "":
-+            case "0": // cursor to end of line
-+              buf.length = Math.min(buf.length, cursor);
-+              break;
-+            case "1": // start of line through cursor
-+              for (let j = 0; j <= cursor && j < buf.length; j++) buf[j] = " ";
-+              break;
-+            case "2": // whole line
-+              buf = [];
-+              break;
-+          }
-+          i += m[0].length - 1;
-+          continue;
-+        }
-+      }
-+      while (buf.length < cursor) buf.push(" ");
-+      buf[cursor++] = ch;
-+    }
-+    return buf.join("");
-+  }
-+
-+  let renderedLogs = $derived(logData.split("\n").map(renderLine).join("\n"));
++  // Collapse progress bars that redraw in place (\r, ESC[K) before
++  // filtering and colorizing.
++  let terminalLogs = $derived(renderTerminalText(logData));
 +
    let filteredLogs = $derived.by(() => {
 -    if (!filterRegex) return logData;
-+    if (!filterRegex) return renderedLogs;
++    if (!filterRegex) return terminalLogs;
      try {
        const regex = new RegExp(filterRegex, "i");
 -      return logData.split("\n").filter((line) => regex.test(line)).join("\n");
-+      return renderedLogs.split("\n").filter((line) => regex.test(line)).join("\n");
++      return terminalLogs.split("\n").filter((line) => regex.test(line)).join("\n");
      } catch {
 -      return logData;
-+      return renderedLogs;
++      return terminalLogs;
      }
    });
+ 
+diff --git a/src/lib/terminalLine.test.ts b/src/lib/terminalLine.test.ts
+new file mode 100644
+index 0000000..ace2285
+--- /dev/null
++++ b/src/lib/terminalLine.test.ts
+@@ -0,0 +1,53 @@
++import { describe, expect, it } from "vitest";
++import { renderTerminalLine, renderTerminalText } from "./terminalLine";
++
++describe("renderTerminalLine", () => {
++  it("leaves plain lines alone", () => {
++    expect(renderTerminalLine("hello world")).toBe("hello world");
++  });
++
++  it("overwrites on carriage return", () => {
++    expect(renderTerminalLine("load 10%\rload 20%\rload 100%")).toBe("load 100%");
++  });
++
++  it("erases to end of line", () => {
++    expect(renderTerminalLine("progress 100%\rok\x1b[K")).toBe("ok");
++    expect(renderTerminalLine("progress 100%\rok\x1b[0K")).toBe("ok");
++  });
++
++  it("erases from start of line through cursor", () => {
++    expect(renderTerminalLine("aaaaaa\rbb\x1b[1Kc")).toBe("  caaa");
++  });
++
++  it("erases the whole line without moving the cursor", () => {
++    expect(renderTerminalLine("abc\x1b[2Kx")).toBe("   x");
++  });
++
++  it("moves the cursor with C, D and G", () => {
++    expect(renderTerminalLine("abcdef\x1b[3DX")).toBe("abcXef");
++    expect(renderTerminalLine("ab\x1b[2CX")).toBe("ab  X");
++    expect(renderTerminalLine("abcdef\x1b[2GX")).toBe("aXcdef");
++  });
++
++  it("keeps colors attached to the columns they were written with", () => {
++    expect(renderTerminalLine("\x1b[32m50%\x1b[0m\r\x1b[32m100%\x1b[0m\x1b[K")).toBe(
++      "\x1b[0m\x1b[32m100%\x1b[0m",
++    );
++    expect(renderTerminalLine("\x1b[32mgreen\x1b[0m\rG")).toBe("\x1b[0mG\x1b[0m\x1b[32mreen\x1b[0m");
++    expect(renderTerminalLine("\x1b[1mab\x1b[32mcd")).toBe("\x1b[1mab\x1b[32mcd");
++  });
++
++  it("carries the current style across a carriage return", () => {
++    expect(renderTerminalLine("ab\x1b[31mcd\rx\x1b[K")).toBe("\x1b[31mx");
++  });
++
++  it("drops other CSI sequences", () => {
++    expect(renderTerminalLine("\x1b[?25lloading\x1b[?25h")).toBe("loading");
++  });
++});
++
++describe("renderTerminalText", () => {
++  it("renders each line independently and keeps CRLF clean", () => {
++    expect(renderTerminalText("a 10%\ra 100%\x1b[K\nnext\r\n")).toBe("a 100%\nnext\n");
++  });
++});
+diff --git a/src/lib/terminalLine.ts b/src/lib/terminalLine.ts
+new file mode 100644
+index 0000000..0ebf3a6
+--- /dev/null
++++ b/src/lib/terminalLine.ts
+@@ -0,0 +1,93 @@
++const CSI_REGEX = /\x1b\[([0-9;?]*)([a-zA-Z])/y;
++
++/**
++ * Replay carriage returns and cursor/erase CSI sequences within a single
++ * line the way a terminal would, so progress bars that redraw in place
++ * collapse to their final state. Supported: \r, ESC[K (erase in line,
++ * modes 0/1/2), ESC[C / ESC[D (cursor forward/back) and ESC[G (cursor to
++ * column). SGR (color) sequences are tracked per column and re-emitted so
++ * ansiToHtml can still render them; other CSI sequences are dropped.
++ */
++export function renderTerminalLine(line: string): string {
++  if (!line.includes("\r") && !line.includes("\x1b[")) return line;
++
++  // One visible character per column, plus the SGR sequences in effect
++  // (since the last reset) when it was written.
++  const chars: string[] = [];
++  const styles: string[] = [];
++  let style = "";
++  let cursor = 0;
++
++  const count = (params: string) => {
++    const n = Number.parseInt(params, 10);
++    return Number.isNaN(n) || n < 1 ? 1 : n;
++  };
++
++  for (let i = 0; i < line.length; i++) {
++    const ch = line[i];
++    if (ch === "\r") {
++      cursor = 0;
++      continue;
++    }
++    if (ch === "\x1b") {
++      CSI_REGEX.lastIndex = i;
++      const m = CSI_REGEX.exec(line);
++      if (m) {
++        const [seq, params, cmd] = m;
++        switch (cmd) {
++          case "m":
++            style = params === "" || params === "0" ? seq : style + seq;
++            break;
++          case "K":
++            if (params === "" || params === "0") {
++              chars.length = styles.length = Math.min(chars.length, cursor);
++            } else if (params === "1") {
++              for (let j = 0; j <= cursor && j < chars.length; j++) chars[j] = " ";
++            } else if (params === "2") {
++              chars.length = styles.length = 0;
++            }
++            break;
++          case "C":
++            cursor += count(params);
++            break;
++          case "D":
++            cursor = Math.max(0, cursor - count(params));
++            break;
++          case "G":
++            cursor = count(params) - 1;
++            break;
++        }
++        i += seq.length - 1;
++        continue;
++      }
++    }
++    while (chars.length < cursor) {
++      chars.push(" ");
++      styles.push(style);
++    }
++    chars[cursor] = ch;
++    styles[cursor] = style;
++    cursor++;
++  }
++
++  let out = "";
++  let prev = "";
++  const emit = (next: string) => {
++    if (next === prev) return;
++    if (next.startsWith(prev)) out += next.slice(prev.length);
++    else out += next.startsWith("\x1b[0m") || next.startsWith("\x1b[m") ? next : "\x1b[0m" + next;
++    prev = next;
++  };
++  for (let i = 0; i < chars.length; i++) {
++    emit(styles[i]);
++    out += chars[i];
++  }
++  emit(style); // leave the final state in effect for following lines
++  return out;
++}
++
++/** Apply renderTerminalLine to every line of a multi-line log. */
++export function renderTerminalText(text: string): string {
++  if (!text.includes("\r") && !text.includes("\x1b[")) return text;
++  return text.split("\n").map(renderTerminalLine).join("\n");
++}

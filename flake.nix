@@ -5,16 +5,12 @@
     agenix = {
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.systems.follows = "systems";
-      inputs.home-manager.follows = "home-manager";
     };
 
     colmena = {
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.stable.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-      inputs.flake-compat.follows = "flake-compat";
     };
 
     home-manager = {
@@ -130,37 +126,6 @@
               unstable = import nixpkgs-unstable {
                 inherit system;
                 config.allowUnfree = true;
-                overlays = [
-                  (final: prev: {
-                    pi-coding-agent = prev.pi-coding-agent.overrideAttrs rec {
-                      version = "0.87.1";
-
-                      src = final.fetchFromGitHub {
-                        owner = "earendil-works";
-                        repo = "pi";
-                        tag = "v${version}";
-                        hash = "sha256-GUhlq6t+l6iiViOZ0bkV28v3ZDqcLvEwpZpYZ5JAyDk=";
-                      };
-
-                      npmDeps = final.fetchNpmDeps {
-                        inherit src;
-                        name = "${final.pi-coding-agent.name}-npm-deps";
-                        hash = "sha256-JBIYoP2vvRNz1HONNvDJ1U3c+nmCJ7/VgNthRTkrkIA=";
-                      };
-
-                      modelData = final.fetchurl {
-                        url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${final.pi-coding-agent.version}.tgz";
-                        hash = "sha256-NbRDLyfMJmX4a+67mvajmxJRlwiDwwRL2L5PToxzHKA=";
-                      };
-                    };
-                  })
-
-                  (final: prev: {
-                    nodejs-slim_26 = prev.nodejs-slim_26.overrideAttrs (_old: {
-                      doCheck = false;
-                    });
-                  })
-                ];
               };
               home-manager = home-manager.packages.${system}.home-manager;
               audio-cpp = audio-cpp.packages.${system};

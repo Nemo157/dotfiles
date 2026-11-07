@@ -2,17 +2,11 @@
   boot.kernelPatches = [
     {
       name = "amd-bsb-fix";
-      patch = pkgs.fetchpatch {
-        url = "https://vronlinux.org/docs/hardware/bigscreen-beyond/bigscreen-beyond-kernel-7.0.patch";
-        hash = "sha256-emlV3SRC784DnKpPIoKS87yuA+RwM+ZZNQ7UAhuptkA=";
-      };
+      patch = ./bigscreen-beyond-kernel-7.0.patch;
     }
     {
       name = "amd-bsb-dsc-fix";
-      patch = pkgs.fetchpatch {
-        url = "https://vronlinux.org/docs/hardware/bigscreen-beyond/amd-bsb-dsc-fix-7.1.patch";
-        hash = "sha256-ybFZsaOBcXKa4U/BoBeppxHGZudLTsV5oVnm+QXLzrU=";
-      };
+      patch = ./amd-bsb-dsc-fix-7.1.patch;
     }
   ];
 

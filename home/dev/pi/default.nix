@@ -92,7 +92,6 @@ in
 
   programs.pi = {
     enable = true;
-    package = pkgs.unstable.pi-coding-agent;
 
     # Drop the bash tool at the pi level, not just via `bash = "deny"` below.
     #
