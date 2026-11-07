@@ -6,7 +6,7 @@
 // semantics are identical.
 //
 // usage: node rewrite-subpaths.cjs <srcRoot>
-const { readFileSync, writeFileSync, readdirSync, statSync } = require("node:fs");
+const { readFileSync, writeFileSync, readdirSync, statSync, existsSync } = require("node:fs");
 const path = require("node:path");
 
 const root = process.argv[2];
@@ -52,6 +52,16 @@ for (const { p, r } of tsFiles(root)) {
     const rel = path.relative(fileDir, target).split("\\").join("/");
     return asRelative(rel);
   };
+  // Resolve an extensionless module path (package-relative) the way node/TS
+  // does, so `#src/service` maps to the FILE `src/service.ts` rather than the
+  // sibling directory `src/service/`. Without this a self-import from inside
+  // that directory rewrites to `./`, which points at the no-index directory.
+  const resolveTarget = (rel) => {
+    for (const cand of [rel + ".ts", rel + "/index.ts", rel]) {
+      if (existsSync(path.join(root, cand))) return cand;
+    }
+    return rel;
+  };
 
   const s0 = readFileSync(p, "utf8");
 
@@ -64,11 +74,11 @@ for (const { p, r } of tsFiles(root)) {
   for (const rule of rules) {
     if (rule.kind === "pattern") {
       s = s.replace(patternRe(rule.token, rule.targetDir), (m, q, rest) =>
-        q + fromDir(`${rule.targetDir}${rest}`) + q
+        q + fromDir(resolveTarget(`${rule.targetDir}${rest}`)) + q
       );
     } else {
       s = s.replace(exactRe(rule.token, rule.targetFile), (m, q) =>
-        q + fromDir(rule.targetFile) + q
+        q + fromDir(resolveTarget(rule.targetFile)) + q
       );
     }
   }

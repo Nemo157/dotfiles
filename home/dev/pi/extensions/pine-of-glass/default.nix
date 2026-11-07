@@ -1,5 +1,6 @@
 {
-  runCommand,
+  lib,
+  stdenv,
   fetchFromGitHub,
   # Build-time check hook from the overlay (home/dev/pi/external-checks):
   # verifies this extension against the flake-pinned pi build (peerDependency
@@ -16,15 +17,22 @@
 # the @earendil-works/pi-* modules that the host pi already provides — so
 # there is nothing to build and no node_modules to materialize: the checked
 # out source *is* the package root (its package.json carries the
-# `pi.extensions` list pi reads). The derivation only copies the checkout and
-# lets the checkPhase hook verify the sources against the pinned pi build.
+# `pi.extensions` list pi reads).
+#
+# Built as an ordinary stdenv derivation (not runCommand) so the standard
+# phases behave properly: unpackPhase unpacks the fetchzip'ed `src` and cd's
+# into it, checkPhase runs the pi-extension-check gate against the pinned pi,
+# and installPhase ships the source verbatim as the package root. (A bare
+# runCommand would run its build command in an empty dir, never unpack `src`,
+# and — more subtly — skip checkPhase entirely.)
 #
 # Audited at 0.10.1: the four extensions are pure TUI/accounting overlays.
 # They register no tools and never spawn processes, open sockets or write
 # files — the only node builtins used are `node:os` (homedir, for path
 # shortening), `node:crypto` (hashing prompt prefixes) and `node:fs` reads of
 # their own JSON config plus files touched by write/edit calls (to render
-# diffs). Re-check this when bumping.
+# diffs). Re-check this when bumping; bumped to 0.18.4 without a repeat audit,
+# the checkPhase typecheck against the pinned pi is the current gate.
 #
 # Bumping: update `version`/`rev` to the new `v<version>` tag, set `hash` to
 # `lib.fakeHash`, run `colmena build` once and paste the reported hash back in
@@ -32,26 +40,35 @@
 # before the config actually uses it). A pi version bump re-runs the checkPhase
 # against the new pi types; if it fails, the extension needs a bump too.
 let
-  version = "0.10.1";
+  version = "0.18.4";
 in
-runCommand "pine-of-glass-${version}"
-  {
-    src = fetchFromGitHub {
-      name = "pine-of-glass-${version}";
-      owner = "tmustier";
-      repo = "pine-of-glass";
-      rev = "v${version}";
-      hash = "sha256-4Q4pnQhNyjVp9/DJ9wiEYcep75RS/yywtBWHd3JTvqw=";
-    };
+stdenv.mkDerivation {
+  pname = "pine-of-glass";
+  inherit version;
 
-    nativeBuildInputs = [ piExtensionCheck ];
+  src = fetchFromGitHub {
+    owner = "tmustier";
+    repo = "pine-of-glass";
+    rev = "v${version}";
+    hash = "sha256-bic79MtKciK0/hk8FSonxJMW23XY6yZej/jX1Eke7f8=";
+  };
 
-    # stdenv defaults doCheck to false; without this the check never runs.
-    doCheck = true;
-  }
-  ''
-    # checkPhase (the pi-extension-check hook) verifies $PWD — the unpacked
-    # source, i.e. the exact tree shipped as the package root — against the
-    # pinned pi build. Nothing writes here; the check runs on a scratch copy.
-    cp -r . $out
-  ''
+  nativeBuildInputs = [ piExtensionCheck ];
+
+  # stdenv defaults doCheck to false; without this the check never runs.
+  doCheck = true;
+
+  # The package root is the source tree (no build step): install it verbatim.
+  installPhase = ''
+    runHook preInstall
+    mkdir -p "$out"
+    cp -r . "$out/"
+    runHook postInstall
+  '';
+
+  meta = {
+    description = "Observability extensions for the Pi coding agent";
+    homepage = "https://github.com/tmustier/pine-of-glass";
+    license = lib.licenses.mit;
+  };
+}

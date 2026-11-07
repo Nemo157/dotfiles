@@ -69,6 +69,11 @@ import type {
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 import { Key } from "@earendil-works/pi-tui";
+import { getPermissionsService } from "@gotgenes/pi-permission-system";
+import type {
+  PermissionsReadyEvent,
+  PermissionsService,
+} from "@gotgenes/pi-permission-system";
 
 type ToggleState = "ask" | "allow" | "deny";
 
@@ -128,36 +133,10 @@ function isAllowed(s: ToggleState): boolean {
   return s !== "deny";
 }
 
-// Symbol.for-backed accessor for the permission service (see
-// pi-permission-system docs/cross-extension-api.md). Using the raw symbol
-// keeps this extension free of any npm-package dependency — no local
-// package.json / node_modules needed.
-const SERVICE_KEY = Symbol.for("@gotgenes/pi-permission-system:service");
-
-interface AuthorizerDetails {
-  toolName?: string;
-  // …other fields exist (surface, command, path, etc.) — not needed here.
-}
-
-type AuthorizerVerdict =
-  | { kind: "allow" }
-  | { kind: "deny"; reason?: string }
-  | { kind: "defer" };
-
-interface PermissionsService {
-  registerAuthorizer(
-    name: string,
-    authorize: (
-      details: AuthorizerDetails,
-    ) => AuthorizerVerdict | Promise<AuthorizerVerdict>,
-  ): () => void;
-}
-
-function getPermissionsService(): PermissionsService | undefined {
-  return (globalThis as Record<symbol, unknown>)[SERVICE_KEY] as
-    | PermissionsService
-    | undefined;
-}
+// The permission service is process-global, keyed by session id and surfaced
+// through the package's getPermissionsService(sessionId). We resolve the active
+// node's service from the session id each registration site carries (the
+// permissions:ready payload, or ctx.sessionManager at session_start).
 
 function statusFor(state: ToggleState, ctx: ExtensionContext): string {
   const th = ctx.ui.theme;
@@ -220,11 +199,14 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
   // Register (or re-register on /reload) our chain link. The permission
   // service publishes a fresh registry on every /reload, so re-registering
   // from the `permissions:ready` broadcast is the documented safe hook.
-  function registerLink(): void {
-    const permissions = getPermissionsService();
+  function registerLink(sessionId: string | null | undefined): void {
+    const permissions =
+      typeof sessionId === "string"
+        ? getPermissionsService(sessionId)
+        : undefined;
     if (!permissions) return;
     dispose?.();
-    dispose = permissions.registerAuthorizer("edit-toggle", (details) => {
+    dispose = permissions.registerAuthorizer("edit-toggle", async (details) => {
       const tool = details.toolName;
       if (!tool || !TARGET_TOOLS.has(tool)) return { kind: "defer" };
       if (state === "allow") return { kind: "allow" };
@@ -246,13 +228,14 @@ export default function editToggleExtension(pi: ExtensionAPI): void {
     ctx.ui.notify(`Edit policy: ${next}`, "info");
   }
 
-  pi.events.on("permissions:ready", () => registerLink());
+  pi.events.on("permissions:ready", (raw) => {
+    registerLink((raw as Partial<PermissionsReadyEvent>).sessionId);
+  });
 
   pi.on("session_start", (_event, ctx) => {
-    // Fallback in case load order put us before the permission service's
-    // publish (permissions:ready would still fire, but this keeps a single
-    // path for the initial status paint).
-    registerLink();
+    // Defensive fallback: the ready broadcast usually fires just after, but
+    // resolving here from ctx guarantees a single path for the initial paint.
+    registerLink(ctx.sessionManager.getSessionId());
 
     // Restore the last persisted state (recorded at a previous turn start).
     state = lastRecordedState(ctx);

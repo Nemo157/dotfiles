@@ -55,12 +55,20 @@ fi
 
 # The pi module tree (the exact build pi will load), resolved from the real
 # store locations so transitive type imports work out of the box.
+#
+# In addition to the modules pi aliases for extensions (pi-coding-agent, pi-ai,
+# pi-tui, typebox), also expose the other @earendil-works/* packages pi ships
+# but does not alias (e.g. pi-agent-core), so extensions that type-only import
+# them still typecheck. Any value imports of an unaliased module would fail at
+# runtime regardless — that is a real incompatibility the check should surface.
 rm -f node_modules/@earendil-works/pi-coding-agent
 ln -s "$piRoot" node_modules/@earendil-works/pi-coding-agent
 rm -f node_modules/@earendil-works/pi-tui
 ln -s "$piRoot/node_modules/@earendil-works/pi-tui" node_modules/@earendil-works/pi-tui
 rm -f node_modules/@earendil-works/pi-ai
 ln -s "$piRoot/node_modules/@earendil-works/pi-ai" node_modules/@earendil-works/pi-ai
+rm -f node_modules/@earendil-works/pi-agent-core
+ln -s "$piRoot/node_modules/@earendil-works/pi-agent-core" node_modules/@earendil-works/pi-agent-core
 rm -f node_modules/typebox
 ln -s "$piRoot/node_modules/typebox" node_modules/typebox
 if [ ! -e node_modules/@types/node ]; then

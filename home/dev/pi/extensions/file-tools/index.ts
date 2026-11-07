@@ -102,33 +102,27 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { Type, type TSchema } from "typebox";
+import { getPermissionsService } from "@gotgenes/pi-permission-system";
+import type {
+  PermissionsReadyEvent,
+  PermissionsService,
+} from "@gotgenes/pi-permission-system";
 import * as fs from "node:fs/promises";
 import { homedir } from "node:os";
 import * as path from "node:path";
 
-// ── permission service (dependency-free accessor) ──────────────────────────
-// Mirror edit-toggle's approach: read the Symbol.for-backed service straight
-// off globalThis so this extension needs no package.json / node_modules.
-const SERVICE_KEY = Symbol.for("@gotgenes/pi-permission-system:service");
+// ── permission service (session-scoped cache) ──────────────────────────────
+// The service is process-global, keyed by session id, surfaced via the
+// package's getPermissionsService(sessionId). Tool execution has no session id
+// in its ctx, so we cache the active node's service at session_start /
+// permissions:ready and read it from tool code (see ../permission-service.ts).
+let permissionService: PermissionsService | undefined;
 
-interface PermissionCheckResult {
-  state: "allow" | "deny" | "ask";
-}
-type ToolAccessExtractor = (
-  input: Record<string, unknown>,
-) => string | undefined;
-interface PermissionsService {
-  checkPermission(surface: string, value?: string): PermissionCheckResult;
-  registerToolAccessExtractor(
-    toolName: string,
-    extractor: ToolAccessExtractor,
-  ): () => void;
-}
-
-function getPermissionsService(): PermissionsService | undefined {
-  return (globalThis as Record<symbol, unknown>)[SERVICE_KEY] as
-    | PermissionsService
-    | undefined;
+function resolvePermissionService(sessionId: string | null | undefined): void {
+  permissionService =
+    typeof sessionId === "string"
+      ? getPermissionsService(sessionId)
+      : undefined;
 }
 
 /**
@@ -141,7 +135,7 @@ function getPermissionsService(): PermissionsService | undefined {
  */
 function pathPolicyDenies(resolved: string): boolean {
   try {
-    const svc = getPermissionsService();
+    const svc = permissionService;
     if (!svc) return false;
     return svc.checkPermission("path", resolved).state === "deny";
   } catch {
@@ -176,7 +170,7 @@ function isOutsideWorkingDirectory(cwd: string, resolved: string): boolean {
 function externalSourceBlocked(cwd: string, resolved: string): boolean {
   if (!isOutsideWorkingDirectory(cwd, resolved)) return false;
   try {
-    const svc = getPermissionsService();
+    const svc = permissionService;
     if (!svc) return false;
     return (
       svc.checkPermission("external_directory", resolved).state !== "allow"
@@ -1560,7 +1554,7 @@ function registerDestinationGating(pi: ExtensionAPI): void {
 
   const register = (): void => {
     if (disposers.length) return; // already registered this generation
-    const svc = getPermissionsService();
+    const svc = permissionService;
     if (typeof svc?.registerToolAccessExtractor !== "function") return;
     for (const tool of ["mv", "cp"]) {
       try {
@@ -1581,10 +1575,17 @@ function registerDestinationGating(pi: ExtensionAPI): void {
   };
 
   // The service publishes at session_start; the ready broadcast fires just
-  // after. Register on both for load-order robustness, guarded against the
-  // double-registration throw above.
-  pi.events.on("permissions:ready", register);
-  pi.on("session_start", () => register());
+  // after. On both we first refresh the node-scoped service cache (so `register`
+  // and the tool-time deny checks see this node's service), then (re)register,
+  // guarded against the double-registration throw above.
+  pi.events.on("permissions:ready", (raw) => {
+    resolvePermissionService((raw as Partial<PermissionsReadyEvent>).sessionId);
+    register();
+  });
+  pi.on("session_start", (_event, ctx) => {
+    resolvePermissionService(ctx.sessionManager.getSessionId());
+    register();
+  });
 
   pi.on("session_shutdown", () => {
     for (const dispose of disposers.splice(0)) {

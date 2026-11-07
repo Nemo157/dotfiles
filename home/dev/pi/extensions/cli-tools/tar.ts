@@ -58,18 +58,7 @@ import {
   type CustomCliToolDef,
 } from "./shared";
 import { loadConfig } from "./config";
-
-// ── permission service (dependency-free accessor) ──────────────────────────
-// Same trick as file-tools/edit-toggle: read the Symbol.for-backed service
-// off globalThis so this extension needs no package.json / node_modules.
-const SERVICE_KEY = Symbol.for("@gotgenes/pi-permission-system:service");
-
-interface PermissionsService {
-  checkPermission(
-    surface: string,
-    value?: string,
-  ): { state: "allow" | "deny" | "ask" };
-}
+import { getService } from "../permission-service";
 
 /**
  * Whether the `path` policy denies `resolved` (the deny globs: *.age,
@@ -79,9 +68,7 @@ interface PermissionsService {
  */
 function pathPolicyDenies(resolved: string): boolean {
   try {
-    const svc = (globalThis as Record<symbol, unknown>)[SERVICE_KEY] as
-      | PermissionsService
-      | undefined;
+    const svc = getService();
     if (!svc) return false;
     return svc.checkPermission("path", resolved).state === "deny";
   } catch {

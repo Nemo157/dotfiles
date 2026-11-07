@@ -20,6 +20,7 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerCliTool, type CliToolDef } from "./shared";
+import { bindCurrentSession } from "../permission-service";
 import { getVcsTools } from "./vcs";
 import { ghTools } from "./gh";
 import { rgTool } from "./rg";
@@ -30,6 +31,10 @@ import { getNixTools } from "./nix";
 import { getTarTools } from "./tar";
 
 export default function (pi: ExtensionAPI) {
+  // Resolve the permission service once per session so tools that check the
+  // policy during execution (e.g. tar.ts's member deny-glob backstop) can.
+  bindCurrentSession(pi);
+
   const tools: CliToolDef[] = [
     ...getVcsTools(),
     ...ghTools,

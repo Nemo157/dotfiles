@@ -22,11 +22,11 @@
 
 buildNpmPackage (finalAttrs: {
   pname = "pi-permission-system";
-  version = "20.10.0";
+  version = "42.0.0";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/@gotgenes/pi-permission-system/-/pi-permission-system-${finalAttrs.version}.tgz";
-    hash = "sha512-7jWdwzfwIYper9jeYkb3f74mPGZp/hYvzHYHgf6WFoSnAPq3nr4a/NeuBSCKax3Kv0r8EwScxNWQ5y25JcOJQg==";
+    hash = "sha512-imhOymTbnj1iqnJDujqtnp79Su63PyQ+SAP0UqooC2E9yL9HzP/ISYTYkthvhq2aNbwTPBZZSjqI3jBdvmZ7ZQ==";
   };
 
   # Drop devDependencies from package.json in lockstep with the pruned
@@ -51,7 +51,7 @@ buildNpmPackage (finalAttrs: {
     fi
   '';
 
-  npmDepsHash = "sha256-9iiLVTSgEBk9C3WqgzcKB9b/fjQ2Tbuwzel6qbkIfQo=";
+  npmDepsHash = "sha256-tGgPriWAflgdCgmGX/MKxs1Q4+hf/5rZJs8RDSIPfgQ=";
 
   nativeBuildInputs = [ piExtensionCheck ];
 
