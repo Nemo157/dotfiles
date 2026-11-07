@@ -2,6 +2,10 @@
   lib,
   buildNpmPackage,
   fetchurl,
+  # Build-time check hook from the overlay (home/dev/pi/external-checks):
+  # verifies this extension against the flake-pinned pi build in checkPhase
+  # (peerDependency ranges + a tsc run against pi's types).
+  piExtensionCheck,
 }:
 
 # Pi extension packaged from npm. The npm tarball ships without a lock file,
@@ -48,6 +52,11 @@ buildNpmPackage (finalAttrs: {
   '';
 
   npmDepsHash = "sha256-9iiLVTSgEBk9C3WqgzcKB9b/fjQ2Tbuwzel6qbkIfQo=";
+
+  nativeBuildInputs = [ piExtensionCheck ];
+
+  # stdenv defaults doCheck to false; without this the check never runs.
+  doCheck = true;
 
   # tree-sitter-bash's install script invokes node-gyp-build to grab a
   # prebuilt native binding we don't use; skip all install scripts to keep

@@ -48,6 +48,20 @@ in
 
   jujutsu = final.unstable.jujutsu;
 
+  # Build-time check hook for externally-sourced pi extensions: verifies the
+  # extension against the flake-pinned pi package (peerDependency ranges + a
+  # tsc run against pi's types) in its derivation's checkPhase. See
+  # home/dev/pi/external-checks/default.nix. The pi root is baked in from
+  # unstable.pi-coding-agent — the same package config.programs.pi.package
+  # resolves to — so any pi bump re-checks every extension before deploy.
+  piExtensionCheck = final.callPackage ./../home/dev/pi/external-checks {
+    pi-coding-agent = final.unstable.pi-coding-agent;
+    # Upstream extensions target typescript ^6/^7; use the modern native tsc
+    # (the Go port) so `#alias/*` subpath imports resolve the way upstream CI
+    # sees them, rather than the legacy 5.x tsc.
+    typescript = final.unstable.typescript_7;
+  };
+
   ffmpeg-fdk-aac = prev.ffmpeg.override {
     ffmpegVariant = "headless";
     withUnfree = true;

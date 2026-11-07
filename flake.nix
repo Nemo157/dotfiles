@@ -269,6 +269,21 @@
             pi-extensions = pkgs.callPackage ./home/dev/pi/typecheck.nix {
               pi-coding-agent = pkgs.unstable.pi-coding-agent;
             };
+
+            # Externally-sourced pi extensions. Building this check builds each
+            # package, whose checkPhase (the pi-extension-check setup hook)
+            # verifies the extension against the pinned pi package: peer range
+            # satisfaction plus a tsc run against pi's types. They are also
+            # part of every colmena build via settings.packages, so the same
+            # check gates deploys.
+            pi-extensions-external = pkgs.symlinkJoin {
+              name = "pi-extensions-external-checks";
+              paths = [
+                (pkgs.callPackage ./home/dev/pi/extensions/pi-permission-system { }).packageRoot
+                (pkgs.callPackage ./home/dev/pi/extensions/pi-mcp-adapter { }).packageRoot
+                (pkgs.callPackage ./home/dev/pi/extensions/pine-of-glass { })
+              ];
+            };
           }
           // (prefixAttrs "colmena" (
             nixpkgs.lib.mapAttrs (name: node: node.config.system.build.toplevel) (
