@@ -294,6 +294,12 @@ in
         write = "ask";
         edit = "ask";
 
+        # Codemode scripts can only act through tools (plus the `models`
+        # global for classifier/image calls, which is ungated); every nested
+        # tool call goes through the `tool_call` hook and is gated by its own
+        # rule, so the script as a whole doesn't need approval.
+        codemode = "allow";
+
         # Network egress via the web-fetch extension: gate each call.
         web-fetch = "ask";
 
