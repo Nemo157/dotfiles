@@ -110,6 +110,9 @@ const rgOutput = Type.Object({
       ),
     }),
   ),
+  paths: Type.Array(Type.String(), {
+    description: "Paths of the files in `files`, for chaining.",
+  }),
   matchCount: Type.Integer(),
   truncated: Type.Boolean({
     description: "Hit the 500 file / 200 matches-per-file cap.",
@@ -346,6 +349,7 @@ function formatRgOutput(
           context: m.context === true,
         })),
       })),
+      paths: files.map((f) => f.path),
       matchCount,
       truncated,
     },

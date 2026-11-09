@@ -55,9 +55,17 @@ const jqParams = Type.Object({
     }),
   ),
   args: Type.Optional(
-    Type.Record(Type.String(), Type.String(), {
-      description: "Named string args bound as $name in the filter (jq --arg).",
-    }),
+    // An object with `additionalProperties` rather than `Type.Record`: the
+    // latter emits `patternProperties`, which codemode renders as
+    // `{ [key: string]: unknown }`.
+    Type.Object(
+      {},
+      {
+        additionalProperties: Type.String(),
+        description:
+          "Named string args bound as $name in the filter (jq --arg).",
+      },
+    ),
   ),
 });
 
