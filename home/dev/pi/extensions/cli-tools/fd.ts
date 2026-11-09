@@ -68,6 +68,12 @@ const fdParams = Type.Object({
   ),
 });
 
+const fdOutput = Type.Object({
+  paths: Type.Array(Type.String(), {
+    description: "Matched paths, as printed by fd (directories end in `/`).",
+  }),
+});
+
 export const fdTool: StructuredCliToolDef<typeof fdParams> = {
   name: "fd",
   label: "fd (find)",
@@ -76,6 +82,10 @@ export const fdTool: StructuredCliToolDef<typeof fdParams> = {
     "Find files/directories by name using fd. Respects .gitignore by " +
     "default. Read-only. Set glob=true for shell-style patterns.",
   parameters: fdParams,
+  outputSchema: fdOutput,
+  structured(raw) {
+    return { paths: raw.stdout.split("\n").filter((l) => l.length > 0) };
+  },
   buildArgs(p) {
     const args: string[] = [];
     if (p.glob) args.push("-g");

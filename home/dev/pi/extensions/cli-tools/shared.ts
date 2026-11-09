@@ -278,7 +278,22 @@ export interface PostProcessResult<TExtra extends object = object> {
   details?: TExtra;
   /** Force error state. If omitted the runner infers it from exit code. */
   isError?: boolean;
+  /**
+   * Machine-readable result matching the tool's
+   * {@link BaseCliToolFields.outputSchema}. Only attached to successful
+   * results.
+   */
+  structured?: JsonValue;
 }
+
+/** JSON value accepted as a tool's `structuredContent` (same as pi-ai's). */
+export type JsonValue =
+  | null
+  | boolean
+  | number
+  | string
+  | readonly JsonValue[]
+  | { [key: string]: JsonValue };
 
 function shellQuote(arg: string): string {
   if (arg === "") return "''";
@@ -340,6 +355,15 @@ export interface BaseCliToolFields {
    */
   executionMode?: ToolExecutionMode;
   /**
+   * Schema of the structured result. Codemode scripts receive a successful
+   * call's `structuredContent` (from {@link PostProcessResult.structured} or
+   * {@link StructuredCliToolDef.structured}) instead of the LLM-facing text;
+   * the model still sees the text. Failed calls carry no structured result,
+   * so scripts get a rejection with the error text instead. Keep schemas
+   * small: they are rendered into the codemode tool declarations.
+   */
+  outputSchema?: TSchema;
+  /**
    * Optional post-processor. If defined, the returned `content` replaces the
    * default formatted text sent to the LLM, and `details` is merged into
    * {@link CliToolDetails}. Useful for tools that emit structured output
@@ -398,6 +422,12 @@ export interface StructuredCliToolDef<T extends TSchema = TSchema>
    * only a file argument.
    */
   stdin?: (params: Static<T>) => string | undefined;
+  /**
+   * Structured result for tools without a `postProcess` hook, which keep the
+   * default text formatting for the LLM. Only called for successful runs.
+   * Tools with `postProcess` return `structured` from it instead.
+   */
+  structured?: (raw: RawCommandResult) => JsonValue;
   /**
    * Optional argv used purely for the header line rendered in the TUI. Lets
    * a tool present the user's *intent* (e.g. `rg -l pattern`) instead of
@@ -850,6 +880,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
     promptSnippet: def.promptSnippet,
     promptGuidelines: def.promptGuidelines,
     parameters: def.parameters,
+    outputSchema: def.outputSchema,
     prepareArguments: (args) =>
       clampNumericArgs(def.parameters, args) as Static<typeof def.parameters>,
     executionMode: def.executionMode,
@@ -1008,10 +1039,14 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
           result.timedOut ||
           result.signal !== null ||
           (result.code !== null && result.code !== 0);
+        const isError = pp.isError ?? inferredError;
         return {
           content: [{ type: "text", text: clampForLlm(pp.content) }],
           details: { ...baseDetails, ...(pp.details ?? {}) },
-          isError: pp.isError ?? inferredError,
+          ...(!isError && pp.structured !== undefined
+            ? { structuredContent: pp.structured }
+            : {}),
+          isError,
         };
       }
 
@@ -1019,6 +1054,9 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       return {
         content: [{ type: "text", text }],
         details: baseDetails,
+        ...(!isError && def.structured
+          ? { structuredContent: def.structured({ ...baseDetails, params }) }
+          : {}),
         isError,
       };
     },

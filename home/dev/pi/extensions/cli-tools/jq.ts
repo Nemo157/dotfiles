@@ -12,6 +12,7 @@ import {
   commandOk,
   expandTilde,
   type CliToolDef,
+  type JsonValue,
   type StructuredCliToolDef,
 } from "./shared";
 
@@ -60,6 +61,55 @@ const jqParams = Type.Object({
   ),
 });
 
+const jqOutput = Type.Object({
+  values: Type.Array(Type.Unknown(), {
+    description:
+      "Each value jq emitted, parsed. With `raw`, the output lines as strings.",
+  }),
+});
+
+/**
+ * Split jq's output (a newline-separated stream of pretty-printed or compact
+ * JSON values) into the raw text of each top-level value. Newlines can only
+ * appear between tokens, so a value ends at the first newline at depth 0.
+ */
+function splitJsonStream(text: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (c === "\\") escaped = true;
+      else if (c === '"') inString = false;
+    } else if (c === '"') inString = true;
+    else if (c === "{" || c === "[") depth++;
+    else if (c === "}" || c === "]") depth--;
+    else if (c === "\n" && depth === 0) {
+      out.push(text.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(text.slice(start));
+  return out.filter((s) => s.trim().length > 0);
+}
+
+function parseJqOutput(stdout: string, raw: boolean): JsonValue {
+  const lines = () => stdout.split("\n").filter((l) => l.length > 0);
+  if (raw) return { values: lines() };
+  try {
+    return {
+      values: splitJsonStream(stdout).map((s) => JSON.parse(s) as JsonValue),
+    };
+  } catch {
+    // Shouldn't happen for jq's own output; degrade to plain lines.
+    return { values: lines() };
+  }
+}
+
 function buildJqArgs(p: Static<typeof jqParams>): string[] {
   const args: string[] = [];
   if (p.raw) args.push("-r");
@@ -90,6 +140,11 @@ export const jqTool: StructuredCliToolDef<typeof jqParams> = {
     "too large to read whole. Omit `filter` to pretty-print. Use `raw` to " +
     "get unquoted strings, `slurp` for JSONL inputs, `args` to bind $variables.",
   parameters: jqParams,
+  outputSchema: jqOutput,
+  structured(raw) {
+    const p = raw.params as Static<typeof jqParams>;
+    return parseJqOutput(raw.stdout, p.raw === true);
+  },
   buildArgs: buildJqArgs,
   stdin(p) {
     // jq would concatenate stdin inputs with file inputs; when both arrive

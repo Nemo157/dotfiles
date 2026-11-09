@@ -8,6 +8,7 @@ import {
   type CliToolDetails,
   expandTilde,
   formatElapsed,
+  type JsonValue,
   type StructuredCliToolDef,
 } from "./shared";
 
@@ -92,6 +93,28 @@ interface RgFile {
   /** Number of real (non-context) matches in `matches`. */
   matchCount: number;
 }
+
+// Structured result handed to codemode scripts. Mirrors RgFile, but with
+// `context` always present (optional fields don't fit JsonValue).
+const rgOutput = Type.Object({
+  files: Type.Array(
+    Type.Object({
+      path: Type.String(),
+      matchCount: Type.Integer(),
+      matches: Type.Array(
+        Type.Object({
+          lineNumber: Type.Integer(),
+          text: Type.String({ description: "Line text, cut at 400 chars." }),
+          context: Type.Boolean({ description: "True for -C context lines." }),
+        }),
+      ),
+    }),
+  ),
+  matchCount: Type.Integer(),
+  truncated: Type.Boolean({
+    description: "Hit the 500 file / 200 matches-per-file cap.",
+  }),
+});
 
 /**
  * Line indices in `file.matches` that should be preceded by a `--` group
@@ -237,7 +260,12 @@ function formatRgOutput(
     timedOut: boolean;
   },
   filesWithMatchesOnly: boolean,
-): { content: string; details: RgExtraDetails; isError: boolean } {
+): {
+  content: string;
+  details: RgExtraDetails;
+  isError: boolean;
+  structured?: JsonValue;
+} {
   if (raw.timedOut) {
     return {
       content: "rg timed out",
@@ -307,6 +335,19 @@ function formatRgOutput(
         files,
         truncated,
       },
+    },
+    structured: {
+      files: files.map((f) => ({
+        path: f.path,
+        matchCount: f.matchCount,
+        matches: f.matches.map((m) => ({
+          lineNumber: m.lineNumber,
+          text: m.text,
+          context: m.context === true,
+        })),
+      })),
+      matchCount,
+      truncated,
     },
     isError: false,
   };
@@ -490,6 +531,7 @@ export const rgTool: StructuredCliToolDef<typeof rgParams> = {
     "Search file contents with ripgrep. Respects .gitignore by default. " +
     "Read-only. Prefer fixedStrings=true for literal text.",
   parameters: rgParams,
+  outputSchema: rgOutput,
   buildArgs(p) {
     // Always emit --json; we re-format output for the LLM and TUI in
     // postProcess/renderResult. --json makes rg ignore human-oriented output
