@@ -74,8 +74,25 @@ buildNpmPackage (finalAttrs: {
   # Nothing to compile: pi loads `src/index.ts` directly.
   dontNpmBuild = true;
 
+  # Pi labels local-path extensions by their file path, dropping a trailing
+  # `index.ts` — so upstream's `./src/index.ts` entry shows up as just `src`
+  # in the startup extension list. Route the entry through a re-export shim
+  # in a directory named after the package so the label reads
+  # `pi-permission-system`. Done post-install because package.json `files`
+  # would otherwise drop the new directory.
   postInstall = ''
-    rm -rf "$out/lib/node_modules/@gotgenes/pi-permission-system/node_modules/tree-sitter-bash/prebuilds"
+    root="$out/lib/node_modules/@gotgenes/pi-permission-system"
+    rm -rf "$root/node_modules/tree-sitter-bash/prebuilds"
+
+    mkdir -p "$root/extensions/pi-permission-system"
+    echo 'export { default } from "../../src/index.ts";' \
+      > "$root/extensions/pi-permission-system/index.ts"
+    (cd "$root" && node -e '
+      const fs = require("fs");
+      const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+      pkg.pi.extensions = ["./extensions/pi-permission-system/index.ts"];
+      fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+    ')
   '';
 
   # Expose a convenient attribute so consumers can reference the package
