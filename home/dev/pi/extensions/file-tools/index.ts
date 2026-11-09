@@ -86,6 +86,13 @@
 // regex-replace) also store a display diff in `details.diff`, rendered with
 // pi's own renderDiff when the tool row is expanded (like built-in `edit`).
 //
+// The line and block tools (copy-lines, cut-lines, paste-lines,
+// replace-block, regex-replace) are registered `model-only`: declared to the
+// model but not callable from codemode scripts. Edits should be individual,
+// reviewable tool calls, and the yank buffers only work across top-level
+// calls anyway (nested codemode calls never reach the session branch that
+// paste-lines reads).
+//
 // mv/rm/cp likewise hold the mutation queue for every path they touch
 // (mv: source + dest, rm: target, cp: source + dest so a file isn't copied
 // mid-write). An `edit` and an `rm` of the same file in one parallel batch
@@ -273,6 +280,8 @@ interface FileToolDef<T extends TSchema> {
   label: string;
   description: string;
   parameters: T;
+  /** Tool exposure; defaults to pi's `direct` (also callable from codemode). */
+  exposure?: "direct" | "model-only";
   /** Styled header fragment for renderCall (already themed). */
   header: (args: Record<string, unknown>, theme: RenderTheme) => string;
   run: (
@@ -297,6 +306,7 @@ function registerFileTool<T extends TSchema>(
     label: def.label,
     description: def.description,
     parameters: def.parameters,
+    ...(def.exposure ? { exposure: def.exposure } : {}),
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       let result: RunResult;
       try {
@@ -794,6 +804,7 @@ const copyLinesParams = Type.Object(lineRangeParams);
 const copyLinesTool: FileToolDef<typeof copyLinesParams> = {
   name: "copy-lines",
   label: "copy lines",
+  exposure: "model-only",
   description:
     "Copy a 1-indexed inclusive line range from a file into a named " +
     "buffer (stored in the session history) for later paste-lines. " +
@@ -860,6 +871,7 @@ const cutLinesParams = Type.Object(lineRangeParams);
 const cutLinesTool: FileToolDef<typeof cutLinesParams> = {
   name: "cut-lines",
   label: "cut lines",
+  exposure: "model-only",
   description:
     "Cut a 1-indexed inclusive line range out of a file into a named " +
     "buffer (stored in the session history) for later paste-lines. The " +
@@ -959,6 +971,7 @@ const pasteLinesParams = Type.Object({
 const pasteLinesTool: FileToolDef<typeof pasteLinesParams> = {
   name: "paste-lines",
   label: "paste lines",
+  exposure: "model-only",
   description:
     "Insert the contents of a named buffer (filled by an earlier " +
     "copy-lines/cut-lines call) before or after a line of a file. The " +
@@ -1132,6 +1145,7 @@ const replaceBlockParams = Type.Object({
 const replaceBlockTool: FileToolDef<typeof replaceBlockParams> = {
   name: "replace-block",
   label: "replace block",
+  exposure: "model-only",
   description:
     "Replace a block of whole lines delimited by start and end marker " +
     "line(s) with new text, without having to repeat the old block. Prefer " +
@@ -1388,6 +1402,7 @@ const regexReplaceParams = Type.Object({
 const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
   name: "regex-replace",
   label: "regex replace",
+  exposure: "model-only",
   description:
     "Apply one or more global regex (or literal) replacements to a single " +
     "file, e.g. renaming an identifier everywhere. Every rule needs an " +
