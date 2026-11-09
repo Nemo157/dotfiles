@@ -106,10 +106,9 @@ function textResult(text: string, details: WebFetchDetails) {
   };
 }
 
-// Failures throw: pi ignores an `isError` field on a returned result, and
-// a throw is the only way to mark the tool result as failed. Error results
-// carry no details, so nothing is lost (renderResult falls back to the
-// message text).
+// Failures throw. None of them has details worth keeping (a returned
+// `isError: true` result would be needed for that), so renderResult just
+// falls back to the message text.
 
 // Models sometimes fill optional params with a null placeholder, which can
 // arrive as JSON null or (after schema coercion) the literal string "null".

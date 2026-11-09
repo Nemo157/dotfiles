@@ -129,19 +129,15 @@ interface UploadDetails {
   /** Streaming marker for renderResult's partial branch. */
   phase?: "uploading";
   startedAt?: number;
-  /**
-   * Whether the call failed. Pi ignores an `isError` returned from
-   * `execute()` (only a throw marks a tool result as failed, and a throw
-   * drops these details), so the flag rides here and a `tool_result` hook
-   * promotes it to the real result error state.
-   */
-  isError?: boolean;
 }
 
+// Failures return `isError: true` rather than throwing, so the result keeps
+// its details for the renderer.
 function result(text: string, details: UploadDetails, isError = false) {
   return {
     content: [{ type: "text" as const, text }],
-    details: isError ? { ...details, isError } : details,
+    details,
+    isError,
   };
 }
 
@@ -219,13 +215,6 @@ const parameters = Type.Object({
 });
 
 export default function fileUploadExtension(pi: ExtensionAPI): void {
-  // Promote the failure flag carried in details (see UploadDetails.isError).
-  pi.on("tool_result", (event) => {
-    if (event.toolName !== "upload") return;
-    const details = event.details as UploadDetails | undefined;
-    if (details?.isError === true) return { isError: true };
-  });
-
   pi.registerTool({
     name: "upload",
     label: "Upload",

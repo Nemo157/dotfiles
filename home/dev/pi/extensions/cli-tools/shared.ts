@@ -209,14 +209,6 @@ export interface CliToolDetails {
    * `Static<typeof params>` type.
    */
   params?: unknown;
-  /**
-   * Whether the call failed. Pi ignores an `isError` returned from
-   * `execute()` (only a throw marks a tool result as failed) and a throw
-   * would drop these details, which the renderers need. So the flag rides
-   * here and the `tool_result` hook in {@link registerCliTool} promotes it
-   * to the real result error state.
-   */
-  isError?: boolean;
 }
 
 // Extract the exact signature pi uses so extension code stays in sync with
@@ -848,15 +840,9 @@ export const buildDefaultSpec: CliRenderResult = (
   return { summary, status, output, outputLines };
 };
 
+// Failures are reported by returning `isError: true` rather than throwing,
+// so the result keeps its details for the renderers.
 export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
-  // Promote the failure flag carried in details (see CliToolDetails.isError)
-  // to the tool result's error state.
-  pi.on("tool_result", (event) => {
-    if (event.toolName !== def.name) return;
-    const details = event.details as CliToolDetails | undefined;
-    if (details?.isError === true) return { isError: true };
-  });
-
   pi.registerTool({
     name: def.name,
     label: def.label,
@@ -890,11 +876,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             updatedAt: Date.now(),
             params,
             ...(res.details ?? {}),
-            isError: res.isError ?? false,
           };
           return {
             content: [{ type: "text", text: clampForLlm(res.content) }],
             details,
+            isError: res.isError ?? false,
           };
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -909,11 +895,11 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
             startedAt,
             updatedAt: Date.now(),
             params,
-            isError: true,
           };
           return {
             content: [{ type: "text", text: msg }],
             details,
+            isError: true,
           };
         }
       }
@@ -1022,21 +1008,18 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
           result.timedOut ||
           result.signal !== null ||
           (result.code !== null && result.code !== 0);
-        const details = {
-          ...baseDetails,
-          ...(pp.details ?? {}),
-          isError: pp.isError ?? inferredError,
-        };
         return {
           content: [{ type: "text", text: clampForLlm(pp.content) }],
-          details,
+          details: { ...baseDetails, ...(pp.details ?? {}) },
+          isError: pp.isError ?? inferredError,
         };
       }
 
       const { text, isError } = formatResult(def, args, stdinHint, result);
       return {
         content: [{ type: "text", text }],
-        details: { ...baseDetails, isError },
+        details: baseDetails,
+        isError,
       };
     },
 
