@@ -53,6 +53,34 @@ stdenv.mkDerivation {
     hash = "sha256-bic79MtKciK0/hk8FSonxJMW23XY6yZej/jX1Eke7f8=";
   };
 
+  # contextimate cycles its panel on Pi's ctrl+o (app.tools.expand), so
+  # ctrl+o walks a 2x3 product of tool expansion and panel views. Move the
+  # cycling to its own ctrl+shift+o shortcut.
+  # --replace-fail makes a bump that moves this code fail the build.
+  # Continuation lines of multi-line literals carry 4 extra spaces: the ''
+  # string strips the common 4-space indent from every line, theirs included.
+  postPatch = ''
+    substituteInPlace extensions/pi-contextimate/index.ts \
+      --replace-fail '    this.setMode(nextMode(this.mode));' \
+        '    // Patched out: cycling lives on its own shortcut (ctrl+shift+o).' \
+      --replace-fail '  pi.registerCommand("contextimate", {' \
+        '  pi.registerShortcut("ctrl+shift+o", {
+        description: "contextimate: cycle the [Contextimate] view",
+        handler: async (ctx) => {
+          if (!ctx.hasUI) return;
+          const mode = nextMode(g.__piContextimateMode ?? DEFAULT_MODE);
+          g.__piContextimateMode = mode;
+          g.__piContextimateBlock?.setMode(mode);
+          g.__piContextimateTui?.requestRender(true);
+        },
+      });
+
+      pi.registerCommand("contextimate", {'
+
+    substituteInPlace extensions/pi-contextimate/render.ts \
+      --replace-fail 'keyText("app.tools.expand") || "Ctrl+O"' '"ctrl+shift+o"'
+  '';
+
   nativeBuildInputs = [ piExtensionCheck ];
 
   # stdenv defaults doCheck to false; without this the check never runs.
