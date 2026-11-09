@@ -110,6 +110,20 @@ in
       description = "Written verbatim as pi/settings.json.";
     };
 
+    keybindings = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
+      default = { };
+      example = {
+        "tui.altScreen.lineUp" = "shift+up";
+        "tui.altScreen.pageUp" = [ ];
+      };
+      description = ''
+        Action id to key (or list of keys) overrides, written to
+        pi/keybindings.json. A value replaces that action's defaults; an
+        empty list unbinds it.
+      '';
+    };
+
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
@@ -212,6 +226,11 @@ in
 
     xdg.configFile = {
       "pi/settings.json".text = builtins.toJSON cfg.settings;
+    }
+    // lib.optionalAttrs (cfg.keybindings != { }) {
+      "pi/keybindings.json".text = builtins.toJSON cfg.keybindings;
+    }
+    // {
 
       "pi/APPEND_SYSTEM.md".text = lib.concatStringsSep "\n" (
         lib.filter (s: s != "") [

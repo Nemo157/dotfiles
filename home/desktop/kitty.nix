@@ -80,6 +80,12 @@ in
 
       scrollback_lines = 0;
 
+      # Windows, tabs and scrollback are all handled by tmux, so kitty's
+      # default shortcuts only steal keys from inner programs (e.g. pi's
+      # ctrl+shift+up/down/f fullscreen bindings). Drop them all and re-add
+      # the few still used below.
+      clear_all_shortcuts = true;
+
       dim_opacity = "0.8";
 
       shell = lib.getExe kitty-shell;
@@ -92,8 +98,16 @@ in
     # Kitty→tmux handling of extended keys is buggy,
     # force it to send what tmux expects no matter the state
     keybindings = {
+      "ctrl+shift+c" = "copy_to_clipboard";
+      "ctrl+shift+v" = "paste_from_clipboard";
+      "ctrl+shift+equal" = "change_font_size all +2.0";
+      "ctrl+shift+minus" = "change_font_size all -2.0";
+      "ctrl+shift+backspace" = "change_font_size all 0";
+
       "shift+enter" = "send_text all \\x1b[13;2u";
       "ctrl+enter" = "send_text all \\x1b[13;5u";
+      # Legacy encoding folds this into ctrl+_ (pi fullscreen search).
+      "ctrl+slash" = "send_text all \\x1b[47;5u";
     };
 
     extraConfig = ''

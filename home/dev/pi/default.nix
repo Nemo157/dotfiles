@@ -158,6 +158,70 @@ in
       ];
     };
 
+    # Vim-style fullscreen (alt-screen) transcript navigation. Alt-screen
+    # actions are matched before the editor and app actions, so any key
+    # reused here shadows its editor binding; those are reassigned explicitly
+    # below to keep /hotkeys honest. ctrl+shift+* only reach pi because
+    # kitty's default shortcuts are cleared, and ctrl+/ because kitty sends it
+    # as CSI-u (home/desktop/kitty.nix).
+    # ctrl+b/ctrl+f page scrolling isn't possible: ctrl+b is the tmux prefix.
+    keybindings = {
+      "tui.altScreen.halfPageUp" = "ctrl+u";
+      "tui.altScreen.halfPageDown" = "ctrl+d";
+      "tui.altScreen.lineUp" = [
+        "ctrl+y"
+        "shift+up"
+      ];
+      "tui.altScreen.lineDown" = [
+        "ctrl+e"
+        "shift+down"
+      ];
+      "tui.altScreen.previousPrompt" = [
+        "ctrl+k"
+        "ctrl+shift+up"
+      ];
+      "tui.altScreen.nextPrompt" = [
+        "ctrl+j"
+        "ctrl+shift+down"
+      ];
+      "tui.altScreen.top" = [
+        "ctrl+g"
+        "ctrl+home"
+      ];
+      "tui.altScreen.bottom" = [
+        "ctrl+shift+g"
+        "ctrl+end"
+      ];
+
+      # Search keys are matched before everything else, but next/previous
+      # only while the search bar is open, so ctrl+n doesn't clash with the
+      # session picker's named-filter toggle.
+      "tui.altScreen.search" = "ctrl+/";
+      "tui.altScreen.searchNext" = [
+        "ctrl+n"
+        "enter"
+      ];
+      "tui.altScreen.searchPrevious" = [
+        "ctrl+shift+n"
+        "shift+enter"
+      ];
+
+      # Displaced by the scroll keys above.
+      # Exit via ctrl+c twice (app.clear) or /quit instead of ctrl+d.
+      "app.exit" = [ ];
+      "tui.editor.deleteCharForward" = "delete";
+      "tui.editor.deleteToLineStart" = [ ];
+      "tui.editor.deleteToLineEnd" = [ ];
+      "tui.input.newLine" = "shift+enter";
+      "tui.editor.cursorLineEnd" = "end";
+      "tui.editor.yank" = "alt+p";
+      "app.editor.external" = "alt+e";
+
+      # Use /model (or ctrl+l) instead.
+      "app.model.cycleForward" = [ ];
+      "app.model.cycleBackward" = [ ];
+    };
+
     # Lives in the wrapper next to `--exclude-tools bash`, so running the
     # `pi-bash` (bash enabled) doesn't tell the model it has no shell.
     wrapperAppendSystem = ''
