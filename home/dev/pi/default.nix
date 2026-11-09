@@ -329,6 +329,15 @@ in
 
         external_directory = {
           "*" = "ask";
+          # Reject the store root itself (e.g. `fd /nix/store`) while leaving
+          # individual store paths to their own rules. A pattern without `*`
+          # matches only that exact (normalized) path; the trailing-slash
+          # spelling is denied too so it can't slip through `/nix/store/*`.
+          "/nix/store" = {
+            action = "deny";
+            reason = "Don't search the whole Nix store; use a specific store path";
+          };
+          "/nix/store/" = "deny";
         }
         // lib.listToAttrs (
           lib.concatMap (d: [
