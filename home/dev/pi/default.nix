@@ -151,6 +151,7 @@ in
         "${extensions}/system-details/index.ts"
         "${extensions}/current-date/index.ts"
         "${extensions}/continue-turn/index.ts"
+        "${extensions}/codemode-guidance/index.ts"
         # Diagnostic: logs a line-level diff whenever the wire system prompt
         # changes between provider requests (see pi-cachemire's
         # `cause: system prompt changed`). Drop once the churn is found.
