@@ -54,6 +54,7 @@ runCommand "pi-extensions"
     ln -s ${piModules}/@types/node node_modules/@types/node
     ln -s ${webFetchModules}/@mozilla/readability node_modules/@mozilla/readability
     ln -s ${webFetchModules}/linkedom node_modules/linkedom
+    ln -s ${webFetchModules}/unpdf node_modules/unpdf
 
     tsc --version
     tsc -p tsconfig.json --pretty false

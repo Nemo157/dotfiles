@@ -1,7 +1,8 @@
-// HTTP fetching, content-type classification, and HTML → text extraction.
+// HTTP fetching, content-type classification, and HTML/PDF → text extraction.
 
 import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
+import { extractText, getDocumentProxy } from "unpdf";
 
 export interface FetchResult {
   finalUrl: string;
@@ -103,6 +104,15 @@ export function isHtml(contentType: string): boolean {
   return contentType.includes("text/html") || contentType.includes("xhtml");
 }
 
+/**
+ * PDF detection by content type, falling back to the `%PDF-` magic bytes for
+ * servers that send PDFs as application/octet-stream.
+ */
+export function isPdf(contentType: string, body?: Buffer): boolean {
+  if (contentType.includes("application/pdf")) return true;
+  return body !== undefined && body.subarray(0, 5).toString("latin1") === "%PDF-";
+}
+
 /** A reasonable file extension for the raw cache artifact. */
 export function rawExtension(contentType: string, url: string): string {
   if (isHtml(contentType)) return "html";
@@ -170,4 +180,30 @@ export function extractHtml(html: string, _url?: string): Extraction {
   const bodyText = document.body?.textContent ?? "";
   const title = document.title || undefined;
   return { title, text: normalize(bodyText) };
+}
+
+/**
+ * Extract text from a PDF with unpdf (bundled serverless pdf.js). Each page
+ * is prefixed with a `--- page N ---` marker so page numbers can be cited. The title comes
+ * from the document's /Info dictionary when present.
+ */
+export async function extractPdf(body: Buffer): Promise<Extraction> {
+  // pdf.js may transfer/detach the buffer it is given, so pass a copy.
+  const pdf = await getDocumentProxy(new Uint8Array(body));
+  try {
+    const { text } = await extractText(pdf, { mergePages: false });
+    const pages = (Array.isArray(text) ? text : [text]).map(normalize);
+    let title: string | undefined;
+    try {
+      const { info } = await pdf.getMetadata();
+      const t = (info as unknown as { Title?: unknown } | undefined)?.Title;
+      if (typeof t === "string" && t.trim()) title = t.trim();
+    } catch {
+      // Metadata is optional; ignore malformed /Info dictionaries.
+    }
+    const marked = pages.map((p, i) => `--- page ${i + 1} ---\n\n${p}`);
+    return { title, text: marked.join("\n\n") };
+  } finally {
+    await pdf.loadingTask.destroy();
+  }
 }

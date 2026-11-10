@@ -1,7 +1,7 @@
 { lib, buildNpmPackage }:
 
 # Local Pi extension packaged with its npm runtime dependencies
-# (@mozilla/readability + linkedom). Pi loads `index.ts` directly via jiti, so
+# (@mozilla/readability + linkedom, unpdf for PDFs). Pi loads `index.ts` directly via jiti, so
 # nothing is compiled here — buildNpmPackage is used purely to materialize a
 # pinned `node_modules` next to the sources.
 #
@@ -17,7 +17,7 @@ buildNpmPackage (finalAttrs: {
 
   src = lib.cleanSource ./.;
 
-  npmDepsHash = "sha256-jyi81pXSgDl9t1yQhkMGC++Qf340XEOsTA1uxrBWbAY=";
+  npmDepsHash = "sha256-zGRBrCD4r/tuBPsi8UztvFA2MAvfEwmHx6wmwO6Gc+I=";
 
   # Peer deps (@earendil-works/pi-*) are provided by the host pi install at
   # runtime; --legacy-peer-deps stops npm from trying to fetch them.

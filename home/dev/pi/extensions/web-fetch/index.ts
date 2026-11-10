@@ -4,7 +4,8 @@
 //
 //   extract (default) — download the URL and convert it to readable text.
 //                       HTML is run through Mozilla Readability (over a
-//                       linkedom DOM); other textual types pass through.
+//                       linkedom DOM), PDFs through unpdf; other textual
+//                       types pass through.
 //   raw               — return the body verbatim (JSON is pretty-printed so
 //                       the cached file is greppable).
 //
@@ -45,8 +46,10 @@ import { loadConfig } from "./config";
 import { Cache, hash } from "./cache";
 import {
   extractHtml,
+  extractPdf,
   fetchUrl,
   isHtml,
+  isPdf,
   isTextual,
   prettyJson,
   rawExtension,
@@ -158,6 +161,11 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     "Fetch a web page and return its content.",
     promptEnabled ? "Set 'prompt' to ask a question about the page." : "",
     "Large or binary results come back as a cache file path to read.",
+    "'extract' supports HTML, PDF, and plain-text formats (JSON, XML, CSV, " +
+      "Markdown, etc.).",
+    "Do not fetch other binary formats (images, archives, office documents, " +
+      "…) unless you only need the file itself via 'raw'; if you need their " +
+      "contents, ask the user how to extract them instead.",
   ]
     .filter(Boolean)
     .join(" ");
@@ -275,6 +283,12 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         fromCache,
       };
 
+      // Appended to early returns for non-extractable content, so a dropped
+      // prompt is visible rather than silently ignored.
+      const promptIgnoredNote = question
+        ? "\n\n(prompt ignored: content not extractable)"
+        : "";
+
       // ── Produce the primary text payload ─────────────────────────────────
       let primaryText: string;
       let payloadKind: "extract" | "raw";
@@ -285,22 +299,35 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           // Binary raw content: never inline; hand back the cache path.
           const summary =
             `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
-            `${meta.rawBytes} bytes). Binary/non-text content saved to:\n${rawPath}`;
+            `${meta.rawBytes} bytes). Binary/non-text content saved to:\n${rawPath}` +
+            promptIgnoredNote;
           return textResult(summary, details);
         }
         primaryText = rawBody.toString("utf8");
       } else {
         payloadKind = "extract";
-        if (isHtml(meta.contentType)) {
+        const html = isHtml(meta.contentType);
+        const pdf = !html && isPdf(meta.contentType, rawBody);
+        if (html || pdf) {
           let cachedExtract = meta.extractFile
             ? cache.readText(key, meta.extractFile)
             : undefined;
           if (cachedExtract === undefined) {
             emitProgress({ url: rawUrl, mode, phase: "extracting", startedAt });
-            const extraction = extractHtml(
-              rawBody.toString("utf8"),
-              meta.finalUrl,
-            );
+            let extraction;
+            if (pdf) {
+              try {
+                extraction = await extractPdf(rawBody);
+              } catch (err) {
+                const summary =
+                  `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
+                  `${meta.rawBytes} bytes). PDF text extraction failed (${(err as Error).message}); raw file saved to:\n${rawPath}` +
+                  promptIgnoredNote;
+                return textResult(summary, details);
+              }
+            } else {
+              extraction = extractHtml(rawBody.toString("utf8"), meta.finalUrl);
+            }
             const extractFile = "extract.txt";
             const header = extraction.title ? `# ${extraction.title}\n\n` : "";
             cachedExtract = header + extraction.text;
@@ -317,7 +344,8 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         } else {
           const summary =
             `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
-            `${meta.rawBytes} bytes). Content is not text and cannot be extracted; raw file saved to:\n${rawPath}`;
+            `${meta.rawBytes} bytes). Content is not text and cannot be extracted; raw file saved to:\n${rawPath}` +
+            promptIgnoredNote;
           return textResult(summary, details);
         }
       }

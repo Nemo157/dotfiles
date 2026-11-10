@@ -9,7 +9,8 @@
   ],
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
-    "linkedom": "^0.18.11"
+    "linkedom": "^0.18.11",
+    "unpdf": "^2.1.0"
   },
   "pi": {
     "extensions": [
