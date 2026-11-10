@@ -12,9 +12,13 @@
 // full-replacement route would require disabling built-in discovery with
 // `--no-context-files` and rebuilding the prompt, which we deliberately avoid.
 //
-// Cache-friendly: `before_agent_start` rebuilds the system prompt fresh each
-// turn, so appending the same block every turn is idempotent — earlier
-// turns' bytes don't change and the provider prefix cache stays warm. We
+// Added via `systemPromptOptions.contextFiles` rather than by returning
+// `systemPrompt`: a returned prompt sets `forceSystemPrompt`, freezing the
+// text at this handler so later handlers' structured edits never reach the
+// wire.
+//
+// Cache-friendly: options are rebuilt from the base each turn, so adding the
+// same file every turn is idempotent and pi's section diff stays empty. We
 // re-read the file each turn (cheap) so edits are picked up live.
 
 import { readFileSync } from "node:fs";
@@ -57,21 +61,7 @@ export default function localAgentsExtension(pi: ExtensionAPI): void {
     );
     if (already) return;
 
-    // Match pi's own context-file framing (see core/system-prompt.js) so the
-    // injected block reads like a first-class project context file.
-    return {
-      systemPrompt: `${event.systemPrompt}
-
-<project_context>
-
-Project-specific instructions and guidelines:
-
-<project_instructions path="${local.path}">
-${local.content}
-</project_instructions>
-
-</project_context>
-`,
-    };
+    // Rendered by pi inside `<project_context>` like any discovered file.
+    event.systemPromptOptions.contextFiles.push(local);
   });
 }

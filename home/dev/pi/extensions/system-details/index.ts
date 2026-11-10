@@ -5,22 +5,21 @@
 // tool in this setup). Kept deliberately small and extensible — additional
 // fields (OS, arch, ...) can be added to the block later.
 //
-// Cache-friendly: `before_agent_start` rebuilds the system prompt fresh each
-// turn, so appending the same block every turn is idempotent and keeps the
-// provider prefix cache warm.
+// Adds a structured section (`systemPromptOptions.sections`, rendered by pi as
+// `<system-details>…</system-details>`) instead of returning `systemPrompt`.
+// Returning `systemPrompt` sets `forceSystemPrompt`, freezing the prompt text
+// at this handler: later `before_agent_start` handlers' structured edits
+// (e.g. codemode-guidance's rule rewrite) then never reach the wire.
+//
+// Cache-friendly: options are rebuilt from the base each turn, so setting the
+// same section every turn is idempotent and pi's section diff stays empty.
 
 import { hostname } from "node:os";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 export default function systemDetailsExtension(pi: ExtensionAPI): void {
   pi.on("before_agent_start", async (event) => {
-    return {
-      systemPrompt: `${event.systemPrompt}
-
-<system-details>
-hostname: ${hostname()}
-</system-details>
-`,
-    };
+    event.systemPromptOptions.sections["system-details"] =
+      `hostname: ${hostname()}`;
   });
 }
