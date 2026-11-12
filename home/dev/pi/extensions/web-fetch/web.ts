@@ -110,7 +110,9 @@ export function isHtml(contentType: string): boolean {
  */
 export function isPdf(contentType: string, body?: Buffer): boolean {
   if (contentType.includes("application/pdf")) return true;
-  return body !== undefined && body.subarray(0, 5).toString("latin1") === "%PDF-";
+  return (
+    body !== undefined && body.subarray(0, 5).toString("latin1") === "%PDF-"
+  );
 }
 
 /** A reasonable file extension for the raw cache artifact. */
