@@ -330,7 +330,10 @@ in
         # `path` / `external_directory` gates still apply to its `path` param.
         jq = "allow";
 
-        nix-flake-check = "allow";
+        # Pinned to the cwd flake with hardcoded flags (see
+        # cli-tools/nix.ts); builds stay inside the Nix sandbox.
+        nix-eval = "allow";
+        nix-build = "allow";
         nix-flake-info = "allow";
         nix-log = "allow";
 

@@ -107,6 +107,8 @@ current host can be built directly:
 nix build .#checks.x86_64-linux.colmena-<hostname>
 ```
 
+With the pi `nix-build` tool: `attrs: ["checks.{system}.colmena-<hostname>"]`.
+
 **On macOS, there is no NixOS module / colmena entry — use home-manager directly:**
 
 ```bash
