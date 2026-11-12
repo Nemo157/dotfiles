@@ -227,7 +227,11 @@
                 ''
                   cp -r --no-preserve=mode ${self} source
                   cd source
-                  treefmt --ci --tree-root . --walk filesystem
+                  if ! treefmt --ci --tree-root . --walk filesystem; then
+                    # treefmt has already rewritten the files; show what changed
+                    diff -ru -x .ruff_cache ${self} . || true
+                    exit 1
+                  fi
                   touch $out
                 '';
 
