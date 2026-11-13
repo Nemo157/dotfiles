@@ -144,6 +144,7 @@ in
         "${extensions}/file-tools/index.ts"
         "${extensions}/file-upload/index.ts"
         "${extensions}/edit-toggle/index.ts"
+        "${extensions}/host-allow/index.ts"
         "${extensions}/local-agents/index.ts"
         "${extensions}/system-details/index.ts"
         "${extensions}/current-date/index.ts"
@@ -250,12 +251,27 @@ in
       # e.g. model = "anthropic/claude-haiku-4-5"; (there is no default).
     };
 
+    # Hosts web-fetch / upload may contact without a prompt (see
+    # extensions/host-allow). Entries are hostnames or `*.domain`; trusted
+    # repos can add more in `.pi/extensions/host-allow/config.json`.
+    extensionSettings.host-allow = {
+      web-fetch = [ ];
+      upload = [ ];
+    };
+
     extensionSettings.pi-permission-system = {
       # Live-authority chain: our local `edit-toggle` extension registers a
       # link with this name via registerAuthorizer. Naming it here is the
       # opt-in activation — without this entry the link would be inert.
       # See home/dev/pi/extensions/edit-toggle/index.ts.
-      authorizerChain = [ "edit-toggle" ];
+      # `host-allow` (./extensions/host-allow) likewise auto-approves
+      # web-fetch/upload asks whose URL host is allowlisted, globally via
+      # `extensionSettings.host-allow` or per trusted repo via
+      # `.pi/extensions/host-allow/config.json`.
+      authorizerChain = [
+        "edit-toggle"
+        "host-allow"
+      ];
 
       # The web-fetch extension writes downloads / extractions / prompt
       # answers here and hands the agent cache paths to read. Auto-allow
@@ -282,6 +298,20 @@ in
           "**/.gnupg/**" = "deny";
           "**/.age/**" = "deny";
           "**/*.age" = "deny";
+        };
+
+        # Writes to a project's `.pi/` (project extensions, settings, the
+        # pi-permission-system and host-allow project configs) always need
+        # explicit approval. This is a `path`-family ask, which the
+        # authorizer chain never lets a link approve, so edit-toggle=allow
+        # doesn't cover it. Explicit `path_write` entries are appended after
+        # the `path` sugar above, so these win (last match). Both the
+        # absolute and cwd-relative spellings are matched.
+        path_write = {
+          ".pi" = "ask";
+          ".pi/*" = "ask";
+          "*/.pi" = "ask";
+          "*/.pi/*" = "ask";
         };
 
         read = "allow";
