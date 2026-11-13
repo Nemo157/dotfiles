@@ -379,6 +379,15 @@ in
             reason = "Don't search the whole Nix store; use a specific store path";
           };
           "/nix/store/" = "deny";
+          # Anything below a store path is fine. This is the bare (both
+          # directions) key rather than `external_directory_read` because
+          # extension tools (fd, rg, jq, ...) consult read and write
+          # most-restrictively; writes would fail anyway since the store is
+          # read-only. `?*` requires at least one character after the slash,
+          # so the root denies above still win for `/nix/store` and
+          # `/nix/store/` (plain `*` would match the latter, and Nix's sorted
+          # attr order would put it after the deny).
+          "/nix/store/?*" = "allow";
         }
         // lib.listToAttrs (
           lib.concatMap (d: [
