@@ -221,6 +221,18 @@ in
       "app.model.cycleBackward" = [ ];
     };
 
+    appendSystem = ''
+      ## Linking to GitHub
+
+      When writing GitHub issue/PR/commit links into anything that lands on
+      GitHub (commit messages, PR descriptions, issue comments, code
+      comments), prefer `https://redirect.github.com/<owner>/<repo>/...`
+      over `https://github.com/<owner>/<repo>/...`. Plain links create
+      cross-reference backlinks ("mentioned this") on the target, which spams
+      upstream projects. Only use plain `github.com` links (or `#123` /
+      `owner/repo#123` shorthand) when a backlink is actually wanted.
+    '';
+
     # Lives in the wrapper next to `--exclude-tools bash`, so running the
     # `pi-bash` (bash enabled) doesn't tell the model it has no shell.
     wrapperAppendSystem = ''
