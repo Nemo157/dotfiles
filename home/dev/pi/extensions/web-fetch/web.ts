@@ -4,11 +4,85 @@ import { Readability } from "@mozilla/readability";
 import { parseHTML } from "linkedom";
 import { extractText, getDocumentProxy } from "unpdf";
 
+import {
+  archiveExtension,
+  archiveKind,
+  archiveKindFor,
+  innerName,
+  nameExtension,
+} from "./archive";
+
 export interface FetchResult {
   finalUrl: string;
   status: number;
   contentType: string;
+  /** File name from Content-Disposition, else the URL's last path segment. */
+  fileName: string;
   body: Buffer;
+}
+
+/**
+ * Parse the file name out of a Content-Disposition header, preferring the
+ * RFC 5987 `filename*=charset''percent-encoded` form over `filename=`.
+ */
+export function dispositionFileName(
+  header: string | null | undefined,
+): string | undefined {
+  if (!header) return undefined;
+  const ext = /filename\*\s*=\s*([^']*)'[^']*'([^;]+)/i.exec(header);
+  if (ext) {
+    try {
+      const value = ext[2].trim().replace(/^"(.*)"$/, "$1");
+      const name =
+        ext[1].trim().toLowerCase() === "utf-8" || ext[1].trim() === ""
+          ? decodeURIComponent(value)
+          : unescape(value);
+      const clean = sanitizeName(name);
+      if (clean) return clean;
+    } catch {
+      // Malformed encoding: fall back to the plain parameter.
+    }
+  }
+  const plain =
+    /(?:^|;)\s*filename\s*=\s*(?:"((?:[^"\\]|\\.)*)"|([^;]*))/i.exec(header);
+  if (plain) {
+    const name =
+      plain[1] !== undefined
+        ? plain[1].replace(/\\(.)/g, "$1")
+        : plain[2].trim();
+    return sanitizeName(name);
+  }
+  return undefined;
+}
+
+/** Last path segment of a URL, percent-decoded. */
+export function urlFileName(url: string): string | undefined {
+  try {
+    const seg = new URL(url).pathname.split("/").filter(Boolean).pop();
+    return seg ? sanitizeName(decodeURIComponent(seg)) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Reduce a name to its basename; it is only used as a hint, never a path. */
+function sanitizeName(name: string): string | undefined {
+  const base = name.split(/[\\/]/).pop()?.trim();
+  return base && base !== "." && base !== ".." ? base : undefined;
+}
+
+/** Best file name for a download: Content-Disposition, final URL, request URL. */
+export function downloadFileName(
+  disposition: string | null | undefined,
+  finalUrl: string,
+  url: string,
+): string {
+  return (
+    dispositionFileName(disposition) ??
+    urlFileName(finalUrl) ??
+    urlFileName(url) ??
+    "content"
+  );
 }
 
 /**
@@ -47,10 +121,16 @@ export async function fetchUrl(
       ? await drainStream(res.body, total, opts.onProgress)
       : Buffer.from(await res.arrayBuffer());
 
+    const finalUrl = res.url || url;
     return {
-      finalUrl: res.url || url,
+      finalUrl,
       status: res.status,
       contentType,
+      fileName: downloadFileName(
+        res.headers.get("content-disposition"),
+        finalUrl,
+        url,
+      ),
       body,
     };
   } finally {
@@ -115,8 +195,26 @@ export function isPdf(contentType: string, body?: Buffer): boolean {
   );
 }
 
-/** A reasonable file extension for the raw cache artifact. */
-export function rawExtension(contentType: string, url: string): string {
+/**
+ * A reasonable file extension for the raw cache artifact. The magic bytes
+ * decide whether the body is an archive; otherwise the content type, then
+ * the file name, pick the extension.
+ */
+export function rawExtension(
+  contentType: string,
+  fileName: string,
+  body?: Buffer,
+): string {
+  const archive = body && archiveKindFor(body, fileName, contentType);
+  if (archive) return archiveExtension(archive);
+  // A zip-based document (see archiveKindFor) keeps its own extension; its
+  // OOXML content type would otherwise match "xml" below.
+  if (body && archiveKind(body) === "zip") {
+    return nameExtension(fileName) ?? "zip";
+  }
+  // Not compressed (fetch may already have undone a Content-Encoding), so a
+  // `.gz`-style suffix on the name no longer applies.
+  const nameExt = nameExtension(innerName(fileName));
   if (isHtml(contentType)) return "html";
   if (contentType.includes("json")) return "json";
   if (contentType.includes("xml")) return "xml";
@@ -124,8 +222,47 @@ export function rawExtension(contentType: string, url: string): string {
   if (contentType.includes("markdown")) return "md";
   if (contentType.startsWith("text/")) return "txt";
   if (contentType.includes("pdf")) return "pdf";
-  const m = /\.([a-z0-9]{1,8})(?:$|[?#])/i.exec(url);
-  return m ? m[1].toLowerCase() : "bin";
+  return nameExt ?? "bin";
+}
+
+/** How many leading bytes guessContentType needs to see. */
+export const SNIFF_BYTES = 8192;
+
+/**
+ * Infer a content type for a file without HTTP headers (an archive member or
+ * a decompressed stream) from its name and its first SNIFF_BYTES bytes
+ * (`truncated`: the file continues past `head`).
+ */
+export function guessContentType(
+  name: string,
+  head: Buffer,
+  truncated: boolean,
+): string {
+  if (isPdf("", head)) return "application/pdf";
+  const ext = nameExtension(name);
+  if (ext === "html" || ext === "htm" || ext === "xhtml") return "text/html";
+  if (ext === "json") return "application/json";
+  if (ext === "xml" || ext === "svg") return "application/xml";
+  if (ext === "pdf") return "application/pdf";
+  return looksLikeText(head, truncated)
+    ? "text/plain"
+    : "application/octet-stream";
+}
+
+/** Heuristic: no NUL bytes and valid UTF-8 in the first SNIFF_BYTES. */
+function looksLikeText(head: Buffer, truncated: boolean): boolean {
+  const sample = head.subarray(0, SNIFF_BYTES);
+  if (sample.includes(0)) return false;
+  try {
+    // In stream mode a multi-byte sequence split at the end of a truncated
+    // sample is held back rather than rejected.
+    new TextDecoder("utf-8", { fatal: true }).decode(sample, {
+      stream: truncated || sample.length < head.length,
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

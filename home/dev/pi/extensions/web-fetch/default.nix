@@ -1,7 +1,9 @@
 { lib, buildNpmPackage }:
 
 # Local Pi extension packaged with its npm runtime dependencies
-# (@mozilla/readability + linkedom, unpdf for PDFs). Pi loads `index.ts` directly via jiti, so
+# (@mozilla/readability + linkedom, unpdf for PDFs). Archive support shells
+# out to libarchive's bsdtar/bsdcat, whose store paths are passed in via
+# extensionSettings (../../default.nix). Pi loads `index.ts` directly via jiti, so
 # nothing is compiled here — buildNpmPackage is used purely to materialize a
 # pinned `node_modules` next to the sources.
 #

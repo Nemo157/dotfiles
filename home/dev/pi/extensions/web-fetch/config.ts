@@ -38,6 +38,16 @@ export interface WebFetchConfig {
   /** Content longer than this (characters) is truncated before being sent to
    *  the small model for the `prompt` query. */
   maxPromptChars: number;
+  /** libarchive's bsdtar, used to list and unpack archives. */
+  bsdtar: string;
+  /** libarchive's bsdcat, used to decompress single compressed files. */
+  bsdcat: string;
+  /** Refuse archives / compressed files that unpack to more than this. */
+  maxArchiveBytes: number;
+  /** Refuse archives with more entries than this. */
+  maxArchiveEntries: number;
+  /** At most this many lines of an archive's file listing are inlined. */
+  maxListingEntries: number;
 }
 
 const DEFAULT_MAX_INLINE_BYTES = 32 * 1024;
@@ -45,6 +55,9 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_USER_AGENT =
   "pi-web-fetch/1.0 (+https://github.com/earendil-works/pi)";
 const DEFAULT_MAX_PROMPT_CHARS = 100_000;
+const DEFAULT_MAX_ARCHIVE_BYTES = 512 * 1024 * 1024;
+const DEFAULT_MAX_ARCHIVE_ENTRIES = 50_000;
+const DEFAULT_MAX_LISTING_ENTRIES = 300;
 
 function num(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) && value > 0
@@ -80,5 +93,10 @@ export function loadConfig(): WebFetchConfig {
     timeoutMs: num(raw.timeoutMs, DEFAULT_TIMEOUT_MS),
     userAgent: str(raw.userAgent) ?? DEFAULT_USER_AGENT,
     maxPromptChars: num(raw.maxPromptChars, DEFAULT_MAX_PROMPT_CHARS),
+    bsdtar: str(raw.bsdtar) ?? "bsdtar",
+    bsdcat: str(raw.bsdcat) ?? "bsdcat",
+    maxArchiveBytes: num(raw.maxArchiveBytes, DEFAULT_MAX_ARCHIVE_BYTES),
+    maxArchiveEntries: num(raw.maxArchiveEntries, DEFAULT_MAX_ARCHIVE_ENTRIES),
+    maxListingEntries: num(raw.maxListingEntries, DEFAULT_MAX_LISTING_ENTRIES),
   };
 }

@@ -5,7 +5,12 @@
 //   extract (default) — download the URL and convert it to readable text.
 //                       HTML is run through Mozilla Readability (over a
 //                       linkedom DOM), PDFs through unpdf; other textual
-//                       types pass through.
+//                       types pass through. Archives (zip/tar/7z, possibly
+//                       compressed) are unpacked with bsdtar and returned
+//                       as a file listing; `member` extracts one file from
+//                       them. Single compressed files (.gz/.xz/…) are
+//                       decompressed and then extracted as usual (see
+//                       archive.ts).
 //   raw               — return the body verbatim (JSON is pretty-printed so
 //                       the cached file is greppable).
 //
@@ -40,14 +45,32 @@ import { keyHint } from "@earendil-works/pi-coding-agent";
 import { StringEnum } from "@earendil-works/pi-ai";
 import { Text } from "@earendil-works/pi-tui";
 import { Type, type TSchema } from "typebox";
+import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 
 import { loadConfig } from "./config";
 import { Cache, hash } from "./cache";
 import {
+  archiveExtension,
+  archiveKindFor,
+  archiveRoot,
+  containerKind,
+  decompress,
+  innerName,
+  listTree,
+  nameExtension,
+  readFileHead,
+  resolveMember,
+  unpack,
+  type ArchiveLimits,
+} from "./archive";
+import {
   extractHtml,
   extractPdf,
   fetchUrl,
+  guessContentType,
+  SNIFF_BYTES,
+  urlFileName,
   isHtml,
   isPdf,
   isTextual,
@@ -61,7 +84,7 @@ import { runPrompt, summarizeAnswer } from "./model";
 // pathological single-giant-line case.
 const MAX_PREVIEW_CHARS = 8_000;
 
-type Phase = "fetching" | "extracting" | "querying";
+type Phase = "fetching" | "unpacking" | "extracting" | "querying";
 
 interface WebFetchDetails {
   url: string;
@@ -74,6 +97,16 @@ interface WebFetchDetails {
   extractPath?: string;
   promptPath?: string;
   title?: string;
+  /** Archive member that was extracted, if any. */
+  member?: string;
+  /** Set when the result is an unpacked archive's file listing. */
+  archive?: {
+    kind: string;
+    root: string;
+    files: number;
+    totalBytes: number;
+    listingPath: string;
+  };
   inlined: boolean;
   fromCache: boolean;
   /** One-line condensation of the prompt answer, for the collapsed view. */
@@ -115,8 +148,8 @@ function textResult(text: string, details: WebFetchDetails) {
 
 // Models sometimes fill optional params with a null placeholder, which can
 // arrive as JSON null or (after schema coercion) the literal string "null".
-// Treat those, and blank strings, as "no prompt".
-function normalizePrompt(value: unknown): string | undefined {
+// Treat those, and blank strings, as absent.
+function normalizeOptional(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim();
   if (trimmed.length === 0) return undefined;
@@ -145,6 +178,13 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         description: "Re-download even if a cached copy exists.",
       }),
     ),
+    member: Type.Optional(
+      Type.String({
+        description:
+          "For zip/tar/7z archives: path of one file inside the archive (as " +
+          "listed by a previous call) to extract instead of the listing.",
+      }),
+    ),
   };
 
   if (promptEnabled) {
@@ -163,8 +203,12 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
     "Large or binary results come back as a cache file path to read.",
     "'extract' supports HTML, PDF, and plain-text formats (JSON, XML, CSV, " +
       "Markdown, etc.).",
-    "Do not fetch other binary formats (images, archives, office documents, " +
-      "…) unless you only need the file itself via 'raw'; if you need their " +
+    "Archives (zip, tar, 7z, optionally compressed) are unpacked and " +
+      "returned as a file listing plus a directory to browse with read/rg/fd; " +
+      "set 'member' to extract one file. Single compressed files (.gz, .xz, " +
+      "…) are decompressed and extracted.",
+    "Do not fetch other binary formats (images, office documents, …) " +
+      "unless you only need the file itself via 'raw'; if you need their " +
       "contents, ask the user how to extract them instead.",
   ]
     .filter(Boolean)
@@ -200,8 +244,13 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         (params as { mode?: string }).mode === "raw" ? "raw" : "extract";
       const refresh = (params as { refresh?: boolean }).refresh === true;
       const question = promptEnabled
-        ? normalizePrompt((params as { prompt?: unknown }).prompt)
+        ? normalizeOptional((params as { prompt?: unknown }).prompt)
         : undefined;
+      // Canonicalized once resolved against an unpacked archive.
+      let member = normalizeOptional((params as { member?: unknown }).member);
+      if (mode === "raw" && member) {
+        throw new Error("'member' is only supported in extract mode.");
+      }
 
       const key = hash(`${mode}:${rawUrl}`);
 
@@ -244,10 +293,16 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             `Fetch failed for ${rawUrl}: ${(err as Error).message}`,
           );
         }
-        const ext = rawExtension(fetched.contentType, fetched.finalUrl);
+        const ext = rawExtension(
+          fetched.contentType,
+          fetched.fileName,
+          fetched.body,
+        );
         const rawFile = `raw.${ext}`;
         // JSON is stored pretty-printed so the cache file is greppable.
         const body = prettyJson(fetched.contentType, fetched.body);
+        // Drop artifacts derived from any previous download.
+        cache.clear(key);
         cache.writeBytes(key, rawFile, body);
         meta = {
           url: rawUrl,
@@ -256,9 +311,11 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           contentType: fetched.contentType,
           mode,
           rawFile,
+          fileName: fetched.fileName,
           fetchedAt: Date.now(),
           rawBytes: body.byteLength,
         };
+        cache.writeMeta(key, meta);
         rawBody = body;
         fromCache = false;
       }
@@ -268,7 +325,6 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       }
 
       const rawPath = cache.path(key, meta.rawFile);
-      const textual = isTextual(meta.contentType);
 
       const details: WebFetchDetails = {
         url: rawUrl,
@@ -279,6 +335,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         rawPath,
         rawBytes: meta.rawBytes,
         title: meta.title,
+        member,
         inlined: false,
         fromCache,
       };
@@ -288,72 +345,240 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       const promptIgnoredNote = question
         ? "\n\n(prompt ignored: content not extractable)"
         : "";
+      const fetchedLine =
+        `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
+        `${meta.rawBytes} bytes)`;
 
       // ── Produce the primary text payload ─────────────────────────────────
       let primaryText: string;
       let payloadKind: "extract" | "raw";
+      // File the payload was read from (the download, a decompressed stream,
+      // or an archive member) and the cached extraction of it, if any.
+      let contentPath = rawPath;
+      let extractPath: string | undefined;
 
       if (mode === "raw") {
         payloadKind = "raw";
-        if (!textual) {
+        if (!isTextual(meta.contentType)) {
           // Binary raw content: never inline; hand back the cache path.
           const summary =
-            `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
-            `${meta.rawBytes} bytes). Binary/non-text content saved to:\n${rawPath}` +
+            `${fetchedLine}. Binary/non-text content saved to:\n${rawPath}` +
             promptIgnoredNote;
           return textResult(summary, details);
         }
         primaryText = rawBody.toString("utf8");
       } else {
         payloadKind = "extract";
-        const html = isHtml(meta.contentType);
-        const pdf = !html && isPdf(meta.contentType, rawBody);
+        // What to extract: the download itself, or for archives a
+        // decompressed stream / one unpacked member.
+        // Archive members and decompressed files are only sniffed via their
+        // head here and read in full once their content is needed.
+        let body: Buffer | undefined = rawBody;
+        let head = rawBody;
+        let contentType = meta.contentType;
+        // Top-level extractions are recorded in meta (with their title);
+        // member extractions are cached by name, their titles in
+        // meta.memberTitles.
+        let extractFile = "extract.txt";
+        let topLevel = true;
+
+        // Name hint for the download (cache entries from before it was
+        // recorded fall back to the URL).
+        const fileName =
+          meta.fileName ?? urlFileName(meta.finalUrl) ?? "content";
+        const kind = archiveKindFor(rawBody, fileName, meta.contentType);
+        if (kind) {
+          const limits: ArchiveLimits = {
+            bsdtar: config.bsdtar,
+            bsdcat: config.bsdcat,
+            maxBytes: config.maxArchiveBytes,
+            maxEntries: config.maxArchiveEntries,
+          };
+          let root: string | undefined;
+          let pruned = meta.archivePruned ?? 0;
+          if (meta.archiveDir && existsSync(cache.path(key, meta.archiveDir))) {
+            root = archiveRoot(cache.path(key, meta.archiveDir));
+          } else if (
+            !meta.decompressedFile ||
+            !cache.has(key, meta.decompressedFile)
+          ) {
+            emitProgress({ url: rawUrl, mode, phase: "unpacking", startedAt });
+            try {
+              const container = await containerKind(
+                rawPath,
+                kind,
+                limits,
+                signal,
+              );
+              if (container) {
+                const unpacked = await unpack(
+                  rawPath,
+                  cache.path(key, "archive"),
+                  limits,
+                  signal,
+                );
+                root = unpacked.root;
+                pruned = unpacked.pruned;
+                meta.archiveDir = "archive";
+                meta.archivePruned = pruned;
+              } else {
+                const ext = nameExtension(innerName(fileName)) ?? "bin";
+                const decompressedFile = `decompressed.${ext}`;
+                await decompress(
+                  rawPath,
+                  cache.path(key, decompressedFile),
+                  limits,
+                  signal,
+                );
+                meta.decompressedFile = decompressedFile;
+              }
+            } catch (err) {
+              // A cancelled call should fail, not report a broken archive.
+              if (signal?.aborted) throw err;
+              const summary =
+                `${fetchedLine}. Unpacking the ${archiveExtension(kind)} archive failed ` +
+                `(${(err as Error).message}); raw file saved to:\n${rawPath}` +
+                promptIgnoredNote;
+              return textResult(summary, details);
+            }
+            cache.writeMeta(key, meta);
+          }
+
+          if (root !== undefined) {
+            if (!member) {
+              // Container without a member: return the file listing.
+              const listing = listTree(root, formatBytes);
+              const listingPath = cache.writeText(
+                key,
+                "listing.txt",
+                listing.lines.join("\n") + "\n",
+              );
+              details.archive = {
+                kind,
+                root,
+                files: listing.files,
+                totalBytes: listing.totalBytes,
+                listingPath,
+              };
+              const shown = listing.lines.slice(0, config.maxListingEntries);
+              const more = listing.lines.length - shown.length;
+              const text =
+                `${fetchedLine}.\nUnpacked ${kind} archive: ${listing.files} files, ` +
+                `${formatBytes(listing.totalBytes)}, root:\n${root}\n\n` +
+                shown.join("\n") +
+                (more > 0
+                  ? `\n… ${more} more entries; full listing: ${listingPath}`
+                  : "") +
+                (pruned > 0
+                  ? `\n(${pruned} symlinks/special files were dropped)`
+                  : "") +
+                `\n\nBrowse the files under the root with read/rg/fd, or call ` +
+                `web-fetch again with 'member' set to one of the paths above ` +
+                `to extract that file (HTML/PDF/text).` +
+                (question
+                  ? "\n\n(prompt ignored: set 'member' to ask about one file)"
+                  : "");
+              details.inlined = true;
+              return textResult(text, details);
+            }
+            try {
+              const resolved = resolveMember(root, member);
+              contentPath = resolved.path;
+              member = resolved.name;
+              details.member = member;
+              details.title = meta.memberTitles?.[member];
+            } catch (err) {
+              throw new Error(
+                `${(err as Error).message}; call without 'member' to list the archive.`,
+              );
+            }
+            body = undefined;
+            head = readFileHead(contentPath, SNIFF_BYTES + 1);
+            contentType = guessContentType(
+              member,
+              head,
+              head.length > SNIFF_BYTES,
+            );
+            extractFile = `member-${hash(member)}.txt`;
+            topLevel = false;
+          } else {
+            if (member) {
+              throw new Error(
+                "'member' only applies to zip/tar/7z archives; this is a " +
+                  "single compressed file.",
+              );
+            }
+            contentPath = cache.path(key, meta.decompressedFile!);
+            body = undefined;
+            head = readFileHead(contentPath, SNIFF_BYTES + 1);
+            contentType = guessContentType(
+              innerName(fileName),
+              head,
+              head.length > SNIFF_BYTES,
+            );
+          }
+          details.contentType = `${details.contentType} → ${contentType}`;
+        } else if (member) {
+          throw new Error("'member' only applies to archives.");
+        }
+
+        const readBody = () => (body ??= readFileSync(contentPath));
+        const html = isHtml(contentType);
+        const pdf = !html && isPdf(contentType, head);
         if (html || pdf) {
-          let cachedExtract = meta.extractFile
-            ? cache.readText(key, meta.extractFile)
-            : undefined;
+          // A fresh download clears the key dir, so a cached extraction is
+          // always derived from the current body.
+          let cachedExtract = cache.readText(key, extractFile);
           if (cachedExtract === undefined) {
             emitProgress({ url: rawUrl, mode, phase: "extracting", startedAt });
             let extraction;
             if (pdf) {
               try {
-                extraction = await extractPdf(rawBody);
+                extraction = await extractPdf(readBody());
               } catch (err) {
                 const summary =
-                  `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
-                  `${meta.rawBytes} bytes). PDF text extraction failed (${(err as Error).message}); raw file saved to:\n${rawPath}` +
+                  `${fetchedLine}. PDF text extraction failed (${(err as Error).message}); ` +
+                  `file saved to:\n${contentPath}` +
                   promptIgnoredNote;
                 return textResult(summary, details);
               }
             } else {
-              extraction = extractHtml(rawBody.toString("utf8"), meta.finalUrl);
+              extraction = extractHtml(
+                readBody().toString("utf8"),
+                meta.finalUrl,
+              );
             }
-            const extractFile = "extract.txt";
             const header = extraction.title ? `# ${extraction.title}\n\n` : "";
             cachedExtract = header + extraction.text;
             cache.writeText(key, extractFile, cachedExtract);
-            meta.extractFile = extractFile;
-            meta.title = extraction.title;
             details.title = extraction.title;
-            cache.writeMeta(key, meta);
+            if (topLevel) {
+              meta.extractFile = extractFile;
+              meta.title = extraction.title;
+              cache.writeMeta(key, meta);
+            } else if (member && extraction.title) {
+              meta.memberTitles = {
+                ...meta.memberTitles,
+                [member]: extraction.title,
+              };
+              cache.writeMeta(key, meta);
+            }
           }
           primaryText = cachedExtract;
-        } else if (textual) {
+          extractPath = cache.path(key, extractFile);
+        } else if (isTextual(contentType)) {
           // Textual but not HTML: nothing to extract, use the body as-is.
-          primaryText = rawBody.toString("utf8");
+          primaryText = readBody().toString("utf8");
         } else {
           const summary =
-            `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}, ` +
-            `${meta.rawBytes} bytes). Content is not text and cannot be extracted; raw file saved to:\n${rawPath}` +
+            `${fetchedLine}${member ? `, member '${member}'` : ""}. Content is ` +
+            `not text and cannot be extracted; file saved to:\n${contentPath}` +
             promptIgnoredNote;
           return textResult(summary, details);
         }
       }
 
-      details.extractPath =
-        payloadKind === "extract" && meta.extractFile
-          ? cache.path(key, meta.extractFile)
-          : undefined;
+      details.extractPath = extractPath;
 
       // ── Optional prompt query over the content ───────────────────────────
       let failNote = "";
@@ -368,7 +593,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             maxChars: config.maxPromptChars,
             signal,
           });
-          const promptFile = `prompt-${hash(question)}.txt`;
+          const promptFile = `prompt-${hash(`${member ?? ""}\n${question}`)}.txt`;
           const promptPath = cache.writeText(
             key,
             promptFile,
@@ -391,7 +616,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
             : "";
           const text =
             `Answer for ${meta.finalUrl}:\n\n${result.answer}${note}\n\n` +
-            `Full ${payloadKind} content cached at: ${details.extractPath ?? rawPath}`;
+            `Full ${payloadKind} content cached at: ${extractPath ?? contentPath}`;
           return textResult(text, details);
         } catch (err) {
           // Fall through to returning the content itself on model failure.
@@ -402,7 +627,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
 
       // ── Inline vs. path decision ─────────────────────────────────────────
       const bytes = Buffer.byteLength(primaryText, "utf8");
-      const pathForContent = details.extractPath ?? rawPath;
+      const pathForContent = extractPath ?? contentPath;
       if (bytes > config.maxInlineBytes) {
         const summary =
           `Fetched ${meta.finalUrl} (HTTP ${meta.status}, ${meta.contentType || "unknown type"}).\n` +
@@ -417,6 +642,7 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       details.inlined = true;
       const heading =
         `${meta.finalUrl} (HTTP ${meta.status})` +
+        (member ? ` → ${member}` : "") +
         (details.title ? ` — ${details.title}` : "") +
         `\n[${payloadKind}, ${bytes} bytes; cached at ${basename(pathForContent)}]\n\n`;
       return textResult(heading + primaryText + failNote, details);
@@ -431,12 +657,15 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         mode?: string;
         refresh?: boolean;
         prompt?: unknown;
+        member?: unknown;
       };
       let s = theme.fg("toolTitle", theme.bold("web-fetch "));
       s += theme.fg("accent", a.url ?? "…");
       if (a.mode === "raw") s += " " + theme.fg("muted", "[raw]");
       if (a.refresh) s += " " + theme.fg("warning", "[refresh]");
-      const prompt = normalizePrompt(a.prompt);
+      const member = normalizeOptional(a.member);
+      if (member) s += " " + theme.fg("muted", `→ ${member}`);
+      const prompt = normalizeOptional(a.prompt);
       if (prompt) {
         s += "\n" + theme.fg("dim", `? ${prompt}`);
       }
@@ -468,7 +697,11 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
           );
         }
         const label =
-          p.phase === "extracting" ? "Extracting…" : "Querying model…";
+          p.phase === "unpacking"
+            ? "Unpacking…"
+            : p.phase === "extracting"
+              ? "Extracting…"
+              : "Querying model…";
         return new Text(
           theme.fg("warning", `⋮ ${label}${elapsedSuffix(p.startedAt)}`),
           0,
@@ -494,6 +727,15 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
         ` · ${d.contentType} · ${formatBytes(d.rawBytes)}`,
       );
       summary += theme.fg("muted", d.fromCache ? " · cached" : " · fetched");
+      if (d.member) summary += "\n" + theme.fg("muted", `member: ${d.member}`);
+      if (d.archive) {
+        summary +=
+          "\n" +
+          theme.fg(
+            "accent",
+            `${d.archive.kind} archive: ${d.archive.files} files, ${formatBytes(d.archive.totalBytes)}`,
+          );
+      }
       if (d.title) summary += "\n" + theme.fg("accent", d.title);
       // Condensed prompt answer, shown in both collapsed and expanded views.
       if (d.answerSummary) summary += "\n" + theme.fg("text", d.answerSummary);
@@ -521,6 +763,10 @@ export default function webFetchExtension(pi: ExtensionAPI): void {
       if (d.extractPath)
         lines.push(theme.fg("dim", `extract: ${d.extractPath}`));
       lines.push(theme.fg("dim", `raw:     ${d.rawPath}`));
+      if (d.archive) {
+        lines.push(theme.fg("dim", `root:    ${d.archive.root}`));
+        lines.push(theme.fg("dim", `listing: ${d.archive.listingPath}`));
+      }
       if (d.promptPath) lines.push(theme.fg("dim", `answer:  ${d.promptPath}`));
       if (!d.inlined) {
         lines.push(
