@@ -181,7 +181,13 @@ export default function hostAllowExtension(pi: ExtensionAPI): void {
     if (ctx && trusted) {
       hosts.push(
         ...readHostLists(
-          join(ctx.cwd, CONFIG_DIR_NAME, "extensions", LINK_NAME, "config.json"),
+          join(
+            ctx.cwd,
+            CONFIG_DIR_NAME,
+            "extensions",
+            LINK_NAME,
+            "config.json",
+          ),
         )[tool],
       );
     }
