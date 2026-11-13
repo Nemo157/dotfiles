@@ -1,4 +1,8 @@
 { lib, pkgs, ... }: {
+  home.packages = [
+    pkgs.mergiraf
+  ];
+
   scripts.jj-ws.text = ''
     branch="$1"
     slug="$(echo "$branch" | tr '/' '-')"
