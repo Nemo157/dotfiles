@@ -245,6 +245,7 @@ in
 
     extensionSettings.web-fetch = {
       cacheDir = webFetchCacheDir;
+      userAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0";
       # To enable the optional `prompt` parameter, set a small model here,
       # e.g. model = "anthropic/claude-haiku-4-5"; (there is no default).
     };
