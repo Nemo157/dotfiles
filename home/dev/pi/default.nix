@@ -53,23 +53,6 @@ in
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
     config.lib.file.mkOutOfStoreSymlink permissionSystemLogs;
 
-  # User-level MCP server config for pi's native MCP support
-  # ($PI_CODING_AGENT_DIR/mcp.json, written to ~/.config/pi/mcp.json).
-  xdg.configFile."pi/mcp.json".text = builtins.toJSON {
-    mcpServers = {
-      # Exa remote MCP. No API key for now; add one later via e.g.
-      # url = "https://mcp.exa.ai/mcp?exaApiKey=..."; (agenix secret).
-      exa = {
-        url = "https://mcp.exa.ai/mcp";
-        # Register the web search tool as a first-class Pi tool instead of
-        # leaving the whole server reachable only through search/scripts.
-        # Uses the original MCP tool name (unprefixed); the server's other
-        # tools keep the default codemode exposure.
-        toolExposure.web_search_exa = "direct";
-      };
-    };
-  };
-
   xdg.configFile."pi/models.json" = lib.mkIf (llamaSwapConfig.enable && llamaSwapModels != [ ]) {
     text = builtins.toJSON {
       providers.llama-swap = {
@@ -116,6 +99,20 @@ in
     # Same setup without `extraArgs`/`wrapperAppendSystem`: bash enabled,
     # gated by `bash = "ask"` below.
     unrestrictedBinName = "pi-bash";
+
+    # User-level MCP servers for pi's native MCP support (pi/mcp.json).
+    mcpServers = {
+      # Exa remote MCP. No API key for now; add one later via e.g.
+      # url = "https://mcp.exa.ai/mcp?exaApiKey=..."; (agenix secret).
+      exa = {
+        url = "https://mcp.exa.ai/mcp";
+        # Register the web search tool as a first-class Pi tool instead of
+        # leaving the whole server reachable only through search/scripts.
+        # Uses the original MCP tool name (unprefixed); the server's other
+        # tools keep the default codemode exposure.
+        toolExposure.web_search_exa = "direct";
+      };
+    };
 
     settings = {
       # Must stay false: pi-contextimate (pine-of-glass) anchors its panel on the

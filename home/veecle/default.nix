@@ -2,6 +2,7 @@
   imports = [
     ./claude
     ./opencode
+    ./pi.nix
     ./ssh.nix
     ./git.nix
     ./jujutsu.nix

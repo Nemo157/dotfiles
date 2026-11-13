@@ -110,6 +110,18 @@ in
       description = "Written verbatim as pi/settings.json.";
     };
 
+    mcpServers = lib.mkOption {
+      type = lib.types.attrsOf json.type;
+      default = { };
+      example = {
+        sentry.url = "https://mcp.sentry.dev/mcp";
+      };
+      description = ''
+        User-level MCP servers, written as the `mcpServers` object of
+        pi/mcp.json.
+      '';
+    };
+
     keybindings = lib.mkOption {
       type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
       default = { };
@@ -226,6 +238,9 @@ in
 
     xdg.configFile = {
       "pi/settings.json".text = builtins.toJSON cfg.settings;
+    }
+    // lib.optionalAttrs (cfg.mcpServers != { }) {
+      "pi/mcp.json".text = builtins.toJSON { inherit (cfg) mcpServers; };
     }
     // lib.optionalAttrs (cfg.keybindings != { }) {
       "pi/keybindings.json".text = builtins.toJSON cfg.keybindings;
