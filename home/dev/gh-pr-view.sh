@@ -92,10 +92,40 @@ EOF
 }
 
 # Turns the raw GraphQL pages into { repo, pr, entries: [...] }, one entry per
-# line item in the timeline, sorted by time.
+# line item in the timeline, sorted by time, with consecutive reviews,
+# comments and threads by one user condensed into a group.
 prog_normalize() {
   cat <<'EOF'
 def actor: .login // "ghost";
+def groupable: .kind == "review" or .kind == "comment" or .kind == "thread";
+
+# Orders a group's items with each review followed by its own threads, and
+# takes its time, state and url from the items.
+def group_finish:
+  .items as $items
+  | [ $items[] | select(.kind == "review") ] as $reviews
+  | ($reviews | map(.id)) as $ids
+  | .items = [ $items[]
+               | select(.kind != "thread" or (.review as $r | $ids | any(.[]; . == $r) | not))
+               | ., ( select(.kind == "review")
+                      | .id as $id
+                      | $items[]
+                      | select(.kind == "thread" and .review == $id) ) ]
+  | .at = ($items | map(.at) | max)
+  | .state = ($reviews[-1].state // null)
+  | .url = ($reviews[-1].url // $items[0].url);
+
+# Condenses runs of reviews, comments and threads by the same user into a
+# single group entry.
+def condense:
+  reduce .[] as $e ([];
+    if length > 0 and ($e | groupable) and .[-1].actor == $e.actor
+       and (.[-1] | (groupable or .kind == "group"))
+    then (length - 1) as $i
+      | .[$i] |= ( if .kind == "group" then .items += [$e]
+                   else { kind: "group", actor: .actor, items: [., $e] } end )
+    else . + [$e] end)
+  | map(if .kind == "group" then group_finish else . end);
 
 ($t[0] | map(.data.repository.pullRequest)) as $pages
 | $pages[0] as $pr
@@ -138,6 +168,7 @@ def actor: .login // "ghost";
         then .
         else
           . + [{ kind: "review",
+                 id: $n.id,
                  at: ($n.submittedAt // $n.createdAt),
                  actor: ($n.author | actor),
                  state: $n.state,
@@ -170,6 +201,7 @@ def actor: .login // "ghost";
               resolved: .isResolved,
               outdated: .isOutdated,
               resolved_by: (.resolvedBy.login // null),
+              review: ($cs[0].pullRequestReview.id // null),
               hunk: $cs[0].diffHunk,
               url: $cs[0].url,
               comments: [ $cs[] | { actor: (.author | actor), at: .createdAt, body } ] }) ) as $thread_entries
@@ -177,7 +209,7 @@ def actor: .login // "ghost";
     pr: ($pr | del(.timelineItems)),
     entries: ( [{ kind: "open", at: $pr.createdAt, actor: ($pr.author | actor),
                   title: $pr.title, body: $pr.body, url: $pr.url }]
-               + ($timeline + $thread_entries | sort_by(.at)) ) }
+               + ($timeline + $thread_entries | sort_by(.at) | condense) ) }
 EOF
 }
 
@@ -244,6 +276,15 @@ def review_state:
           + (($e.threads | length) | if . > 0 then [count(.; "thread"; "threads")] else [] end) ]
     elif $e.kind == "comment" then
       [ ("◇" | colour("36")) + " \($who) commented", ($e.body | lines(2)) ]
+    elif $e.kind == "group" then
+      ( if $e.state then $e.state | review_state else ["◇", "36", "commented"] end ) as [$sym, $c, $verb]
+      | ($e.items | map(select(.kind == "thread")) | length) as $threads
+      | ($e.items | map(select(.kind == "comment")) | length) as $comments
+      | [ ($sym | colour($c)) + " \($who) " + ($verb | colour($c))
+          + ( [ (if $threads > 0 then count($threads; "thread"; "threads") else empty end),
+                (if $comments > 0 then count($comments; "comment"; "comments") else empty end) ]
+              | if length > 0 then "  " + (join(", ") | colour("2")) else "" end ),
+          [ $e.items[] | if .kind == "thread" then .comments[0].body else .body end | lines(1)[] ][:2] ]
     elif $e.kind == "thread" then
       [ ("»" | colour("33")) + " \($who) on " + ("\($e.path):\($e.line // "?")" | colour("36"))
           + ( if $e.resolved then "  " + ("✓ resolved" | colour("32"))
@@ -329,6 +370,8 @@ heading() {
         elif .kind == "push" then "pushed \(plural(.commits | length; "commit"))"
         elif .kind == "force" then "force-pushed \(.before_short) → \(.after_short)"
         elif .kind == "review" then $states[.state] // (.state | ascii_downcase)
+        elif .kind == "group" then
+          if .state then $states[.state] // (.state | ascii_downcase) else "commented" end
         elif .kind == "comment" then "commented"
         elif .kind == "thread" then "commented on \(.path):\(.line // "?")"
         else .text end ) as $verb
@@ -415,27 +458,73 @@ render_force() {
   fi
 }
 
+# One line introducing an item within a group.
+subheading() {
+  jq -r '
+    def colour($c): "\u001b[\($c)m" + . + "\u001b[0m";
+    ( if .kind == "review" then
+        ( { APPROVED: ["✓", "32", "approved"],
+            CHANGES_REQUESTED: ["✗", "31", "requested changes"],
+            COMMENTED: ["•", "33", "reviewed"],
+            DISMISSED: ["⊘", "90", "review dismissed"] }[.state]
+          // ["?", "90", (.state | ascii_downcase)] ) as [$sym, $c, $verb]
+        | "\($sym) \($verb)" | colour("1;\($c)")
+      elif .kind == "comment" then "◇ commented" | colour("1;36")
+      elif .kind == "thread" then "» \(.path):\(.line // "?")" | colour("1;33")
+      else .kind end )
+    + "  " + (.at | fromdateiso8601 | strflocaltime("%m-%d %H:%M") | colour("2")),
+    ""
+  ' <<<"$1"
+}
+
+# Shows every item of a group in full, the review thread lists skip the
+# threads that are shown anyway.
+render_group() {
+  local dir=$1 entry=$2 shown n i item
+  shown=$(jq -c '[.items[] | select(.kind == "thread") | "\(.path):\(.line // "?")"]' <<<"$entry")
+  n=$(jq '.items | length' <<<"$entry")
+  for ((i = 0; i < n; i++)); do
+    item=$(jq -c --argjson i "$i" '.items[$i]' <<<"$entry")
+    if ((i > 0)); then
+      echo
+      dim "$(printf '┄%.0s' {1..40})"
+      echo
+    fi
+    subheading "$item"
+    render_body "$dir" "$item" "$shown"
+  done
+}
+
+render_body() {
+  local dir=$1 entry=$2 shown=${3:-[]}
+  case $(jq -r .kind <<<"$entry") in
+  open) jq -r '"# \(.title)\n\n\(.body // "")"' <<<"$entry" | md ;;
+  comment) jq -r '.body // ""' <<<"$entry" | md ;;
+  review)
+    jq -r --argjson shown "$shown" '
+      (.body // "") as $body
+      | (.threads - $shown) as $threads
+      | $body
+        + ( if ($threads | length) > 0
+            then (if ($body | test("\\S")) then "\n\n" else "" end)
+              + "**Threads:**\n\n" + ($threads | map("- `\(.)`") | join("\n"))
+            else "" end )
+    ' <<<"$entry" | md
+    ;;
+  thread) render_thread "$entry" ;;
+  push) render_push "$dir" "$entry" ;;
+  force) render_force "$dir" "$entry" ;;
+  group) render_group "$dir" "$entry" ;;
+  esac
+}
+
 render() {
   local dir=$1 idx=$2 entry
   cols=${FZF_PREVIEW_COLUMNS:-80}
   entry=$(jq -c --argjson i "$idx" '.entries[$i]' "$dir/data.json")
 
   heading "$entry"
-  case $(jq -r .kind <<<"$entry") in
-  open) jq -r '"# \(.title)\n\n\(.body // "")"' <<<"$entry" | md ;;
-  comment) jq -r '.body // ""' <<<"$entry" | md ;;
-  review)
-    jq -r '
-      (.body // "")
-      + ( if (.threads | length) > 0
-          then "\n\n**Threads:**\n\n" + (.threads | map("- `\(.)`") | join("\n"))
-          else "" end )
-    ' <<<"$entry" | md
-    ;;
-  thread) render_thread "$entry" ;;
-  push) render_push "$dir" "$entry" ;;
-  force) render_force "$dir" "$entry" ;;
-  esac
+  render_body "$dir" "$entry"
 }
 
 open_entry() {
