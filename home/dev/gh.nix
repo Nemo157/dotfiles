@@ -52,7 +52,8 @@ in
       jq
       fzf
       delta
-      glow
+      # glow v3 required for piped ANSI output (<https://redirect.github.com/charmbracelet/glow/issues/968>)
+      unstable.glow
       git
       coreutils
       ncurses
@@ -79,6 +80,4 @@ in
     bind-key P display-popup -d '#{pane_current_path}' -w 90% -h 40% -E "${lib.getExe gh-pr-list-popup}"
   '';
 
-  # Fuck 16-bit color codes
-  home.sessionVariables.GLAMOUR_STYLE = "ascii";
 }
