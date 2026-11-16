@@ -100,9 +100,23 @@
 // (realpath'd) path, so it does NOT cover files inside a directory being
 // moved/removed recursively. mkdir is not queued: nothing else mutates a
 // directory entry under that key.
+//
+// Built-in `read` override (queued read):
+//   Built-in edit/write save via fs.writeFile (truncate, then write) inside
+//   the mutation queue, but built-in read never takes the queue. An edit and
+//   a read of the same file in one parallel batch therefore race: the read
+//   can see the truncated file and fail with "Offset N is beyond end of file
+//   (1 lines total)" (`"".split("\n")` is one line). Upstream report:
+//   earendil-works/pi#8318 (auto-closed). We re-register `read` from pi's own
+//   createReadToolDefinition and run its execute under the same queue, so it
+//   observes the file before or after a pending mutation, never mid-write.
+//   The queue is entered synchronously at execute() start (as built-in edit
+//   does), so queue order follows tool-call order. Rendering and prompt
+//   metadata come from the built-in definition.
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
+  createReadToolDefinition,
   generateDiffString,
   renderDiff,
   withFileMutationQueue,
@@ -117,6 +131,7 @@ import type {
 import * as fs from "node:fs/promises";
 import { homedir } from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // ── permission service (session-scoped cache) ──────────────────────────────
 // The service is process-global, keyed by session id, surfaced via the
@@ -1541,6 +1556,35 @@ const regexReplaceTool: FileToolDef<typeof regexReplaceParams> = {
   },
 };
 
+// ── queued read (built-in override) ───────────────────────────────────────
+/**
+ * Mirror of pi's (unexported) `resolveToCwd`, which built-in edit/write use
+ * to compute their mutation-queue key: unicode spaces → space, strip a
+ * leading `@`, expand `~`, accept `file://` URLs. Must match it so a read and
+ * an edit of the same file land in the same queue (the queue itself then
+ * realpath's the key, so symlinks are covered).
+ */
+function resolveLikeBuiltin(cwd: string, p: string): string {
+  let n = p.replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, " ");
+  if (n.startsWith("@")) n = n.slice(1);
+  if (n.startsWith("file://")) n = fileURLToPath(n);
+  return resolvePath(cwd, n);
+}
+
+function registerQueuedRead(pi: ExtensionAPI): void {
+  // `cwd` is only a fallback: the built-in execute prefers ctx.cwd.
+  const base = createReadToolDefinition(process.cwd());
+  pi.registerTool({
+    ...base,
+    execute(toolCallId, params, signal, onUpdate, ctx) {
+      const key = resolveLikeBuiltin(ctx.cwd, params.path);
+      return withFileMutationQueue(key, () =>
+        base.execute(toolCallId, params, signal, onUpdate, ctx),
+      );
+    },
+  });
+}
+
 // ── destination gating ──────────────────────────────────────────────────
 // Re-aim the shared `path` + `external_directory` gates at the WRITE TARGET.
 //
@@ -1610,6 +1654,7 @@ export default function fileToolsExtension(pi: ExtensionAPI): void {
   registerFileTool(pi, pasteLinesTool);
   registerFileTool(pi, replaceBlockTool);
   registerFileTool(pi, regexReplaceTool);
+  registerQueuedRead(pi);
 
   registerDestinationGating(pi);
 }
