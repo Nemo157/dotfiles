@@ -46,6 +46,20 @@ in
     source = ./gh-pr-list.sh;
   };
 
+  scripts.gh-pr-view = {
+    runtimeInputs = with pkgs; [
+      gh
+      jq
+      fzf
+      delta
+      glow
+      git
+      coreutils
+      ncurses
+    ];
+    source = ./gh-pr-view.sh;
+  };
+
   programs = {
     gh = {
       enable = true;
