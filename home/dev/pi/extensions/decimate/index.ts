@@ -30,7 +30,7 @@ import type {
   SessionBoundaryDraft,
 } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
-import { scanCandidates } from "./candidates";
+import { DEFAULT_CHARS_PER_TOKEN, scanCandidates } from "./candidates";
 import {
   classifyCandidates,
   resolveClassifier,
@@ -115,13 +115,14 @@ export default function decimateExtension(pi: ExtensionAPI): void {
 
   // --- helpers -----------------------------------------------------------------
 
-  function headTokens(ctx: ExtensionContext): number {
+  /** Chars of the system prompt + active tool definitions. */
+  function headChars(ctx: ExtensionContext): number {
     const active = new Set(pi.getActiveTools());
     const toolChars = pi
       .getAllTools()
       .filter((t) => active.has(t.name))
       .reduce((n, t) => n + JSON.stringify(t).length, 0);
-    return Math.ceil((ctx.getSystemPrompt().length + toolChars) / 4);
+    return ctx.getSystemPrompt().length + toolChars;
   }
 
   function updateStatus(ctx: ExtensionContext): void {
@@ -157,7 +158,14 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   ): Promise<Plan> {
     const { ahead, timeoutMs } = opts;
     const projection = ctx.sessionManager.buildSessionProjection();
-    const scan = scanCandidates(projection.entries, cfg, ahead);
+    const head = headChars(ctx);
+    const scan = scanCandidates(projection.entries, cfg, {
+      ahead,
+      headChars: head,
+      model: ctx.model
+        ? { provider: ctx.model.provider, id: ctx.model.id }
+        : undefined,
+    });
     let verdicts: Map<string, Verdict> | undefined;
     let usage: ClassifyUsage | undefined;
 
@@ -200,7 +208,8 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       cfg,
       verdicts,
       classifier: usage,
-      systemTokens: headTokens(ctx),
+      headChars: head,
+      charsPerToken: scan.charsPerToken,
     });
   }
 
@@ -537,7 +546,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
         effective,
         s.source,
         s.coldness,
-        headTokens(ctx),
+        plan.systemTokens ??
+          Math.ceil(
+            headChars(ctx) / (plan.charsPerToken ?? DEFAULT_CHARS_PER_TOKEN),
+          ),
       );
       const msg = event.message as {
         role?: string;

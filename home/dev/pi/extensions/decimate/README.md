@@ -7,6 +7,16 @@ Old tool results are replaced via append-only `context_edit` entries — raw
 history is untouched and `/decimate restore` brings content back. v1 never
 omits messages, so tool calls always keep their paired results.
 
+**Side effect on thinking (Anthropic):** signed thinking blocks are bound to
+the conversation before them. Editing a tool result makes every later
+thinking block fail that check, and the API drops them from the prompt
+(`thinking_dropped` input transformation; it may instead keep them where
+the check isn't enforced). So a decimation also discards the model's
+reasoning from the earliest edit onwards: more tokens saved than the plan
+estimates (one session: −33.8k measured results, −44k billed, the rest its
+11k of earlier reasoning), but lost continuity. The earlier the first edit,
+the more reasoning goes with it.
+
 ## Pipeline
 
 1. **Heuristics** (`candidates.ts`) score old tool results outside the last
@@ -58,6 +68,17 @@ plan. Staging, `restore` and `cancel` require an idle agent.
   subagents): Anthropic TTL estimate or >24h idle.
   - manual: warm refuses (unless `--force`), unknown asks, cold applies
   - auto: only `cold`
+- **Token counts** (`candidates.ts`): a tool result's size is *measured*
+  where billed usage allows, as pi-contextimate does: between two replies of
+  the same model with only tool results in between, whose later cache read
+  proves the earlier prompt was reused, the prompt growth minus the replayed
+  reply is exactly those results (split by size across parallel calls).
+  Everything else is estimated at a chars/token ratio calibrated per plan
+  from the latest billed prompt on the branch (input + cache read + cache
+  write vs. the chars of system prompt, tools and preceding messages),
+  preferring a reply from the current model; 4 when there is none. Code-heavy
+  sessions often land near 2, so a fixed 4 would halve every estimate.
+  `/decimate preview` marks measured sizes `=` and estimates `~`.
 - **Verification** (`ledger.ts`): the decimated send's billed `cacheRead` is
   compared with the estimated prefix before the first edit →
   `cold-confirmed` / `was-warm` / `inconclusive`.

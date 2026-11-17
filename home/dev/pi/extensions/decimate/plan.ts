@@ -22,6 +22,8 @@ export interface Decision {
   reasons: Reason[];
   prior: number;
   estTokens: number;
+  /** `estTokens` is measured from billed usage (absent in older plans). */
+  measured?: boolean;
   messageIndex: number;
   heuristicAction: Action;
   action: Action;
@@ -47,6 +49,10 @@ export interface Plan {
   breakIndex: number;
   /** Estimated message tokens before the earliest edit (cold verification). */
   prefixTokens: number;
+  /** Estimated system prompt + tool tokens. */
+  systemTokens?: number;
+  /** Chars/token behind every estimate (calibrated from billed usage). */
+  charsPerToken?: number;
   shadow: boolean;
   classifier?: ClassifyUsage;
 }
@@ -123,9 +129,12 @@ export function buildPlan(args: {
   cfg: DecimateConfig;
   verdicts?: Map<string, Verdict>;
   classifier?: ClassifyUsage;
-  systemTokens: number;
+  /** Chars of system prompt + active tool definitions. */
+  headChars: number;
+  charsPerToken: number;
 }): Plan {
-  const { candidates, cfg, verdicts } = args;
+  const { candidates, cfg, verdicts, charsPerToken } = args;
+  const systemTokens = Math.ceil(args.headChars / charsPerToken);
   const ccfg = cfg.classifier;
   const decisions: Decision[] = [];
   const edits: Edit[] = [];
@@ -153,7 +162,7 @@ export function buildPlan(args: {
     const savedTokens =
       text === undefined
         ? 0
-        : Math.max(0, c.estTokens - Math.ceil(text.length / 4));
+        : Math.max(0, c.estTokens - Math.ceil(text.length / charsPerToken));
     if (text !== undefined && savedTokens > 0) {
       edits.push({
         entryId: c.entryId,
@@ -172,6 +181,7 @@ export function buildPlan(args: {
       reasons: c.reasons,
       prior: Number(c.prior.toFixed(3)),
       estTokens: c.estTokens,
+      measured: c.measured,
       messageIndex: c.messageIndex,
       heuristicAction: hAction,
       action: text !== undefined && savedTokens > 0 ? action : "keep",
@@ -185,8 +195,7 @@ export function buildPlan(args: {
     ? breakIndex
     : args.messageTokens.length;
   const prefixTokens =
-    args.systemTokens +
-    args.messageTokens.slice(0, bi).reduce((a, b) => a + b, 0);
+    systemTokens + args.messageTokens.slice(0, bi).reduce((a, b) => a + b, 0);
 
   return {
     id: `d${Date.now().toString(36)}`,
@@ -197,6 +206,8 @@ export function buildPlan(args: {
     savedTokens: saved,
     breakIndex: bi,
     prefixTokens,
+    systemTokens,
+    charsPerToken: Number(charsPerToken.toFixed(2)),
     shadow: cfg.shadow,
     classifier: args.classifier,
   };
@@ -214,6 +225,10 @@ export function describePlan(plan: Plan, limit = 12): string[] {
   const applied = plan.decisions.filter((d) => d.action !== "keep");
   const lines = [
     `${applied.length} edit(s), −${kTokens(plan.savedTokens)} tokens est.` +
+      ` (${applied.filter((d) => d.measured).length} measured` +
+      (plan.charsPerToken
+        ? `, rest at ${plan.charsPerToken.toFixed(1)} chars/token)`
+        : ")") +
       ` · ${plan.decisions.length - applied.length} candidate(s) kept` +
       (plan.classifier
         ? ` · ${plan.shadow ? "shadow " : ""}classifier ${plan.classifier.model}: ${plan.classifier.calls} call(s)` +
@@ -233,7 +248,7 @@ export function describePlan(plan: Plan, limit = 12): string[] {
         ? " ≠"
         : "";
     lines.push(
-      `  ${d.action.padEnd(4)} ${kTokens(d.estTokens).padStart(5)} ${d.toolName}(${d.argsSummary.slice(0, 60)})` +
+      `  ${d.action.padEnd(4)} ${d.measured ? "=" : "~"}${kTokens(d.estTokens).padStart(5)} ${d.toolName}(${d.argsSummary.slice(0, 60)})` +
         ` [${d.reasons.join(",")} ${d.prior.toFixed(2)}]${v}${disagree}`,
     );
   }
