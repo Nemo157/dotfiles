@@ -1,5 +1,5 @@
 // Decision-model scoring of candidates via pi's classifier models
-// (`ctx.modelRegistry.classify()`): one call per candidate, three typed
+// (`ctx.modelRegistry.classify()`): one call per candidate, two typed
 // questions, hard batch deadline, verdicts cached per (entry, task context).
 
 import { createHash } from "node:crypto";
@@ -20,8 +20,6 @@ export interface Verdict {
   pNeeded: number;
   action: ModelAction;
   actionConfidence: number;
-  /** Probability the proposed stub preserves everything still needed. */
-  pStubOk: number;
 }
 
 export interface ClassifyUsage {
@@ -41,9 +39,12 @@ const QUESTIONS: Record<string, ClassifierQuestion> = {
     type: "bool",
     instructions:
       "A coding agent's conversation is being shortened to save context. `candidate` is an old tool result " +
-      "from that conversation; `task` is what the agent is working on now; `laterInSession` says what happened " +
-      "to the same file afterwards. Will the agent still need the exact content of this tool result to finish " +
-      "its current task — would losing it force the agent to redo work or risk a mistake?",
+      "from that conversation, produced during user turn `candidate.turn`. `task.conversation` lists the " +
+      "user's requests in order with the agent's closing reply to each (`outcome`); the last entries are " +
+      "what the agent is working on now, and later turns may show the result was wrong, finished with, or " +
+      "no longer relevant. `laterInSession` says what happened to the same file afterwards. Will the agent " +
+      "still need the exact content of this tool result to finish its current task — would losing it " +
+      "force the agent to redo work or risk a mistake?",
     criteria: {
       true: "The exact content is still needed for the current task",
       false:
@@ -58,15 +59,6 @@ const QUESTIONS: Record<string, ClassifierQuestion> = {
       keep: "Keep it in full: it holds information the current task depends on that is not available elsewhere",
       trim: "Keep only its beginning and end: the gist still matters, the middle does not",
       stub: "Replace it with the one-line `proposedStub`: it is superseded, obsolete, or cheap to re-fetch",
-    },
-  },
-  stubOk: {
-    type: "bool",
-    instructions:
-      "Does `proposedStub` preserve everything about this tool result that the agent still needs for its current task?",
-    criteria: {
-      true: "Yes, the stub is enough",
-      false: "No, the stub loses something the agent still needs",
     },
   },
 };
@@ -88,7 +80,11 @@ export function taskHash(task: TaskContext): string {
 function stateFor(c: Candidate, task: TaskContext, stub: string): JsonObject {
   return {
     task: {
-      recentUserRequests: task.recentUserRequests,
+      conversation: task.conversation.map((t): JsonObject => {
+        const turn: JsonObject = { turn: t.turn, user: t.user };
+        if (t.outcome) turn.outcome = t.outcome;
+        return turn;
+      }),
       recentlyModifiedFiles: task.recentlyModifiedFiles,
     },
     candidate: {
@@ -97,6 +93,7 @@ function stateFor(c: Candidate, task: TaskContext, stub: string): JsonObject {
       isError: c.isError,
       sizeChars: c.chars,
       images: c.images,
+      turn: c.turn,
       ageInUserTurns: c.age,
       content: headTail(c.text, 3_000),
     },
@@ -181,12 +178,7 @@ export async function classifyCandidates(
       }
       const needed = result.answers.needed;
       const action = result.answers.action;
-      const stubOk = result.answers.stubOk;
-      if (
-        needed?.type !== "bool" ||
-        action?.type !== "choice" ||
-        stubOk?.type !== "bool"
-      ) {
+      if (needed?.type !== "bool" || action?.type !== "choice") {
         usage.errors++;
         continue;
       }
@@ -200,7 +192,6 @@ export async function classifyCandidates(
         pNeeded: needed.probability,
         action: choice,
         actionConfidence: action.confidence,
-        pStubOk: stubOk.probability,
       };
       opts.cache.set(key, verdict);
       verdicts.set(c.entryId, verdict);

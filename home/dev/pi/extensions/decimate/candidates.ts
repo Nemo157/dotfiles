@@ -43,6 +43,8 @@ export interface Candidate {
   estTokens: number;
   /** User-message spans between this result and the branch tip. */
   age: number;
+  /** User turn that produced this result (`TurnSummary.turn`). */
+  turn: number;
   /** Position in the flattened projected message list (break-point math). */
   messageIndex: number;
   reasons: Reason[];
@@ -51,9 +53,59 @@ export interface Candidate {
   later: LaterEvidence;
 }
 
+export interface TurnSummary {
+  /** 0-based user turn index; matches `Candidate.turn`. */
+  turn: number;
+  user: string;
+  /** The agent's last text in that turn, usually its answer or summary. */
+  outcome?: string;
+}
+
 export interface TaskContext {
-  recentUserRequests: string[];
+  /**
+   * User requests with the agent's closing text, oldest first. Over budget,
+   * turns after the first are dropped oldest first (`turn` shows the gap).
+   */
+  conversation: TurnSummary[];
   recentlyModifiedFiles: string[];
+}
+
+/** Character budget for `TaskContext.conversation`. */
+const CONVERSATION_BUDGET = 6_000;
+/** Turns at the tip that get the longer clip limits. */
+const RECENT_TURNS = 2;
+
+function clip(text: string, max: number): string {
+  const t = text.trim();
+  return t.length > max ? `${t.slice(0, max)}…` : t;
+}
+
+function turnChars(t: TurnSummary): number {
+  return t.user.length + (t.outcome?.length ?? 0);
+}
+
+function outline(
+  users: Map<number, string>,
+  replies: Map<number, string>,
+  lastSpan: number,
+): TurnSummary[] {
+  const turns: TurnSummary[] = [];
+  for (const [turn, user] of users) {
+    const recent = lastSpan - turn < RECENT_TURNS;
+    const reply = replies.get(turn);
+    turns.push({
+      turn,
+      user: clip(user, recent ? 1_500 : 500),
+      ...(reply ? { outcome: clip(reply, recent ? 800 : 300) } : {}),
+    });
+  }
+  // The first request usually states the overall task; keep it and the tip.
+  let total = turns.reduce((n, t) => n + turnChars(t), 0);
+  while (total > CONVERSATION_BUDGET && turns.length > 1 + RECENT_TURNS) {
+    const [dropped] = turns.splice(1, 1);
+    total -= turnChars(dropped);
+  }
+  return turns;
 }
 
 export interface CandidateScan {
@@ -211,15 +263,19 @@ export function scanCandidates(
   const calls = new Map<string, CallInfo>();
   const fileOps: FileOp[] = [];
   const assistantText: Array<{ index: number; text: string }> = [];
-  const userTexts: string[] = [];
+  const userTexts = new Map<number, string>();
+  const lastReplies = new Map<number, string>();
   const messageTokens: number[] = [];
 
-  flat.forEach(({ msg }, index) => {
+  flat.forEach(({ msg, span: s }, index) => {
     messageTokens.push(estimateTokens(msg.content));
-    if (msg.role === "user") userTexts.push(textOf(msg.content));
+    if (msg.role === "user") userTexts.set(s, textOf(msg.content));
     if (msg.role !== "assistant") return;
     const text = textOf(msg.content);
-    if (text) assistantText.push({ index, text });
+    if (text) {
+      assistantText.push({ index, text });
+      lastReplies.set(s, text);
+    }
     for (const b of blocks(msg.content)) {
       if (
         b.type !== "toolCall" ||
@@ -355,6 +411,7 @@ export function scanCandidates(
       images,
       estTokens: messageTokens[r.index],
       age,
+      turn: s,
       messageIndex: r.index,
       reasons,
       prior,
@@ -373,9 +430,7 @@ export function scanCandidates(
   return {
     candidates,
     task: {
-      recentUserRequests: userTexts
-        .slice(-3)
-        .map((t) => (t.length > 1_500 ? `${t.slice(0, 1_500)}…` : t)),
+      conversation: outline(userTexts, lastReplies, lastSpan),
       recentlyModifiedFiles: [...recentlyModified].slice(-20),
     },
     messageTokens,

@@ -24,8 +24,11 @@ export interface ClassifierConfig {
   maxCandidates: number;
   /** p(needed) at or above this keeps the result verbatim. */
   tauKeep: number;
-  /** p(stub sufficient) at or above this accepts the model's stub/trim choice. */
-  tauStub: number;
+  /**
+   * Action confidence at or above this accepts the model's stub/trim choice
+   * (below `tauKeep`); otherwise trim.
+   */
+  tauAction: number;
   /** Heuristic priors at or above this skip the model (obvious cases). */
   autoAcceptPrior: number;
 }
@@ -66,7 +69,7 @@ const CLASSIFIER_DEFAULTS: Omit<ClassifierConfig, "provider" | "id"> = {
   autoTimeoutMs: 4_000,
   maxCandidates: 40,
   tauKeep: 0.6,
-  tauStub: 0.6,
+  tauAction: 0.6,
   autoAcceptPrior: 0.9,
 };
 
@@ -131,7 +134,7 @@ export function loadConfig(): DecimateConfig {
           CLASSIFIER_DEFAULTS.maxCandidates,
         ),
         tauKeep: pick(cr, "tauKeep", CLASSIFIER_DEFAULTS.tauKeep),
-        tauStub: pick(cr, "tauStub", CLASSIFIER_DEFAULTS.tauStub),
+        tauAction: pick(cr, "tauAction", CLASSIFIER_DEFAULTS.tauAction),
         autoAcceptPrior: pick(
           cr,
           "autoAcceptPrior",

@@ -18,7 +18,11 @@ omits messages, so tool calls always keep their paired results.
    - `stale-bulky` — ≥ `bulkyChars` or images, grows with age (0.45–0.8)
 2. **Decision model** (`classify.ts`, optional) — candidates below
    `autoAcceptPrior` are scored by a pi classifier model: `needed` (bool),
-   `action` (keep/trim/stub), `stubOk` (bool). Verdicts are cached per
+   `action` (keep/trim/stub, with confidence). `p(needed) ≥ tauKeep` keeps;
+   otherwise a stub/trim choice with confidence `≥ tauAction` is taken,
+   anything else trims. The model sees each candidate with an outline of
+   the conversation (every user request and the agent's closing reply,
+   clipped to a budget). Verdicts are cached per
    entry + task-context hash. In **shadow** mode the model scores and is
    logged, heuristics decide.
 3. **Plan** (`plan.ts`) — stub (one line) or trim (head + tail).
@@ -96,7 +100,7 @@ Set via `programs.pi.extensionSettings.decimate` in Nix.
     "autoTimeoutMs": 4000,
     "maxCandidates": 40,
     "tauKeep": 0.6,
-    "tauStub": 0.6,
+    "tauAction": 0.6,
     "autoAcceptPrior": 0.9
   }
 }

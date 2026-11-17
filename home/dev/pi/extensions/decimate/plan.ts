@@ -110,8 +110,9 @@ export function needsModel(c: Candidate, ccfg: ClassifierConfig): boolean {
 
 function modelAction(v: Verdict, ccfg: ClassifierConfig): Action {
   if (v.pNeeded >= ccfg.tauKeep) return "keep";
-  if (v.action !== "keep" && v.pStubOk >= ccfg.tauStub) return v.action;
-  // Not needed verbatim but the stub may lose something: keep the gist.
+  if (v.action !== "keep" && v.actionConfidence >= ccfg.tauAction)
+    return v.action;
+  // Not needed verbatim, but the model is unsure how far to go: keep the gist.
   return "trim";
 }
 
