@@ -1,6 +1,6 @@
 # Browse the timeline of a GitHub PR: entries on the left, details of the
 # selected entry (review bodies, threads with their diff, push diffs,
-# force-push range-diffs) on the right.
+# force-push interdiffs) on the right.
 #
 # Usage: gh-pr-view [<number> | <url> | <branch>]
 #
@@ -345,17 +345,81 @@ diff_range() {
   cat "$cache" 2>/dev/null || dim "(diff unavailable)"
 }
 
+# Renders a force-push as per-commit interdiffs: range-diff pairs up the old
+# and new commits, then each changed pair has the old commit replayed onto the
+# new commit's parent and the result diffed against the new commit, so only
+# changes made to the commit itself show, as an ordinary diff rather than a
+# diff of patches.
 range_diff() {
-  local dir=$1 before=$2 after=$3 base=$4 old new
+  local dir=$1 before=$2 after=$3 base=$4 old new pairs line re a status b subject
   if ! have_commit "$dir" "$before" || ! have_commit "$dir" "$after" ||
     ! have_commit "$dir" "$base"; then
     return 1
   fi
   old=$(git merge-base "$base" "$before") || return 1
   new=$(git merge-base "$base" "$after") || return 1
-  dim "git range-diff ${old:0:7}..${before:0:7} ${new:0:7}..${after:0:7}"
+  pairs=$(git range-diff --no-color --no-patch "$old..$before" "$new..$after") || return 1
+
+  dim "interdiff ${old:0:7}..${before:0:7} → ${new:0:7}..${after:0:7}"
   echo
-  git range-diff --color=always "$old..$before" "$new..$after"
+  re='^ *([0-9]+|-): +([0-9a-f]+|-+) ([=!<>]) +([0-9]+|-): +([0-9a-f]+|-+) (.*)$'
+  while IFS= read -r line; do
+    [[ $line =~ $re ]] || continue
+    a=${BASH_REMATCH[2]} status=${BASH_REMATCH[3]} b=${BASH_REMATCH[5]} subject=${BASH_REMATCH[6]}
+    case $status in
+      '=') dim "= ${a:0:7} → ${b:0:7} $subject (unchanged)" ;;
+      '<') printf '\e[1;31m- %s %s\e[0m \e[2m(dropped)\e[0m\n' "${a:0:7}" "$subject" ;;
+      '>') printf '\e[1;32m+ %s %s\e[0m \e[2m(added)\e[0m\n' "${b:0:7}" "$subject" ;;
+      '!') printf '\e[1;33m! %s → %s %s\e[0m\n' "${a:0:7}" "${b:0:7}" "$subject" ;;
+    esac
+    if [[ $status == '!' || $status == '>' ]]; then
+      echo
+      interdiff_body "$a" "$status" "$b" </dev/null | indent
+    fi
+    echo
+  done <<<"$pairs"
+}
+
+indent() {
+  local line
+  while IFS= read -r line || [[ -n $line ]]; do
+    if [[ -n $line ]]; then
+      printf '    %s\n' "$line"
+    else
+      echo
+    fi
+  done
+}
+
+# The diff for one range-diff pair, `>` shows the added commit in full.
+interdiff_body() {
+  local a=$1 status=$2 b=$3 out tree conflicted=
+  # leave room for the indent
+  local cols=$((cols - 4))
+  if [[ $status == '>' ]]; then
+    git diff --no-color --no-ext-diff "$b^" "$b" | delta_diff
+    return
+  fi
+
+  # exits 1 when the replay conflicts, still writing a tree with conflict
+  # markers on the first line
+  out=$(git merge-tree --write-tree --no-messages --merge-base="$a^" "$b^" "$a") ||
+    conflicted=1
+  tree=${out%%$'\n'*}
+  if [[ -z $tree ]]; then
+    dim "(interdiff unavailable)"
+    return
+  fi
+  if [[ -n $conflicted ]]; then
+    dim "(replaying the old commit conflicted, conflict markers shown)"
+    echo
+  fi
+  out=$(git diff --no-color --no-ext-diff "$tree" "$b")
+  if [[ -n $out ]]; then
+    delta_diff <<<"$out"
+  else
+    dim "(no code changes, only the message differs)"
+  fi
 }
 
 heading() {
