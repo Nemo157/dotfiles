@@ -109,6 +109,16 @@ nix build .#checks.x86_64-linux.colmena-<hostname>
 
 With the pi `nix-build` tool: `attrs: ["checks.{system}.colmena-<hostname>"]`.
 
+**Formatting check:** `checks.<system>.formatting` runs the flake formatter
+(`nix fmt`, treefmt) in CI mode and fails on any change. It covers `*.nix`
+(nixfmt), `*.ts`/`*.json` (biome, 2-space indent, **80-column lines**),
+`*.py` (ruff, 80 columns) and `*.sh` (shfmt). Build it alongside the host
+check after editing (`attrs: ["checks.{system}.formatting"]`); on failure
+the build log shows the exact diff. Without a shell to run `nix fmt`, write
+new code already wrapped at 80 columns in the formatter's style (break long
+expressions, argument lists, imports and unions one item per line), since
+hand-applying a large formatter diff is error-prone.
+
 **On macOS, there is no NixOS module / colmena entry — use home-manager directly:**
 
 ```bash
