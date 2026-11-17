@@ -10,7 +10,10 @@ omits messages, so tool calls always keep their paired results.
 ## Pipeline
 
 1. **Heuristics** (`candidates.ts`) score old tool results outside the last
-   `keepRecentTurns` user turns:
+   `keepRecentTurns` user turns. The turn being sent counts as one of them,
+   so the default 2 protects the last completed turn; plans made ahead of the
+   send (precompute, resume, `/decimate apply`) count the upcoming turn too.
+   A session with a single completed turn has nothing eligible:
    - `superseded-read` — file re-read later covering the same lines, or
      modified later (prior 0.85–0.95)
    - `failed-retry` — error result whose retry (same tool and `path`)

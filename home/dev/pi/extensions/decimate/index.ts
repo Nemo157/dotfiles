@@ -141,12 +141,18 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     timer = undefined;
   }
 
+  /**
+   * `ahead`: planned before the send it is for, whose user message isn't on
+   * the branch yet (see `scanCandidates`). Inline planning in the `context`
+   * hook already sees it.
+   */
   async function makePlan(
     ctx: ExtensionContext,
-    timeoutMs?: number,
+    opts: { ahead: boolean; timeoutMs?: number },
   ): Promise<Plan> {
+    const { ahead, timeoutMs } = opts;
     const projection = ctx.sessionManager.buildSessionProjection();
-    const scan = scanCandidates(projection.entries, cfg);
+    const scan = scanCandidates(projection.entries, cfg, ahead);
     let verdicts: Map<string, Verdict> | undefined;
     let usage: ClassifyUsage | undefined;
 
@@ -267,7 +273,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   /** Background (idle) auto planning: stage the plan, or record why not. */
   function planInBackground(ctx: ExtensionContext, source: StageSource): void {
     if (stillSkipped(ctx)) return;
-    void makePlan(ctx).then((plan) => {
+    void makePlan(ctx, { ahead: true }).then((plan) => {
       if (staged || inflight || !ctx.isIdle()) return;
       if (plan.edits.length > 0 && plan.savedTokens >= cfg.minGainTokens)
         stagePlan(ctx, plan, source);
@@ -424,7 +430,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     } else if (!inflight && cfg.auto && first) {
       const c = cacheColdness(ctx);
       if (c.state === "cold" && !stillSkipped(ctx)) {
-        const plan = await makePlan(ctx, cfg.classifier?.autoTimeoutMs);
+        const plan = await makePlan(ctx, {
+          ahead: false,
+          timeoutMs: cfg.classifier?.autoTimeoutMs,
+        });
         if (plan.edits.length > 0 && plan.savedTokens >= cfg.minGainTokens) {
           inflight = {
             id: plan.id,
@@ -614,7 +623,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     updateStatus(ctx);
     let plan: Plan;
     try {
-      plan = await makePlan(ctx);
+      plan = await makePlan(ctx, { ahead: true });
     } finally {
       planning = false;
       updateStatus(ctx);
@@ -729,7 +738,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
           return apply(ctx, force);
         case "preview": {
           const c = cacheColdness(ctx);
-          const plan = await makePlan(ctx);
+          const plan = await makePlan(ctx, { ahead: true });
           ctx.ui.notify(
             `cache ${c.state}: ${c.reason} (${c.source})\n${describePlan(plan, 30).join("\n")}`,
             "info",

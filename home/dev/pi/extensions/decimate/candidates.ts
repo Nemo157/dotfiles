@@ -241,9 +241,15 @@ interface FileOp {
   range?: LineRange;
 }
 
+/**
+ * `ahead`: the plan is for a send that adds a user turn not yet on the
+ * branch (precompute, resume, manual staging), so ages count it already —
+ * the same results are eligible as when planning at send time.
+ */
 export function scanCandidates(
   projected: readonly ProjectedSessionEntry[],
   cfg: Pick<DecimateConfig, "keepRecentTurns" | "minChars" | "bulkyChars">,
+  ahead = false,
 ): CandidateScan {
   const flat: Flat[] = [];
   let span = -1;
@@ -331,7 +337,7 @@ export function scanCandidates(
   const candidates: Candidate[] = [];
   results.forEach((r, ri) => {
     const { entryId, msg, span: s } = flat[r.index];
-    const age = lastSpan - s;
+    const age = lastSpan - s + (ahead ? 1 : 0);
     if (age < cfg.keepRecentTurns) return;
     const call =
       typeof msg.toolCallId === "string"
