@@ -727,6 +727,22 @@ render() {
   render_body "$dir" "$entry"
 }
 
+# Prints the fzf action moving to the next/previous/first/last entry with
+# details in direction $3 from entry $2, skipping one-line events such as
+# "marked ready for review". Prints nothing when there is none.
+step() {
+  local dir=$1 idx=${2:--1} direction=$3
+  jq -r --argjson i "$idx" --arg d "$direction" '
+    [ .entries | to_entries[] | select(.value.kind != "event") | .key ] as $ks
+    | ( if $d == "down" then first($ks[] | select(. > $i))
+        elif $d == "up" then last($ks[] | select(. < $i))
+        elif $d == "first" then $ks[0]
+        else $ks[-1] end ) as $k
+    # positions are 1-based, the list is unfiltered and in entry order
+    | if $k != null then "pos(\($k + 1))" else empty end
+  ' "$dir/data.json"
+}
+
 open_entry() {
   local dir=$1 idx=$2 url
   url=$(jq -r --argjson i "$idx" '.entries[$i].url // .pr.url' "$dir/data.json")
@@ -803,6 +819,11 @@ main() {
   printf -v q_dir '%q' "$dir"
   local in_preview="[[ \$FZF_PREVIEW_LABEL == '$preview_label' ]]"
   modal() { echo "transform~$in_preview && echo '$2' || echo '$1'~"; }
+  # list moves go through --step to skip entries without details
+  local step="$q_self --step $q_dir {1}"
+  modal_step() {
+    echo "transform~$in_preview && echo '$2' || $step $1~"
+  }
   local toggle
   toggle=$(modal \
     "change-preview-label($preview_label)+change-pointer(▏)" \
@@ -818,16 +839,17 @@ main() {
       --preview "$q_self --render $q_dir {1}" \
       --preview-window 'right,60%,wrap,border-line' \
       --preview-label "$list_label" \
-      --bind 'load:last' \
+      --bind "load:transform:$step last" \
       --bind "ctrl-w:$toggle" \
       --bind "tab:$toggle" \
-      --bind "j:$(modal down preview-down)" \
-      --bind "down:$(modal down preview-down)" \
-      --bind "k:$(modal up preview-up)" \
-      --bind "up:$(modal up preview-up)" \
-      --bind "g:$(modal first preview-top)" \
-      --bind "G:$(modal last preview-bottom)" \
-      --bind 'J:down,K:up' \
+      --bind "j:$(modal_step down preview-down)" \
+      --bind "down:$(modal_step down preview-down)" \
+      --bind "k:$(modal_step up preview-up)" \
+      --bind "up:$(modal_step up preview-up)" \
+      --bind "g:$(modal_step first preview-top)" \
+      --bind "G:$(modal_step last preview-bottom)" \
+      --bind "J:transform:$step down" \
+      --bind "K:transform:$step up" \
       --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up' \
       --bind "enter:execute-silent($q_self --open $q_dir {1})" \
       --bind "r:reload-sync($q_self --refresh $q_dir)" \
@@ -844,6 +866,7 @@ case "${1:-}" in
     list "$2"
     ;;
   --open) open_entry "$2" "$3" ;;
+  --step) step "$2" "$3" "$4" ;;
   -h | --help) usage ;;
   *) main "$@" ;;
 esac
