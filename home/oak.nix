@@ -58,6 +58,10 @@
 
     # Small model backing the web-fetch extension's optional `prompt` query.
     extensionSettings.web-fetch.model = "anthropic/claude-sonnet-5";
+    extensionSettings.decimate.classifier = {
+      provider = "openrouter";
+      id = "~typesafe/jev-latest";
+    };
   };
 
   home.packages = with pkgs; [
