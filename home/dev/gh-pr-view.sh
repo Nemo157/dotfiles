@@ -1,6 +1,6 @@
 # Browse the timeline of a GitHub PR: entries on the left, details of the
-# selected entry (review bodies, threads with their diff, push diffs,
-# force-push interdiffs) on the right.
+# selected entry (review bodies, threads with their diff, push interdiffs) on
+# the right.
 #
 # Usage: gh-pr-view [<number> | <url> | <branch>]
 #
@@ -49,7 +49,7 @@ query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
           }
           ... on HeadRefForcePushedEvent {
             actor { login } createdAt
-            beforeCommit { oid abbreviatedOid }
+            beforeCommit { oid abbreviatedOid history(first: 100) { nodes { oid } } }
             afterCommit { oid abbreviatedOid }
           }
           ... on PullRequestReview { id author { login } state body submittedAt createdAt url }
@@ -97,6 +97,10 @@ EOF
 prog_normalize() {
   cat <<'EOF'
 def actor: .login // "ghost";
+# First-parent chain of $oid through the PR's commits $m, starting with $oid.
+def ancestry($m; $oid):
+  [ $oid | select(. != null) | recurse($m[.].parent // empty) ];
+def set: map({ (.): true }) | add // {};
 def groupable: .kind == "review" or .kind == "comment" or .kind == "thread";
 
 # Orders a group's items with each review followed by its own threads, and
@@ -115,6 +119,28 @@ def group_finish:
   | .state = ($reviews[-1].state // null)
   | .url = ($reviews[-1].url // $items[0].url);
 
+# Merges runs of pushes by the same user with no other activity between them
+# and at most $gap seconds apart into one push from the first old head to the
+# last new head, as a series of quick fixups is best read as a whole.
+def merge_pushes($gap; $repo_url):
+  def secs: fromdateiso8601;
+  reduce .[] as $e ([];
+    if length > 0 and $e.kind == "push" and .[-1].kind == "push"
+       and .[-1].actor == $e.actor
+       and ($e.at | secs) - (.[-1].at | secs) <= $gap
+    then (length - 1) as $i
+      | .[$i] |= ( .forced = (.forced or $e.forced)
+                   | .pushes += $e.pushes
+                   | .commits = (.commits + $e.commits | unique_by(.oid)
+                                 | sort_by(.at))
+                   | .at = $e.at
+                   | .after = $e.after
+                   | .after_short = $e.after_short
+                   | .url = if .before and .after
+                            then "\($repo_url)/compare/\(.before)..\(.after)"
+                            else .commits[-1].url // .url end )
+    else . + [$e] end);
+
 # Condenses runs of reviews, comments and threads by the same user into a
 # single group entry.
 def condense:
@@ -132,34 +158,61 @@ def condense:
 | ($pr.url | sub("/pull/[0-9]+$"; "")) as $repo_url
 | [ $th[0][].data.repository.pullRequest.reviewThreads.nodes[]
     | select((.comments.nodes | length) > 0) ] as $threads
-| ( reduce ($pages[].timelineItems.nodes[]) as $n ([];
-      if $n.__typename == "PullRequestCommit" then
-        ( $n.commit
-          | { oid,
-              short: .abbreviatedOid,
-              headline: .messageHeadline,
-              parent: (.parents.nodes[0].oid // null),
-              at: .committedDate,
-              actor: (.author.user.login // .author.name // "?"),
-              url: "\($pr.url)/commits/\(.oid)" } ) as $c
-        # GitHub doesn't expose push grouping, adjacent commits are the best
-        # available heuristic
-        | if length > 0 and .[-1].kind == "push" then
+| [ $pages[].timelineItems.nodes[] ] as $nodes
+# GitHub only lists the commits currently on the branch, each placed at its
+# commit date rather than when it was pushed
+| ( [ $nodes[] | select(.__typename == "PullRequestCommit") | .commit
+      | { oid,
+          short: .abbreviatedOid,
+          headline: .messageHeadline,
+          parent: (.parents.nodes[0].oid // null),
+          at: .committedDate,
+          actor: (.author.user.login // .author.name // "?"),
+          url: "\($pr.url)/commits/\(.oid)" } ]
+    | INDEX(.oid) ) as $commits
+# A force-push brought in the commits leading up to its new head that aren't
+# in the old head's history, these are merged into the force-push's entry so
+# a rebase, an amend or adding commits all show as one push.
+| ( reduce ($nodes | to_entries[]
+             | select(.value.__typename == "HeadRefForcePushedEvent")) as $e
+      ({ claimed: {}, by: {} };
+       . as $s
+       | ( [ $e.value.beforeCommit | .oid // empty, .history.nodes[]?.oid ]
+           | set ) as $old
+       | [ ancestry($commits; $e.value.afterCommit.oid)[]
+           | select($commits[.] != null and ($old[.] | not)
+                    and ($s.claimed[.] | not)) ] as $new
+       | .by[$e.key | tostring] = [ $new | reverse[] | $commits[.] ]
+       | .claimed += ($new | set)) ) as $forced
+| ( reduce ($nodes | to_entries[]) as $e ([];
+      $e.value as $n
+      | if $n.__typename == "PullRequestCommit" then
+        $commits[$n.commit.oid] as $c
+        | if $forced.claimed[$c.oid] then .
+          # GitHub doesn't expose push grouping, adjacent commits are the
+          # best available heuristic
+          elif length > 0 and .[-1].kind == "push" and (.[-1].forced | not)
+          then
             (length - 1) as $i
             | .[$i].commits += [$c]
-            | .[$i] += { at: $c.at, actor: $c.actor, url: $c.url }
+            | .[$i] += { at: $c.at, actor: $c.actor, after: $c.oid,
+                         after_short: $c.short }
           else
-            . + [{ kind: "push", at: $c.at, actor: $c.actor, url: $c.url, commits: [$c] }]
+            . + [{ kind: "push", forced: false, at: $c.at, actor: $c.actor,
+                   before: $c.parent,
+                   before_short: (($c.parent // "?")[:7]),
+                   after: $c.oid, after_short: $c.short, commits: [$c] }]
           end
       elif $n.__typename == "HeadRefForcePushedEvent" then
-        . + [{ kind: "force",
+        . + [{ kind: "push",
+               forced: true,
                at: $n.createdAt,
                actor: ($n.actor | actor),
                before: $n.beforeCommit.oid,
                after: $n.afterCommit.oid,
                before_short: ($n.beforeCommit.abbreviatedOid // "?"),
                after_short: ($n.afterCommit.abbreviatedOid // "?"),
-               url: "\($repo_url)/compare/\($n.beforeCommit.oid)..\($n.afterCommit.oid)" }]
+               commits: ($forced.by[$e.key | tostring] // []) }]
       elif $n.__typename == "PullRequestReview" then
         # empty COMMENTED reviews are just containers for inline threads,
         # which get their own entries
@@ -189,7 +242,13 @@ def condense:
                         ReadyForReviewEvent: "marked ready for review",
                         ConvertToDraftEvent: "converted to draft" }[$n.__typename]
                       // $n.__typename) }]
-      end) ) as $timeline
+      end)
+    | map(if .kind == "push" then
+            .pushes = 1
+            | .url = if .before and .after
+                   then "\($repo_url)/compare/\(.before)..\(.after)"
+                   else .commits[-1].url // $pr.url end
+          else . end) ) as $timeline
 | ( $threads
     | map(.comments.nodes as $cs
           | { kind: "thread",
@@ -209,7 +268,10 @@ def condense:
     pr: ($pr | del(.timelineItems)),
     entries: ( [{ kind: "open", at: $pr.createdAt, actor: ($pr.author | actor),
                   title: $pr.title, body: $pr.body, url: $pr.url }]
-               + ($timeline + $thread_entries | sort_by(.at) | condense) ) }
+               + ( $timeline + $thread_entries
+                   | sort_by(.at)
+                   | merge_pushes(600; $repo_url)
+                   | condense ) ) }
 EOF
 }
 
@@ -231,7 +293,79 @@ fetch() {
     --slurpfile th "$dir/threads.json" \
     --arg repo "$owner/$name" \
     "$(prog_normalize)" >"$dir/data.json.new" || return
+  # best effort, the list just shows no stats without the commits
+  add_stats "$dir" "$dir/data.json.new" || true
   mv "$dir/data.json.new" "$dir/data.json"
+}
+
+# Prints "<files> <additions> <deletions>" for what a push changed, computed
+# like the push interdiff: the old head's changes replayed onto the new head's
+# base, diffed against the new head, so a pure rebase comes out empty. Fails
+# when the commits aren't local or the replay conflicts.
+push_stat() {
+  local before=$1 after=$2 base=$3 old new from out a d _
+  local files=0 additions=0 deletions=0
+  git cat-file -e "$before^{commit}" 2>/dev/null || return
+  git cat-file -e "$after^{commit}" 2>/dev/null || return
+  git cat-file -e "$base^{commit}" 2>/dev/null || return
+  old=$(git merge-base "$base" "$before") || return
+  new=$(git merge-base "$base" "$after") || return
+  from=$before
+  if [[ $old != "$new" ]]; then
+    out=$(git merge-tree --write-tree --no-messages --merge-base="$old" \
+      "$new" "$before") || return
+    from=${out%%$'\n'*}
+  fi
+  out=$(git diff --numstat "$from" "$after") || return
+  while read -r a d _; do
+    files=$((files + 1))
+    # binary files show as `-`
+    if [[ $a != - ]]; then additions=$((additions + a)); fi
+    if [[ $d != - ]]; then deletions=$((deletions + d)); fi
+  done < <(printf '%s' "$out")
+  echo "$files $additions $deletions"
+}
+
+# Adds a `stat` to every push whose commits are available locally, fetching
+# the missing ones from origin in one go first. Pushes that change nothing
+# (pure rebases) are dropped, they don't matter for reviewing.
+add_stats() {
+  local dir=$1 data=$2 base pushes oid i before after stat stats=
+  local -a missing=()
+  base=$(jq -r .pr.baseRefOid "$data") || return
+  pushes=$(jq -r '
+    .entries | to_entries[]
+    | select(.value.kind == "push" and .value.before and .value.after)
+    | "\(.key) \(.value.before) \(.value.after)"
+  ' "$data") || return
+  [[ -n $pushes ]] || return 0
+
+  while read -r i before after; do
+    for oid in "$before" "$after"; do
+      git cat-file -e "$oid^{commit}" 2>/dev/null || missing+=("$oid")
+    done
+  done <<<"$pushes"
+  git cat-file -e "$base^{commit}" 2>/dev/null || missing+=("$base")
+  if ((${#missing[@]} > 0)) && [[ -e $dir/origin-matches ]]; then
+    mapfile -t missing < <(printf '%s\n' "${missing[@]}" | sort -u)
+    # one unavailable commit fails the whole batch, then go one by one
+    git fetch --quiet --no-tags --no-write-fetch-head origin "${missing[@]}" \
+      2>/dev/null ||
+      for oid in "${missing[@]}"; do have_commit "$dir" "$oid" || true; done
+  fi
+
+  while read -r i before after; do
+    stat=$(push_stat "$before" "$after" "$base") || continue
+    stats+="$i $stat"$'\n'
+  done <<<"$pushes"
+
+  jq --arg stats "$stats" '
+    reduce ( $stats | split("\n")[] | select(length > 0)
+             | split(" ") | map(tonumber) ) as [$i, $f, $a, $d]
+      (.; .entries[$i].stat = { files: $f, additions: $a, deletions: $d })
+    | .entries |= map(select(.kind != "push" or .stat.files != 0))
+  ' "$data" >"$data.stats" || return
+  mv "$data.stats" "$data"
 }
 
 # --- left pane --------------------------------------------------------------
@@ -246,6 +380,9 @@ def lines($k):
   (. // "") | gsub("\r"; "") | split("\n")
   | map(gsub("^\\s+|\\s+$"; "")) | map(select(length > 0)) | .[:$k];
 def count($n; $one; $many): "\($n) \(if $n == 1 then $one else $many end)";
+def stat:
+  ("+\(.additions)" | colour("32")) + " " + ("-\(.deletions)" | colour("31"))
+  + (" " + count(.files; "file"; "files") | colour("2"));
 def review_state:
   { APPROVED: ["✓", "32", "approved"],
     CHANGES_REQUESTED: ["✗", "31", "requested changes"],
@@ -261,14 +398,17 @@ def review_state:
 | ( if $e.kind == "open" then
       [ ("●" | colour("32")) + " \($who) opened", [$e.title] ]
     elif $e.kind == "push" then
-      [ ("⇡" | colour("34")) + " \($who) pushed " + count($e.commits | length; "commit"; "commits"),
-        ( $e.commits
-          | map("\(.short) \(.headline)")
-          | if length > 2 then [.[0], "… and \(length - 1) more"] else . end ) ]
-    elif $e.kind == "force" then
-      [ ("⇄" | colour("35")) + " \($who) force-pushed "
-          + ("\($e.before_short) → \($e.after_short)" | colour("2")),
-        [] ]
+      ($e.commits | length) as $n
+      | [ ( if $e.forced then ("⇄" | colour("35")) + " \($who) force-pushed"
+            else ("⇡" | colour("34")) + " \($who) pushed" end )
+          + (if $n > 0 then " " + count($n; "commit"; "commits") else "" end)
+          + "  " + ( "\($e.before_short) → \($e.after_short)"
+                     + (if $e.pushes > 1 then " (\($e.pushes)×)" else "" end)
+                     | colour("2") )
+          + ($e.stat | if . then "  " + stat else "" end),
+          ( $e.commits
+            | map("\(.short) \(.headline)")
+            | if length > 2 then [.[0], "… and \(length - 1) more"] else . end ) ]
     elif $e.kind == "review" then
       ($e.state | review_state) as [$sym, $c, $verb]
       | [ ($sym | colour($c)) + " \($who) " + ($verb | colour($c)),
@@ -431,8 +571,12 @@ heading() {
       COMMENTED: "reviewed",
       DISMISSED: "review dismissed" } as $states
     | ( if .kind == "open" then "opened the pull request"
-        elif .kind == "push" then "pushed \(plural(.commits | length; "commit"))"
-        elif .kind == "force" then "force-pushed \(.before_short) → \(.after_short)"
+        elif .kind == "push" then
+          (if .forced then "force-pushed" else "pushed" end)
+          + ( .commits | length
+              | if . > 0 then " \(plural(.; "commit"))," else "" end )
+          + " \(.before_short) → \(.after_short)"
+          + (if .pushes > 1 then " in \(.pushes) pushes" else "" end)
         elif .kind == "review" then $states[.state] // (.state | ascii_downcase)
         elif .kind == "group" then
           if .state then $states[.state] // (.state | ascii_downcase) else "commented" end
@@ -487,18 +631,9 @@ render_thread() {
   ' <<<"$entry" | md
 }
 
+# Every push, forced or not, shows as a range-diff from the old head to the
+# new one: rewritten commits as interdiffs, added commits in full.
 render_push() {
-  local dir=$1 entry=$2 parent head
-  jq -r '.commits[] | "\u001b[33m\(.short)\u001b[0m \(.headline)"' <<<"$entry"
-  echo
-  parent=$(jq -r '.commits[0].parent // empty' <<<"$entry")
-  head=$(jq -r '.commits[-1].oid' <<<"$entry")
-  if [[ -n $parent ]]; then
-    diff_range "$dir" "$parent" "$head" | delta_diff
-  fi
-}
-
-render_force() {
   local dir=$1 entry=$2 before after base cache
   before=$(jq -r '.before // empty' <<<"$entry")
   after=$(jq -r '.after // empty' <<<"$entry")
@@ -518,6 +653,8 @@ render_force() {
   else
     dim "(commits not available locally, showing GitHub's three-dot compare)"
     echo
+    jq -r '.commits[] | "\u001b[33m\(.short)\u001b[0m \(.headline)"' <<<"$entry"
+    jq -e '.commits | length > 0' <<<"$entry" >/dev/null && echo
     diff_range "$dir" "$before" "$after" | delta_diff
   fi
 }
@@ -577,7 +714,6 @@ render_body() {
       ;;
     thread) render_thread "$entry" ;;
     push) render_push "$dir" "$entry" ;;
-    force) render_force "$dir" "$entry" ;;
     group) render_group "$dir" "$entry" ;;
   esac
 }
