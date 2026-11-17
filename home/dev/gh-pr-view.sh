@@ -794,25 +794,29 @@ main() {
   ' "$dir/data.json")
 
   # Which pane j/k drive is kept in the preview label: the modal bindings
-  # check it to pick the list or preview action, ctrl-w/tab flip it.
-  local q_self q_dir list_label=' list ' preview_label=' ▶ preview '
+  # check it to pick the list or preview action, ctrl-w/tab flip it. The
+  # label isn't drawn with a line border, the pointer shows the focus.
+  # change-pointer pads the other lines with spaces rather than the gutter
+  # character, so the gutter is blank from the start to match.
+  local q_self q_dir preview_label=' ▶ preview ' list_label=' list '
   printf -v q_self '%q' "$self"
   printf -v q_dir '%q' "$dir"
   local in_preview="[[ \$FZF_PREVIEW_LABEL == '$preview_label' ]]"
   modal() { echo "transform~$in_preview && echo '$2' || echo '$1'~"; }
   local toggle
   toggle=$(modal \
-    "change-preview-label($preview_label)+change-preview-window(border-bold)" \
-    "change-preview-label($list_label)+change-preview-window(border-rounded)")
+    "change-preview-label($preview_label)+change-pointer(▏)" \
+    "change-preview-label($list_label)+change-pointer(▌)")
 
   "$self" --list "$dir" |
     fzf --ansi --read0 --no-input --layout reverse \
       --with-shell 'bash -c' \
       --delimiter $'\t' --with-nth '2..' \
       --gap --highlight-line --pointer '▌' \
+      --gutter ' ' \
       --header "$header" \
       --preview "$q_self --render $q_dir {1}" \
-      --preview-window 'right,60%,wrap,border-rounded' \
+      --preview-window 'right,60%,wrap,border-line' \
       --preview-label "$list_label" \
       --bind 'load:last' \
       --bind "ctrl-w:$toggle" \
