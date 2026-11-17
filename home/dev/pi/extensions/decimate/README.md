@@ -1,0 +1,97 @@
+# pi-decimate
+
+LLM-free context shrinking, meant for sends that hit a **cold prompt cache**
+(where rewriting history costs nothing extra).
+
+Old tool results are replaced via append-only `context_edit` entries — raw
+history is untouched and `/decimate restore` brings content back. v1 never
+omits messages, so tool calls always keep their paired results.
+
+## Pipeline
+
+1. **Heuristics** (`candidates.ts`) score old tool results outside the last
+   `keepRecentTurns` user turns:
+   - `superseded-read` — file re-read later covering the same lines, or
+     modified later (prior 0.85–0.95)
+   - `failed-retry` — error result whose retry (same tool and `path`)
+     succeeded (0.85)
+   - `stale-bulky` — ≥ `bulkyChars` or images, grows with age (0.45–0.8)
+2. **Decision model** (`classify.ts`, optional) — candidates below
+   `autoAcceptPrior` are scored by a pi classifier model: `needed` (bool),
+   `action` (keep/trim/stub), `stubOk` (bool). Verdicts are cached per
+   entry + task-context hash. In **shadow** mode the model scores and is
+   logged, heuristics decide.
+3. **Plan** (`plan.ts`) — stub (one line) or trim (head + tail).
+4. **Apply** — staged, applied in-memory by the `context` hook to the next
+   request, persisted at that turn's `turn_end` together with a `decimate`
+   ledger entry. The ledger entry renders in the transcript as one line
+   (tokens saved, edit count, cache verdict); expand it for the per-edit
+   list. It is never sent to the model.
+
+## Cachemire integration
+
+- **Gate** (`coldness.ts`): reads `globalThis.__piCachemire` (window,
+  `lastRefreshedAt`, compaction/model-switch flags) → `cold` / `warm` /
+  `unknown`. Only trusted in a UI session that owns cachemire's state
+  (`__piCachemireOwner`); otherwise (no cachemire, print/RPC, in-process
+  subagents): Anthropic TTL estimate or >24h idle.
+  - manual: warm refuses (unless `--force`), unknown asks, cold applies
+  - auto: only `cold`
+- **Verification** (`ledger.ts`): the decimated send's billed `cacheRead` is
+  compared with the estimated prefix before the first edit →
+  `cold-confirmed` / `was-warm` / `inconclusive`.
+- **Usefulness** (`/decimate stats`), derived from the branch: cold-send
+  saving, cache-read savings on later calls, classifier cost, regret (later
+  re-reads / identical re-runs of decimated results, restores), and
+  classifier-vs-heuristic disagreement on regretted edits.
+
+Note: cachemire will label the decimated send a `history rewritten` miss; on a
+cold send the real cause is the TTL. A cachemire patch recognising decimation
+is a possible follow-up.
+
+## Auto mode
+
+`/decimate auto on`: decimates on the first send of a run when the cache is
+cold, on cold resume (plan precomputed at `session_start`), and precomputes a
+plan when the cache clock predicts expiry (`precompute`). Inline
+classification on an auto send is capped at `classifier.autoTimeoutMs`.
+
+## Commands
+
+`/decimate [apply] [--force]` · `preview` · `cancel` · `status` · `stats` ·
+`restore [last|all]` · `auto [on|off]` · `shadow [on|off]`
+
+## Config: `<agentDir>/extensions/decimate/config.json` (global only)
+
+Set via `programs.pi.extensionSettings.decimate` in Nix.
+
+```json
+{
+  "auto": false,
+  "shadow": true,
+  "keepRecentTurns": 2,
+  "minGainTokens": 8000,
+  "minChars": 400,
+  "bulkyChars": 4000,
+  "heuristicThreshold": 0.6,
+  "precompute": true,
+  "classifier": {
+    "provider": "typesafe",
+    "id": "jev-latest",
+    "timeoutMs": 20000,
+    "autoTimeoutMs": 4000,
+    "maxCandidates": 40,
+    "tauKeep": 0.6,
+    "tauStub": 0.6,
+    "autoAcceptPrior": 0.9
+  }
+}
+```
+
+The extension never writes the config file, so it can be read-only (e.g.
+Nix-managed). `auto`/`shadow` there are only defaults.
+
+## State: `$XDG_STATE_HOME/pi/decimate/state.json`
+
+Written by `/decimate auto|shadow on|off`; its toggles override the config
+defaults. Delete it to fall back to the config.

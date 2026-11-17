@@ -150,6 +150,9 @@ in
         "${extensions}/current-date/index.ts"
         "${extensions}/continue-turn/index.ts"
         "${extensions}/codemode-guidance/index.ts"
+        # Cold-cache context decimation (`/decimate`); gated on pi-cachemire's
+        # cache clock. Config: `extensionSettings.decimate` below.
+        "${extensions}/decimate/index.ts"
         # Diagnostic: logs a line-level diff whenever the wire system prompt
         # changes between provider requests (see pi-cachemire's
         # `cause: system prompt changed`). Drop once the churn is found.
@@ -251,6 +254,15 @@ in
 
     extensionSettings.cli-tools = {
       inherit tarCacheDir;
+    };
+
+    # pi-decimate (extensions/decimate/README.md). Read-only to the
+    # extension: `/decimate auto|shadow` toggles live in its state file
+    # ($XDG_STATE_HOME/pi/decimate/state.json) and override these defaults.
+    extensionSettings.decimate = {
+      auto = false;
+      shadow = true;
+      precompute = true;
     };
 
     extensionSettings.web-fetch = {
