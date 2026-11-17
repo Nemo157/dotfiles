@@ -78,8 +78,10 @@ plan when the cache clock predicts expiry (`precompute`). Inline
 classification on an auto send is capped at `classifier.autoTimeoutMs`.
 
 An auto plan saving less than `minGainTokens` is not staged. Its gain shows
-in the status bar (`✂ auto (−3k < 8k)`) until the next run, and a `skipped`
-ledger entry records it for `/decimate stats` (count, classifier spend).
+in the status bar (`✂ auto (−3k < 8k)`, or `✂ auto (nothing eligible)` when
+no result qualified) until the next run, and a `skipped` ledger entry
+records it for `/decimate stats` (count, classifier spend) unless it had
+neither edits nor classifier calls.
 Skipped entries render in the transcript only when they cost classifier
 calls, and never close an open staged plan. While a `skipped` entry is still
 the branch's latest plan-relevant entry (only usage, labels, session info,

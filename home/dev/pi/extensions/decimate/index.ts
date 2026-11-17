@@ -101,7 +101,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   let openStageId: string | undefined;
   /** Drops and skips decided mid-run, persisted at the next boundary. */
   let pendingRecords: Array<DroppedRecord | SkippedRecord> = [];
-  /** Gain of the last auto plan skipped as too small; shown until next run. */
+  /**
+   * Gain of the last auto plan skipped as too small (0: nothing eligible);
+   * shown until the next run.
+   */
   let skippedGain: number | undefined;
   let firstSendOfRun = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -129,9 +132,11 @@ export default function decimateExtension(pi: ExtensionAPI): void {
         ? `✂ staged −${kTokens(staged.plan?.savedTokens ?? 0)}`
         : cfg.auto
           ? `✂ auto${cfg.shadow && cfg.classifier ? " (shadow)" : ""}` +
-            (skippedGain !== undefined
-              ? ` (−${kTokens(skippedGain)} < ${kTokens(cfg.minGainTokens)})`
-              : "")
+            (skippedGain === 0
+              ? " (nothing eligible)"
+              : skippedGain !== undefined
+                ? ` (−${kTokens(skippedGain)} < ${kTokens(cfg.minGainTokens)})`
+                : "")
           : undefined;
     ctx.ui.setStatus(STATUS_KEY, text);
   }
@@ -237,8 +242,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
 
   /**
    * Note an auto plan that saved too little: the status bar shows its gain
-   * until the next run, and a `skipped` record keeps it (and any classifier
-   * spend) in `/decimate stats`. Mid-run records wait for the next boundary.
+   * (or that nothing was eligible) until the next run, and a `skipped` record
+   * keeps it (and any classifier spend) in `/decimate stats`. Plans with
+   * neither edits nor classifier calls aren't recorded. Mid-run records wait
+   * for the next boundary.
    */
   function skipPlan(
     ctx: ExtensionContext,
@@ -246,8 +253,11 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     source: StageSource,
     midRun: boolean,
   ): void {
-    if (plan.edits.length === 0 && !plan.classifier?.calls) return;
-    if (plan.edits.length > 0) skippedGain = plan.savedTokens;
+    skippedGain = plan.edits.length > 0 ? plan.savedTokens : 0;
+    if (plan.edits.length === 0 && !plan.classifier?.calls) {
+      updateStatus(ctx);
+      return;
+    }
     const rec = skippedFromPlan(plan, source, cfg.minGainTokens);
     if (midRun) pendingRecords.push(rec);
     else pi.appendEntry(CUSTOM_TYPE, rec);
@@ -263,7 +273,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     const s = standingSkip(ctx.sessionManager.getBranch());
     if (!s || s.savedTokens >= cfg.minGainTokens || s.shadow !== cfg.shadow)
       return false;
-    if (s.decisions.length > 0 && skippedGain === undefined) {
+    if (skippedGain === undefined) {
       skippedGain = s.savedTokens;
       updateStatus(ctx);
     }
