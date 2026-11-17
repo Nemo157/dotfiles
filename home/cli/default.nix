@@ -4,6 +4,7 @@
     ./bat
     ./bs32uuid
     ./dircolors.nix
+    ./fzf.nix
     ./gpg.nix
     ./lsd.nix
     ./nvim
