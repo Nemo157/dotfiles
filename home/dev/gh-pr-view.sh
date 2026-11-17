@@ -562,10 +562,10 @@ render_group() {
 render_body() {
   local dir=$1 entry=$2 shown=${3:-[]}
   case $(jq -r .kind <<<"$entry") in
-  open) jq -r '"# \(.title)\n\n\(.body // "")"' <<<"$entry" | md ;;
-  comment) jq -r '.body // ""' <<<"$entry" | md ;;
-  review)
-    jq -r --argjson shown "$shown" '
+    open) jq -r '"# \(.title)\n\n\(.body // "")"' <<<"$entry" | md ;;
+    comment) jq -r '.body // ""' <<<"$entry" | md ;;
+    review)
+      jq -r --argjson shown "$shown" '
       (.body // "") as $body
       | (.threads - $shown) as $threads
       | $body
@@ -574,11 +574,11 @@ render_body() {
               + "**Threads:**\n\n" + ($threads | map("- `\(.)`") | join("\n"))
             else "" end )
     ' <<<"$entry" | md
-    ;;
-  thread) render_thread "$entry" ;;
-  push) render_push "$dir" "$entry" ;;
-  force) render_force "$dir" "$entry" ;;
-  group) render_group "$dir" "$entry" ;;
+      ;;
+    thread) render_thread "$entry" ;;
+    push) render_push "$dir" "$entry" ;;
+    force) render_force "$dir" "$entry" ;;
+    group) render_group "$dir" "$entry" ;;
   esac
 }
 
@@ -696,14 +696,14 @@ main() {
 }
 
 case "${1:-}" in
---list) list "$2" ;;
---render) render "$2" "$3" ;;
---refresh)
-  # on failure keep showing the previous data rather than an empty list
-  fetch "$2" || true
-  list "$2"
-  ;;
---open) open_entry "$2" "$3" ;;
--h | --help) usage ;;
-*) main "$@" ;;
+  --list) list "$2" ;;
+  --render) render "$2" "$3" ;;
+  --refresh)
+    # on failure keep showing the previous data rather than an empty list
+    fetch "$2" || true
+    list "$2"
+    ;;
+  --open) open_entry "$2" "$3" ;;
+  -h | --help) usage ;;
+  *) main "$@" ;;
 esac
