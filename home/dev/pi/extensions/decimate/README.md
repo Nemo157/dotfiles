@@ -28,6 +28,20 @@ omits messages, so tool calls always keep their paired results.
    (tokens saved, edit count, cache verdict); expand it for the per-edit
    list. It is never sent to the model.
 
+## Staging records
+
+Staging is persisted immediately as a `staged` ledger entry (the full plan,
+or for restores the decimations to undo). The session is append-only, so a
+staged plan stays open only while it is the branch's latest `decimate`
+entry; the next one closes it: the `applied`/`restored` record of its send,
+a `dropped` record (`/decimate cancel`, cache warm at send time, targets no
+longer in context), or a newer `staged` plan replacing it (`supersedes`).
+Only the open staged entry renders in the transcript; closed ones and drops
+are hidden. When a branch is loaded (startup, resume, `/tree`) its open
+staged plan is re-staged, so closing the session before the next prompt
+doesn't lose it; in auto mode this also stops each resume recording a new
+plan. Staging, `restore` and `cancel` require an idle agent.
+
 ## Cachemire integration
 
 - **Gate** (`coldness.ts`): reads `globalThis.__piCachemire` (window,

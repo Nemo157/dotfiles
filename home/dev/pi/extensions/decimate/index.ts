@@ -15,7 +15,10 @@
 // Applying: edits can only be persisted at an actionable boundary, so a plan is
 // *staged*, applied in-memory by the `context` hook to the next request, and
 // persisted by that turn's `turn_end` — the sent context and the persisted
-// projection match, and the next call reads it from cache.
+// projection match, and the next call reads it from cache. Staging itself is
+// recorded right away as a `staged` ledger entry (closed by whatever ledger
+// entry follows it, see ledger.ts), so a staged plan survives a restart and is
+// re-staged when its branch is loaded again.
 //
 // Config: <agentDir>/extensions/decimate/config.json (read-only here); toggle state:
 // $XDG_STATE_HOME/pi/decimate/state.json (see README.md).
@@ -47,11 +50,15 @@ import {
   buildReport,
   CUSTOM_TYPE,
   judgeOutcome,
+  openStaged,
   recordDetails,
   recordFromPlan,
   recordSummary,
   renderReport,
+  restoreEdits,
+  type DroppedRecord,
   type LedgerRecord,
+  type StagedRecord,
   type StageSource,
 } from "./ledger";
 import {
@@ -65,6 +72,8 @@ import {
 } from "./plan";
 
 interface Staged {
+  /** Plan id (`planId` of its ledger records); restores get an `r…` id. */
+  id: string;
   source: StageSource;
   force: boolean;
   edits: Edit[];
@@ -84,6 +93,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   let cfg: DecimateConfig = loadConfig();
   let staged: Staged | undefined;
   let inflight: Inflight | undefined;
+  /** planId of the branch's open `staged` entry (the only one rendered). */
+  let openStageId: string | undefined;
+  /** Drops decided mid-run, persisted at the next boundary. */
+  let pendingDrops: DroppedRecord[] = [];
   let firstSendOfRun = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let classifierMissingWarned = false;
@@ -167,22 +180,121 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     });
   }
 
+  /**
+   * Stage `next` and record it at once. Only call while idle: the record is
+   * closed by the next ledger entry, which must belong to this plan's send.
+   */
+  function stage(ctx: ExtensionContext, next: Staged, savedTokens: number) {
+    const record: StagedRecord = {
+      kind: "staged",
+      planId: next.id,
+      source: next.source,
+      force: next.force,
+      supersedes: openStageId,
+      savedTokens,
+      edits: next.edits.length,
+      plan: next.plan,
+      restorePlanIds: next.restorePlanIds,
+    };
+    staged = next;
+    // Set before appending: the renderer runs on append.
+    openStageId = next.id;
+    pi.appendEntry(CUSTOM_TYPE, record);
+    updateStatus(ctx);
+  }
+
   function stagePlan(
     ctx: ExtensionContext,
     plan: Plan,
     source: StageSource,
     force = false,
   ): void {
-    staged = { source, force, edits: plan.edits, plan };
+    stage(
+      ctx,
+      { id: plan.id, source, force, edits: plan.edits, plan },
+      plan.savedTokens,
+    );
+  }
+
+  /** Drop the staged plan now (idle only; mid-run use `pendingDrops`). */
+  function dropStaged(ctx: ExtensionContext, reason: string): void {
+    const s = staged;
+    staged = undefined;
+    if (s && s.id === openStageId) {
+      openStageId = undefined;
+      pi.appendEntry(CUSTOM_TYPE, {
+        kind: "dropped",
+        planId: s.id,
+        reason,
+      } satisfies DroppedRecord);
+    }
     updateStatus(ctx);
+  }
+
+  /** Mid-run drop of a recorded plan, persisted at the next boundary. */
+  function queueDrop(id: string, reason: string): void {
+    if (id !== openStageId) return;
+    openStageId = undefined;
+    pendingDrops.push({ kind: "dropped", planId: id, reason });
+  }
+
+  function takeDrops(): SessionBoundaryDraft[] {
+    const drafts = pendingDrops.map(
+      (data): SessionBoundaryDraft => ({
+        type: "custom",
+        customType: CUSTOM_TYPE,
+        data,
+      }),
+    );
+    pendingDrops = [];
+    return drafts;
   }
 
   function reset(ctx: ExtensionContext): void {
     staged = undefined;
     inflight = undefined;
+    openStageId = undefined;
+    pendingDrops = [];
     firstSendOfRun = false;
     clearTimer();
     updateStatus(ctx);
+  }
+
+  /**
+   * Re-stage the branch's open `staged` entry, e.g. one staged before the
+   * session was closed. Returns whether a plan is staged afterwards.
+   */
+  function resumeStaged(ctx: ExtensionContext): boolean {
+    const branch = ctx.sessionManager.getBranch();
+    const rec = openStaged(branch);
+    openStageId = rec?.planId;
+    if (!rec) return false;
+    const edits =
+      rec.source === "restore"
+        ? restoreEdits(branch, rec.restorePlanIds ?? [], (id) =>
+            ctx.sessionManager.getEntry(id),
+          )
+        : (rec.plan?.edits ?? []);
+    staged = {
+      id: rec.planId,
+      source: rec.source,
+      force: rec.force,
+      edits,
+      plan: rec.plan,
+      restorePlanIds: rec.restorePlanIds,
+    };
+    if (edits.length === 0) {
+      dropStaged(ctx, "nothing left to apply");
+      return false;
+    }
+    updateStatus(ctx);
+    if (ctx.hasUI)
+      ctx.ui.notify(
+        `${recordSummary(rec)} — re-staged from earlier` +
+          " (/decimate cancel to drop)",
+        "info",
+      );
+    return true;
   }
 
   // --- lifecycle ------------------------------------------------------------------
@@ -190,12 +302,14 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   pi.on("session_start", async (event, ctx) => {
     cfg = loadConfig();
     reset(ctx);
+    if (resumeStaged(ctx)) return;
     // Cold resume: build the plan in the background; the send still checks coldness.
     if (cfg.auto && (event.reason === "resume" || event.reason === "startup")) {
       void makePlan(ctx).then((plan) => {
         if (
           !staged &&
           !inflight &&
+          ctx.isIdle() &&
           plan.edits.length > 0 &&
           plan.savedTokens >= cfg.minGainTokens
         ) {
@@ -205,7 +319,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     }
   });
 
-  pi.on("session_tree", async (_event, ctx) => reset(ctx));
+  pi.on("session_tree", async (_event, ctx) => {
+    reset(ctx);
+    resumeStaged(ctx);
+  });
   pi.on("session_shutdown", async () => {
     clearTimer();
     staged = inflight = undefined;
@@ -257,11 +374,13 @@ export default function decimateExtension(pi: ExtensionAPI): void {
         (s.source === "manual" ? c.state !== "warm" : c.state === "cold");
       if (ok) {
         inflight = { ...s, coldness: c, applied: [] };
-      } else if (ctx.hasUI) {
-        ctx.ui.notify(
-          `decimate: staged plan dropped — cache is ${c.state} (${c.reason})`,
-          "info",
-        );
+      } else {
+        queueDrop(s.id, `cache ${c.state}: ${c.reason}`);
+        if (ctx.hasUI)
+          ctx.ui.notify(
+            `decimate: staged plan dropped — cache is ${c.state} (${c.reason})`,
+            "info",
+          );
       }
       updateStatus(ctx);
     } else if (!inflight && cfg.auto && first) {
@@ -270,6 +389,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
         const plan = await makePlan(ctx, cfg.classifier?.autoTimeoutMs);
         if (plan.edits.length > 0 && plan.savedTokens >= cfg.minGainTokens) {
           inflight = {
+            id: plan.id,
             source: "auto",
             force: false,
             edits: plan.edits,
@@ -295,6 +415,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       return { ...m, content: edit.content } as typeof m;
     });
     if (applied.length === 0) {
+      queueDrop(inflight.id, "no target results left in context");
       inflight = undefined;
       return;
     }
@@ -303,21 +424,38 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     return { messages };
   });
 
+  pi.on("agent_before_settle", async (event) => {
+    const drops = takeDrops();
+    if (drops.length === 0) return;
+    return { entries: [...event.entries, ...drops] };
+  });
+
   pi.on("turn_end", async (event, ctx) => {
-    if (!inflight) return;
+    const drops = takeDrops();
+    if (!inflight) {
+      if (drops.length === 0) return;
+      return { entries: [...event.entries, ...drops] };
+    }
     const s = inflight;
     inflight = undefined;
+    if (s.id === openStageId) openStageId = undefined;
 
-    const drafts: SessionBoundaryDraft[] = s.applied.map((e) => ({
-      type: "context_edit",
-      targetId: e.entryId,
-      replacement: { content: e.content },
-    }));
+    const drafts: SessionBoundaryDraft[] = [
+      ...drops,
+      ...s.applied.map(
+        (e): SessionBoundaryDraft => ({
+          type: "context_edit",
+          targetId: e.entryId,
+          replacement: { content: e.content },
+        }),
+      ),
+    ];
 
     let data: LedgerRecord;
     if (s.source === "restore") {
       data = {
         kind: "restored",
+        stageId: s.id,
         planIds: s.restorePlanIds ?? [],
         entryIds: s.applied.map((e) => e.entryId),
       };
@@ -386,8 +524,15 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   // One line where the decimation happened; the per-edit list when expanded.
   pi.registerEntryRenderer<LedgerRecord>(CUSTOM_TYPE, (entry, opts, theme) => {
     const rec = entry.data;
-    if (!rec || (rec.kind !== "applied" && rec.kind !== "restored"))
-      return undefined;
+    if (!rec) return undefined;
+    // Closed staged plans and drops are bookkeeping; the open staged plan and
+    // what actually applied are what the transcript shows. A staged entry that
+    // closes while on screen disappears on the next re-render.
+    const shown =
+      rec.kind === "applied" ||
+      rec.kind === "restored" ||
+      (rec.kind === "staged" && rec.planId === openStageId);
+    if (!shown) return undefined;
     const warm = rec.kind === "applied" && rec.outcome?.verdict === "was-warm";
     const [label, ...rest] = recordSummary(rec).split(": ");
     let text =
@@ -446,6 +591,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   }
 
   function restore(ctx: ExtensionCommandContext, which: string): void {
+    if (!ctx.isIdle()) {
+      ctx.ui.notify("decimate: wait until the agent is idle", "warning");
+      return;
+    }
     const branch = ctx.sessionManager.getBranch();
     const restored = new Set<string>();
     for (const e of branch) {
@@ -463,30 +612,10 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       ctx.ui.notify("decimate: nothing to restore on this branch", "info");
       return;
     }
-    const edits: Edit[] = [];
-    for (const { rec } of targets) {
-      for (const d of rec.decisions) {
-        if (d.action === "keep") continue;
-        const entry = ctx.sessionManager.getEntry(d.entryId);
-        if (entry?.type !== "message") continue;
-        const m = entry.message as {
-          role?: string;
-          toolCallId?: string;
-          content?: unknown;
-        };
-        if (
-          m.role !== "toolResult" ||
-          !m.toolCallId ||
-          !Array.isArray(m.content)
-        )
-          continue;
-        edits.push({
-          entryId: d.entryId,
-          toolCallId: m.toolCallId,
-          content: m.content as Edit["content"],
-        });
-      }
-    }
+    const planIds = targets.map((t) => t.rec.planId);
+    const edits = restoreEdits(branch, planIds, (id) =>
+      ctx.sessionManager.getEntry(id),
+    );
     if (edits.length === 0) {
       // Staging nothing would be dropped silently by the context hook, with no
       // `restored` record, leaving the decimation looking open.
@@ -497,13 +626,17 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       );
       return;
     }
-    staged = {
-      source: "restore",
-      force: true,
-      edits,
-      restorePlanIds: targets.map((t) => t.rec.planId),
-    };
-    updateStatus(ctx);
+    stage(
+      ctx,
+      {
+        id: `r${Date.now().toString(36)}`,
+        source: "restore",
+        force: true,
+        edits,
+        restorePlanIds: planIds,
+      },
+      0,
+    );
     ctx.ui.notify(
       `decimate: restore of ${edits.length} result(s) from ${targets.length} decimation(s) staged for your next prompt` +
         " (this rewrites history: the next send re-writes the cache from the first restored result)",
@@ -563,8 +696,15 @@ export default function decimateExtension(pi: ExtensionAPI): void {
           return;
         }
         case "cancel":
-          staged = undefined;
-          updateStatus(ctx);
+          if (!staged) {
+            ctx.ui.notify("decimate: nothing staged", "info");
+            return;
+          }
+          if (!ctx.isIdle()) {
+            ctx.ui.notify("decimate: wait until the agent is idle", "warning");
+            return;
+          }
+          dropStaged(ctx, "cancelled");
           ctx.ui.notify("decimate: staged plan dropped", "info");
           return;
         case "status": {
@@ -574,7 +714,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
               `cache ${c.state}: ${c.reason} (${c.source})`,
               `auto ${cfg.auto ? "on" : "off"} · shadow ${cfg.shadow ? "on" : "off"} · classifier ${cfg.classifier ? `${cfg.classifier.provider}/${cfg.classifier.id}` : "none"}`,
               staged
-                ? `staged (${staged.source}): ${staged.edits.length} edit(s)`
+                ? `staged ${staged.id} (${staged.source}): ${staged.edits.length} edit(s)`
                 : "nothing staged",
               `config: ${configPath()} · state: ${statePath()}`,
             ].join("\n"),

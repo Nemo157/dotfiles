@@ -3,7 +3,14 @@
 //
 // Everything after the record is derived on demand from the branch itself —
 // later billed calls (payback), later tool calls (regret) and restores — so
-// nothing but the apply record needs persisting.
+// nothing but the apply record needs persisting for the report.
+//
+// Staging is recorded too (`staged`), so a plan survives closing the session
+// before it applies. The session is append-only, so a staged plan is closed
+// positionally: it is open only while it is the branch's latest ledger entry.
+// Whatever comes next — the `applied`/`restored` record of its send, a
+// `dropped` record (cancelled, cache warm at send time, targets gone) or a
+// newer `staged` plan replacing it — closes it.
 
 import type {
   ExtensionContext,
@@ -12,7 +19,7 @@ import type {
 import { summarizeArgs } from "./candidates";
 import type { ClassifyUsage } from "./classify";
 import type { Coldness } from "./coldness";
-import { kTokens, type Action, type Plan } from "./plan";
+import { kTokens, type Action, type Edit, type Plan } from "./plan";
 
 export const CUSTOM_TYPE = "decimate";
 
@@ -63,11 +70,39 @@ export interface AppliedRecord {
 
 export interface RestoredRecord {
   kind: "restored";
+  /** The staged restore this record closes (absent in older records). */
+  stageId?: string;
   planIds: string[];
   entryIds: string[];
 }
 
-export type LedgerRecord = AppliedRecord | RestoredRecord;
+export interface StagedRecord {
+  kind: "staged";
+  /** The plan's id; restores get their own `r…` id. */
+  planId: string;
+  source: StageSource;
+  force: boolean;
+  /** Open staged plan this one replaced (informational: closing is positional). */
+  supersedes?: string;
+  savedTokens: number;
+  edits: number;
+  /** Decimations: the full plan, so a later session can re-stage it. */
+  plan?: Plan;
+  /** Restores: the decimations to undo; edits are rebuilt from the branch. */
+  restorePlanIds?: string[];
+}
+
+export interface DroppedRecord {
+  kind: "dropped";
+  planId: string;
+  reason: string;
+}
+
+export type LedgerRecord =
+  | AppliedRecord
+  | RestoredRecord
+  | StagedRecord
+  | DroppedRecord;
 export type StageSource = "manual" | "auto" | "resume" | "restore";
 
 export function recordFromPlan(
@@ -162,6 +197,14 @@ export function judgeOutcome(
 export function recordSummary(rec: LedgerRecord): string {
   if (rec.kind === "restored")
     return `decimate: restored ${rec.entryIds.length} result(s)`;
+  if (rec.kind === "dropped")
+    return `decimate: dropped staged plan ${rec.planId} (${rec.reason})`;
+  if (rec.kind === "staged")
+    return rec.source === "restore"
+      ? `decimate staged (restore): ${rec.edits} result(s)` +
+          ` from ${rec.restorePlanIds?.length ?? 0} decimation(s)`
+      : `decimate staged (${rec.source}): −${kTokens(rec.savedTokens)}` +
+          ` via ${rec.edits} edit(s) · applies to the next prompt`;
   const edits = rec.decisions.filter((d) => d.action !== "keep").length;
   const o = rec.outcome;
   return (
@@ -179,6 +222,17 @@ export function recordSummary(rec: LedgerRecord): string {
 export function recordDetails(rec: LedgerRecord): string[] {
   if (rec.kind === "restored")
     return [`from ${rec.planIds.length} decimation(s)`];
+  if (rec.kind === "dropped") return [];
+  if (rec.kind === "staged") {
+    if (!rec.plan) return rec.restorePlanIds ?? [];
+    return rec.plan.decisions
+      .filter((d) => d.action !== "keep")
+      .map(
+        (d) =>
+          `${d.action} ${d.toolName} ${d.path ?? d.argsSummary.slice(0, 60)}` +
+          ` −${kTokens(d.savedTokens)} (prior ${d.prior.toFixed(2)})`,
+      );
+  }
   const lines = rec.decisions
     .filter((d) => d.action !== "keep")
     .map(
@@ -205,6 +259,55 @@ function ledgerRecord(entry: SessionEntry): LedgerRecord | undefined {
   return data && (data.kind === "applied" || data.kind === "restored")
     ? (data as LedgerRecord)
     : undefined;
+}
+
+/**
+ * The open staged plan on `branch`: the latest ledger entry, if it is a
+ * `staged` one (see the header comment).
+ */
+export function openStaged(branch: SessionEntry[]): StagedRecord | undefined {
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "custom" || entry.customType !== CUSTOM_TYPE) continue;
+    const data = entry.data as LedgerRecord | undefined;
+    if (!data || typeof data !== "object") continue;
+    return data.kind === "staged" ? data : undefined;
+  }
+  return undefined;
+}
+
+/**
+ * Restore edits putting back the original results decimated by `planIds`
+ * (the source entries are untouched in raw history).
+ */
+export function restoreEdits(
+  branch: SessionEntry[],
+  planIds: string[],
+  getEntry: (id: string) => SessionEntry | undefined,
+): Edit[] {
+  const wanted = new Set(planIds);
+  const edits: Edit[] = [];
+  for (const { rec } of appliedRecords(branch)) {
+    if (!wanted.has(rec.planId)) continue;
+    for (const d of rec.decisions) {
+      if (d.action === "keep") continue;
+      const entry = getEntry(d.entryId);
+      if (entry?.type !== "message") continue;
+      const m = entry.message as {
+        role?: string;
+        toolCallId?: string;
+        content?: unknown;
+      };
+      if (m.role !== "toolResult" || !m.toolCallId || !Array.isArray(m.content))
+        continue;
+      edits.push({
+        entryId: d.entryId,
+        toolCallId: m.toolCallId,
+        content: m.content as Edit["content"],
+      });
+    }
+  }
+  return edits;
 }
 
 export function appliedRecords(
