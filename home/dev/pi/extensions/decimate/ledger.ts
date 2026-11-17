@@ -10,7 +10,9 @@
 // positionally: it is open only while it is the branch's latest ledger entry.
 // Whatever comes next — the `applied`/`restored` record of its send, a
 // `dropped` record (cancelled, cache warm at send time, targets gone) or a
-// newer `staged` plan replacing it — closes it.
+// newer `staged` plan replacing it — closes it. `skipped` records (auto plans
+// that saved less than `minGainTokens`) never stage anything, so they are
+// ignored when finding the open staged plan.
 
 import type {
   ExtensionContext,
@@ -98,12 +100,61 @@ export interface DroppedRecord {
   reason: string;
 }
 
+/** An auto plan discarded for saving less than `minGainTokens`. */
+export interface SkippedRecord {
+  kind: "skipped";
+  planId: string;
+  source: StageSource;
+  savedTokens: number;
+  minGainTokens: number;
+  /** Config the plan was made under; a change warrants a new plan. */
+  shadow: boolean;
+  /** The plan's edits (`keep` decisions are left out). */
+  decisions: RecordedDecision[];
+  classifier?: ClassifyUsage;
+}
+
 export type LedgerRecord =
   | AppliedRecord
   | RestoredRecord
   | StagedRecord
-  | DroppedRecord;
+  | DroppedRecord
+  | SkippedRecord;
 export type StageSource = "manual" | "auto" | "resume" | "restore";
+
+function recordDecision(d: Plan["decisions"][number]): RecordedDecision {
+  return {
+    entryId: d.entryId,
+    toolName: d.toolName,
+    path: d.path,
+    argsSummary: d.argsSummary,
+    prior: d.prior,
+    heuristicAction: d.heuristicAction,
+    action: d.action,
+    savedTokens: d.savedTokens,
+    pNeeded: d.verdict ? Number(d.verdict.pNeeded.toFixed(3)) : undefined,
+    modelAction: d.verdict?.action,
+  };
+}
+
+export function skippedFromPlan(
+  plan: Plan,
+  source: StageSource,
+  minGainTokens: number,
+): SkippedRecord {
+  return {
+    kind: "skipped",
+    planId: plan.id,
+    source,
+    savedTokens: plan.savedTokens,
+    minGainTokens,
+    shadow: plan.shadow,
+    decisions: plan.decisions
+      .filter((d) => d.action !== "keep")
+      .map(recordDecision),
+    classifier: plan.classifier,
+  };
+}
 
 export function recordFromPlan(
   plan: Plan,
@@ -121,18 +172,7 @@ export function recordFromPlan(
     prefixTokens: plan.prefixTokens,
     systemTokens,
     classifier: plan.classifier,
-    decisions: plan.decisions.map((d) => ({
-      entryId: d.entryId,
-      toolName: d.toolName,
-      path: d.path,
-      argsSummary: d.argsSummary,
-      prior: d.prior,
-      heuristicAction: d.heuristicAction,
-      action: d.action,
-      savedTokens: d.savedTokens,
-      pNeeded: d.verdict ? Number(d.verdict.pNeeded.toFixed(3)) : undefined,
-      modelAction: d.verdict?.action,
-    })),
+    decisions: plan.decisions.map(recordDecision),
   };
 }
 
@@ -199,6 +239,15 @@ export function recordSummary(rec: LedgerRecord): string {
     return `decimate: restored ${rec.entryIds.length} result(s)`;
   if (rec.kind === "dropped")
     return `decimate: dropped staged plan ${rec.planId} (${rec.reason})`;
+  if (rec.kind === "skipped")
+    return (
+      `decimate skipped (${rec.source}): −${kTokens(rec.savedTokens)}` +
+      ` via ${rec.decisions.length} edit(s), below the` +
+      ` ${kTokens(rec.minGainTokens)} minimum` +
+      (rec.classifier
+        ? ` · classifier $${rec.classifier.costUsd.toFixed(4)}`
+        : "")
+    );
   if (rec.kind === "staged")
     return rec.source === "restore"
       ? `decimate staged (restore): ${rec.edits} result(s)` +
@@ -256,7 +305,10 @@ function ledgerRecord(entry: SessionEntry): LedgerRecord | undefined {
   if (entry.type !== "custom" || entry.customType !== CUSTOM_TYPE)
     return undefined;
   const data = entry.data as { kind?: unknown } | undefined;
-  return data && (data.kind === "applied" || data.kind === "restored")
+  return data &&
+    (data.kind === "applied" ||
+      data.kind === "restored" ||
+      data.kind === "skipped")
     ? (data as LedgerRecord)
     : undefined;
 }
@@ -270,7 +322,7 @@ export function openStaged(branch: SessionEntry[]): StagedRecord | undefined {
     const entry = branch[i];
     if (entry.type !== "custom" || entry.customType !== CUSTOM_TYPE) continue;
     const data = entry.data as LedgerRecord | undefined;
-    if (!data || typeof data !== "object") continue;
+    if (!data || typeof data !== "object" || data.kind === "skipped") continue;
     return data.kind === "staged" ? data : undefined;
   }
   return undefined;
@@ -318,6 +370,43 @@ export function appliedRecords(
     const rec = ledgerRecord(entry);
     if (rec?.kind === "applied") out.push({ index, rec });
   });
+  return out;
+}
+
+/** Entries that never change what the model (or a plan) sees. */
+const STATE_ONLY = new Set<SessionEntry["type"]>([
+  "usage",
+  "label",
+  "session_info",
+  "thinking_level_change",
+  "model_change",
+]);
+
+/**
+ * The branch's `skipped` record if nothing a plan depends on was appended
+ * after it, i.e. re-planning now would only reproduce it.
+ */
+export function standingSkip(
+  branch: SessionEntry[],
+): SkippedRecord | undefined {
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type === "custom") {
+      if (entry.customType !== CUSTOM_TYPE) continue;
+      const data = entry.data as LedgerRecord | undefined;
+      return data?.kind === "skipped" ? data : undefined;
+    }
+    if (!STATE_ONLY.has(entry.type)) return undefined;
+  }
+  return undefined;
+}
+
+export function skippedRecords(branch: SessionEntry[]): SkippedRecord[] {
+  const out: SkippedRecord[] = [];
+  for (const entry of branch) {
+    const rec = ledgerRecord(entry);
+    if (rec?.kind === "skipped") out.push(rec);
+  }
   return out;
 }
 
@@ -425,8 +514,12 @@ export function buildReport(ctx: ExtensionContext): RecordReport[] {
   });
 }
 
-export function renderReport(reports: RecordReport[]): string[] {
-  if (reports.length === 0) return ["no decimations on this branch"];
+export function renderReport(
+  reports: RecordReport[],
+  skipped: SkippedRecord[] = [],
+): string[] {
+  if (reports.length === 0 && skipped.length === 0)
+    return ["no decimations on this branch"];
   const lines: string[] = [];
   let totalSaved = 0;
   let totalCost = 0;
@@ -469,6 +562,15 @@ export function renderReport(reports: RecordReport[]): string[] {
     );
   }
 
+  if (skipped.length > 0) {
+    const cost = skipped.reduce((n, s) => n + (s.classifier?.costUsd ?? 0), 0);
+    const largest = Math.max(...skipped.map((s) => s.savedTokens));
+    totalCost += cost;
+    lines.push(
+      `skipped: ${skipped.length} auto plan(s) below the minimum gain` +
+        ` (largest −${kTokens(largest)}) · classifier $${cost.toFixed(4)}`,
+    );
+  }
   lines.push(
     `total: ${reports.length} decimation(s) · ${totalEdits} edit(s) · regret ${totalRegrets}/${totalEdits}` +
       ` · saved $${totalSaved.toFixed(4)} − classifier $${totalCost.toFixed(4)}`,

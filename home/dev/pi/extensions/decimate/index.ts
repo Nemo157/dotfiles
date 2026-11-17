@@ -56,8 +56,12 @@ import {
   recordSummary,
   renderReport,
   restoreEdits,
+  skippedFromPlan,
+  skippedRecords,
+  standingSkip,
   type DroppedRecord,
   type LedgerRecord,
+  type SkippedRecord,
   type StagedRecord,
   type StageSource,
 } from "./ledger";
@@ -95,11 +99,15 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   let inflight: Inflight | undefined;
   /** planId of the branch's open `staged` entry (the only one rendered). */
   let openStageId: string | undefined;
-  /** Drops decided mid-run, persisted at the next boundary. */
-  let pendingDrops: DroppedRecord[] = [];
+  /** Drops and skips decided mid-run, persisted at the next boundary. */
+  let pendingRecords: Array<DroppedRecord | SkippedRecord> = [];
+  /** Gain of the last auto plan skipped as too small; shown until next run. */
+  let skippedGain: number | undefined;
   let firstSendOfRun = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let classifierMissingWarned = false;
+  /** A manual `/decimate apply` is waiting on the classifier. */
+  let planning = false;
   const verdictCache = new Map<string, Verdict>();
 
   // --- helpers -----------------------------------------------------------------
@@ -115,11 +123,16 @@ export default function decimateExtension(pi: ExtensionAPI): void {
 
   function updateStatus(ctx: ExtensionContext): void {
     if (!ctx.hasUI) return;
-    const text = staged
-      ? `✂ staged −${kTokens(staged.plan?.savedTokens ?? 0)}`
-      : cfg.auto
-        ? `✂ auto${cfg.shadow && cfg.classifier ? " (shadow)" : ""}`
-        : undefined;
+    const text = planning
+      ? "✂ planning…"
+      : staged
+        ? `✂ staged −${kTokens(staged.plan?.savedTokens ?? 0)}`
+        : cfg.auto
+          ? `✂ auto${cfg.shadow && cfg.classifier ? " (shadow)" : ""}` +
+            (skippedGain !== undefined
+              ? ` (−${kTokens(skippedGain)} < ${kTokens(cfg.minGainTokens)})`
+              : "")
+          : undefined;
     ctx.ui.setStatus(STATUS_KEY, text);
   }
 
@@ -216,7 +229,53 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     );
   }
 
-  /** Drop the staged plan now (idle only; mid-run use `pendingDrops`). */
+  /**
+   * Note an auto plan that saved too little: the status bar shows its gain
+   * until the next run, and a `skipped` record keeps it (and any classifier
+   * spend) in `/decimate stats`. Mid-run records wait for the next boundary.
+   */
+  function skipPlan(
+    ctx: ExtensionContext,
+    plan: Plan,
+    source: StageSource,
+    midRun: boolean,
+  ): void {
+    if (plan.edits.length === 0 && !plan.classifier?.calls) return;
+    if (plan.edits.length > 0) skippedGain = plan.savedTokens;
+    const rec = skippedFromPlan(plan, source, cfg.minGainTokens);
+    if (midRun) pendingRecords.push(rec);
+    else pi.appendEntry(CUSTOM_TYPE, rec);
+    updateStatus(ctx);
+  }
+
+  /**
+   * Whether an auto plan would only repeat the branch's standing `skipped`
+   * record (nothing plan-relevant appended since, same config). Manual
+   * `/decimate apply` always re-plans.
+   */
+  function stillSkipped(ctx: ExtensionContext): boolean {
+    const s = standingSkip(ctx.sessionManager.getBranch());
+    if (!s || s.savedTokens >= cfg.minGainTokens || s.shadow !== cfg.shadow)
+      return false;
+    if (s.decisions.length > 0 && skippedGain === undefined) {
+      skippedGain = s.savedTokens;
+      updateStatus(ctx);
+    }
+    return true;
+  }
+
+  /** Background (idle) auto planning: stage the plan, or record why not. */
+  function planInBackground(ctx: ExtensionContext, source: StageSource): void {
+    if (stillSkipped(ctx)) return;
+    void makePlan(ctx).then((plan) => {
+      if (staged || inflight || !ctx.isIdle()) return;
+      if (plan.edits.length > 0 && plan.savedTokens >= cfg.minGainTokens)
+        stagePlan(ctx, plan, source);
+      else skipPlan(ctx, plan, source, false);
+    });
+  }
+
+  /** Drop the staged plan now (idle only; mid-run use `pendingRecords`). */
   function dropStaged(ctx: ExtensionContext, reason: string): void {
     const s = staged;
     staged = undefined;
@@ -235,18 +294,18 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   function queueDrop(id: string, reason: string): void {
     if (id !== openStageId) return;
     openStageId = undefined;
-    pendingDrops.push({ kind: "dropped", planId: id, reason });
+    pendingRecords.push({ kind: "dropped", planId: id, reason });
   }
 
-  function takeDrops(): SessionBoundaryDraft[] {
-    const drafts = pendingDrops.map(
+  function takePending(): SessionBoundaryDraft[] {
+    const drafts = pendingRecords.map(
       (data): SessionBoundaryDraft => ({
         type: "custom",
         customType: CUSTOM_TYPE,
         data,
       }),
     );
-    pendingDrops = [];
+    pendingRecords = [];
     return drafts;
   }
 
@@ -254,7 +313,8 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     staged = undefined;
     inflight = undefined;
     openStageId = undefined;
-    pendingDrops = [];
+    pendingRecords = [];
+    skippedGain = undefined;
     firstSendOfRun = false;
     clearTimer();
     updateStatus(ctx);
@@ -288,12 +348,6 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       return false;
     }
     updateStatus(ctx);
-    if (ctx.hasUI)
-      ctx.ui.notify(
-        `${recordSummary(rec)} — re-staged from earlier` +
-          " (/decimate cancel to drop)",
-        "info",
-      );
     return true;
   }
 
@@ -305,17 +359,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     if (resumeStaged(ctx)) return;
     // Cold resume: build the plan in the background; the send still checks coldness.
     if (cfg.auto && (event.reason === "resume" || event.reason === "startup")) {
-      void makePlan(ctx).then((plan) => {
-        if (
-          !staged &&
-          !inflight &&
-          ctx.isIdle() &&
-          plan.edits.length > 0 &&
-          plan.savedTokens >= cfg.minGainTokens
-        ) {
-          stagePlan(ctx, plan, "resume");
-        }
-      });
+      planInBackground(ctx, "resume");
     }
   });
 
@@ -328,9 +372,13 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     staged = inflight = undefined;
   });
 
-  pi.on("agent_start", async () => {
+  pi.on("agent_start", async (_event, ctx) => {
     firstSendOfRun = true;
     clearTimer();
+    if (skippedGain !== undefined) {
+      skippedGain = undefined;
+      updateStatus(ctx);
+    }
   });
 
   // Auto mode: precompute a plan for the moment the cache is predicted to go
@@ -345,17 +393,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       timer = undefined;
       if (staged || !ctx.isIdle() || cacheColdness(ctx).state !== "cold")
         return;
-      void makePlan(ctx).then((plan) => {
-        if (
-          !staged &&
-          !inflight &&
-          ctx.isIdle() &&
-          plan.edits.length > 0 &&
-          plan.savedTokens >= cfg.minGainTokens
-        ) {
-          stagePlan(ctx, plan, "auto");
-        }
-      });
+      planInBackground(ctx, "auto");
     }, delay);
     timer.unref?.();
   });
@@ -385,7 +423,7 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       updateStatus(ctx);
     } else if (!inflight && cfg.auto && first) {
       const c = cacheColdness(ctx);
-      if (c.state === "cold") {
+      if (c.state === "cold" && !stillSkipped(ctx)) {
         const plan = await makePlan(ctx, cfg.classifier?.autoTimeoutMs);
         if (plan.edits.length > 0 && plan.savedTokens >= cfg.minGainTokens) {
           inflight = {
@@ -397,6 +435,8 @@ export default function decimateExtension(pi: ExtensionAPI): void {
             coldness: c,
             applied: [],
           };
+        } else {
+          skipPlan(ctx, plan, "auto", true);
         }
       }
     }
@@ -425,13 +465,13 @@ export default function decimateExtension(pi: ExtensionAPI): void {
   });
 
   pi.on("agent_before_settle", async (event) => {
-    const drops = takeDrops();
+    const drops = takePending();
     if (drops.length === 0) return;
     return { entries: [...event.entries, ...drops] };
   });
 
   pi.on("turn_end", async (event, ctx) => {
-    const drops = takeDrops();
+    const drops = takePending();
     if (!inflight) {
       if (drops.length === 0) return;
       return { entries: [...event.entries, ...drops] };
@@ -527,17 +567,20 @@ export default function decimateExtension(pi: ExtensionAPI): void {
     if (!rec) return undefined;
     // Closed staged plans and drops are bookkeeping; the open staged plan and
     // what actually applied are what the transcript shows. A staged entry that
-    // closes while on screen disappears on the next re-render.
+    // closes while on screen disappears on the next re-render. Skipped plans
+    // only show when they cost a classifier call.
+    const skippedPaid = rec.kind === "skipped" && !!rec.classifier?.calls;
     const shown =
       rec.kind === "applied" ||
       rec.kind === "restored" ||
+      skippedPaid ||
       (rec.kind === "staged" && rec.planId === openStageId);
     if (!shown) return undefined;
     const warm = rec.kind === "applied" && rec.outcome?.verdict === "was-warm";
     const [label, ...rest] = recordSummary(rec).split(": ");
+    const color = warm ? "warning" : skippedPaid ? "dim" : "accent";
     let text =
-      theme.fg(warm ? "warning" : "accent", `✂ ${label}`) +
-      theme.fg("dim", `: ${rest.join(": ")}`);
+      theme.fg(color, `✂ ${label}`) + theme.fg("dim", `: ${rest.join(": ")}`);
     if (opts.expanded) {
       for (const line of recordDetails(rec))
         text += `\n${theme.fg("dim", `  ${line}`)}`;
@@ -567,9 +610,15 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       );
       return;
     }
-    if (cfg.classifier)
-      ctx.ui.notify("decimate: planning (classifier)…", "info");
-    const plan = await makePlan(ctx);
+    planning = true;
+    updateStatus(ctx);
+    let plan: Plan;
+    try {
+      plan = await makePlan(ctx);
+    } finally {
+      planning = false;
+      updateStatus(ctx);
+    }
     const report = describePlan(plan).join("\n");
     if (plan.edits.length === 0) {
       ctx.ui.notify(`decimate: nothing to decimate\n${report}`, "info");
@@ -583,11 +632,8 @@ export default function decimateExtension(pi: ExtensionAPI): void {
       );
       if (!ok) return;
     }
+    // The staged entry in the transcript reports it; no notice needed.
     stagePlan(ctx, plan, "manual", force || c.state !== "cold");
-    ctx.ui.notify(
-      `decimate: staged — applies to your next prompt (/decimate cancel to drop)\n${report}`,
-      "info",
-    );
   }
 
   function restore(ctx: ExtensionCommandContext, which: string): void {
@@ -636,11 +682,6 @@ export default function decimateExtension(pi: ExtensionAPI): void {
         restorePlanIds: planIds,
       },
       0,
-    );
-    ctx.ui.notify(
-      `decimate: restore of ${edits.length} result(s) from ${targets.length} decimation(s) staged for your next prompt` +
-        " (this rewrites history: the next send re-writes the cache from the first restored result)",
-      "info",
     );
   }
 
@@ -723,7 +764,13 @@ export default function decimateExtension(pi: ExtensionAPI): void {
           return;
         }
         case "stats":
-          ctx.ui.notify(renderReport(buildReport(ctx)).join("\n"), "info");
+          ctx.ui.notify(
+            renderReport(
+              buildReport(ctx),
+              skippedRecords(ctx.sessionManager.getBranch()),
+            ).join("\n"),
+            "info",
+          );
           return;
         case "restore":
           return restore(ctx, arg ?? "last");

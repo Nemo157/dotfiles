@@ -74,6 +74,16 @@ cold, on cold resume (plan precomputed at `session_start`), and precomputes a
 plan when the cache clock predicts expiry (`precompute`). Inline
 classification on an auto send is capped at `classifier.autoTimeoutMs`.
 
+An auto plan saving less than `minGainTokens` is not staged. Its gain shows
+in the status bar (`✂ auto (−3k < 8k)`) until the next run, and a `skipped`
+ledger entry records it for `/decimate stats` (count, classifier spend).
+Skipped entries render in the transcript only when they cost classifier
+calls, and never close an open staged plan. While a `skipped` entry is still
+the branch's latest plan-relevant entry (only usage, labels, session info,
+model/thinking changes or other extensions' custom entries after it) and
+`minGainTokens`/`shadow` are unchanged, auto mode doesn't re-plan: the
+result would be the same. `/decimate apply` always re-plans.
+
 ## Commands
 
 `/decimate [apply] [--force]` · `preview` · `cancel` · `status` · `stats` ·
