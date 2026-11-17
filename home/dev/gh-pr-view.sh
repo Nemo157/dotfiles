@@ -457,7 +457,7 @@ md() {
 }
 
 delta_diff() {
-  delta --paging=never --width "$cols"
+  delta --paging=never --width "$cols" "$@"
 }
 
 # Make sure a commit exists locally, fetching it by oid if needed. Only
@@ -610,7 +610,8 @@ render_thread() {
       + ($lines[($lines | length) - $keep:] | join("\n"))
   ' <<<"$entry") || hunk=
   if [[ -n $hunk ]]; then
-    delta_diff <<<"$hunk"
+    # the heading already names the file
+    delta_diff --file-style omit <<<"$hunk"
     echo
   fi
 
