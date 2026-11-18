@@ -372,6 +372,7 @@ in
         jj-diff = "allow";
         jj-log = "allow";
         jj-show = "allow";
+        jj-bookmark-list = "allow";
         git-status = "allow";
         git-diff = "allow";
         git-log = "allow";

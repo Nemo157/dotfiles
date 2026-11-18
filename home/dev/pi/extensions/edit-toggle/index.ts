@@ -99,6 +99,9 @@ const TARGET_TOOLS = new Set([
   "jj-squash",
   "jj-restore",
   "jj-rebase",
+  "jj-bookmark-move",
+  "jj-bookmark-track",
+  "jj-git-fetch",
 ]);
 
 const NEXT_STATE: Record<ToggleState, ToggleState> = {

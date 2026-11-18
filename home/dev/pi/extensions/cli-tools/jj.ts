@@ -529,6 +529,130 @@ const jjRebase: StructuredCliToolDef<typeof jjRebaseParams> = {
   },
 };
 
+// jj-bookmark-move ------------------------------------------------------
+
+const jjBookmarkMoveParams = Type.Object({
+  names: Type.Array(Type.String(), {
+    minItems: 1,
+    description: "Bookmark name(s) to move.",
+  }),
+  to: Type.String({
+    description: "Revision to move the bookmark(s) to (--to <rev>).",
+  }),
+  allowBackwards: Type.Optional(
+    Type.Boolean({
+      description:
+        "Allow moving backwards or sideways, i.e. to a revision that is " +
+        "not a descendant of the current target (--allow-backwards).",
+    }),
+  ),
+});
+
+const jjBookmarkMove: StructuredCliToolDef<typeof jjBookmarkMoveParams> = {
+  name: "jj-bookmark-move",
+  label: "jj bookmark move",
+  command: "jj",
+  description:
+    "Move existing local bookmark(s) to a revision. Only " +
+    "moves forwards unless `allowBackwards` is set. Does not push.",
+  executionMode: SEQUENTIAL,
+  parameters: jjBookmarkMoveParams,
+  buildArgs(p) {
+    const names = asStringArray(p.names);
+    if (names.length === 0) {
+      throw new Error("jj-bookmark-move: `names` must not be empty.");
+    }
+    const args: string[] = ["bookmark", "move", "--to", p.to];
+    if (p.allowBackwards) args.push("--allow-backwards");
+    args.push("--", ...names);
+    return args;
+  },
+};
+
+// jj-bookmark-list ------------------------------------------------------
+
+const jjBookmarkListParams = Type.Object({
+  allRemotes: Type.Optional(
+    Type.Boolean({
+      description:
+        "Also show remote bookmarks, including tracked, untracked and " +
+        "in-sync ones (--all-remotes).",
+    }),
+  ),
+});
+
+const jjBookmarkList: StructuredCliToolDef<typeof jjBookmarkListParams> = {
+  name: "jj-bookmark-list",
+  label: "jj bookmark list",
+  command: "jj",
+  description:
+    "List bookmarks with their targets and remote sync state (ahead/behind, " +
+    "conflicted, untracked remotes).",
+  parameters: jjBookmarkListParams,
+  buildArgs(p) {
+    const args: string[] = ["bookmark", "list"];
+    if (p.allRemotes) args.push("--all-remotes");
+    return args;
+  },
+};
+
+// jj-bookmark-track -----------------------------------------------------
+
+const jjBookmarkTrackParams = Type.Object({
+  bookmarks: Type.Array(Type.String(), {
+    minItems: 1,
+    description: "Remote bookmarks to track, as `name@remote`.",
+  }),
+});
+
+const jjBookmarkTrack: StructuredCliToolDef<typeof jjBookmarkTrackParams> = {
+  name: "jj-bookmark-track",
+  label: "jj bookmark track",
+  command: "jj",
+  description:
+    "Start tracking remote bookmark(s), creating or updating the local " +
+    "bookmark to follow the remote one (e.g. to work on someone else's " +
+    "branch).",
+  executionMode: SEQUENTIAL,
+  parameters: jjBookmarkTrackParams,
+  buildArgs(p) {
+    const bookmarks = asStringArray(p.bookmarks);
+    if (bookmarks.length === 0) {
+      throw new Error("jj-bookmark-track: `bookmarks` must not be empty.");
+    }
+    return ["bookmark", "track", "--", ...bookmarks];
+  },
+};
+
+// jj-git-fetch ----------------------------------------------------------
+
+const jjGitFetchParams = Type.Object({
+  branches: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Only fetch these branches (-b, glob patterns). Omit to fetch the " +
+        "configured defaults.",
+    }),
+  ),
+});
+
+const jjGitFetch: StructuredCliToolDef<typeof jjGitFetchParams> = {
+  name: "jj-git-fetch",
+  label: "jj git fetch",
+  command: "jj",
+  description:
+    "Fetch from all git remotes, updating remote bookmarks and `trunk()`. " +
+    "Commits no longer reachable from any remote bookmark are abandoned " +
+    "locally.",
+  executionMode: SEQUENTIAL,
+  parameters: jjGitFetchParams,
+  buildArgs(p) {
+    const args: string[] = ["git", "fetch", "--all-remotes"];
+    for (const b of asStringArray(p.branches)) args.push("-b", b);
+    return args;
+  },
+};
+
 export const jjTools = [
   jjStatus,
   jjDiff,
@@ -540,4 +664,8 @@ export const jjTools = [
   jjSquash,
   jjRestore,
   jjRebase,
+  jjBookmarkMove,
+  jjBookmarkList,
+  jjBookmarkTrack,
+  jjGitFetch,
 ];
