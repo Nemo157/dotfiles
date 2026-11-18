@@ -80,12 +80,16 @@ interface Pull {
  * both plain-git and jj checkouts — and ask GitHub which PR each commit
  * belongs to, newest first. Unpushed local commits 404 and are skipped.
  */
-async function detectPr(ctx: GhContext): Promise<number> {
-  const log = await runCommand("git", ["log", "--format=%H", "-n", "25"], {
-    cwd: ctx.cwd,
-    signal: ctx.signal,
-    timeoutMs: TIMEOUT_MS,
-  });
+async function detectPr(ctx: GhContext, rev = "HEAD"): Promise<number> {
+  const log = await runCommand(
+    "git",
+    ["log", "--format=%H", "-n", "2", "--end-of-options", rev],
+    {
+      cwd: ctx.cwd,
+      signal: ctx.signal,
+      timeoutMs: TIMEOUT_MS,
+    },
+  );
   if (log.code !== 0) {
     throw new Error(
       `could not read git history to locate the PR: ${log.stderr.trim()}`,
@@ -111,10 +115,52 @@ async function detectPr(ctx: GhContext): Promise<number> {
       return open.number;
     }
   }
+  const what = rev === "HEAD" ? "the current changes" : `\`${rev}\``;
   throw new Error(
-    "could not find a PR for the current changes. Push the branch first, or " +
-      "pass the `pr` parameter explicitly.",
+    `could not find a PR for ${what}. ` +
+      "Push the branch first, or pass the `pr` parameter explicitly.",
   );
+}
+
+interface ListedPull {
+  number: number;
+  state: string;
+}
+
+/**
+ * Resolve the PR for a bookmark/branch name. First asks GitHub for PRs whose
+ * head branch has that name (preferring an open one); if there is none, falls
+ * back to walking the local bookmark's ancestry like `detectPr` (jj exports
+ * bookmarks as git branches in colocated repos).
+ */
+async function prForBookmark(
+  bookmark: string,
+  ctx: GhContext,
+): Promise<number> {
+  let pulls: ListedPull[] = [];
+  try {
+    const out = await gh(
+      [
+        "pr",
+        "list",
+        "--head",
+        bookmark,
+        "--state",
+        "all",
+        "--json",
+        "number,state",
+      ],
+      ctx,
+    );
+    pulls = JSON.parse(out || "[]") as ListedPull[];
+  } catch {
+    // Fall through to the local ancestry walk.
+  }
+  if (Array.isArray(pulls) && pulls.length > 0) {
+    const open = pulls.find((p) => p.state === "OPEN") ?? pulls[0];
+    return open.number;
+  }
+  return detectPr(ctx, bookmark);
 }
 
 // --- formatting helpers ---------------------------------------------------
@@ -495,6 +541,13 @@ const params = Type.Object({
       description: "PR number. Defaults to the PR for the current changes.",
     }),
   ),
+  bookmark: Type.Optional(
+    Type.String({
+      minLength: 1,
+      description:
+        "Bookmark/branch name whose PR to show (alternative to `pr`).",
+    }),
+  ),
 });
 
 const ghPrComments: CustomCliToolDef<typeof params> = {
@@ -508,12 +561,19 @@ const ghPrComments: CustomCliToolDef<typeof params> = {
     "replies), so it is clear what was pushed after which review.",
   parameters: params,
   displayArgs(p) {
-    return p.pr !== undefined
-      ? ["pr", "comments", String(p.pr)]
-      : ["pr", "comments"];
+    if (p.pr !== undefined) return ["pr", "comments", String(p.pr)];
+    if (p.bookmark !== undefined) return ["pr", "comments", p.bookmark];
+    return ["pr", "comments"];
   },
   async run(p, ctx) {
-    const pr = p.pr ?? (await detectPr(ctx));
+    if (p.pr !== undefined && p.bookmark !== undefined) {
+      throw new Error("pass only one of `pr` or `bookmark`");
+    }
+    const pr =
+      p.pr ??
+      (p.bookmark !== undefined
+        ? await prForBookmark(p.bookmark, ctx)
+        : await detectPr(ctx));
     const report = await buildReport(pr, ctx);
     return {
       content: report.text,
