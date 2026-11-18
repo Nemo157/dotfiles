@@ -157,6 +157,97 @@ in
         # middle mouse should scroll not paste
         "middlemouse.paste" = false;
         "general.autoScroll" = true;
+
+        "browser.uiCustomization.state" =
+          let
+            stylus = "_7a7a4a92-a2a0-41d1-9fd7-1e92480d612d_-browser-action";
+            tampermonkey = "firefox_tampermonkey_net-browser-action";
+            libredirect = "7esoorv3_alefvanoon_anonaddy_me-browser-action";
+            bitwarden = "_446900e4-71c2-419f-a6a7-df9c091e268b_-browser-action";
+            ublock = "ublock0_raymondhill_net-browser-action";
+
+            tridactyl = "tridactyl_vim_cmcaine_co_uk-browser-action";
+            multi-account-containers = "_testpilot-containers-browser-action";
+            refined-github = "_a4c4eda4-fb84-4a84-b4a1-f7c1cbf2a1ad_-browser-action";
+            sideberry = "_3c078156-979c-498b-8990-85f7987dd929_-browser-action";
+            universal-trakt-scrobbler = "_0dab3ff3-6b8f-4553-82da-1fa00c0e9f94_-browser-action";
+            web-archives = "_d07ccf11-c0cd-4938-a265-2a4d6ad01189_-browser-action";
+
+            nav-bar-extensions = [
+              stylus
+              tampermonkey
+              libredirect
+              bitwarden
+              ublock
+            ];
+
+            unified-extensions = [
+              sideberry
+              web-archives
+              multi-account-containers
+              universal-trakt-scrobbler
+              refined-github
+              tridactyl
+            ];
+          in
+          builtins.toJSON {
+            placements = {
+              nav-bar = nav-bar-extensions ++ [
+                "unified-extensions-button"
+
+                "back-button"
+                "forward-button"
+                "vertical-spacer"
+                "stop-reload-button"
+                "reset-pbm-toolbar-button"
+
+                "urlbar-container"
+
+                "downloads-button"
+                "fxa-toolbar-menu-button"
+              ];
+
+              TabsToolbar = [
+                "firefox-view-button"
+                "tabbrowser-tabs"
+                "new-tab-button"
+                "alltabs-button"
+              ];
+
+              widget-overflow-fixed-list = [ ];
+
+              unified-extensions-area = unified-extensions;
+
+              toolbar-menubar = [ "menubar-items" ];
+              vertical-tabs = [ ];
+              PersonalToolbar = [
+                "import-button"
+                "personal-bookmarks"
+              ];
+            };
+
+            seen =
+              nav-bar-extensions
+              ++ unified-extensions
+              ++ [
+                "save-to-pocket-button"
+                "developer-button"
+                "screenshot-button"
+                "reset-pbm-toolbar-button"
+              ];
+
+            dirtyAreaCache = [
+              "nav-bar"
+              "PersonalToolbar"
+              "toolbar-menubar"
+              "TabsToolbar"
+              "unified-extensions-area"
+              "vertical-tabs"
+            ];
+
+            currentVersion = 24;
+            newElementCount = 21;
+          };
       };
 
       userChrome = builtins.concatStringsSep "\n" (
@@ -171,7 +262,6 @@ in
       extensions.packages = with pkgs.nur.repos.rycee.firefox-addons; [
         augmented-steam
         bitwarden
-        firefox-translations
         libredirect
         multi-account-containers
         refined-github
