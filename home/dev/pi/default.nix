@@ -227,13 +227,19 @@ in
     appendSystem = ''
       ## Linking to GitHub
 
-      When writing GitHub issue/PR/commit links into anything that lands on
-      GitHub (commit messages, PR descriptions, issue comments, code
-      comments), prefer `https://redirect.github.com/<owner>/<repo>/...`
-      over `https://github.com/<owner>/<repo>/...`. Plain links create
+      When writing links to other people's GitHub issues/PRs/commits into
+      GitHub-rendered prose that triggers cross-references (commit messages,
+      PR descriptions, issue/PR comments), prefer
+      `https://redirect.github.com/<owner>/<repo>/...` over
+      `https://github.com/<owner>/<repo>/...`. Plain links there create
       cross-reference backlinks ("mentioned this") on the target, which spams
-      upstream projects. Only use plain `github.com` links (or `#123` /
-      `owner/repo#123` shorthand) when a backlink is actually wanted.
+      upstream projects.
+
+      Use plain links (or `#123` / `owner/repo#123` shorthand) wherever a
+      backlink is wanted, which is normally the case for targets in the same
+      repo or the same org: those backlinks are useful tracking, not spam.
+      Also use plain `github.com` links in files committed to the repo (code
+      comments, docs, config), as those never create backlinks.
     '';
 
     # Lives in the wrapper next to `--exclude-tools bash`, so running the
