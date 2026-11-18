@@ -12,7 +12,12 @@ let
   callOverlay = path: (import path) args;
 in
 {
-  freetube = final.unstable.freetube;
+  inherit (final.unstable)
+    pi-coding-agent
+    jujutsu
+    freetube
+    tmux
+    ;
 
   maintainers = prev.maintainers // maintainers;
 
@@ -45,10 +50,6 @@ in
       doCheck = false;
     }
   ) { };
-
-  jujutsu = final.unstable.jujutsu;
-
-  pi-coding-agent = final.unstable.pi-coding-agent;
 
   # Build-time check hook for externally-sourced pi extensions: verifies the
   # extension against the flake-pinned pi package (peerDependency ranges + a
