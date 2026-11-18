@@ -2,6 +2,7 @@
   imports = [
     ./autologin.nix
     ./monitors.nix
+    ./require-reboot.nix
     ./services
   ];
 

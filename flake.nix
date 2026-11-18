@@ -266,6 +266,15 @@
       let
         # pin nixpkgs to system nixpkgs for determinism
         pin-nixpkgs = {
+          # Same as nixpkgs' `nixosSystem` does, colmena doesn't since it gets
+          # a package set; lets `nixos-version` identify the nixpkgs revision
+          system.nixos = {
+            versionSuffix = ".${
+              builtins.substring 0 8 (nixpkgs.lastModifiedDate or "19700101")
+            }.${nixpkgs.shortRev or "dirty"}";
+            revision = nixpkgs.lib.mkIf (nixpkgs ? rev) nixpkgs.rev;
+          };
+
           nix = {
             # For flake commands
             registry = {
