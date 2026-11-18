@@ -127,7 +127,7 @@
         (lib.mapAttrs (name: args: {
           cmd = lib.escapeShellArgs (
             [
-              (lib.getExe' pkgs.unstable.stable-diffusion-cpp-rocm "sd-server")
+              (lib.getExe' pkgs.unstable.stable-diffusion-cpp-vulkan "sd-server")
               "--listen-ip"
               "127.0.0.1"
               "--listen-port"
