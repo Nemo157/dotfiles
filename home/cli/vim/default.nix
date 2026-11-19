@@ -178,6 +178,11 @@ in
       au BufRead,BufNewFile freshrc setf bash
       au BufRead,BufNewFile freshrc.d/* setf bash
 
+      autocmd BufRead,BufNewFile rumba-*.md if $RUMBA_COMPOSE ==# 'pane'
+        \ | setlocal nonumber norelativenumber signcolumn=no foldcolumn=0
+        \ | setlocal laststatus=0
+        \ | endif
+
       " Have Vim jump to the last position when reopening a file
       au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
