@@ -67,7 +67,9 @@ in
     ];
     text = ''
       wl-copy -c
-      rofi -show emojis -modi '${rofimoji-modi}'
+      rofi -show emojis -modi '${rofimoji-modi}' \
+        -theme-str 'listview { fixed-height: false; }' \
+        -theme-str 'element-text { vertical-align: 0.5; }'
       wl-paste -n | wtype -
     '';
   };
