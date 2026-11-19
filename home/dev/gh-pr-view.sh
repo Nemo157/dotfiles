@@ -498,7 +498,17 @@ range_diff() {
   fi
   old=$(git merge-base "$base" "$before") || return 1
   new=$(git merge-base "$base" "$after") || return 1
-  pairs=$(git range-diff --no-color --no-patch "$old..$before" "$new..$after") || return 1
+  if [[ $old == "$before" || $new == "$after" ]]; then
+    # range-diff rejects an empty range such as the first push's, there is
+    # nothing to pair up then: list the commits as all dropped or all added
+    pairs=$(
+      git log --reverse --format='0: %H < -: - %s' "$old..$before" &&
+        git log --reverse --format='-: - > 0: %H %s' "$new..$after"
+    ) || return 1
+  else
+    pairs=$(git range-diff --no-color --no-patch \
+      "$old..$before" "$new..$after") || return 1
+  fi
 
   dim "interdiff ${old:0:7}..${before:0:7} → ${new:0:7}..${after:0:7}"
   echo
