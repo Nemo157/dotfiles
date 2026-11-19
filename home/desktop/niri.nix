@@ -134,6 +134,7 @@
           Mod+Shift+Slash { show-hotkey-overlay; }
 
           Mod+Space hotkey-overlay-title="Run an Application: rofi" { spawn "rofi-systemd"; }
+          Mod+Shift+Space hotkey-overlay-title="Run an Application: rofi-characters" { spawn "rofi-characters"; }
           Mod+BackSlash hotkey-overlay-title="Lock the Session" { spawn "loginctl" "lock-session"; }
 
           XF86AudioPlay { spawn "playerctl" "play"; }
