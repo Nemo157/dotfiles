@@ -70,7 +70,11 @@ in
       rofi -show emojis -modi '${rofimoji-modi}' \
         -theme-str 'listview { fixed-height: false; }' \
         -theme-str 'element-text { vertical-align: 0.5; }'
-      wl-paste -n | wtype -
+      sleep 0.1 # let focus return to the previous window
+      # Paste rather than type: wtype's Unicode keymap swapping confuses
+      # Electron (Slack). Ctrl+Shift+V pastes CLIPBOARD in kitty, Firefox and
+      # Electron alike, unlike Shift+Insert (selection paste in kitty/Firefox).
+      wtype -M ctrl -M shift -k v -m shift -m ctrl
     '';
   };
 
