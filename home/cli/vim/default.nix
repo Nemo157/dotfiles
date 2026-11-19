@@ -178,6 +178,15 @@ in
       au BufRead,BufNewFile freshrc setf bash
       au BufRead,BufNewFile freshrc.d/* setf bash
 
+      " rumba comments are GFM, where newlines are significant, so no hard wrap
+      " BufWinEnter runs after filetype/editorconfig settings are applied
+      autocmd BufWinEnter rumba-*.md
+        \ setlocal textwidth=0 formatoptions-=t formatoptions-=a wrap linebreak
+      " start typing a new comment straight away (template may follow line 1)
+      autocmd BufWinEnter rumba-*.md
+        \ if !exists('b:rumba_started') && empty(getline(1))
+        \ | let b:rumba_started = 1 | call cursor(1, 1) | startinsert
+        \ | endif
       autocmd BufRead,BufNewFile rumba-*.md if $RUMBA_COMPOSE ==# 'pane'
         \ | setlocal nonumber norelativenumber signcolumn=no foldcolumn=0
         \ | setlocal laststatus=0
