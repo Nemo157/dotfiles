@@ -98,6 +98,7 @@ const TARGET_TOOLS = new Set([
   "jj-new",
   "jj-squash",
   "jj-restore",
+  "jj-resolve",
   "jj-rebase",
   "jj-bookmark-move",
   "jj-bookmark-track",

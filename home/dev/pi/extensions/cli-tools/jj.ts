@@ -447,6 +447,43 @@ const jjRestore: StructuredCliToolDef<typeof jjRestoreParams> = {
   },
 };
 
+// jj-resolve ------------------------------------------------------------
+
+const jjResolveParams = Type.Object({
+  revision: Type.Optional(
+    Type.String({
+      description:
+        "Revision to resolve conflicts in (-r <rev>). Defaults to `@`.",
+    }),
+  ),
+  paths: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Conflicted paths to resolve (relative to the working directory). " +
+        "Omit to attempt every conflicted file in the revision.",
+    }),
+  ),
+});
+
+const jjResolve: StructuredCliToolDef<typeof jjResolveParams> = {
+  name: "jj-resolve",
+  label: "jj resolve",
+  command: "jj",
+  description:
+    "Try to auto-resolve conflicts with the `mergiraf` syntax-aware merge " +
+    "tool (jj resolve --tool mergiraf). Files mergiraf cannot resolve stay " +
+    "conflicted; fix those by hand.",
+  executionMode: SEQUENTIAL,
+  parameters: jjResolveParams,
+  buildArgs(p) {
+    const args: string[] = ["resolve", "--tool", "mergiraf"];
+    if (p.revision !== undefined) args.push("-r", p.revision);
+    const paths = asStringArray(p.paths);
+    if (paths.length > 0) args.push("--", ...paths.map(expandTilde));
+    return args;
+  },
+};
+
 // jj-rebase -------------------------------------------------------------
 
 const jjRebaseParams = Type.Object({
@@ -663,6 +700,7 @@ export const jjTools = [
   jjNew,
   jjSquash,
   jjRestore,
+  jjResolve,
   jjRebase,
   jjBookmarkMove,
   jjBookmarkList,
