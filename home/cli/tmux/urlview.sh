@@ -74,4 +74,5 @@ readarray -t urls < <(
 echo "clean urls" >&2
 printf "%q\n" "${urls[@]}" >&2
 
-tmux display-popup -E -T 'Open url' "$TMUX_URLVIEW_POPUP" "${urls[@]}"
+tmux new-pane -O -C -x 80% -y 80% -X 10% -Y 10% -B heavy -S 'fg=cyan' \
+  -T ' Open url ' "$TMUX_URLVIEW_POPUP" "${urls[@]}"

@@ -2,7 +2,9 @@ start="$(tmux display-message -p '#{?#{==:#{pane_mode},copy-mode},-#{scroll_posi
 end="$(tmux display-message -p '#{e|-:#{pane_height},#{?#{==:#{pane_mode},copy-mode},#{e|+:#{scroll_position},1},1}}')"
 width="$(tmux display-message -p '#{pane_width}')"
 height="$(tmux display-message -p '#{pane_height}')"
-# carry over any per-pane default colours, `default` keeps the popup-style
+left="$(tmux display-message -p '#{pane_left}')"
+top="$(tmux display-message -p '#{pane_top}')"
+# carry over any per-pane default colours
 style="$(tmux display-message -p 'fg=#{pane_fg},bg=#{pane_bg}')"
 
 file="$(mktemp -t tmux-urlview-overlay.XXXXXX)"
@@ -15,6 +17,7 @@ if ! "$TMUX_URLVIEW_OVERLAY" check "$file" "$width"; then
   exit 0
 fi
 
-# borderless popup exactly covering the current pane
-tmux display-popup -E -B -x P -y P -w "$width" -h "$height" -s "$style" \
+# borderless modal pane exactly covering the current pane
+tmux new-pane -O -C -B none -X "$left" -Y "$top" -x "$width" -y "$height" \
+  -s "$style" \
   "$TMUX_URLVIEW_OVERLAY show '$file' '$width'"

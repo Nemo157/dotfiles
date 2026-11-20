@@ -1,8 +1,8 @@
-# Scratch pi session in a tmux popup (prefix + a).
+# Scratch pi session in a modal floating tmux pane (prefix + a).
 #
-# The popup runs a fresh pi in a dedicated state dir and continues the most
+# The pane runs a fresh pi in a dedicated state dir and continues the most
 # recent session there (`-c`), so the conversation survives closing the
-# popup; `/new` starts a fresh one that later popups pick up instead. Quit
+# pane; `/new` starts a fresh one that later scratch panes pick up instead. Quit
 # with ctrl+c twice or `/quit` (ctrl+d is rebound, see default.nix).
 {
   config,
@@ -15,14 +15,14 @@ let
 
   json = pkgs.formats.json { };
 
-  # Stable across popups (a store file passed via `--append-system-prompt`),
+  # Stable across reopens (a store file passed via `--append-system-prompt`),
   # so reopening the session doesn't churn the provider prompt cache.
   systemPrompt = pkgs.writeText "pi-scratch-system.md" ''
     ## Scratch Session
 
-    This pi runs in a tmux popup as a scratch session, opened next to
+    This pi runs in a floating tmux pane as a scratch session, opened next to
     whatever the user is working on for quick questions, lookups and side
-    tasks. The conversation persists across popups, so earlier exchanges
+    tasks. The conversation persists across reopens, so earlier exchanges
     may be unrelated to the current question.
 
     The working directory (${scratchDir}) is a throwaway scratch area, not
@@ -31,7 +31,7 @@ let
     approval. Files the user mentions by absolute path usually live in
     their projects under ~/sources.
 
-    The popup is small: keep answers short and to the point.
+    The pane is small: keep answers short and to the point.
   '';
 
   tmux-pi-popup = pkgs.writeShellApplication {
@@ -77,6 +77,8 @@ in
       };
 
   programs.tmux.extraConfig = lib.mkAfter ''
-    bind-key a display-popup -E -w 85% -h 85% -T ' pi scratch ' "${lib.getExe tmux-pi-popup}"
+    # modal like a popup, but a real pane so copy mode works; no -D/-C as
+    # pi uses Escape and an accidental close would kill a running turn
+    bind-key a new-pane -O -x 85% -y 85% -X 7% -Y 7% -B heavy -S 'fg=cyan' -T ' pi scratch ' "${lib.getExe tmux-pi-popup}"
   '';
 }

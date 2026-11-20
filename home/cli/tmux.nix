@@ -86,9 +86,10 @@ in
       set -g pane-border-style 'fg=cyan'
       set -g pane-active-border-style 'fg=colour17'
 
-      # tmux 3.8 defaults popups/menus to its own grey theme, keep the terminal's
-      set -g popup-style 'fg=terminal,bg=terminal'
-      set -g popup-border-style 'fg=cyan,bg=terminal'
+      # title line on floating panes only (the popup replacements)
+      set -g pane-border-status top-floating
+
+      # tmux 3.8 defaults menus to its own grey theme, keep the terminal's
       set -g menu-style 'fg=terminal,bg=terminal'
       set -g menu-border-style 'fg=cyan,bg=terminal'
 
@@ -128,8 +129,6 @@ in
       set -g window-status-format ' #{?window_bell_flag,🛎️,}#{?window_activity_flag,⏩,}#{?window_silence_flag,🔇,}#I #W '
 
       set -g message-style 'fg=white bg=colour18'
-
-      set -g popup-border-lines heavy
 
       setw -g clock-mode-colour green
 

@@ -77,7 +77,7 @@ in
   };
 
   programs.tmux.extraConfig = lib.mkAfter ''
-    bind-key P display-popup -d '#{pane_current_path}' -w 90% -h 40% -E "${lib.getExe gh-pr-list-popup}"
+    bind-key P new-pane -O -C -c '#{pane_current_path}' -x 90% -y 40% -X 5% -Y 30% -B heavy -S 'fg=cyan' -T ' PRs ' "${lib.getExe gh-pr-list-popup}"
   '';
 
 }
