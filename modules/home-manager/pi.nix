@@ -202,6 +202,17 @@ in
       '';
     };
 
+    finalPackage = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = pi-wrapped;
+      defaultText = lib.literalMD "The wrapped `pi` package.";
+      description = ''
+        The wrapped pi package installed into `home.packages`, for other
+        modules that need to reference the binary directly.
+      '';
+    };
+
     referenceLinkDir = lib.mkOption {
       type = lib.types.str;
       readOnly = true;

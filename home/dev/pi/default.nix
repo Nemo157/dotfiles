@@ -50,6 +50,8 @@ let
   };
 in
 {
+  imports = [ ./scratch.nix ];
+
   xdg.configFile."pi/extensions/pi-permission-system/logs".source =
     config.lib.file.mkOutOfStoreSymlink permissionSystemLogs;
 
