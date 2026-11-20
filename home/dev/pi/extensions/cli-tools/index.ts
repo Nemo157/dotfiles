@@ -14,8 +14,8 @@
 // repo/system state should go through `ask` semantics (see the
 // permission-system config in ../../default.nix).
 //
-// Some groups are registered conditionally based on the environment: cargo
-// and nix tools require their binaries, and the VCS tools resolve to jj
+// Some groups are registered conditionally based on the environment: cargo,
+// nix and lynk tools require their binaries, and the VCS tools resolve to jj
 // *or* git depending on the working directory (see vcs.ts).
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
@@ -29,6 +29,7 @@ import { getJqTools } from "./jq";
 import { getCargoTools } from "./cargo";
 import { getNixTools } from "./nix";
 import { getTarTools } from "./tar";
+import { getLynkTools } from "./lynk";
 
 export default function (pi: ExtensionAPI) {
   // Resolve the permission service once per session so tools that check the
@@ -44,6 +45,7 @@ export default function (pi: ExtensionAPI) {
     ...getCargoTools(),
     ...getNixTools(),
     ...getTarTools(),
+    ...getLynkTools(),
   ];
   for (const def of tools) {
     registerCliTool(pi, def);

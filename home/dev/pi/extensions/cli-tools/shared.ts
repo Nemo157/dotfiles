@@ -70,9 +70,21 @@ function clampNumericArgs(schema: TSchema, args: unknown): unknown {
   return out ?? args;
 }
 
-export function commandOk(command: string, args: string[]): boolean {
+/**
+ * Probe whether `command args` exits successfully. `timeoutMs` bounds the
+ * probe (it runs synchronously at extension load); a probe that times out
+ * counts as a failure.
+ */
+export function commandOk(
+  command: string,
+  args: string[],
+  timeoutMs?: number,
+): boolean {
   try {
-    const r = spawnSync(command, args, { stdio: "ignore" });
+    const r = spawnSync(command, args, {
+      stdio: "ignore",
+      timeout: timeoutMs,
+    });
     return r.status === 0;
   } catch {
     return false;
@@ -319,6 +331,17 @@ function computeArgs(def: StructuredCliToolDef, params: unknown): string[] {
   return def.buildArgs(params as Static<typeof def.parameters>);
 }
 
+/** The `$ …` header line for a call: a pipeline or a single command. */
+function computeInvocation(def: CliToolDef, params: unknown): string {
+  if (isCustom(def) && def.displayPipeline) {
+    const stages = def.displayPipeline(params as Static<typeof def.parameters>);
+    return stages
+      .map(([command, ...args]) => buildInvocation(command ?? "", args))
+      .join(" | ");
+  }
+  return buildInvocation(def.command, computeDisplayArgs(def, params));
+}
+
 function computeDisplayArgs(def: CliToolDef, params: unknown): string[] {
   const typed = params as Static<typeof def.parameters>;
   if (def.displayArgs) return def.displayArgs(typed);
@@ -347,6 +370,11 @@ export interface BaseCliToolFields {
   promptGuidelines?: string[];
   /** Timeout in ms. Defaults to 30s. */
   timeoutMs?: number;
+  /**
+   * Environment variables stripped from the subprocess environment, e.g. API
+   * keys that would make a command reach out to an external service.
+   */
+  unsetEnv?: string[];
   /**
    * Per-tool execution mode passed through to pi. `"sequential"` makes pi
    * run the WHOLE batch of tool calls from that assistant message one at a
@@ -465,12 +493,19 @@ export interface CustomRunResult {
  * provides an async `run` that may spawn several helper subprocesses and
  * assemble its own output (e.g. multiple `gh api` calls + formatting). It
  * still renders through the shared spec builders; `displayArgs` supplies the
- * `$ <command> <args>` header line shown in the TUI.
+ * `$ <command> <args>` header line shown in the TUI, or `displayPipeline`
+ * a multi-command one.
  */
 export interface CustomCliToolDef<T extends TSchema = TSchema>
   extends BaseCliToolFields {
   parameters: T;
   displayArgs?: (params: Static<T>) => string[];
+  /**
+   * Header for tools that pipe one command into the next: one full argv
+   * (command first) per stage, each shell-quoted and joined with ` | `.
+   * Takes precedence over `displayArgs`.
+   */
+  displayPipeline?: (params: Static<T>) => string[][];
   run: (params: Static<T>, ctx: CustomRunContext) => Promise<CustomRunResult>;
 }
 
@@ -498,6 +533,8 @@ export function runCommand(
      * drain the pipe as we write, which is the pattern this serves.
      */
     stdin?: string;
+    /** Environment variables removed from the child's environment. */
+    unsetEnv?: string[];
     /** Called after each stdout chunk with the full accumulated buffer. */
     onStdout?: (buf: string) => void;
     /** Called after each stderr chunk with the full accumulated buffer. */
@@ -505,9 +542,14 @@ export function runCommand(
   },
 ): Promise<RunResult> {
   return new Promise((resolve) => {
+    let env = process.env;
+    if (opts.unsetEnv?.length) {
+      env = { ...process.env };
+      for (const name of opts.unsetEnv) delete env[name];
+    }
     const child = spawn(command, args, {
       cwd: opts.cwd,
-      env: process.env,
+      env,
       stdio:
         opts.stdin !== undefined
           ? ["pipe", "pipe", "pipe"]
@@ -1002,6 +1044,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
         signal,
         timeoutMs: def.timeoutMs ?? 30_000,
         stdin,
+        unsetEnv: def.unsetEnv,
         onStdout: shouldStream
           ? (buf) => {
               latestStdout = buf;
@@ -1071,8 +1114,7 @@ export function registerCliTool(pi: ExtensionAPI, def: CliToolDef) {
       const args = clampNumericArgs(def.parameters, rawArgs) as typeof rawArgs;
       let invocation: string;
       try {
-        const argv = computeDisplayArgs(def, args);
-        invocation = buildInvocation(def.command, argv);
+        invocation = computeInvocation(def, args);
         // Tools that pipe inline data via stdin get a here-string hint so
         // the user can see what is being fed to the subprocess.
         const stdin =

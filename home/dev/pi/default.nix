@@ -396,6 +396,13 @@ in
         # files or touch the network, so the tool itself is allowed; the
         # `path` / `external_directory` gates still apply to its `path` param.
         jq = "allow";
+        # Read-only lynk link navigation (cli-tools/lynk.ts); `lynk-context`
+        # runs without TYPESAFE_API_KEY so it stays local.
+        lynk-lint = "allow";
+        lynk-resolve = "allow";
+        lynk-backlinks = "allow";
+        lynk-context = "allow";
+        lynk-affected = "allow";
 
         # Pinned to the cwd flake with hardcoded flags (see
         # cli-tools/nix.ts); builds stay inside the Nix sandbox.
