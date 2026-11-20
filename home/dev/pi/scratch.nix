@@ -1,9 +1,14 @@
-# Scratch pi session in a modal floating tmux pane (prefix + a).
+# Scratch pi session in a single persistent floating tmux pane (prefix + a).
 #
-# The pane runs a fresh pi in a dedicated state dir and continues the most
-# recent session there (`-c`), so the conversation survives closing the
-# pane; `/new` starts a fresh one that later scratch panes pick up instead. Quit
-# with ctrl+c twice or `/quit` (ctrl+d is rebound, see default.nix).
+# prefix + a floats the pane over the current pane, or stashes it away in the
+# `_pi-scratch` session when it is the focused pane, so the same pi keeps
+# running across toggles and windows. (A modal pane can't be moved between
+# windows, so this is a plain floating pane.)
+#
+# The pane runs pi in a dedicated state dir and continues the most recent
+# session there (`-c`), so the conversation also survives quitting pi;
+# `/new` starts a fresh one that later panes pick up instead. Quit with
+# ctrl+c twice or `/quit` (ctrl+d is rebound, see default.nix).
 {
   config,
   lib,
@@ -46,6 +51,56 @@ let
         --append-system-prompt ${systemPrompt} "$@"
     '';
   };
+
+  tmux-pi-scratch-toggle = pkgs.writeShellApplication {
+    name = "tmux-pi-scratch-toggle";
+    runtimeInputs = with pkgs; [
+      tmux
+      coreutils
+    ];
+    text = ''
+      stash=_pi-scratch
+
+      scratch="$(tmux list-panes -a -f '#{@pi-scratch}' -F '#{pane_id}' |
+        head -n1)"
+      read -r current left top width height < <(tmux display-message -p \
+        '#{pane_id} #{pane_left} #{pane_top} #{pane_width} #{pane_height}')
+
+      # focused: stash it in its own window of a hidden session, which keeps
+      # a placeholder window so it survives the pane being moved out
+      if [[ "$scratch" == "$current" ]]; then
+        tmux has-session -t "=$stash" 2>/dev/null ||
+          tmux new-session -d -s "$stash" -n stash 'exec sleep infinity'
+        tmux break-pane -d -s "$scratch" -t "=$stash:"
+        exit
+      fi
+
+      # 85% of the current pane, centred on it (sizes include the border)
+      w=$((width * 85 / 100))
+      h=$((height * 85 / 100))
+      x=$((left + (width - w) / 2))
+      y=$((top + (height - h) / 2))
+
+      if [[ -z "$scratch" ]]; then
+        scratch="$(tmux new-pane -P -F '#{pane_id}' \
+          -x "$w" -y "$h" -X "$x" -Y "$y" -B heavy -S 'fg=cyan' \
+          -T ' pi scratch ' ${lib.getExe tmux-pi-popup})"
+        tmux set-option -p -t "$scratch" @pi-scratch 1
+        exit
+      fi
+
+      # join-pane can only tile, so tile it into this window then float it;
+      # -f splits the whole window so a small current pane still has room.
+      # One tmux invocation runs both in one command queue pass, so the
+      # intermediate tiled layout is never drawn. The tiled panes still
+      # flicker though: the split shrinks them and tmux deliberately sends
+      # an apparently no-op resize as two (small, then back 10ms later, see
+      # server_client_check_pane_resize) to force a redraw, so TUI apps
+      # underneath repaint twice.
+      tmux join-pane -d -f -s "$scratch" -t "$current" \; \
+        break-pane -W -s "$scratch" -x "$w" -y "$h" -X "$x" -Y "$y"
+    '';
+  };
 in
 {
   # Project-scope permission overrides, loaded only for sessions in the
@@ -77,8 +132,6 @@ in
       };
 
   programs.tmux.extraConfig = lib.mkAfter ''
-    # modal like a popup, but a real pane so copy mode works; no -D/-C as
-    # pi uses Escape and an accidental close would kill a running turn
-    bind-key a new-pane -O -x 85% -y 85% -X 7% -Y 7% -B heavy -S 'fg=cyan' -T ' pi scratch ' "${lib.getExe tmux-pi-popup}"
+    bind-key a run-shell "${lib.getExe tmux-pi-scratch-toggle}"
   '';
 }
