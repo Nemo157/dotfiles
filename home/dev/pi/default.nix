@@ -403,6 +403,8 @@ in
         lynk-backlinks = "allow";
         lynk-context = "allow";
         lynk-affected = "allow";
+        # Read-only view of the user's rumba PR review (cli-tools/rumba.ts).
+        rumba-focus = "allow";
 
         # Pinned to the cwd flake with hardcoded flags (see
         # cli-tools/nix.ts); builds stay inside the Nix sandbox.

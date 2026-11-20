@@ -30,6 +30,7 @@ import { getCargoTools } from "./cargo";
 import { getNixTools } from "./nix";
 import { getTarTools } from "./tar";
 import { getLynkTools } from "./lynk";
+import { getRumbaTools } from "./rumba";
 
 export default function (pi: ExtensionAPI) {
   // Resolve the permission service once per session so tools that check the
@@ -46,6 +47,7 @@ export default function (pi: ExtensionAPI) {
     ...getNixTools(),
     ...getTarTools(),
     ...getLynkTools(),
+    ...getRumbaTools(),
   ];
   for (const def of tools) {
     registerCliTool(pi, def);
