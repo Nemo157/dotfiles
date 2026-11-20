@@ -152,6 +152,9 @@ in
         "${extensions}/current-date/index.ts"
         "${extensions}/continue-turn/index.ts"
         "${extensions}/codemode-guidance/index.ts"
+        # Confirm /new, /resume, /fork, /clone with uncommitted changes;
+        # warn on stderr after quitting (quit can't be cancelled).
+        "${extensions}/dirty-guard/index.ts"
         # Cold-cache context decimation (`/decimate`); gated on pi-cachemire's
         # cache clock. Config: `extensionSettings.decimate` below.
         "${extensions}/decimate/index.ts"
