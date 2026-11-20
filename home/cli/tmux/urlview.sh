@@ -25,7 +25,14 @@ filter_bare() {
 
 filter_osc8() {
   # shellcheck disable=SC1003
-  rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\(.*?)\x1b\]8;;\x1b\\' --replace $'$1\x1f$2' || true
+  rg --only-matching '\x1b\]8;[^;]*;([^\x1b]+)\x1b\\(.*?)\x1b\]8;;\x1b\\' --replace $'$1\x1f$2' |
+    strip_csi ||
+    true
+}
+
+strip_csi() {
+  # remove CSI sequences (colors etc.) from the link display text
+  rg --passthru '\x1b\[[0-?]*[ -/]*[@-~]' --replace '' || true
 }
 
 capture_urls() {
