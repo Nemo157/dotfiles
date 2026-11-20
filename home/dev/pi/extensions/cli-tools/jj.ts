@@ -484,6 +484,53 @@ const jjResolve: StructuredCliToolDef<typeof jjResolveParams> = {
   },
 };
 
+// jj-fix ----------------------------------------------------------------
+
+const jjFixParams = Type.Object({
+  sources: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Fix these revisions and their descendants (-s <revset>). Defaults " +
+        "to `reachable(@, mutable())`.",
+    }),
+  ),
+  paths: Type.Optional(
+    Type.Array(Type.String(), {
+      description:
+        "Only fix these paths (relative to the working directory). Omit to " +
+        "fix all changed files.",
+    }),
+  ),
+  includeUnchangedFiles: Type.Optional(
+    Type.Boolean({
+      description:
+        "Also fix files not modified by the revisions " +
+        "(--include-unchanged-files).",
+    }),
+  ),
+});
+
+const jjFix: StructuredCliToolDef<typeof jjFixParams> = {
+  name: "jj-fix",
+  label: "jj fix",
+  command: "jj",
+  description:
+    "Run the repo's configured `fix.tools` (formatters etc.) over files " +
+    "changed in each mutable revision, rewriting the commits in place so " +
+    "every revision in the stack is formatted. Descendants rebase " +
+    "automatically.",
+  executionMode: SEQUENTIAL,
+  parameters: jjFixParams,
+  buildArgs(p) {
+    const args: string[] = ["fix"];
+    for (const s of asStringArray(p.sources)) args.push("-s", s);
+    if (p.includeUnchangedFiles) args.push("--include-unchanged-files");
+    const paths = asStringArray(p.paths);
+    if (paths.length > 0) args.push("--", ...paths.map(expandTilde));
+    return args;
+  },
+};
+
 // jj-rebase -------------------------------------------------------------
 
 const jjRebaseParams = Type.Object({
@@ -701,6 +748,7 @@ export const jjTools = [
   jjSquash,
   jjRestore,
   jjResolve,
+  jjFix,
   jjRebase,
   jjBookmarkMove,
   jjBookmarkList,
