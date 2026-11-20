@@ -33,10 +33,11 @@ while true; do
   echo -ne "\e[H"
 
   offset=$((selected - height / 2))
+  if ((offset > count - height)); then
+    offset=$((count - height))
+  fi
   if ((offset < 0)); then
     offset=0
-  elif ((offset > count - height)); then
-    offset=$((count - height))
   fi
 
   for ((i = 0; i < height; i++)); do
