@@ -22,6 +22,29 @@ let
     runtimeEnv.TMUX_URLVIEW_POPUP = lib.getExe tmux-urlview-popup;
     text = lib.readFile ./tmux/urlview.sh;
   };
+  tmux-urlview-overlay-py = pkgs.writers.writePython3Bin "tmux-urlview-overlay-py" {
+    libraries = with pkgs.python3Packages; [ wcwidth ];
+  } (lib.readFile ./tmux/urlview-overlay.py);
+  tmux-urlview-overlay-popup = pkgs.writeShellApplication {
+    name = "tmux-urlview-overlay-popup";
+    runtimeInputs =
+      with pkgs;
+      [
+        tmux
+        xdg-utils
+      ]
+      ++ lib.optionals (!pkgs.stdenv.isDarwin) [ wl-clipboard ];
+    text = ''exec ${tmux-urlview-overlay-py}/bin/tmux-urlview-overlay-py "$@"'';
+  };
+  tmux-urlview-overlay = pkgs.writeShellApplication {
+    name = "tmux-urlview-overlay";
+    runtimeInputs = with pkgs; [
+      tmux
+      coreutils
+    ];
+    runtimeEnv.TMUX_URLVIEW_OVERLAY = lib.getExe tmux-urlview-overlay-popup;
+    text = lib.readFile ./tmux/urlview-overlay.sh;
+  };
   tmux-sigusr1 = pkgs.writeShellApplication {
     name = "tmux-sigusr1";
     runtimeInputs = with pkgs; [ tmux ] ++ lib.optionals (!pkgs.stdenv.isDarwin) [ procps ];
@@ -62,6 +85,12 @@ in
       set -g pane-border-format ' #P #T '
       set -g pane-border-style 'fg=cyan'
       set -g pane-active-border-style 'fg=colour17'
+
+      # tmux 3.8 defaults popups/menus to its own grey theme, keep the terminal's
+      set -g popup-style 'fg=terminal,bg=terminal'
+      set -g popup-border-style 'fg=cyan,bg=terminal'
+      set -g menu-style 'fg=terminal,bg=terminal'
+      set -g menu-border-style 'fg=cyan,bg=terminal'
 
       set -g display-panes-active-colour colour17
       set -g display-panes-colour cyan
@@ -114,6 +143,7 @@ in
       set -g allow-rename on
 
       bind-key u run-shell "${lib.getExe tmux-urlview}"
+      bind-key U run-shell "${lib.getExe tmux-urlview-overlay}"
 
       # send SIGUSR1 to the foreground process of the current pane
       bind-key S run-shell "${lib.getExe tmux-sigusr1}"
