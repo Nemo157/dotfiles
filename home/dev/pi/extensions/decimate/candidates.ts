@@ -29,7 +29,17 @@ const MIN_CALIBRATION_TOKENS = 2_000;
  */
 const CACHE_PREFIX_SLACK_TOKENS = 2_048;
 
-export type Reason = "superseded-read" | "failed-retry" | "stale-bulky";
+export type Reason =
+  | "superseded-read"
+  | "failed-retry"
+  | "stale-bulky"
+  | "stale";
+
+/**
+ * Prior of an old result no heuristic flags: below any sane
+ * `heuristicThreshold`, so only the classifier can remove it.
+ */
+const STALE_PRIOR = 0.3;
 
 export interface LaterEvidence {
   /** Same path re-read after this result, covering at least its line range. */
@@ -604,7 +614,11 @@ export function scanCandidates(
       prior = Math.max(prior, Math.min(0.8, 0.45 + 0.05 * age));
     }
 
-    if (reasons.length === 0) return;
+    // Everything else old enough is still worth asking the classifier about.
+    if (reasons.length === 0) {
+      reasons.push("stale");
+      prior = STALE_PRIOR;
+    }
 
     candidates.push({
       entryId,

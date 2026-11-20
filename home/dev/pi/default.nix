@@ -272,7 +272,7 @@ in
     # ($XDG_STATE_HOME/pi/decimate/state.json) and override these defaults.
     extensionSettings.decimate = {
       auto = false;
-      shadow = true;
+      shadow = false;
       precompute = true;
     };
 

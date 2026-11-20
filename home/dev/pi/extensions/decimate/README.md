@@ -29,11 +29,13 @@ the more reasoning goes with it.
    - `failed-retry` — error result whose retry (same tool and `path`)
      succeeded (0.85)
    - `stale-bulky` — ≥ `bulkyChars` or images, grows with age (0.45–0.8)
+   - `stale` — any other result ≥ `minChars` (0.3): below
+     `heuristicThreshold`, so only the classifier can remove it
 2. **Decision model** (`classify.ts`, optional) — candidates below
    `autoAcceptPrior` are scored by a pi classifier model: `needed` (bool),
    `action` (keep/trim/stub, with confidence). `p(needed) ≥ tauKeep` keeps;
    otherwise a stub/trim choice with confidence `≥ tauAction` is taken,
-   anything else trims. The model sees each candidate with an outline of
+   anything else stubs at `p(needed) ≤ tauStub` and trims above. The model sees each candidate with an outline of
    the conversation (every user request and the agent's closing reply,
    clipped to a budget). Verdicts are cached per
    entry + task-context hash. In **shadow** mode the model scores and is
@@ -135,8 +137,9 @@ Set via `programs.pi.extensionSettings.decimate` in Nix.
     "timeoutMs": 20000,
     "autoTimeoutMs": 4000,
     "maxCandidates": 40,
-    "tauKeep": 0.6,
-    "tauAction": 0.6,
+    "tauKeep": 0.75,
+    "tauAction": 0.5,
+    "tauStub": 0.35,
     "autoAcceptPrior": 0.9
   }
 }

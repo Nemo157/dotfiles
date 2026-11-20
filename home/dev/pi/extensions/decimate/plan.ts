@@ -63,6 +63,7 @@ const REASON_TEXT: Record<Reason, string> = {
   "superseded-read": "file was read again or modified later",
   "failed-retry": "failed call that was retried successfully",
   "stale-bulky": "large output from an earlier turn",
+  stale: "output from an earlier turn",
 };
 
 export function stubText(c: Candidate): string {
@@ -118,8 +119,9 @@ function modelAction(v: Verdict, ccfg: ClassifierConfig): Action {
   if (v.pNeeded >= ccfg.tauKeep) return "keep";
   if (v.action !== "keep" && v.actionConfidence >= ccfg.tauAction)
     return v.action;
-  // Not needed verbatim, but the model is unsure how far to go: keep the gist.
-  return "trim";
+  // Unsure how far to go: stub what is clearly not needed, else keep the
+  // gist.
+  return v.pNeeded <= ccfg.tauStub ? "stub" : "trim";
 }
 
 export function buildPlan(args: {

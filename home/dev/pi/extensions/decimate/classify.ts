@@ -44,7 +44,9 @@ const QUESTIONS: Record<string, ClassifierQuestion> = {
       "what the agent is working on now, and later turns may show the result was wrong, finished with, or " +
       "no longer relevant. `laterInSession` says what happened to the same file afterwards. Will the agent " +
       "still need the exact content of this tool result to finish its current task — would losing it " +
-      "force the agent to redo work or risk a mistake?",
+      "force the agent to redo work or risk a mistake? Context space is expensive and the tool call " +
+      "stays in the conversation, so the agent can simply re-run it: answer true only when the " +
+      "content is clearly still relevant to the current work, not merely possibly useful.",
     criteria: {
       true: "The exact content is still needed for the current task",
       false:
@@ -56,7 +58,7 @@ const QUESTIONS: Record<string, ClassifierQuestion> = {
     instructions:
       "Choose what to do with this old tool result to shorten the conversation without hurting the current task.",
     criteria: {
-      keep: "Keep it in full: it holds information the current task depends on that is not available elsewhere",
+      keep: "Keep it in full: the current task clearly depends on it and re-running the tool could not recover it",
       trim: "Keep only its beginning and end: the gist still matters, the middle does not",
       stub: "Replace it with the one-line `proposedStub`: it is superseded, obsolete, or cheap to re-fetch",
     },
